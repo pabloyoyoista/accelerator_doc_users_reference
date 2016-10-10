@@ -1,0 +1,110 @@
+
+\section{overview}
+
+methods, jobs, jobids, datasets
+
+
+\section{dispatch, dependencies, and jobids}
+The framework is basically a job dispatcher and depencency tracker.
+Input to a job is parameters and source code, called method.  When a
+job is run, a directory is created in the workspace.  A pointer to
+this directory, called a jobid, is returned upon finished execution.
+Inside the directory, everything needed to run the job is stored, for
+example input parameters, as well as all results created during
+execution.
+
+The framework keeps information for each job that has been
+successfully completed for dependency tracking.  Dependency tracking
+is used for two things: first, it avoids re-execution of jobs that
+have been run before; and second, it permits jobs to depend on already
+finished jobs.
+
+Re-execution is avoided if a job is issued with exactly the same
+source code and input options.  If source code is not equal, or if any
+input to the job is different, the job will be executed again.  All
+successful runs of a job will be kept.
+
+A job may have reference to other jobs as input.  If these references
+are valid, the running job will have access to all information from
+the reference jobs.
+
+\section{datasets and chaining}
+A particularly efficient way to store data is by using the dataset.
+Data is stored so that it can be retrieved row by row at a very high
+pace and requesting from one to any number of columns.
+
+Typically, a dataset is created for each file that is imported.  When
+several files are imported, the jobids may be chained, that is, each
+new jobid contains a pointer to the previous job.  Using the
+previous-pointers, datasets could be iterated one after another
+without interruption.
+
+
+
+
+\section{methods}
+A method is a piece of source code.  It may contain the following
+functions:  prepare, analysis, and synthesis.
+
+Example
+
+\begin{python}
+def prepare():
+  x = 3
+  return x
+
+def analysis(sliceno, prepare_res):
+  return x, sliceno
+  
+def synthesis(analysis_res):
+  ix = 0
+  for res in analysis_res:
+    print res
+    ix += 1
+  return ix
+\end{python}
+
+\begin{python}
+def synthesis(params):
+  for key, val in params.items():
+    print key, val
+
+# first, the package, name of source code, jobid to this job
+#   package   dev
+#   method    refman_test1
+# so, source code is in dev/a_refman_test1.py
+
+# this jobid, caption and starttime
+#   jobid     test-425_0
+#   caption   fsm_refman_test1
+#   starttime 1476105147.99
+# starttime is in unix epoch time (seconds since jan 1, 1970)
+    
+# number of slices in current workspace
+#   slices    29
+
+# links and options
+#   datasets  {'source': 'neu4-1820_0'}
+#   jobids    {}
+#   options   {}
+
+# source code hash, random seed to use    
+#   hash      32bbbf165d8ffdf09626a005e52c813c5ac791cb
+#   seed      3399658600771568772
+#   link      {}
+# The seed is a convenienve providing a known random seed
+
+# params.params containt datasets, jobids, and options
+#   params    {'refman_test1': {
+#                'datasets': {'source': 'neu4-1820_0'},
+#                'options': {},
+#                'jobids': {}}
+#             }
+\end{python}
+
+a method is a program
+naming convention
+
+prepare-analysis-synthesis
+
+params, slices

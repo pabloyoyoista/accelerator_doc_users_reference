@@ -7,7 +7,7 @@ gitrevision:
 	git rev-parse HEAD > gitrevision
 
 
-${DOC}.pdf: gitrevision refman.tex
+${DOC}.pdf: gitrevision dataset.tex
 	latexmk -pdf -pdflatex="pdflatex -interactive=nonstopmode -shell-escape" -use-make ${DOC}.tex
 
 clean:

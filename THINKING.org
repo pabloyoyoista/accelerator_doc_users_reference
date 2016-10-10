@@ -21,3 +21,22 @@ print datasets.source.column_filename('locale')                                 
 eller
 # /ebay/workdirs/ab/neu/neu-14681_0/default/%s/locale
 # offsets = None
+
+** also datasets
+# Going from a DatasetColumn to a filename is like this:
+# jid, name = dc.location.split('/')
+# resolve_jobid_filename(jid, '%s/%d/%s' % (name, sliceno, dc.name,))
+#
+# The dataset pickle is jid/name/dataset.pickle, so jid/default/dataset.pickle for the default dataset.
+
+
+* options
+** TODO JobWithFile.extas är vaddå?  Unused?
+** TODO OptionDefault??
+
+* params
+GLÖM INTE!
+** TODO what is params.link??
+** TODO varför params.params?
+** TODO det finns ingen params.workspace??
+* cleanup of pickle-files

@@ -1,9 +1,4 @@
 
-\section{overview}
-
-methods, jobs, jobids, datasets
-
-
 \section{dispatch, dependencies, and jobids}
 The framework is basically a job dispatcher and depencency tracker.
 Input to a job is parameters and source code, called method.  When a
@@ -28,17 +23,25 @@ A job may have reference to other jobs as input.  If these references
 are valid, the running job will have access to all information from
 the reference jobs.
 
+
+
 \section{datasets and chaining}
 A particularly efficient way to store data is by using the dataset.
 Data is stored so that it can be retrieved row by row at a very high
 pace and requesting from one to any number of columns.
+
+Data in a dataset is separated into slices, where on a single server,
+the number of slices is close to the number of actual CPU cores for
+best performance.
+
+A dataset may be hashed on one of its columns.  Hashing means that
+each slice contains a mutually exclusive set of column data.
 
 Typically, a dataset is created for each file that is imported.  When
 several files are imported, the jobids may be chained, that is, each
 new jobid contains a pointer to the previous job.  Using the
 previous-pointers, datasets could be iterated one after another
 without interruption.
-
 
 
 
@@ -101,10 +104,3 @@ def synthesis(params):
 #                'jobids': {}}
 #             }
 \end{python}
-
-a method is a program
-naming convention
-
-prepare-analysis-synthesis
-
-params, slices

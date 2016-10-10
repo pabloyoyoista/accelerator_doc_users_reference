@@ -1,0 +1,9 @@
+.gitignore
+*~
+#*
+*pdf
+*dvi
+*log
+*aux
+*latexmk
+gitrevision

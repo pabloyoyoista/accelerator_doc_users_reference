@@ -1,0 +1,97 @@
+\section{Method inputs}
+
+There are three kinds of input to a method
+\begin{itemize}
+\item options
+\item datasets
+\item jobids
+\end{itemize}
+
+
+\subsection*{options}
+The options is of type dict.  Example
+
+\begin{python}
+from extras import OptionEnum, JobWithFile
+options = dict(
+  length = 1,
+  colname = "gtin",
+  operation = OptionEnum("lt le gt ge".ge),
+  datafile = JobWithFile,
+)
+\end{python}
+In the example above, the following happens
+\begin{itemize}
+\item length is typed to int, and default value is 1.
+\item colname is typed to string, and default value is "gtin".
+\item operation is one of lt, le, gt, ge, and defaults to ge.
+\item datafile is more complex, for example datafile.jobid is a jobid,
+  such as "pelle-123\_0", datafile.filename is a filename, such as
+  "result.pickle", datafile.sliced is a boolean.  If true, the
+  datafile is actually a sliced set of files, one for each target
+  slice during execution, extra is what?
+\end{itemize}
+
+\subsubsection{types}
+set, jobwithfile, datetime, date, time, timedelta
+
+
+
+
+\subsubsection{JobWithFile}
+\begin{python}
+
+jobid, sliced, filename, extra
+
+
+\subsubsection{OptionDefault}
+What?
+
+
+\subsubsection{OptionString}
+Marker value to specify in options\{\} for requiring a non-empty string.
+You can use plain OptionString, or you can use
+OptionString('example'), without making 'example' the default.
+    
+
+\subsubsection{OptionEnum}
+From the source code
+
+\begin{python}
+    """A little like Enum in python34, but string-like.                                                                                                                                                                           
+    (For JSONable method option enums.)                                                                                                                                                                                           
+                                                                                                                                                                                                                                  
+    >>> foo = OptionEnum('a b c*')                                                                                                                                                                                                
+    >>> foo.a                                                                                                                                                                                                                     
+    'a'                                                                                                                                                                                                                           
+    >>> foo.a == 'a'                                                                                                                                                                                                              
+    True                                                                                                                                                                                                                          
+    >>> foo.a == foo['a']                                                                                                                                                                                                         
+    True                                                                                                                                                                                                                          
+    >>> isinstance(foo.a, OptionEnumValue)                                                                                                                                                                                        
+    True                                                                                                                                                                                                                          
+    >>> isinstance(foo['a'], OptionEnumValue)                                                                                                                                                                                     
+    True                                                                                                                                                                                                                          
+    >>> foo['cde'] == 'cde'                                                                                                                                                                                                       
+    True                                                                                                                                                                                                                          
+    >>> foo['abc']                                                                                                                                                                                                                
+    Traceback (most recent call last):                                                                                                                                                                                            
+    ...                                                                                                                                                                                                                           
+    KeyError: 'abc'                                                                                                                                                                                                               
+                                                                                                                                                                                                                                  
+    Pass either foo (for a default of None) or one of the members                                                                                                                                                                 
+    as the value in options{}. You get a string back, which compares                                                                                                                                                              
+    equal to the member of the same name.                                                                                                                                                                                         
+                                                                                                                                                                                                                                  
+    Set none_ok if you accept None as the value.                                                                                                                                                                                  
+                                                                                                                                                                                                                                  
+    If a value ends in * that matches all endings. You can only access                                                                                                                                                            
+    these as foo['cde'] (for use in options{}).                                                                                                                                                                                   
+    """
+\end{python}
+
+\section{Code flow:  prepare - analysis - synthesis}
+
+\section{More on intermediate and result files}
+
+\section{subjobs}

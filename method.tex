@@ -16,7 +16,7 @@ from extras import OptionEnum, JobWithFile
 options = dict(
   length = 1,
   colname = "gtin",
-  operation = OptionEnum("lt le gt ge".ge),
+  operation = OptionEnum("lt le gt ge").ge,
   datafile = JobWithFile,
 )
 \end{python}

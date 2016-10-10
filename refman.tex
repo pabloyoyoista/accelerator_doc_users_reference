@@ -1,12 +1,4 @@
-
-\section{Methodology}
-logs, keep raw data unmodified and always accessible, near-real-time (?), ...
-Kafkaintegration?
-
-\section{jobids}
-
-
-\section{Dataset}
+\section{Dataset properties}
 The dataset is the container for fast and simple access to data.  Data
 in a dataset are stored as a matrix in rows and columns.
 
@@ -91,22 +83,56 @@ neu4-4893_0/default
 \end{python}
 
 
-\subsection{Column Properties}
-type name location min max offsets
 
 
-\subsection{Dataset Iterators}
-iterate
-iterate\_chain
-iterate\_list
+\section{Dataset Iterators}
+
+\subsection{iterate}
+\begin{python}
+# def iterate(self, sliceno, columns=None, hashlabel=None, filters=None, translators=None):
+  for item in datasets.source.iterate(sliceno=None, columns=None):
+    print item
+\end{python}
+sliceno=None iterates over all slices.
+columns=None iterates over all columns.
+
+\subsection{iterate\_chain}
+\begin{python}
+# def iterate_chain(self, sliceno, columns=None, length=-1, reverse=False, hashlabel=None, stop_jobid=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+\end{python}
 
 
 
-\subsection{Create New Dataset}
-previous
-new
+\subsection{iterate\_list}
+\begin{python}
+  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+  from dataset import Dataset
+  for item in Dataset.iterate_list(None, None, datasets.source):
+    print item
+\end{python}
 
-\subsection{Appending to a Dataset}
+
+\section{Create New Dataset}
+\begin{python}
+from dataset import DatasetWriter
+datasets = ('previous',)
+
+def prepare():
+  dw = DatasetWriter(
+    hashlabel = 'X',
+    previous = datasets.previous,
+  )
+  dw.add('X', number)
+  dw.add('Y', number)
+  dw.add('Z', number)
+  return dw
+
+def analysis(sliceno, prepare_res):
+  dw = prepare_res
+  dw.write(x, y, z)
+\end{python}
+
+\section{Appending to a Dataset}
 append
 
 

@@ -1,0 +1,140 @@
+#+OPTIONS: toc:nil
+#+OPTIONS: author:nil date:nil
+
+* features
+- faster chain loading (1/64th dataset... (less seeks...))
+
+
+* daemon och config
+** source directory och dess konsekvenser
+** workspace is abs path
+** python 2/3
+python >= 2.7 eller >= 3.4
+** deps
+** workspaces
+*** symlink latest
+** Ctrl-T, status
+** sockets & ports
+** broken methods
+** framework_config
+*** method-directories
+** methods.conf
+** setup.json, post.json + profiling-convenience-func
+
+
+* automata
+** joblist
+** jobtuple
+** automatarunner
+*** timetravel
+*** verbose
+*** --quick
+*** --why_build
+*** --abort
+** remake skall nog fasas ut
+
+
+* urd
+** multi time aware
+** ghost visibility selection
+** API
+** class members
+** timestamping
+** urd.joblist skall accessas först efter .begin()  (Man skall göra begin)
+** urd.get(pelle).as_dep
+320153a354e43951d9471b0bf4d567f4c0d5ae7e
+** build_chained()
+
+
+* exekveringsmodell
+** slicing
+** prepare
+** analysis
+** synthesis
+** subjobs
+subjobs.jobs
+maxdepth = 5
+*** .link_to_here()
+
+
+* methods
+** resolve_jobid_filename/full_filename? etc
+** job_params
+** equivalent hashes
+** depend_extra
+** OptionEnum, OptionString, option-typing
+** OptionDefault
+** jobids,datasets,options
+*** datasets=(['foo'],'bar')
+*** JobWithFile
+** prepare_res, analysis_res
+** res.merge_auto()
+552948eda4b267974dcc3a5b3c4149b19d2c3895
+** blob.save
+*** persistence-diskussion
+** return
+slightly unpicklable also okey.
+** with status(...):
+** DotDict
+
+
+* standard methods
+** csvimport
+allow bad
+*** spill
+*** text, gz, ZIP (with single member)
+** csvexport
+** dataset_rehash
+(Bra exempel på läsbar kod och skapa dataset)
+man kan inte hasha på alla typer (utom de som är implementerade i python)
+*** gotcha:  rehash on a dataset that is sorted locally in each slice (the default kind of sorting) results in a non-sorted dataset
+** dataset_type
+filter_bad will discard all untyped columns (for example all
+string columns not explicitly types as string)
+** dataset_sort
+** (columnpair_to_set)
+funkar nu, men ecklig, mera ett exempel
+** dataset_checksum
+verifiera samma dataset med olika antal slices
+** (pickles_checksum)
+inte committad än?
+** dataset_datesplit
+komplettera eller stryk
+
+
+* dataset
+** instansiera
+d = Dataset('foo-0_0')
+d = Dataset('foo-0_0/foo')
+d = Dataset(('foo-0_0', 'foo'))
+
+
+** multipla dataset per jobid
+** skapa dataset: DatasetWriter
+** addera kolumner till dataset: DatasetWriter(parent='jid')
+** chaining
+utgår från dataset, kortast av:
+  - stop_jobid = jobid eller {jid: datasetname} (ex:{jid: "source"} stoppar på job_params(jid).datasets.source)
+  - length
+  - range={column: (min, max)}   (range={'date': (datetime(2015...})
+    sloppy_range=True
+** typing
+** rename - kan spara gamla kolumnen också
+** dataset.txt
+** .columns, shape, lines etc
+*** columns have DatasetColumns as values, with .type, .min, .max, ...
+** .previous
+** shell-kommando:  dsinfo
+*** dscat i framtiden?
+** iterators
+*** speca kolumner
+None ger alla
+*** per jobid/list(?)/chain
+*** callback
+*** skipslice, skipdataset, StopIteration
+*** translators
+*** filters
+
+
+* habitat
+

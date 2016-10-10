@@ -1,0 +1,105 @@
+\documentclass[a4paper]{report}
+\usepackage{graphicx}
+\usepackage{color}
+%% Replace serif font with (postscript) helvetica
+%\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\usepackage[T1]{fontenc}
+\setlength{\textwidth}{160mm}
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{0mm}
+\setlength{\textheight}{250mm}
+\setlength{\voffset}{-20mm}
+%\usepackage{showframe}
+\usepackage{xspace}
+%\usepackage{pgffor}
+
+%%%  Various reserved words  %%%
+\newcommand{\urd}{\texttt{urd}\xspace}
+\newcommand{\joblist}{\texttt{JobList}\xspace}
+\newcommand{\jobtuple}{\texttt{JobTuple}\xspace}
+\newcommand{\callmethod}{\texttt{call\_method}\xspace}
+\newcommand{\arecord}{\texttt{a.record}\xspace}
+\newcommand{\automatacommon}{\texttt{automata\_common}\xspace}
+\newcommand{\defaultdict}{\texttt{defaultdict}\xspace}
+\newcommand{\jobid}{\texttt{jobid}\xspace}
+%\newcommand{\urd}{\texttt{urd}\xspace}
+
+%%%  A pretty minted-environment for Python  %%%
+\usepackage{minted}
+\usepackage{xspace}\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\newminted[python]{python}{bgcolor=bg, frame=lines}
+\newminted[shell]{shell}{bgcolor=bg, frame=lines}
+
+
+
+
+
+\title{\texttt{automata\_common}:\\ \jobtuple, \joblist, and \texttt{record}}
+\author{Version: \inputfile{gitrevision}}
+\date{}
+
+
+
+% Glossary
+% dataset, column, label, row
+% method, analysis, prepare, synthesis
+
+
+
+
+
+%\includeonly{dataset}
+
+\include{xmtitle}
+
+\begin{document}
+%\titleLL
+%\thispagestyle{empty}
+%\newpage
+
+
+
+%\maketitle
+%\tableofcontents
+
+%\chapter{GZ}
+%\include{gzlines}
+
+\chapter{new dataset}
+\include{refman}
+
+
+%\chapter{habitatiii}
+%\include{habitatiii}
+
+%\chapter{joblist}
+%\include{joblist}
+
+
+%\chapter{urd}
+%\include{urd}
+
+
+%\chapter{method}
+%\include{method}
+
+
+%\chapter{dataset}
+%\include{dataset}
+
+
+smarta grejer
+
+%set.intersection(*h.values())
+
+%set.union(*analysis_res)
+
+%h = next(analysis_res)
+%    for res in analysis_res:
+%        h.update(res)
+
+
+\end{document}
+
+

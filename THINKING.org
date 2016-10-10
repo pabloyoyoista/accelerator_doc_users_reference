@@ -1,0 +1,23 @@
+
+* lines vs rows					       :nomenclature:dataset:
+det heter dataset.lines, men vi laser typiskt rows.
+
+* .colums[key]
+fyll i vad som ingår där, ÄVEN hur offsets fungerar om det är relevant.
+(offsets=None om det inte är offsets!)
+
+* formatting
+skippa suffix 'L' på intar och prefix 'u' på strängar för läsbarhet?
+
+
+* enkel- eller dubbelfnuttar??
+
+
+* under the hood
+** datasets
+print datasets.source.column_filename('locale')                                                             |#     min = minimum value in this dataset or None                                                                
+# /ebay/workdirs/ab/neu4/neu4-4894_0/default/m.locale
+# offsets = [0, 3343, 7415, 10911, 14593, 18473, 22149, 25638, 29297, 33166, 36959, 40758, 44168, 47832, 51243, 55061, 58858, 62613, 66313, 69951, 73669, 77212, 80705, 84797, 88414, 92159, 95875, 99540, 103108]
+eller
+# /ebay/workdirs/ab/neu/neu-14681_0/default/%s/locale
+# offsets = None

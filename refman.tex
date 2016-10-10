@@ -1,0 +1,114 @@
+
+\section{Methodology}
+logs, keep raw data unmodified and always accessible, near-real-time (?), ...
+Kafkaintegration?
+
+\section{jobids}
+
+
+\section{Dataset}
+The dataset is the container for fast and simple access to data.  Data
+in a dataset are stored as a matrix in rows and columns.
+
+\begin{python}
+datasets = ('source',)
+
+def synthesis():
+\end{python}
+
+\begin{python}
+  print datasets.source.columns.keys()
+  # [u'GTIN', u'date', u'locale', u'subsource']
+
+  # each key, i.e. column, has a number of properties, of which the
+  # most important ones are shown below
+  print datasets.source.columns['locale'].type
+  # ascii
+  print datasets.source.columns['locale'].name
+  # locale
+  print datasets.source.columns['locale'].min
+  # 3
+  print datasets.source.columns['locale'].max
+  # 9
+  
+\end{python}
+
+Will procuce a vector of the number of lines in each slice, like this
+
+\begin{python}
+  print datasets.source.lines
+  """
+[5771L, 6939L, 6212L, 6312L, 6702L, 6341L, 5988L, 6195L,
+ 6741L, 6587L, 6518L, 5840L, 6327L, 5933L, 6745L, 6673L,
+ 6536L, 6405L, 6259L, 6455L, 6036L, 6088L, 6937L, 6245L,
+ 6418L, 6437L, 6360L, 6106L, 6878L]
+"""
+\end{python}
+
+A tuple of number of columns and total number of lines
+
+\begin{python}
+  print datasets.source.shape
+  # (4, 184984L)
+\end{python}
+the second number is exactly the sum of the number of lines for each
+slice from above.
+
+other properties are
+
+\begin{python}
+  print datasets.source.filename
+  """
+/data/incoming/raw_repository_5391.gz
+"""
+\end{python}
+
+\begin{python}
+  print datasets.source.caption
+  """
+flattening
+"""
+\end{python}
+
+
+and more
+
+\begin{python}
+  print datasets.source.hashlabel
+  """
+GTIN
+"""
+\end{python}
+\begin{python}
+datasets.source.column\_filename
+\end{python}
+
+\begin{python}
+  print datasets.source.previous
+  """
+neu4-4893_0/default
+"""
+\end{python}
+
+
+\subsection{Column Properties}
+type name location min max offsets
+
+
+\subsection{Dataset Iterators}
+iterate
+iterate\_chain
+iterate\_list
+
+
+
+\subsection{Create New Dataset}
+previous
+new
+
+\subsection{Appending to a Dataset}
+append
+
+
+% more on datasets: previous, link_to_here
+  

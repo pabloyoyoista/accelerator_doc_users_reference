@@ -1,0 +1,72 @@
+\section{background}
+Urd is a log-based service keeping track of all jobs for all users of
+a framework setup.
+
+
+\section{jobtuple and joblist}
+
+
+\section{api}
+Example
+
+\begin{python}
+def main(urd):
+  latest = urd.latest('ab/neu4')
+  print latest
+#{
+#  u'user': u'ab',
+#  u'automata': u'neu4',
+#  u'caption': u'',
+#  u'timestamp': u'53910101',
+#  u'joblist': JobList(
+#    [
+#      ('import_amit', 'neu4-1820_0')
+#    ]
+#  )
+#  u'deps': {
+#    u'ab/neu2': {
+#      u'caption': u'raw_repository_5391.gz',
+#      u'timestamp': u'53910101'
+#      u'joblist': JobList(
+#        [
+#          ('import', 'neu-14679_0'),
+#          ('typed', 'neu-14680_0'),
+#          ('addcolumns', 'neu2-4893_0')
+#        ]
+#      ),
+#    }
+#  },
+#}
+\end{python}
+so the jobid is found by
+
+\begin{python}
+  jid = latest.joblist.jobid
+
+  urd.build('my_method',
+    datasets = dict(source=jid),
+    options = dict(length=3),
+  )
+\end{python}
+and if the result is to be stored in urd:
+
+\begin{python}
+  urd.finish()
+\end{python}
+
+
+get
+latest
+first
+peek
+peek\_latest
+peel\_first
+since
+begin
+abort
+finish
+truncate
+build
+build\_chained
+
+

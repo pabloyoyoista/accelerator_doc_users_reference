@@ -25,9 +25,11 @@
 \newcommand{\jobid}{\texttt{jobid}\xspace}
 %\newcommand{\urd}{\texttt{urd}\xspace}
 
+\usepackage{xspace}
 %%%  A pretty minted-environment for Python  %%%
 \usepackage{minted}
-\usepackage{xspace}\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usemintedstyle{colorful}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
 \newminted[python]{python}{bgcolor=bg, frame=lines}
 \newminted[shell]{shell}{bgcolor=bg, frame=lines}
 

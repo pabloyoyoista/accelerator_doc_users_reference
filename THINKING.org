@@ -40,3 +40,10 @@ GLÖM INTE!
 ** TODO varför params.params?
 ** TODO det finns ingen params.workspace??
 * cleanup of pickle-files
+
+* urd
+.as_dep i urdresponse
+
+** TODO varför har urd.begin OCH urd.fininsh argumentet path required?
+
+* workdir or workspace?

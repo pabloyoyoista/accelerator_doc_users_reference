@@ -1,4 +1,27 @@
 
+\section{purpose}
+
+
+
+
+\section{overview}
+client server.
+several clients, several users.  permissions
+framework is job-dispatcher.  jobids, workspaces
+
+
+
+
+
+\section{workspaces}
+A workspace is where results are stored.  One can think of it as a
+directory populated with jobid-directories.
+Workspaces are specified with absolute paths in the server filesystem.
+A workspace has a fixed slicing.
+All workspaces in a project need to have the same number of slices.
+
+
+
 \section{dispatch, dependencies, and jobids}
 The framework is basically a job dispatcher and depencency tracker.
 Input to a job is parameters and source code, called method.  When a
@@ -104,3 +127,5 @@ def synthesis(params):
 #                'jobids': {}}
 #             }
 \end{python}
+
+

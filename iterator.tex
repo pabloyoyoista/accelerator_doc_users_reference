@@ -1,0 +1,265 @@
+\section{Dataset Iterators}
+
+It is a simple thing to iterate over a chain of datasets.  The minimum
+to do is 
+
+\begin{python}
+  def analysis(sliceno):
+    for x, y in iterate_chain(sliceno, columns=('X', 'Y',)):
+      # do something with x, y.
+\end{python}
+this will iterate over all rows and all datasets in the chain, running
+in increasing jobid direction.
+
+It is possible to iterate over all slices in a single loop by
+specifying sliceno=None as follows
+
+\begin{python}
+  def synthesis():
+    for x, y in iterate_chain(None, columns=('X', 'Y',)):
+      # do something with x, y.
+\end{python}
+
+Sometimes, one which to limit the number of iterations.  There are
+several mechanisms for that:
+\begin{itemize}
+\item stop\_jobid = jobid
+\item stop\_jobid = {jid: datasetname}
+  \# ex:\{jid: "source"\} stoppar på job\_params(jid).datasets.source
+\item length=N
+\item range={column: (min, max)}  \# sloppy\_range
+\end{itemize}
+
+The first will iterate until a particular jobid is found.  The second
+will iterate until reaching a jobid found as input to another job.
+The third will iterate a fixed number of datasets.  The fourth will
+iterate a specified range of values in a sorted column.  The
+sloppy\_range means that all affected datasets will be iterated, which
+is more data but without a lot of filtering overhead and thus faster.
+
+Iteration will be over the shortest range of the conditions above.
+
+It is possible to iterate the dataset chain in the backwards direction
+by specifying reverse=True, but note that iteration is always in the
+forward direction within each dataset.
+
+% def iterate_chain(self, sliceno, columns=None, length=-1, reverse=False, hashlabel=None, stop_jobid=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+
+
+
+\subsection{iterate\_list}
+\begin{python}
+  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+  from dataset import Dataset
+  for item in Dataset.iterate_list(None, None, datasets.source):
+    print item
+\end{python}
+
+\subsection{filters and translators}
+\subsection{Translators}
+
+Translators transform data values. A translator is either a callable or
+a \texttt{dict}.  Translators are similar to \texttt{filters}, and
+always executed before filtering.
+
+The idea behind translators and filters is that they provide a way to
+modify code behaviour by supplying functions as iterator options.  In
+this way, it is possible to write re-useable simple methods that still
+could be altered significantly in behaviour.
+
+
+
+\subsubsection*{Callable Translator}
+
+A translator function is called with a tuple and is expected to return
+a tuple of the same length.  Using translator functions it is possible
+to mix different columns with eachother before sending them to the
+iterator output.  Here is an example
+
+\begin{python}
+def merger(user, item):
+    return "%s:%s" % (user, item), None
+for merge, _ in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
+                                     translator=merger):
+    ...
+\end{python}
+\noindent The purpose of this translator is to convert each
+\texttt{(user, item)} tuple to a string \texttt{user:item}.  This is
+the first output of the translator and iterator and is stored in the
+\texttt{merge} variable.  The second output variable is not used in
+this application, but a variable still has to be assigned.
+
+
+
+\subsubsection*{Translator dict}
+
+One or more columns may be translated independently using a translator
+dictionary, specified as \texttt{\{name:\ translation\}}.  A
+translation may be either a \texttt{dict} or a callable.  Examples of
+both kinds are shown below.
+
+First an example illustrating the use of a translation \texttt{dict}.
+Here, integers are translated into more comprehensible strings.
+
+\begin{python}
+mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'SEASTAR',}
+for animal in iterate_datasetchain(None, 'NUM_LEGS', tip_jobid=jobid,
+                                     translator={'NUM_LEGS': mapper,}):
+    ...
+\end{python}
+\noindent Items missing in a translation-\texttt{dict} yield
+\texttt{None}.
+
+Second, an example of a translation callable.  In this example, each
+user string is output from the iterator reads backwards.
+
+\begin{python}
+def reverse(x):
+    return x[::-1]
+for resu, item in iterate_datasetchain(None, ('USER', 'ITEM',), tip_jobid=jobid,
+                                       translator={'USER': reverse,}):
+    ...
+\end{python}
+
+
+
+\newpage
+\subsection{Filters}
+
+Filters are run \emph{after} translators.
+
+Filters decide which rows to pass to the iterator output.  A filter is
+either a callable or a \texttt{dict}.
+
+
+\subsubsection*{Callable Filter}
+
+Callable filters receive the iterator tuple as input.  The output must
+be \texttt{True} for the tuple to be output from the iterator,
+otherwise the iterator continues reading the next line.
+
+The following two examples, of which the first uses a callable filter,
+are functionally equivalent
+
+\begin{python}
+# Ex1.  filter users that are bearded and longhaired
+filter=lambda line: line[1] and line[2]
+for user, beard, hair in iterate_datasetchain(None, ('user', 'bearded', 'longhaired'),
+                                       tip_jobid=jobid, filters=filter):
+    ...
+
+# Ex2.  filter users that are bearded and longhaired
+for user, beard, hair in iterate_datasetchain(None, ('user', 'bearded', 'longhaired'),
+                                       tip_jobid=jobid):
+    if beard and hair:
+        ...
+\end{python}
+
+
+
+
+\subsubsection*{Filter Dict}
+
+It is possible to filter on one or more columns independently using a
+\texttt{dict}.  All filters must be \texttt{True} for a line to be
+output from the iterator.  Here are two examples.  The first example
+will remove all lines except the ones with valid users.  The second
+example will only keep lines with movie items.  (The fact that book is
+false is reduntant --- missing keys will result in discarded lines.)
+
+\begin{python}
+# keep valid users only
+validusers={'user1', 'user2', 'user3'}
+filters={'user': validusers.__contains__}
+
+# keep valid users with movie items
+validitems={'movie': True, 'book': False}
+filters={'user': validusers.__contains__, 'item': validitems.get}
+\end{python}
+
+
+
+
+\subsubsection*{Filter by Column Values}
+
+
+Column values could also be used directly, i.e. the values get
+evaluated by Python.  For example, assume there is a column
+\texttt{hasbeard} with values being boolean integers, i.e.  \texttt{1}
+or \texttt{0}.  Bearded users may be collected by
+\begin{python}
+for user, beard in iterate_datasetchain(None, ('user', 'bearded',), tip_jobid=jobid,
+                                       filters={'bearded': None}):
+    bearded.add(user)
+\end{python}
+\noindent This may seem strange at first, but it works because the key
+for the \texttt{bearded} column exists, and the value is
+\texttt{None}, and not a callable nor a \texttt{dict}.
+
+
+
+
+%You can also pass a single name (a str) as names_list, in which case
+%you don't get a tuple back (just the
+%values). Tuple-filters/translators also get just the value in this
+%case (column versions are unaffected).
+
+    
+
+
+\subsection{pre and post callback}
+\subsection{Callback}
+\label{sec:callback}
+
+It is also possible to inject callback functions, either before or
+after each dataset is loaded.  If \texttt{sliceno=None},
+i.e. iteration runs over all slices of all datasets, it is even
+possible to have callback between slice change.
+
+The example below will print dataset \texttt{jobid} for each dataset
+prior to iterating over it.
+
+\begin{python}
+# pre_callback once per dataset
+def prefun(jobid):
+    print jobid
+for user, item in iterate_datasetchain(sliceno, ('user', 'item',), tip_jobid=jobid,
+                                       pre_callback=prefun):
+    ...
+\end{python}
+
+\noindent Next is an example of an iterator running over all slices.
+The callback function is executed before each new slice is iterated.
+Note the difference between this example and the previous.  The
+callback function in this example takes two arguments, while the
+previous takes only one.
+
+\begin{python}
+# callback once per slice
+def prefun(jobid, sliceno):
+    print sliceno, jobid
+for user, item in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
+                                       pre_callback=prefun):
+    ...
+\end{python}
+\noindent Post-callback is defined similarly.
+
+
+
+\subsubsection*{Skipping Datasets and Slices from Callbacks}
+It is possible to skip iterations by raising exceptions, as follows
+
+\begin{python}
+
+# Raise this in pre_callback to skip iterating the coming slice
+# (if your callback doesn't want sliceno, this is the same as SkipJob)
+raise SkipSlice
+
+# Raise this in pre_callback to skip iterating the coing job
+raise SkipJob
+
+# Raise this to quit iterating, but with the side effect that
+# post_callback will not run.
+# @@@ TO BE DEFINED
+raise StopIteration
+\end{python}

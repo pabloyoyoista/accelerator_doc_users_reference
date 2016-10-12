@@ -117,44 +117,7 @@ neu4-4893_0/default
 
 
 
-\section{Dataset Iterators}
 
-It is a simple thing to iterate over a chain of datasets.  The minimum
-to do is 
-
-\begin{python}
-  def analysis(sliceno):
-    for x, y in iterate_chain(sliceno, columns=('X', 'Y',)):
-      # do something with x, y.
-\end{python}
-this will iterate over all rows and all datasets in the chain, running
-in increasing jobid direction.
-
-Sometimes, one which to limit the number of iterations.  There are
-three mechanisms for that:
-\begin{itemize}
-\item stop\_jobid = jobid
-\item stop\_jobid = {jid: datasetname}
-  \# ex:\{jid: "source"\} stoppar på job\_params(jid).datasets.source
-\item length=N
-\item range={column: (min, max)}
-\end{itemize}
-
-% def iterate_chain(self, sliceno, columns=None, length=-1, reverse=False, hashlabel=None, stop_jobid=None, pre_callback=None, post_callback=None, filters=None, translators=None):
-
-
-
-\subsection{iterate\_list}
-\begin{python}
-  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
-  from dataset import Dataset
-  for item in Dataset.iterate_list(None, None, datasets.source):
-    print item
-\end{python}
-
-\subsection{filters and translators}
-
-\subsection{pre and post callback}
 
 \section{Create New Dataset}
 Datasets are either created in prepare + analysis, or in just

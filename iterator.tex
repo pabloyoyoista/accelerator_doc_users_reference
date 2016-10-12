@@ -1,26 +1,41 @@
 \section{Dataset Iterators}
 
-It is a simple thing to iterate over a chain of datasets.  The minimum
-to do is 
+Iterators are used to stream dataset data one line at a time into a
+method.  Data may be streamed from a single dataset, or from a chain
+of datasets, one dataset at a time.
+
+
+\subsection{Basic Iteration}
+
+
+\subsubsection*{A Simple Parallel Iterator Invocation}
+Read variables X and Y in all slices in parallel
 
 \begin{python}
-  def analysis(sliceno):
-    for x, y in iterate_chain(sliceno, columns=('X', 'Y',)):
-      # do something with x, y.
+def analysis(sliceno):
+    h = defaultdict(set)
+    for user, item in iterate_chain(sliceno, columns=('user', 'item',)):
+        h[user].add(item)
 \end{python}
-this will iterate over all rows and all datasets in the chain, running
+data is iterated over all rows and all datasets in the chain, running
 in increasing jobid direction.
 
+
+\subsubsection*{Iterate over all data in synthesis}
 It is possible to iterate over all slices in a single loop by
 specifying sliceno=None as follows
 
 \begin{python}
-  def synthesis():
-    for x, y in iterate_chain(None, columns=('X', 'Y',)):
-      # do something with x, y.
+def synthesis():
+    for user, item in iterate_chain(None, columns=('user', 'item',)):
+        h[user].add(item)
 \end{python}
+slices will be iterated one at at time in increasing order.
 
-Sometimes, one which to limit the number of iterations.  There are
+
+\subsection{Halting Iteration}
+
+Sometimes, one wish to limit the number of iterations.  There are
 several mechanisms for that:
 \begin{itemize}
 \item stop\_jobid = jobid
@@ -48,14 +63,15 @@ forward direction within each dataset.
 
 
 \subsection{iterate\_list}
-\begin{python}
-  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
-  from dataset import Dataset
-  for item in Dataset.iterate_list(None, None, datasets.source):
-    print item
-\end{python}
+PLACEHOLDER
+%\begin{python}
+%  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+%  from dataset import Dataset
+%  for item in Dataset.iterate_list(None, None, datasets.source):
+%    print item
+%\end{python}
 
-\subsection{filters and translators}
+
 \subsection{Translators}
 
 Translators transform data values. A translator is either a callable or
@@ -123,7 +139,7 @@ for resu, item in iterate_datasetchain(None, ('USER', 'ITEM',), tip_jobid=jobid,
 
 
 
-\newpage
+%\newpage
 \subsection{Filters}
 
 Filters are run \emph{after} translators.
@@ -207,7 +223,6 @@ for the \texttt{bearded} column exists, and the value is
     
 
 
-\subsection{pre and post callback}
 \subsection{Callback}
 \label{sec:callback}
 

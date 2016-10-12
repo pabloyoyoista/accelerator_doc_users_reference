@@ -119,19 +119,28 @@ neu4-4893_0/default
 
 \section{Dataset Iterators}
 
-\subsection{iterate}
-\begin{python}
-# def iterate(self, sliceno, columns=None, hashlabel=None, filters=None, translators=None):
-  for item in datasets.source.iterate(sliceno=None, columns=None):
-    print item
-\end{python}
-sliceno=None iterates over all slices.
-columns=None iterates over all columns.
+It is a simple thing to iterate over a chain of datasets.  The minimum
+to do is 
 
-\subsection{iterate\_chain}
 \begin{python}
-# def iterate_chain(self, sliceno, columns=None, length=-1, reverse=False, hashlabel=None, stop_jobid=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+  def analysis(sliceno):
+    for x, y in iterate_chain(sliceno, columns=('X', 'Y',)):
+      # do something with x, y.
 \end{python}
+this will iterate over all rows and all datasets in the chain, running
+in increasing jobid direction.
+
+Sometimes, one which to limit the number of iterations.  There are
+three mechanisms for that:
+\begin{itemize}
+\item stop\_jobid = jobid
+\item stop\_jobid = {jid: datasetname}
+  \# ex:\{jid: "source"\} stoppar på job\_params(jid).datasets.source
+\item length=N
+\item range={column: (min, max)}
+\end{itemize}
+
+% def iterate_chain(self, sliceno, columns=None, length=-1, reverse=False, hashlabel=None, stop_jobid=None, pre_callback=None, post_callback=None, filters=None, translators=None):
 
 
 

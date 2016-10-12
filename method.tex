@@ -110,8 +110,8 @@ the jobids in the tuple.
 \subsection{Sharing data inside a job}
 data is simply shared between prepare, analysis, and synthesis as follows.
 \begin{itemize}
-\item what is returned in prepare is available as prepare_res in analysis and synthesis
-\item what is returned in analysis is available as analysis_res in synthesis.  analysis_res is an iterator.
+\item what is returned in prepare is available as prepare\_res in analysis and synthesis
+\item what is returned in analysis is available as analysis\_res in synthesis.  analysis\_res is an iterator.
 \item what is returned in synthesis is a persistent file in the job catalog referenced by ``result''.
 \end{itemize}
 

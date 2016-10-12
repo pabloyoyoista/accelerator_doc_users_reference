@@ -103,15 +103,17 @@ komplettera eller stryk
 
 
 * dataset
-** instansiera
+** hur uppstår en chain och varför??
+
+** DONE instansiera
 d = Dataset('foo-0_0')
 d = Dataset('foo-0_0/foo')
 d = Dataset(('foo-0_0', 'foo'))
+** jobchain_prev, two uses of
 
-
-** multipla dataset per jobid
-** skapa dataset: DatasetWriter
-** addera kolumner till dataset: DatasetWriter(parent='jid')
+** DONE multipla dataset per jobid
+** DONE skapa dataset: DatasetWriter
+** DONE addera kolumner till dataset: DatasetWriter(parent='jid')
 ** chaining
 utgår från dataset, kortast av:
   - stop_jobid = jobid eller {jid: datasetname} (ex:{jid: "source"} stoppar på job_params(jid).datasets.source)

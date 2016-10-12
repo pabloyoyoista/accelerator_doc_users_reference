@@ -7,6 +7,7 @@ There are three kinds of input to a method
 \item jobids
 \end{itemize}
 
+each vill be described in more detail next
 
 \subsection*{options}
 The options is of type dict.  Example
@@ -39,7 +40,6 @@ set, jobwithfile, datetime, date, time, timedelta
 
 
 \subsubsection{JobWithFile}
-\begin{python}
 
 jobid, sliced, filename, extra
 
@@ -90,8 +90,68 @@ From the source code
     """
 \end{python}
 
+\subsection{datasets}
+datasets is the way to communicate datasets from automata to job.  In
+the running method, the datasets variable is a list of dataset objects
+ready to use.
+
+\subsection{jobids}
+the jobids argument is a tuple of jobids linking this job to other
+jobs.  jobids is different from datasets in that jobids does not
+contain any dataset jobs.  Thus, no dataset objects are infered from
+the jobids in the tuple.
+
+
+
 \section{Code flow:  prepare - analysis - synthesis}
 
 \section{More on intermediate and result files}
+
+\subsection{Sharing data inside a job}
+data is simply shared between prepare, analysis, and synthesis as follows.
+\begin{itemize}
+\item what is returned in prepare is available as prepare_res in analysis and synthesis
+\item what is returned in analysis is available as analysis_res in synthesis.  analysis_res is an iterator.
+\item what is returned in synthesis is a persistent file in the job catalog referenced by ``result''.
+\end{itemize}
+
+The simplest way to share intra job data is using the blob module.
+
+\begin{python}
+import blob
+def synthesis()
+  blob.load(filename')
+\end{python}
+
+saving is as follows
+\begin{python}
+  blob.save(data, filename, sliceno, temp)
+\end{python}
+sliceno and temp are optional.  If sliceno is set, data is stored in a
+sliced file.  This is typically used in analysis, where each thread
+will save its own file.
+
+temp is used for file persistence.  By default, files are stored
+permanently when a job terminates successfully.  Setting temp to True
+removes them upon completion of the job.
+
+Temporary files are useful when communicating data between the
+functions in the method (and not using the res-files) or in debugging.
+
+\section{debug help}
+There is also a more advanced debug functionality relating to temp.
+
+\begin{python}
+from extras import Temp
+def analysis(sliceno):
+  ...
+  blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
+  # or
+  blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
+\end{python}
+where the first only stores when --debug is specified, and the other
+always stores but removes unless --debug is set.
+
+
 
 \section{subjobs}

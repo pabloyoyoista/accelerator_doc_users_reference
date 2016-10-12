@@ -47,3 +47,40 @@ GLÖM INTE!
 ** TODO varför har urd.begin OCH urd.fininsh argumentet path required?
 
 * workdir or workspace?
+
+
+
+
+
+
+
+
+* TRICKSNTIPS
+** replace faster than strftime:
+
+options = dict(
+        length=-1,
+        bincount=2,
+        replace=dict(hour=0, minute=0, second=0),
+)
+
+datasets = ('source',)
+
+def bin(ssid, n):
+        return int(sha1(str(ssid)).hexdigest(), 16) % n
+
+def analysis(sliceno):
+        d = defaultdict(lambda: defaultdict(set))
+        replace = options.replace
+        n = options.bincount
+        it = datasets.source.iterate_chain(
+                sliceno,
+                ['+first_sub_source', 'timestamp'],
+                length=options.length,
+                hashlabel='+first_sub_source',
+        )
+        for ssid, ts in it:
+                d[ts.replace(**replace)][bin(ssid, n)].add(ssid)
+        return {ts: Counter({b: len(s) for b, s in d.iteritems()}) for ts, d in d.iteritems()}
+
+** x

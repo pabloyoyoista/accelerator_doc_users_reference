@@ -24,6 +24,15 @@ one dataset is stored.
 
 \section{Dataset properties}
 
+Instantiating a dataset by one of
+
+\begin{python}
+d = Dataset('foo-0_0')
+d = Dataset('foo-0_0/foo')
+d = Dataset(('foo-0_0', 'foo'))
+\end{python}
+but typically dataset objects are directly available from the input
+argument datasets like
 
 \begin{python}
 datasets = ('source',)

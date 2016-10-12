@@ -6,26 +6,26 @@
 
 
 * daemon och config
-** source directory och dess konsekvenser
-** workspace is abs path
-** python 2/3
+** source directory och dess konsekvenser			  :csvimport:
+** workspace is abs path					     :config:
+** python 2/3							   :features:
 python >= 2.7 eller >= 3.4
-** deps
-** workspaces
+** deps								   :features:
+** workspaces							     :config:
 *** symlink latest
-** Ctrl-T, status
-** sockets & ports
-** broken methods
-** framework_config
+** Ctrl-T, status						   :features:
+** sockets & ports						   :features:
+** broken methods						     :method:
+** framework_config						     :config:
 *** method-directories
-** methods.conf
-** setup.json, post.json + profiling-convenience-func
+** methods.conf							     :method:
+** setup.json, post.json + profiling-convenience-func		    :running:
 
 
 * automata
-** joblist
-** jobtuple
-** automatarunner
+** joblist								:urd:
+** jobtuple								:urd:
+** automatarunner						    :running:
 *** timetravel
 *** verbose
 *** --quick
@@ -34,7 +34,7 @@ python >= 2.7 eller >= 3.4
 ** remake skall nog fasas ut
 
 
-* urd
+* urd									:urd:
 ** multi time aware
 ** ghost visibility selection
 ** API

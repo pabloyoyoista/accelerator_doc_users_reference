@@ -7,6 +7,8 @@ of datasets, one dataset at a time.
 
 \subsection{Basic Iteration}
 
+The iterator iterates over specified data columns.  The output will be
+one line at a time, formatted as a tuple.
 
 \subsubsection*{A Simple Parallel Iterator Invocation}
 Read variables X and Y in all slices in parallel
@@ -14,7 +16,7 @@ Read variables X and Y in all slices in parallel
 \begin{python}
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in iterate_chain(sliceno, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 data is iterated over all rows and all datasets in the chain, running
@@ -27,38 +29,108 @@ specifying sliceno=None as follows
 
 \begin{python}
 def synthesis():
-    for user, item in iterate_chain(None, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate_chain(None, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 slices will be iterated one at at time in increasing order.
 
 
+\subsection{Special cases, iterating over all or a singe column}
+If column names are omitted, the iterator will produce a tuple of data
+including all columns.  %%%% NB: column order???
+
+\begin{python}
+for items in iterate_datasets(sliceno, None, jobids):
+    print items # is a tuple of all columns
+\end{python}
+Also, if only one column is specified, it is possible to have the
+iterator produce a scalar directly
+
+\begin{python}
+# alternative 1, use lists/tuples always
+for user in iterate_datasets(sliceno, ('USER',), jobids):
+    userset.add(user[0])  # user is a tuple
+
+# alternative 2, target is tuple
+for user, in iterate_datasets(sliceno, ('USER',), jobids):
+    userset.add(user)
+
+# alternative 3, input is string, not list
+for user in iterate_datasets(sliceno, 'USER', jobids):
+    userset.add(user)
+\end{python}
+Both styles are supported by filters and translators.
+
+
+
+
 \subsection{Halting Iteration}
 
-Sometimes, one wish to limit the number of iterations.  There are
-several mechanisms for that:
-\begin{itemize}
-\item stop\_jobid = jobid
-\item stop\_jobid = {jid: datasetname}
-  \# ex:\{jid: "source"\} stoppar på job\_params(jid).datasets.source
-\item length=N
-\item range={column: (min, max)}  \# sloppy\_range
-\end{itemize}
+Iteration over a dataset chain will continue until all data is
+exhausted.  Sometimes, one wish to limit the number of iterations.
+There are several mechanisms for that, and they may be combined in the
+same expression.  If so, iteration will be over the shortest range of
+the conditions.
 
-The first will iterate until a particular jobid is found.  The second
-will iterate until reaching a jobid found as input to another job.
-The third will iterate a fixed number of datasets.  The fourth will
-iterate a specified range of values in a sorted column.  The
-sloppy\_range means that all affected datasets will be iterated, which
-is more data but without a lot of filtering overhead and thus faster.
+\subsubsection*{Halting using length}
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+    sliceno,
+    columns=('user', 'item',),
+    length = options.length):
+\end{python}
+This will iterate for options.length number of datasets.  Note that a
+length of -1 iterates without bounds and is the default.
 
-Iteration will be over the shortest range of the conditions above.
+
+\subsubsection*{Halting using stop\_jobid}
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+    sliceno,
+    columns=('user', 'item',),
+    stop_jobid = datasets.stopjob):
+\end{python}
+
+A more advanced, but very useful, method is to stop at a dataset that
+is input to another job
+
+\subsubsection*{Halting using another job's input parameters}
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+    sliceno,
+    columns=('user', 'item',),
+    stop_jobid = {jobids.preprocess: 'source',}):
+\end{python}
+this will iterate until reaching end or the dataset
+job\_params(jobids.preprocess).datasets.source.
+
+It is also possible to iterate over a specified data range.  This
+works for datasets that are sorted on the column of choise.
+
+\subsubsection*{Iterating over a data range}
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+    sliceno,
+    columns=('user', 'item',),
+    range={timestamp, ('2016-01-01', '2016-01-31'),}):
+\end{python}
+this will limit the iterator to exactly the range of lines that
+fulfill the range condition.  It is relatively costly to filter each
+line, and there is a speed advantage by specifying sloppy\_range,
+which will iterate over all datasets that contain part of the range.
+
+\subsection{Iterating in the reverse direction}
 
 It is possible to iterate the dataset chain in the backwards direction
 by specifying reverse=True, but note that iteration is always in the
 forward direction within each dataset.
 
-% def iterate_chain(self, sliceno, columns=None, length=-1, reverse=False, hashlabel=None, stop_jobid=None, pre_callback=None, post_callback=None, filters=None, translators=None):
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+    sliceno,
+    columns=('user', 'item',),
+    reverse=True):
+\end{python}
 
 
 

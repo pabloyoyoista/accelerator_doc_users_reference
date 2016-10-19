@@ -1,17 +1,34 @@
+* Manualen använder python3
+  
+* nomenklatur
+jobid är pekare på jobdir
+jobdir bor i ett workdir
+
+* legacy name mismatch
+index, workdir/workspace osv finns i koden, även i
+dokumentationsdelar.
+
+* koduppstädning
+config-template-filen skall städas
 
 * lines vs rows					       :nomenclature:dataset:
 det heter dataset.lines, men vi laser typiskt rows.
+- Föredra "rows", men csvimport forttsätter heta lines,
+  lite som att det är lines i en fil.
+
 
 * .colums[key]
 fyll i vad som ingår där, ÄVEN hur offsets fungerar om det är relevant.
 (offsets=None om det inte är offsets!)
+- offsets ingår inte i nuvarande dokumentation
+
 
 * formatting
 skippa suffix 'L' på intar och prefix 'u' på strängar för läsbarhet?
-
+- inget problem i python3
 
 * enkel- eller dubbelfnuttar??
-
+- enkelfnuttar (python standard)
 
 * under the hood
 ** datasets
@@ -31,20 +48,68 @@ eller
 
 
 * options
-** TODO JobWithFile.extas är vaddå?  Unused?
-** TODO OptionDefault??
+** JobWithFile.extras är vaddå?  Unused?
+- user defined argument  (tex plocka ut filnamn.read()['gurka'])
+
+** OptionDefault??
+
+* TODO REGLER FÖR OPTIONS
+options = dict(
+  foo=4, # must be int, defaults to 4
+  foo=int, # must be int, must be specified (works for most types)
+  foo=None, # any type, defaults to None
+  foo='bar', # must be string, defaults to 'bar'
+  foo=OptionString, # must be string, must be specified (same as foo=str)
+  foo=OptionString('bar'), # must be string, must be specified, provides example
+  foo=OptionEnum('a b c'), # must be one of the strings 'a', 'b' or 'c', must be specified
+  foo=OptionEnum('a b c', none_ok=True), # mandatory, value must be 'a', 'b', 'c' or None.
+  foo=OptionEnum('a b c').b, # must be one of the strings 'a', 'b' or 'c', defaults to 'b'
+  foo={'bar': 'blutti'}, # defaults to dict provided
+  foo=OptionDefault('bar': 'blutti'}, {}), # defaults to {}, still enforces {str: str} typing
+  foo={str: str}, # mandatory dict of string to string
+  foo={str: {str: int}}, # you can have dicts in dicts (etc) too. (mandatory as shown here)
+  foo=[int], # lists and sets are fine too.
+)
+
+"Must be x" really means the constructor for type x must accept the value you provided.
+So for example '3' is a valid int, but 'three' is not. (@@ This is buggy in lists, elsewhere?)
+
+You can always specify None, except for OptionEnums without none_ok.
+All containers can be specified as empty.
+
+Complex types (like dicts, dicts of lists of dicts, ...) never enforce
+specific keys, only types. ({'a': 'b'} is a valid value for {'foo': 'bar'})
+
+OptionDefault defaults all otherwise mandatory values in the value to None.
+jobids = ('foo', ['bar'],)
+bar='a-0_0' -> jobids.bar = ['a-0_0']
+DatasetWriter(previous=options.theonebefore)
+Dataset('a-0_0')
+Dataset('a-0_0/default')
+Dataset('a-0_0/foo')
+Dataset('a-0_0', 'foo')
 
 * params
 GLÖM INTE!
-** TODO what is params.link??
-** TODO varför params.params?
-** TODO det finns ingen params.workspace??
+** what is params.link??
+- inte dokumneteras, kanske bort
+** varför params.params?
+-
+#params.params['csvimport'].options == options
+params.params är legacy (Kanske Carl för del() precis innan anrop...)
+anbefalles:  params.options  och  job_params(jobids.foo).options
+
+** det finns ingen params.workspace??
+Vi vill nog INTE exponera workspace
+import g; g.WORKSPACE
+
 * cleanup of pickle-files
 
 * urd
 .as_dep i urdresponse
 
-** TODO varför har urd.begin OCH urd.fininsh argumentet path required?
+** varför har urd.begin OCH urd.fininsh argumentet path required?
+byxhängslen och livboj
 
 * workdir or workspace?
 

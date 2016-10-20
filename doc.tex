@@ -33,7 +33,7 @@
 \newminted[python]{python}{bgcolor=bg, frame=lines}
 \newminted[shell]{shell}{bgcolor=bg, frame=lines}
 
-
+\newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
 
 
 
@@ -51,7 +51,7 @@
 
 
 
-%\includeonly{dataset}
+\includeonly{method}
 
 \include{xmtitle}
 
@@ -71,10 +71,18 @@
 \chapter{Motivation}
 important points (tenets) about framework:
 \begin{itemize}
-\item \textbf{never delete data or make it unaccessable}
-\item \textbf{the fundament is data and recipies (code)} everything
-  else is (repeatable) computation.  Keeping data and code is
+\item \textbf{the value is input data and recipies (code)} everything
+  else is computation.  Computation is repeatable if input data is
+  kept with integrity and code is version controlled.
+
+  Keeping data and code is
   sufficient for replication.  Make execution fast!
+
+
+\item \textbf{never delete data or make it unaccessable}
+
+\item \textbf{Keep intermediate results.  Use them!}
+
 \item \textbf{client server configuration}
 \item \textbf{simplicity} use basic file systems, and simple,
   minimalistic programs.  (Maintainability, stability, observability,

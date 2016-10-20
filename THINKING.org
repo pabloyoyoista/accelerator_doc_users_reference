@@ -1,3 +1,6 @@
+
+* TODO Hur går man från JobWithFile till filnamn???
+
 * Manualen använder python3
   
 * nomenklatur
@@ -64,6 +67,7 @@ options = dict(
   foo=OptionEnum('a b c'), # must be one of the strings 'a', 'b' or 'c', must be specified
   foo=OptionEnum('a b c', none_ok=True), # mandatory, value must be 'a', 'b', 'c' or None.
   foo=OptionEnum('a b c').b, # must be one of the strings 'a', 'b' or 'c', defaults to 'b'
+
   foo={'bar': 'blutti'}, # defaults to dict provided
   foo=OptionDefault('bar': 'blutti'}, {}), # defaults to {}, still enforces {str: str} typing
   foo={str: str}, # mandatory dict of string to string
@@ -83,6 +87,8 @@ specific keys, only types. ({'a': 'b'} is a valid value for {'foo': 'bar'})
 OptionDefault defaults all otherwise mandatory values in the value to None.
 jobids = ('foo', ['bar'],)
 bar='a-0_0' -> jobids.bar = ['a-0_0']
+
+* TODO skall man använda Dataset vid assignment i urd.build()???
 DatasetWriter(previous=options.theonebefore)
 Dataset('a-0_0')
 Dataset('a-0_0/default')

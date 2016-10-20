@@ -114,7 +114,7 @@ d = Dataset(('foo-0_0', 'foo'))
 ** DONE multipla dataset per jobid
 ** DONE skapa dataset: DatasetWriter
 ** DONE addera kolumner till dataset: DatasetWriter(parent='jid')
-** chaining
+** DONE chaining
 utgår från dataset, kortast av:
   - stop_jobid = jobid eller {jid: datasetname} (ex:{jid: "source"} stoppar på job_params(jid).datasets.source)
   - length

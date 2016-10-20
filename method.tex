@@ -1,37 +1,244 @@
 \section{Method inputs}
 
-There are three kinds of input to a method
-\begin{itemize}
-\item options
-\item datasets
-\item jobids
-\end{itemize}
-
-each vill be described in more detail next
-
-\subsection*{options}
-The options is of type dict.  Example
+There are three kinds of input to a method:  jobids, datasets, and options.
+These are specified early in the method source code, such as for example
 
 \begin{python}
-from extras import OptionEnum, JobWithFile
-options = dict(
-  length = 1,
-  colname = "gtin",
-  operation = OptionEnum("lt le gt ge").ge,
-  datafile = JobWithFile,
-)
+jobids = ('accumulated_costs',)
+datasets = ('transaction_log',)
+options = dict(length=4)
 \end{python}
-In the example above, the following happens
-\begin{itemize}
-\item length is typed to int, and default value is 1.
-\item colname is typed to string, and default value is "gtin".
-\item operation is one of lt, le, gt, ge, and defaults to ge.
-\item datafile is more complex, for example datafile.jobid is a jobid,
-  such as "pelle-123\_0", datafile.filename is a filename, such as
-  "result.pickle", datafile.sliced is a boolean.  If true, the
-  datafile is actually a sliced set of files, one for each target
-  slice during execution, extra is what?
+
+Jobids is used to input pointers to other finished jobs, datasets is
+used to input other datasets, and options are used to input any other
+type of parameters specifying running behaviour of the method.  Note
+that jobids and datasets are tuples (and a single entry has to be
+followed by a comma), while options is a dictionary.
+
+Each vill be described in more detail next
+
+
+
+\subsection{jobids}
+the jobids argument is a tuple of jobids linking this job to other
+jobs.  Inside the running method, a jobid from the jobids tuple is
+simply a string that can be passed to various helper functions in
+order to use results from the corresponding jobs.
+
+
+
+\subsection{datasets}
+datasets is the way to communicate datasets from automata to job.  In
+the running method, the datasets variable is a tuple of dataset
+objects ready to use.  The dataset class is described in a dedicated
+chapter.
+
+Datasets can be specified in the following ways
+
+\begin{python}
+Dataset('a-0_0/default')
+Dataset('a-0_0')          # shorthand for a-0_0/default
+Dataset('a-0_0/foo')
+Dataset('a-0_0', 'foo')
+\end{python}
+
+
+
+\subsection*{options}
+The options is of type dict and used to pass various information to a
+method.  Information could be integers, strings, enumerations, sets,
+lists, and dicts in a recursive fashion.  Options may have a default
+value.
+%%%
+values are defaults
+types get None as default
+RequiredOptions() must be specified
+OptionEnum without none\_ok and no default must be specified
+containters with a type in the values default to empty containers
+(oherwise the specified values are the default contents)
+%%%
+
+
+
+
+Options are defined in a method like this
+
+\begin{python}
+  options = dict( ... )  # or
+  options = { ... }
+\end{python}
+
+Options are easiest described by examples, and such will be presented
+in the following sections.  The remaining of this section is dedicated
+to describe the formal rules for option typing and assignment.
+
+ \begin{itemize}
+ \item Typing may be specified as an instance of the type class or as a
+   member of the class, i.e. an integer may be specified as either the
+   number 3 or the keyword int.
+ \item If the type is specified as a class member, this is also the
+   default value.
+ \item Values are accepted if they are valid input to the type's
+   constructor, i.e. 3 and '3' are valid input for an integer.
+ \item The default value is used if no input is provided.
+ \item If typing is specified with a class name, an input value is mandatory.
+ \item None is always a valid input, except for OptionEnums without
+   none\_ok.
 \end{itemize}
+
+
+Typing and default values are presented in the following sections.
+Default values are assigned if there is no input.
+
+Definition of type is that the constructor must accept the value
+provided.
+
+
+\subsection{Unspecifieds}
+\begin{python}
+  options = dict(length=None)
+  # accepts anything, default is None
+\end{python}
+So length could be set to anything.
+
+
+
+\subsubsection*{Scalars}
+Scalars are either explicitly typed, as
+
+\begin{python}
+  options = dict(length=int)
+  # Requires an intable value or None
+\end{python}
+or implicitly with default value like
+
+\begin{python}
+  options = dict(length=3)
+  # Requires an intable value, default is 3 if left unassigned
+\end{python}
+In these examples, intable means that the value provided should be
+valid input to the int constructor, for example the number 3 or the
+string '3' both yield the integer number 3.
+
+
+
+\subsubsection*{Strings}
+\begin{python}
+  options = dict(name=str)           # or
+  options = dict(name=OptionString)
+  # Requires a stringable value or None
+\end{python}
+with default value
+% Testat
+% str med unassigned ger None
+% str med None ger None
+% OptionString med unassigned ger error
+% OptionString med None ger error
+
+\begin{python}
+  options = dict(name='foo')
+  # Requires a stringable value, default is 'foo'
+\end{python}
+sometimes, an example string is convenient
+
+\begin{python}
+  options = dict(name=OptionString('bar')
+  # Requires a stringable value, provides example
+\end{python}
+Note that 'bar' is not default, it just gives the programmer a way to
+express what is expected.
+
+
+
+\subsubsection*{Enums}
+\begin{python}
+  options = dict(foo=OptionEnum('a b c'))
+  # Requires one of the strings 'a', 'b' or 'c'
+\end{python}
+and with default
+
+\begin{python}
+  options = dict(foo=OptionEnum('a b c').b
+   # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
+\end{python}
+or, accepting None
+
+\begin{python}
+options = dict(foo=OptionEnum('a b c', none_ok=True))
+# Requires one of the strings 'a', 'b', or 'c'; or None
+\end{python}
+This may be combined with a default value too.
+
+The asterisk-wildcard works too
+
+\begin{python}
+  options = dict(foo=OptionEnum('a b c*'))
+  # Requires one of the strings 'a', 'b', or any string starting with 'c'
+\end{python}
+
+
+
+\subsubsection*{Lists and Sets}
+\begin{python}
+options=dict(foo=[int])
+# Requires list of intable, default is empty list
+\end{python}
+
+\begin{python}
+options=dict(foo={int})
+# Requires set of intable, default is empty set
+\end{python}
+
+
+
+\subsubsection*{More complex stuff}
+\begin{python}
+options = dict(foo={str: str})
+# Requires dict of stringable to stringable
+\end{python}
+or more complex representations, such as
+
+\begin{python}
+options = dict(foo={str: {str: int}})
+# Requires dict of stringable to dict of stringable to intable
+\end{python}
+
+
+
+\subsubsection*{Date and Time}
+
+
+\subsubsection*{JobWithFile}
+Any file residing in a jobdir may be input to a method like this
+
+\begin{python}
+options = dict(usefile=JobWithFile(jid, 'user.txt')
+\end{python}
+
+There are two additional arguments, sliced and extras.  extras is used
+to pass any information that is helpful in using the specified file,
+and sliced tells that the file is sliced.
+
+\begin{python}
+options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
+\end{python}
+In the method, data is available as
+
+\begin{python}
+  foo.jobid
+  foo.filename
+  foo.sliced
+  foo.extras
+\end{python}
+and the full filename is available through
+
+\begin{python}
+from extras import full_filename
+print full_filename(foo, '')
+\end{python}
+The mandatory string (which is empty in this case, is a filename
+extension.
+
 
 \subsubsection{types}
 set, jobwithfile, datetime, date, time, timedelta
@@ -39,71 +246,72 @@ set, jobwithfile, datetime, date, time, timedelta
 
 
 
-\subsubsection{JobWithFile}
-
-jobid, sliced, filename, extra
-
-
-\subsubsection{OptionDefault}
-What?
-
-
-\subsubsection{OptionString}
-Marker value to specify in options\{\} for requiring a non-empty string.
-You can use plain OptionString, or you can use
-OptionString('example'), without making 'example' the default.
-    
-
-\subsubsection{OptionEnum}
-From the source code
-
-\begin{python}
-    """A little like Enum in python34, but string-like.                                                                                                                                                                           
-    (For JSONable method option enums.)                                                                                                                                                                                           
-                                                                                                                                                                                                                                  
-    >>> foo = OptionEnum('a b c*')                                                                                                                                                                                                
-    >>> foo.a                                                                                                                                                                                                                     
-    'a'                                                                                                                                                                                                                           
-    >>> foo.a == 'a'                                                                                                                                                                                                              
-    True                                                                                                                                                                                                                          
-    >>> foo.a == foo['a']                                                                                                                                                                                                         
-    True                                                                                                                                                                                                                          
-    >>> isinstance(foo.a, OptionEnumValue)                                                                                                                                                                                        
-    True                                                                                                                                                                                                                          
-    >>> isinstance(foo['a'], OptionEnumValue)                                                                                                                                                                                     
-    True                                                                                                                                                                                                                          
-    >>> foo['cde'] == 'cde'                                                                                                                                                                                                       
-    True                                                                                                                                                                                                                          
-    >>> foo['abc']                                                                                                                                                                                                                
-    Traceback (most recent call last):                                                                                                                                                                                            
-    ...                                                                                                                                                                                                                           
-    KeyError: 'abc'                                                                                                                                                                                                               
-                                                                                                                                                                                                                                  
-    Pass either foo (for a default of None) or one of the members                                                                                                                                                                 
-    as the value in options{}. You get a string back, which compares                                                                                                                                                              
-    equal to the member of the same name.                                                                                                                                                                                         
-                                                                                                                                                                                                                                  
-    Set none_ok if you accept None as the value.                                                                                                                                                                                  
-                                                                                                                                                                                                                                  
-    If a value ends in * that matches all endings. You can only access                                                                                                                                                            
-    these as foo['cde'] (for use in options{}).                                                                                                                                                                                   
-    """
-\end{python}
-
-\subsection{datasets}
-datasets is the way to communicate datasets from automata to job.  In
-the running method, the datasets variable is a list of dataset objects
-ready to use.
-
-\subsection{jobids}
-the jobids argument is a tuple of jobids linking this job to other
-jobs.  jobids is different from datasets in that jobids does not
-contain any dataset jobs.  Thus, no dataset objects are infered from
-the jobids in the tuple.
-
 
 
 \section{Code flow:  prepare - analysis - synthesis}
+
+There are three pre-defined functions in a method, prepare, analysis,
+and synthesis, and they are always run in that order.  Prepare and
+synthesis are single threaded, while analysis provides parallel
+execution.
+
+The following combinations are valid and are of practical use
+\begin{itemize}
+\item synthesis-only, used for a single threaded program
+\item analysis-only, used for completely parallel tasks
+\item prepare + analysis, setup and run a parallel job
+\item analysis + synthesis, run a parallel job and combine outputs
+\item prepare + analysis + synthesis, setup, run, and combine a
+  parallel task.
+\end{itemize}
+
+All the three functions take options, jobids, and datasets as optional
+arguments.
+
+The analysis function takes a required argument sliceno, which is an
+integer between zero and the total number of slices minus one.  This
+is the unique identity indicator for the analysis process.
+
+Return values may be passed from one function to another.  What is
+returned from prepare is called prepare\_res, and may be used as input
+argument to analysis and synthesis.  The return values from analysis
+is available as analysis\_res in synthesis.  The return value from
+synthesis is stored permanently in the jobdir.
+
+A complete example may look like
+
+\begin{python}
+options = dict(length=4)
+datasets = ('transaction_log')
+
+def prepare(options):
+  return options.length * 2
+
+def analysis(sliceno, prepare_res):
+  return set(
+    u for u in datasets.transaction_log.iterate(sliceno, 'user')
+  )
+
+def synthesis(analysis_res, prepare_res):
+   return analyses_res.merge_auto()
+\end{python}
+
+
+\subsection{params}
+The additional argument params is also optionally available, and it
+contains lots of information that is typically not required in a
+regular method.  For a method developer, the most important members
+are
+
+\begin{python}
+params.package     # which package the method source code is stored in
+params.slices      # number of slices for the workdirs in use
+params.caption     # may be specified when building a job
+params.seed        # seed to initialise a random number generator
+params.starttime   # execution start in epoch time
+\end{python}
+
+
 
 \section{More on intermediate and result files}
 

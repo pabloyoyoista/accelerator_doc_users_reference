@@ -1,7 +1,14 @@
+\section{Methods}
+A method is a piece of source code that can be run by the framework.
+When a method is dispatched with a set of inputs, it is called a job.
+A method may be dispatched by urd, or by another method as a subjob.
+
 \section{Method inputs}
 
-There are three kinds of input to a method:  jobids, datasets, and options.
-These are specified early in the method source code, such as for example
+When a method is dispatched as a job, it will be provided with input
+from the dispatcher.  There are three kinds of input to a method:
+jobids, datasets, and options.  These are specified early in the
+method source code, such as for example
 
 \begin{python}
 jobids = ('accumulated_costs',)
@@ -44,19 +51,11 @@ Dataset('a-0_0', 'foo')
 
 
 
-\subsection*{options}
+\subsection{options}
 The options is of type dict and used to pass various information to a
 method.  Information could be integers, strings, enumerations, sets,
 lists, and dicts in a recursive fashion.  Options may have a default
 value.
-%%%
-values are defaults
-types get None as default
-RequiredOptions() must be specified
-OptionEnum without none\_ok and no default must be specified
-containters with a type in the values default to empty containers
-(oherwise the specified values are the default contents)
-%%%
 
 
 
@@ -72,19 +71,49 @@ Options are easiest described by examples, and such will be presented
 in the following sections.  The remaining of this section is dedicated
 to describe the formal rules for option typing and assignment.
 
+
+
+
+
  \begin{itemize}
- \item Typing may be specified as an instance of the type class or as a
-   member of the class, i.e. an integer may be specified as either the
-   number 3 or the keyword int.
- \item If the type is specified as a class member, this is also the
-   default value.
+ \item an input value is required to be of the correct type.
+
+ \item An input may be left unassigned, unless
+   \begin{itemize}
+   \item typing is RequiredOptions(), or
+   \item OptionEnum without default
+   \end{itemize}
+   
+ \item Typing may be specified using the class name (i.e. int), or as
+   a value that will construct into such a class object (i.e. the
+   number 3).
+
+ \item If typing is specified as a value, this is the default value if
+   left unspecified.
+
+ \item If typing is specified as a class name, default is None.
+
  \item Values are accepted if they are valid input to the type's
    constructor, i.e. 3 and '3' are valid input for an integer.
- \item The default value is used if no input is provided.
- \item If typing is specified with a class name, an input value is mandatory.
- \item None is always a valid input, except for OptionEnums without
-   none\_ok.
+
+ \item None is a valid input unless
+   \begin{itemize}
+   \item RequiredOptions() and not none\_ok set
+   \item OptionEnum() and not none\_ok set
+   \end{itemize}
+
+ \item All containers can be specified as empty (?)
+
+ \item Complex types (like dicts, dicts of lists of dicts, ...) never
+   enforce specific keys, only types. (\{'a': 'b'\} is a valid value
+   for \{'foo': 'bar'\}) (?)
+   
+ \item containters with a type in the values default to empty
+   containers (oherwise the specified values are the default contents)
+
 \end{itemize}
+%%%
+%%%
 
 
 Typing and default values are presented in the following sections.
@@ -94,7 +123,7 @@ Definition of type is that the constructor must accept the value
 provided.
 
 
-\subsection{Unspecifieds}
+\subsubsection{Unspecifieds}
 \begin{python}
   options = dict(length=None)
   # accepts anything, default is None

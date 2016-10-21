@@ -206,6 +206,21 @@ options = dict(foo={str: {str: int}})
 
 
 \subsubsection*{Date and Time}
+The following date and time related types are supported:
+datetime, date, time, and timedelta.
+
+A typical usecase is as follows
+
+\begin{python}
+options = dict(ts=datetime)
+# a datetime object if input, or None
+\end{python}
+or with a default
+
+\begin{python}
+options = dict(ts=datetime(2014, 1, 1))
+#  a datetime object if input, defaults to a datetime(2014, 1, 1) object
+\end{python}
 
 
 \subsubsection*{JobWithFile}
@@ -240,14 +255,12 @@ The mandatory string (which is empty in this case, is a filename
 extension.
 
 
-\subsubsection{types}
-set, jobwithfile, datetime, date, time, timedelta
 
 
 
 
 
-
+\newpage
 \section{Code flow:  prepare - analysis - synthesis}
 
 There are three pre-defined functions in a method, prepare, analysis,
@@ -313,6 +326,7 @@ params.starttime   # execution start in epoch time
 
 
 
+\newpage
 \section{More on intermediate and result files}
 
 \subsection{Sharing data inside a job}
@@ -332,6 +346,7 @@ def synthesis()
 \end{python}
 
 saving is as follows
+
 \begin{python}
   blob.save(data, filename, sliceno, temp)
 \end{python}
@@ -346,7 +361,8 @@ removes them upon completion of the job.
 Temporary files are useful when communicating data between the
 functions in the method (and not using the res-files) or in debugging.
 
-\section{debug help}
+
+\subsection{debug help}
 There is also a more advanced debug functionality relating to temp.
 
 \begin{python}
@@ -361,5 +377,33 @@ where the first only stores when --debug is specified, and the other
 always stores but removes unless --debug is set.
 
 
-
+\newpage
 \section{subjobs}
+
+Jobs may lanch subjobs.  If the jobs are already built, they will be
+immediately linked in.  The syntax is as follows, assuming we build
+the jobs in prepare:
+
+\begin{python}
+import subjob
+
+def prepare():
+  subjob.build('count_items', options=dict(length=3))
+\end{python}
+The subjob.build uses the same syntax as urd.build described
+elsewhere, so options, datasets, jobids, and caption are available.
+Similarly, subjob jobid is returned.
+
+If there are datasets built in a subjob, these will not be explicitly
+available to urd.  Instead, the dataset definition is copied to the
+launching method like this
+
+\begin{python}
+from Dataset import dataset
+
+def synthesis():
+  jid = subjob.build('create_dataset')
+  Dataset(jid).link_to_here(name='thename')
+\end{python}
+the name argument is optional, the name 'default' is used if left
+empty, corresponding to the default dataset.

@@ -1,0 +1,103 @@
+\section{dataset_type?}
+
+float64
+float32
+
+i = ignorera trailing garbage (...kG)
+  float64i
+  float32i
+
+floatint == dedotter, dvs    int(float(value))
+e = exact, error om saturate, för ``stor'' för int32 eller float64 respektive
+    'floatint64e'  
+    'floatint32e'  
+s = saturate, sätt till max om för stor
+    'floatint64s'  
+    'floatint32s'  
+ei = e+i
+    'floatint64ei' 
+    'floatint32ei' 
+si = s+i
+    'floatint64si' 
+    'floatint32si' 
+
+_x = strtol(...,x), dvs bas.
+_0 == auto (avoid)
+    'int64_0'      
+    'int32_0'      
+
+    'int64_8'      
+    'int32_8'      
+
+    'int64_10'     
+    'int32_10'     
+
+    'int64_16'     
+    'int32_16'     
+
+i-version
+    'int64_0i'     
+    'int32_0i'     
+    'int64_8i'     
+    'int32_8i'     
+    'int64_10i'    
+    'int32_10i'    
+    'int64_16i'    
+    'int32_16i'    
+
+blir bool, vänster är input
+    'strbool'      
+False 		if (!strcasecmp(line, "false")
+		    || !strcasecmp(line, "0")
+		    || !strcasecmp(line, "f")
+		    || !strcasecmp(line, "no")
+		    || !strcasecmp(line, "off")
+		    || !strcasecmp(line, "nil")
+		    || !strcasecmp(line, "null")
+		    || !*line
+default True
+
+true om floatens bitmönster har ettor
+    'floatbool'    
+i-flagga
+    'floatbooli'   
+
+strptime-compat format
+    'datetime:*'   
+    'date:*'       
+    'time:*'       
+    'datetimei:*'  
+    'datei:*'      
+    'timei:*'      
+
+``sekvens oktetter'', kommer ut ur csvimport
+    'bytes'        
+strippar ascii 8-13,32 från början och slutet
+    'bytesstrip'   
+
+
+    # unicode[strip
+    # errorhandling
+
+python-typen unicode
+strict, replace, ignore (dataset_typing:376)
+strict:   ger error
+replace:  
+ignore:   radera dåliga tecken
+
+    'unicode:*'    
+    'unicodestrip:*
+
+sekvens bokstäver, 7-bitars
+    'ascii'        
+    'asciistrip'   
+replace, strict, encode
+encode är reversibel (originalsträng kan man få tillbaka)
+    'ascii:*'      
+    'asciistrip:*' 
+
+
+    'number'       
+    'number:int'  se dataset_typing.py:388
+
+

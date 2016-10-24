@@ -340,6 +340,8 @@ def synthesis(analysis_res, prepare_res):
 
 
 \subsection{params}
+Params contain all input and initialisation parameters for a job.
+
 The additional argument params is also optionally available, and it
 contains lots of information that is typically not required in a
 regular method.  For a method developer, the most important members
@@ -352,6 +354,28 @@ params.caption     # may be specified when building a job
 params.seed        # seed to initialise a random number generator
 params.starttime   # execution start in epoch time
 \end{python}
+but params does also contain all options, jobids, and datasets inputs.
+
+
+
+\subsection{Accessing another job's params}
+
+The params data sctructure contains all input and initialisation data
+for a job.  To access another job's params variable, just feed the
+job's jobid into the job\_params() function.
+
+\begin{python}
+from extras import job_params
+
+jobids = ('anotherjob',)
+
+def synthesis():
+  print jobids.anotherjob
+  # will print something like 'jid-0_0'
+  print job_params(jobids.anotherjob).options
+  # will print something like {length: 3}
+\end{python}
+
 
 
 

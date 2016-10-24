@@ -7,7 +7,7 @@ gitrevision:
 	git rev-parse HEAD > gitrevision
 
 
-${DOC}.pdf: gitrevision doc.tex dataset.tex concepts.tex method.tex urd.tex setup.tex iterator.tex
+${DOC}.pdf: gitrevision doc.tex dataset.tex concepts.tex method.tex urd.tex setup.tex iterator.tex standard_methods.tex
 	latexmk -pdf -pdflatex="pdflatex -interactive=nonstopmode -shell-escape" -use-make ${DOC}.tex
 
 clean:

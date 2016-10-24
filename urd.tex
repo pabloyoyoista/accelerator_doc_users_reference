@@ -1,9 +1,43 @@
-\section{background}
-Urd is a log-based service keeping track of all jobs for all users of
-a framework setup.
+\section{Background}
+
+Urd is a transaction-log-based service keeping track of all jobs for
+all users of a framework setup.
+
+The idea is that each user of the framework has one or more locations
+in the database where information about executed jobs are stored.
+These locations are called urd-lists.  The lists are readable to
+anyone, but due to authorisation only writeable by the owning user.
 
 
-\section{jobtuple and joblist}
+
+
+\section{Jobtuple and Joblist}
+
+A simple automata starts with defining the function main that takes an
+urd object as input
+
+\begin{python}
+def main(urd):
+  urd.build('method1', options={})
+  urd.build('method2', options={})
+\end{python}
+this automata will execute the two methods method1 and method2
+consecutively.  Urd will store links to the completed jobs in a
+joblist object, accessible by
+
+
+
+
+The jobtuple is a datatype used for storing pairs of names and jobids.
+A user typically never creates these, but rather use
+\begin{python}
+
+\end{python}
+
+
+.pretty
+.jobid
+.method
 
 
 \section{api}

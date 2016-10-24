@@ -1,5 +1,47 @@
+* TODO subjob.build(..., name=???)
+
+
+
+* DONE carls nya options
+
+Values are defaults, types get None as default, RequiredOption(…) must be specified. (And OptionEnum without none_ok and no default must be specified.) Containers with a type in in the values default to empty containers (otherwise the specified values are the default contents).
+
+options = dict(
+    foo=4, # must be int, defaults to 4
+    foo=int, # must be int, defaults to None
+    foo=RequiredOption(int), # must be int, must be specified
+    foo=RequiredOption(int, none_ok=True), # must be int or None, must be specified
+    foo=None, # any type, defaults to None
+    foo='bar', # must be string, defaults to 'bar'
+    foo=OptionString, # must be str, must be specified and not empty
+    foo=RequiredOption(str), # must be str, must be specified (but may be empty) 
+    foo=OptionString('bar'), # must be string, must be specified and not empty, provides example
+    foo=RequiredOption('bar'), # must be string, must be specified (but may be empty), provides example
+    foo=OptionEnum('a b c'), # must be one of the strings 'a', 'b' or 'c', must be specified (since there is no default)
+    foo=OptionEnum('a b c', none_ok=True), # value must be 'a', 'b', 'c' or None, defaults to None
+    foo=OptionEnum('a b c').b, # must be one of the strings 'a', 'b' or 'c', defaults to 'b'
+    foo={'bar': 'blutti'}, # must be {str: str} (or {}), defaults to dict provided
+    foo={str: str}, # must be {str: str} or {}, defaults to {}
+    foo=OptionDefault('bar': 'blutti'}, {}), # must be {str: str} or {}, defaults to {}, provides example
+    foo={str: {str: int}}, # you can have dicts in dicts (etc) too.
+    foo=[int], # lists and sets are fine too.
+    foo=datetime, # most other types are unsupported, but date, time, datetime and timedelta are ok.
+)
+
+"Must be x" really means the constructor for type x must accept the value you provided.
+So for example '3' is a valid int, but 'three' is not. (@@ This is buggy in lists, elsewhere?)
+
+You can always specify None, except for OptionEnums or RequiredOptions without none_ok.
+All containers can be specified as empty.
+
+Complex types (like dicts, dicts of lists of dicts, ...) never enforce
+specific keys, only types. ({'a': 'b'} is a valid value for {'foo': 'bar'})
+
+
 
 * TODO Hur går man från JobWithFile till filnamn???
+Carl skall titta på detta.
+
 
 * Manualen använder python3
   
@@ -34,6 +76,7 @@ skippa suffix 'L' på intar och prefix 'u' på strängar för läsbarhet?
 - enkelfnuttar (python standard)
 
 * under the hood
+** DONE DON'T DO column_filename??
 ** datasets
 print datasets.source.column_filename('locale')                                                             |#     min = minimum value in this dataset or None                                                                
 # /ebay/workdirs/ab/neu4/neu4-4894_0/default/m.locale
@@ -56,7 +99,7 @@ eller
 
 ** OptionDefault??
 
-* TODO REGLER FÖR OPTIONS
+* OBSOLETE REGLER FÖR OPTIONS
 options = dict(
   foo=4, # must be int, defaults to 4
   foo=int, # must be int, must be specified (works for most types)
@@ -88,7 +131,7 @@ OptionDefault defaults all otherwise mandatory values in the value to None.
 jobids = ('foo', ['bar'],)
 bar='a-0_0' -> jobids.bar = ['a-0_0']
 
-* TODO skall man använda Dataset vid assignment i urd.build()???
+* DONE skall man använda Dataset vid assignment i urd.build()???
 DatasetWriter(previous=options.theonebefore)
 Dataset('a-0_0')
 Dataset('a-0_0/default')

@@ -1,11 +1,7 @@
 
-\section{purpose}
+\section{Introduction}
 
-
-
-
-\section{overview}
-The accelerator environment is composed of two parts.  A server
+The accelerator environment is composed of two parts: a server
 providing a set of features for efficient processing of large amounts
 of data, and a client that dispatches jobs on the server.
 
@@ -15,48 +11,85 @@ the server.  The second is high level scripts, called automatas, that
 are executed by the client.  Automatas are used to control flow and
 parameters to and from the methods running on the server.
 
-The server stores results from executed methods in a database that is
-partitioned into what is called workdirs.  The client keeps a log,
-called the urd log, which is bookkeeping all dispatched jobs and
-parameters.
+Programs are written in the Python programming language, both python 2
+and 3 are supported.  In theory, any language may be used.
 
-\section{Job bookkeeping}
+Methods that have been running are called jobs.  The server stores
+results and parameters from all jobs in a database that is partitioned
+into what is called workdirs.  The client keeps a log, called the urd
+log, which is bookkeeping all dispatched jobs and parameters.
+
+@@@ featurelist here?!
+
+A very simple example
+
+\begin{python}
+# a_helloworld.py:
+def analysis(sliceno):
+  print "Hello world: %d" % (sliceno,)
+
+# automata.py:
+def main(urd):
+  urd.begin('test')
+  urd.build('helloworld')
+\end{python}
+
+
+\section{Job Bookkeeping}
 
 A promiment feature of both the client and the server is the ability
-to immediately recall previously executed jobs.  And the combination
-of cliend and server provides a very powerful environment for
-accessing and depending on previous result.  In a typical application,
-this dramatically increases performance while minimising the
-probability of errors.  It also allows for a high level of
-transparency.  For example, past jobs could be replayed in a
-controlled manner, and any past event could be examined thoroughly
-since the total context is known.
+to immediately recall instead of recompute previously executed jobs.
+Any job that has been successfully executed may be recalled, provided
+that the job is submitted again with exactly the same input and source
+code.  The framework uses a hash of the method's source code to decide
+if it has changed or not.
 
-(Exempel duger inte här, speca exakt vad det är på tillräckligt hög
-nivå!)
+The combination of bookkeeping and the client/server architecture
+provides a very powerful environment for accessing and depending on
+previous result.  Not only can a user's own results be recalled, but
+also those from another user or from the ``production'' user in a live
+enviroment.
 
+In a typical application, this dramatically increases performance
+while minimising the probability of errors.  It also allows for a high
+level of transparency.  Past jobs could be replayed in a controlled
+manner, and the complete context with respect to input argments of any
+job could be retreived and used to answer ``what-if''-scenarios.
 
-
-\section{urd}
-
-
-
-
-
-\section{workdirs}
-A workspace is where results are stored.  One can think of it as a
-directory populated with jobid-directories.
-Workdir are specified with absolute paths in the server filesystem.
-A workspace has a fixed slicing.
-All workdir in a project need to have the same number of slices.
+@@ Jag vill inte ha exempel, utan harda definitioner!
 
 
 
-\section{dispatch, dependencies, and jobids}
+\section{Urd}
+
+Urd provides a scripting environment for running and recalling jobs.
+It has a transaction-log database that stores information about jobs
+that have been run and their inter-dependencies.
+
+Urd is designed to answer questions like: ``what is the jobid of the
+job that ran customer recommendations on this and this date'', and
+``what data did that recommendation job depend on, which was the
+latest available transaction log at that time''.
+
+
+
+
+\section{Workdirs}
+
+A workdir is where results are stored.  One can think of it as a
+directory populated with jobid-directories.  Workdir are specified
+with absolute paths in the server filesystem.  A workdir has a fixed
+slicing.  All workdir in a project need to have the same number of
+slices.
+
+
+
+\section{Dispatch, Dependencies, and Jobids}
+
 The framework is basically a job dispatcher and depencency tracker.
 Input to a job is parameters and source code, called method.  When a
-job is run, a directory is created in the workspace.  A pointer to
-this directory, called a jobid, is returned upon finished execution.
+job is run, a directory is created in the workdir.  A pointer to this
+directory, called a jobid, is returned upon finished execution.
 Inside the directory, everything needed to run the job is stored, for
 example input parameters, as well as all results created during
 execution.
@@ -78,7 +111,8 @@ the reference jobs.
 
 
 
-\section{datasets and chaining}
+\section{Datasets and Chaining}
+
 A particularly efficient way to store data is by using the dataset.
 Data is stored so that it can be retrieved row by row at a very high
 pace and requesting from one to any number of columns.
@@ -98,64 +132,10 @@ without interruption.
 
 
 
-\section{methods}
-A method is a piece of source code.  It may contain the following
-functions:  prepare, analysis, and synthesis.
+\section{Method}
 
-Example
+Code is executed on the framework is written in methods.  Methods
+allow for parallel execution and more.
 
-\begin{python}
-def prepare():
-  x = 3
-  return x
-
-def analysis(sliceno, prepare_res):
-  return x, sliceno
-  
-def synthesis(analysis_res):
-  ix = 0
-  for res in analysis_res:
-    print res
-    ix += 1
-  return ix
-\end{python}
-
-\begin{python}
-def synthesis(params):
-  for key, val in params.items():
-    print key, val
-
-# first, the package, name of source code, jobid to this job
-#   package   dev
-#   method    refman_test1
-# so, source code is in dev/a_refman_test1.py
-
-# this jobid, caption and starttime
-#   jobid     test-425_0
-#   caption   fsm_refman_test1
-#   starttime 1476105147.99
-# starttime is in unix epoch time (seconds since jan 1, 1970)
-    
-# number of slices in current workspace
-#   slices    29
-
-# links and options
-#   datasets  {'source': 'neu4-1820_0'}
-#   jobids    {}
-#   options   {}
-
-# source code hash, random seed to use    
-#   hash      32bbbf165d8ffdf09626a005e52c813c5ac791cb
-#   seed      3399658600771568772
-#   link      {}
-# The seed is a convenienve providing a known random seed
-
-# params.params containt datasets, jobids, and options
-#   params    {'refman_test1': {
-#                'datasets': {'source': 'neu4-1820_0'},
-#                'options': {},
-#                'jobids': {}}
-#             }
-\end{python}
-
+\section{Automata}
 

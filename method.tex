@@ -1,7 +1,52 @@
 \section{Methods}
+
 A method is a piece of source code that can be run by the framework.
 When a method is dispatched with a set of inputs, it is called a job.
 A method may be dispatched by urd, or by another method as a subjob.
+
+
+
+\section{Packages and Source code}
+
+Methods are stored in directories, called packages, in the main
+framework directory.  A package needs to be present in the main
+configuration file, and the package directory has to contain the file
+``__init__.py'' for python to see it.
+
+There are two limitations, that apply to methods, designed to avoid
+accidental execution of the wrong source code.  For a method file to
+be accepted by the framework, the filename has to start with the
+prefix ``a_''.  Furthermore, the method name, without this prefix must
+be present on a separate line in the ``methods.conf'' file for the
+package.
+
+
+
+\section{Dependencies and Method Hashing}
+
+The framework is applying a hash function to the method source code to
+determine if a job may be recalled or re-executed.  Chainging the
+method source code is a sure way to enforce a remake of a job.
+
+A method may use code located in other files, and in that case it is
+possible to ensure that jobs are remaked if any of those files change.
+This is specified in the method using the depend\_extra list, as for
+example:
+
+\begin{python}
+depend_extra = ('myfunc.py', 'generic_params.py',)
+\end{python}
+
+A different scenario is when a method needs to be changed, but the
+change does not alter past behaviour, i.e. remake of jobs should be
+actively avoided.  There is a equivalent\_hashes list for that, as
+shown
+\begin{python}
+  equivalent_hashes = ('0c573685f713ac6500a6eda7df1a7b3f',)
+\end{python}
+
+
+
 
 \section{Method inputs}
 
@@ -26,7 +71,7 @@ Each vill be described in more detail next
 
 
 
-\subsection{jobids}
+\subsection{Input jobids}
 the jobids argument is a tuple of jobids linking this job to other
 jobs.  Inside the running method, a jobid from the jobids tuple is
 simply a string that can be passed to various helper functions in
@@ -34,7 +79,7 @@ order to use results from the corresponding jobs.
 
 
 
-\subsection{datasets}
+\subsection{Input datasets}
 datasets is the way to communicate datasets from automata to job.  In
 the running method, the datasets variable is a tuple of dataset
 objects ready to use.  The dataset class is described in a dedicated
@@ -51,14 +96,12 @@ Dataset('a-0_0', 'foo')
 
 
 
-\subsection{options}
+\subsection{Input Options}
+
 The options is of type dict and used to pass various information to a
 method.  Information could be integers, strings, enumerations, sets,
 lists, and dicts in a recursive fashion.  Options may have a default
 value.
-
-
-
 
 Options are defined in a method like this
 
@@ -70,10 +113,6 @@ Options are defined in a method like this
 Options are easiest described by examples, and such will be presented
 in the following sections.  The remaining of this section is dedicated
 to describe the formal rules for option typing and assignment.
-
-
-
-
 
  \begin{itemize}
  \item an input value is required to be of the correct type.
@@ -252,6 +291,7 @@ options = dict(ts=datetime(2014, 1, 1))
 \end{python}
 
 
+
 \subsubsection*{JobWithFile}
 Any file residing in a jobdir may be input to a method like this
 
@@ -358,7 +398,7 @@ but params does also contain all options, jobids, and datasets inputs.
 
 
 
-\subsection{Accessing another job's params}
+\subsection{Accessing Another Job's Params}
 
 The params data sctructure contains all input and initialisation data
 for a job.  To access another job's params variable, just feed the
@@ -380,9 +420,9 @@ def synthesis():
 
 
 \newpage
-\section{More on intermediate and result files}
+\section{More on Intermediate and Result Files}
 
-\subsection{Sharing data inside a job}
+\subsection{Sharing Data Inside a Job}
 data is simply shared between prepare, analysis, and synthesis as follows.
 \begin{itemize}
 \item what is returned in prepare is available as prepare\_res in analysis and synthesis
@@ -431,7 +471,7 @@ always stores but removes unless --debug is set.
 
 
 \newpage
-\section{subjobs}
+\section{Subjobs}
 
 Jobs may lanch subjobs.  If the jobs are already built, they will be
 immediately linked in.  The syntax is as follows, assuming we build

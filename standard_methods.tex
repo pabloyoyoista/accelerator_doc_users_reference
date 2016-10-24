@@ -1,41 +1,62 @@
 \section{dataset_type?}
 
-float64
+\subsection{typing}
+
+\begin{python}
 float32
+float64
+\end{python}
 
-i = ignorera trailing garbage (...kG)
-  float64i
-  float32i
+ignore trailing garbage
 
-floatint == dedotter, dvs    int(float(value))
-e = exact, error om saturate, för ``stor'' för int32 eller float64 respektive
-    'floatint64e'  
-    'floatint32e'  
-s = saturate, sätt till max om för stor
-    'floatint64s'  
-    'floatint32s'  
-ei = e+i
-    'floatint64ei' 
-    'floatint32ei' 
-si = s+i
-    'floatint64si' 
-    'floatint32si' 
+\begin{python}
+float32i
+float64i
+\end{python}
 
-_x = strtol(...,x), dvs bas.
-_0 == auto (avoid)
+floatints are integers, i.e. int(float(value)), used for dedotting...
+\begin{python}
+# e = exact, error on saturate which is int32 when 32 or float64 when 64.
+'floatint64e'  
+'floatint32e'  
+\end{python}
+
+\begin{python}
+# s = saturate
+'floatint64s'  
+'floatint32s'  
+\end{python}
+
+\begin{python}
+# exact and ignore
+'floatint64ei' 
+'floatint32ei' 
+\end{python}
+
+\begin{python}
+# saturate and ignore
+'floatint64si' 
+'floatint32si' 
+\end{python}
+
+specify base, i.e. arg to strtol(...,x)
+\begin{python}
+#_0 == auto (avoid)
     'int64_0'      
     'int32_0'      
-
+# octal
     'int64_8'      
     'int32_8'      
-
+# decimal
     'int64_10'     
     'int32_10'     
-
+# hexadecimal
     'int64_16'     
     'int32_16'     
+\end{python}
 
-i-version
+and with ignore
+\begin{python}
     'int64_0i'     
     'int32_0i'     
     'int64_8i'     
@@ -44,60 +65,73 @@ i-version
     'int32_10i'    
     'int64_16i'    
     'int32_16i'    
+\end{python}
 
-blir bool, vänster är input
-    'strbool'      
-False 		if (!strcasecmp(line, "false")
-		    || !strcasecmp(line, "0")
-		    || !strcasecmp(line, "f")
-		    || !strcasecmp(line, "no")
-		    || !strcasecmp(line, "off")
-		    || !strcasecmp(line, "nil")
-		    || !strcasecmp(line, "null")
-		    || !*line
-default True
+\begin{python}
+'strbool'
+# false if in ("false, "0", "f", "no", "off", "nil", "null", "")
+# true  otherwise
+\end{python}
 
-true om floatens bitmönster har ettor
-    'floatbool'    
-i-flagga
-    'floatbooli'   
+\begin{python}
+#true if float has bits set to one
+'floatbool'
+# with ignore
+'floatbooli'   
+\end{python}
 
-strptime-compat format
+time and date
+\begin{python}
+# strptime-compat format
     'datetime:*'   
     'date:*'       
     'time:*'       
     'datetimei:*'  
     'datei:*'      
     'timei:*'      
+\end{python}
 
-``sekvens oktetter'', kommer ut ur csvimport
-    'bytes'        
-strippar ascii 8-13,32 från början och slutet
-    'bytesstrip'   
+strings and byte sequences
+\begin{python}
+# out from csvimport, lists of bytes
+'bytes'
+# with strip of characters 8-13,32 from start and end
+'bytesstrip'
+\end{python}
 
+\begin{python}
+# python type "unicode"
+'unicode:*'    
+# with strip
+'unicodestrip:*
+# args are
+#   strict
+#   replace
+#   ignore
+\end{python}
+%python-typen unicode
+%strict, replace, ignore (dataset_typing:376)
+%strict:   ger error
+%replace:  
+%ignore:   radera dåliga tecken
 
-    # unicode[strip
-    # errorhandling
-
-python-typen unicode
-strict, replace, ignore (dataset_typing:376)
-strict:   ger error
-replace:  
-ignore:   radera dåliga tecken
-
-    'unicode:*'    
-    'unicodestrip:*
-
-sekvens bokstäver, 7-bitars
+\begin{python}
+# sequence of letters, 7-bit representation
     'ascii'        
     'asciistrip'   
-replace, strict, encode
-encode är reversibel (originalsträng kan man få tillbaka)
+# with argument
     'ascii:*'      
     'asciistrip:*' 
+# replace, strict, encode
+# encode är reversibel (originalsträng kan man få tillbaka)
+\end{python}
 
-
+\begin{python}
+# number is int or float
     'number'       
+# number:int is int, but "37.0" is okay
     'number:int'  se dataset_typing.py:388
+\end{python}
+
 
 

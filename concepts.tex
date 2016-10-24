@@ -5,25 +5,50 @@
 
 
 \section{overview}
-The framework is a server to which user connect using client
-applications.  A client submits or recalls jobs to/from the server.
-The server holds databases named workspaces, where all data and
-options for every job is stored.
+The accelerator environment is composed of two parts.  A server
+providing a set of features for efficient processing of large amounts
+of data, and a client that dispatches jobs on the server.
 
-client server.
-several clients, several users.  permissions
-framework is job-dispatcher.  jobids, workspaces
+A user may use or write two kinds of programs for the enviromnent.
+the first is called methods, which is parallel programs executed by
+the server.  The second is high level scripts, called automatas, that
+are executed by the client.  Automatas are used to control flow and
+parameters to and from the methods running on the server.
+
+The server stores results from executed methods in a database that is
+partitioned into what is called workdirs.  The client keeps a log,
+called the urd log, which is bookkeeping all dispatched jobs and
+parameters.
+
+\section{Job bookkeeping}
+
+A promiment feature of both the client and the server is the ability
+to immediately recall previously executed jobs.  And the combination
+of cliend and server provides a very powerful environment for
+accessing and depending on previous result.  In a typical application,
+this dramatically increases performance while minimising the
+probability of errors.  It also allows for a high level of
+transparency.  For example, past jobs could be replayed in a
+controlled manner, and any past event could be examined thoroughly
+since the total context is known.
+
+(Exempel duger inte här, speca exakt vad det är på tillräckligt hög
+nivå!)
+
+
+
+\section{urd}
 
 
 
 
 
-\section{workspaces}
+\section{workdirs}
 A workspace is where results are stored.  One can think of it as a
 directory populated with jobid-directories.
-Workspaces are specified with absolute paths in the server filesystem.
+Workdir are specified with absolute paths in the server filesystem.
 A workspace has a fixed slicing.
-All workspaces in a project need to have the same number of slices.
+All workdir in a project need to have the same number of slices.
 
 
 

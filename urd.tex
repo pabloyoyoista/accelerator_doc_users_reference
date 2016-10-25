@@ -1,21 +1,118 @@
 \section{Background}
 
-Urd is a transaction-log-based service keeping track of all jobs for
-all users of a framework setup.
+Urd is the primary job dispatcher for the framework, and it is much
+more than that.  Urd is a transaction-log-based service keeping track
+of all jobs for all users of a framework setup.
 
 The idea is that each user of the framework has one or more locations
 in the database where information about executed jobs are stored.
 These locations are called urd-lists.  The lists are readable to
 anyone, but due to authorisation only writeable by the owning user.
 
+With the exception of experimental work, all work initiated by urd is
+run in closed sessons, with a well defined start and ending point.
+The input dependencies to these sessions are recorded, together with
+the resulting output.
+
+
 
 \section{Urd sessions}
 
-begin ... finish.
+A minimal urd session looks like this
 
-begin options: path <timestamp> <caption> <update>
-finish:        path; <timestamp> and <caption> overrides
-abort()
+\begin{python}
+def main(urd):
+  urd.begin('test')
+  ...
+  urd.finish('test', '20161025')
+\end{python}
+This records any jobs carried out between the begin-finish lines into
+the list test with a timestamp of '20161025'.
+
+The session takes a number of options
+
+\begin{python}
+  urd.begin(path, timestamp=None, caption=None, update=False)
+  urd.finish(path, timestamp=None, caption=None)
+\end{python}
+and these rules apply
+\begin{itemize}
+  \item the same path must be specified in both begin and finish.
+  \item timestamp is mandatory, but could be set in either begin or
+    finish.  Finish overrides begin.
+  \item caption is mandatory, but could be set in either begin or
+    finish.  Finish overrides begin.
+  \item update ???
+\end{itemize}
+
+When a session is initiated, a new session cannot start until the
+current has finished.  A session may be aborted, however
+
+\begin{python}
+  urd.begin('test')
+  urd.abort()
+\end{python}
+
+
+
+\section{Building jobs}
+
+Jobs may be dispatched in a running session.  The syntax is as follows
+
+\begin{python}
+  jobid = urd.build('method1', options={}, datasets={}, jobids={},)
+\end{python}
+where options, datasets, and jobids are optional, depending on the
+method to be dispatched.  A jobid is returned upon successful
+completion.
+
+In addition, a name and a caption may optionally be specified
+
+\begin{python}
+  jobid = urd.build('method1', name='myjob', caption='looking for something')
+\end{python}
+
+The name will replace the method name in the joblist, so instead of
+having
+
+\begin{python}
+  ('method1', 'test-56_0')
+\end{python}
+it will be
+
+\begin{python}
+  ('myjob', 'test-56_0')
+\end{python}
+
+
+
+It is also possible to build chained jobs implicitly using
+
+\begin{python}
+  jobid = urd.build_chained('method1', name='myjob')
+\end{python}
+which takes exactly the same options as the standard build() method,
+with the exception that name is mandatory, since it is used to find
+the previous job of matching type.
+
+
+
+\section{Sessions with dependency}
+
+
+
+\section{Urd HTTP\_API}
+
+
+
+
+
+
+
+
+
+
+
 
 
 \section{An example Urd session}
@@ -98,7 +195,6 @@ this can also be achieved by
 
 % curl http://localhost:8833/ab/test/since/20161026
 []                                 
-
 \end{shell}
 
 
@@ -106,9 +202,9 @@ this can also be achieved by
 % x peek\_latest
 % x peek\_first
 % x since
-% x begin
-% x abort
-% x finish
+% X begin
+% X abort
+% X finish
 % x build
 % truncate
 % get

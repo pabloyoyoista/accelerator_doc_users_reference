@@ -30,8 +30,12 @@
 \usepackage{minted}
 \usemintedstyle{colorful}
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
+\definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
 \newminted[python]{python}{bgcolor=bg, frame=lines}
-\newminted[shell]{shell}{bgcolor=bg, frame=lines}
+\newminted[pythonBEG]{python}{bgcolor=bg, frame=topline}
+\newminted[pythonMID]{python}{bgcolor=bg}
+\newminted[pythonEND]{python}{bgcolor=bg, frame=bottomline}
+\newminted[shell]{bash}{bgcolor=bg_shell, frame=lines}
 
 \newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
 
@@ -51,7 +55,7 @@
 
 
 
-\includeonly{urd}
+%\includeonly{urd}
 
 \include{xmtitle}
 
@@ -59,6 +63,18 @@
 %\titleLL
 %\thispagestyle{empty}
 %\newpage
+
+\begin{pythonBEG}
+aaaa
+\end{pythonBEG}
+
+\begin{pythonMID}
+aaaa
+\end{pythonMID}
+
+\begin{pythonEND}
+aaaa
+\end{pythonEND}
 
 
 

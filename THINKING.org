@@ -1,5 +1,9 @@
-* TODO subjob.build(..., name=???)
+* DONE subjob.build(..., name=???)
 
+* DONE urd.build(..., name=???)
+* TODO varför finns ingen urd.list() ???
+skall lägga till
+* TODO urd.begin(..., update=???)
 
 
 * DONE carls nya options

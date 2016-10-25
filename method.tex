@@ -11,12 +11,12 @@ A method may be dispatched by urd, or by another method as a subjob.
 Methods are stored in directories, called packages, in the main
 framework directory.  A package needs to be present in the main
 configuration file, and the package directory has to contain the file
-``__init__.py'' for python to see it.
+``\_\_init\_\_.py'' for python to see it.
 
 There are two limitations, that apply to methods, designed to avoid
 accidental execution of the wrong source code.  For a method file to
 be accepted by the framework, the filename has to start with the
-prefix ``a_''.  Furthermore, the method name, without this prefix must
+prefix ``a\_''.  Furthermore, the method name, without this prefix must
 be present on a separate line in the ``methods.conf'' file for the
 package.
 

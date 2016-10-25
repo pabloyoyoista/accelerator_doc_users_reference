@@ -72,20 +72,13 @@ In addition, a name and a caption may optionally be specified
   jobid = urd.build('method1', name='myjob', caption='looking for something')
 \end{python}
 
-The name will replace the method name in the joblist, so instead of
-having
-
-\begin{python}
-  ('method1', 'test-56_0')
-\end{python}
-it will be
-
-\begin{python}
-  ('myjob', 'test-56_0')
-\end{python}
+The name will replace the method name in the joblist, in this case,
+this job will now be referred to as myjob, and not method1.  
 
 
 
+
+\subsection{Building chained jobs}
 It is also possible to build chained jobs implicitly using
 
 \begin{python}
@@ -96,80 +89,124 @@ with the exception that name is mandatory, since it is used to find
 the previous job of matching type.
 
 
+\subsection{Debug:  Why build}
+
+Bye speficying the flag why\_build to the automatarunner it is
+possible to see the reasons for building a job.  For example
+
+\begin{python}
+  print urd.build('method3', jobids=dict(firstjob=jid2, secondjob=jid2), name='knut')
+# Would have built from:
+# ======================
+# {
+#     "caption": "fsm_method3", 
+#     "method": "method3", 
+#     "params": {
+#         "method3": {
+#             "datasets": {}, 
+#             "jobids": {
+#                 "firstjob": "test-59_0", 
+#                 "secondjob": "test-59_0"
+#             }, 
+#             "options": {}
+#         }
+#     }, 
+#     "why_build": "on_build"
+# }
+# Could have avoided build if:
+# ============================
+# {
+#     "method3": {
+#         "test-60_0": {
+#             "jobids": {
+#                 "firstjob": "test-56_0"
+#             }
+#         }
+#     }
+# }
+\end{python}
+A more machine-friendly output is possible by spefifying
+why\_build=True in the build()-request (and not specifying it to the
+automatarunner).
+
+
 
 \section{Sessions with dependency}
+
+Assume that a method, method1, uses some kind of imported transaction
+logs, called tlog.  When dispatching method1, it should be using the
+latest tlog.  This is achieved in the following example
+
+\begin{python}
+def main(urd):
+  urd.begin('test')
+  latest_tlog = urd.latest('tlog').joblist.jobid
+  urd.build('method1', datasets=(tlog=latest_tlog))
+  urd.finish('test', '20161025')
+\end{python}
+The latest()-function will record a dependency of tlog to method1.
+
+\begin{python}
+  urd.get('test', '20161001')
+  urd.latest('test')
+  urd.first('test')
+\end{python}
+
+Running on yesterday's tlog data
+
+\begin{python}
+def main(urd):
+  urd.begin('test')
+  tlog = urd.get('tlog', '20161024').joblist.jobid
+  urd.build('method1', datasets=(tlog=tlog))
+  urd.finish('test', '20161025')
+\end{python}
+
+
+
+\section{Avoiding recording dependency}
+There are peek-variants available that do not record dependencies.
+
+\begin{python}
+  urd.peek('test', '20161025')
+  urd.peek_latest('test')
+  urd.peek_first('test')
+\end{python}
+
+
+
+\section{Truncating and Updating}
+
+Urd will always keep a consistent history of all events taken place.
+Sometimes, however, it makes sense to re-run events from the past.
+There are two means to achieve this
+
+\subsubsection{update}
+The begin-function takes an optional argument update
+
+\begin{python}
+  urd.begin('test', '20161025', update=True)
+\end{python}
+If update is True, the entry in the test list at '20161025' will be
+updated, unless there has been no change.
+
+\subsubsection{Truncate}
+
+The truncate() class member is used to rollback an arbitrary amount of
+an urd list.
+
+\begin{python}
+  urd.truncate('test', '20160930')
+\end{python}
+This will rollback everything that has happened in the test list back
+to '20160930'.  Internally, urd stores the complete history, however.
 
 
 
 \section{Urd HTTP\_API}
 
-
-
-
-
-
-
-
-
-
-
-
-
-\section{An example Urd session}
-
-Consider the following example that dispatches method1, method2, and
-method3 consecutively.
-
-\begin{python}
-def main(urd):
-  urd.begin{'test')
-  jid1 = urd.build('method1')
-  jid2 = urd.build('method2', jobids=dict(firstjob=jid1)
-  jid3 = urd.build('method3', jobids=dict(firstjob=jid1, secondjob=jid2)
-  urd.finish('test', '20161025')
-\end{python}
-
-now, urd keeps a record of everything that has been build and its
-dependencies.  A complete history of executed jobs is stored in the
-joblist member, and can be printed pretty like this
-
-\begin{python}
-  print urd.joblist.pretty
-# JobList(
-#    [  0] method1 : test-56_0
-#    [  1] method2 : test-57_0
-#    [  2] method3 : test-58_0
-# )
-\end{python}
-
-\begin{python}
-  print urd.peek_latest('test')
-# {'caption': '',
-#  'automata': 'test',
-#  'user': 'ab',
-#  'deps': {},
-#  'timestamp': '20161025',
-#  'joblist': JobList([
-#     ('method1', 'test-56_0'),
-#     ('method2', 'test-59_0'),
-#     ('method3', 'test-60_0')
-#  ])
-# }
-\end{python}
-\begin{python}
-  # and another peek
-  print urd.peek_first('test')
-
-  # and another
-  print urd.peek('test', '20161026')
-
-  # and another
-  print urd.since('test', '20161026')
-\end{python}
-
-
-
-this can also be achieved by
+In some situations it is convenient to make calls to urd directly
+without using the framework.  Urd will react to HTTP requests.
 
 \begin{shell}
 % curl http://localhost:8833/list
@@ -185,41 +222,20 @@ this can also be achieved by
   "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
   ["method2", "test-59_0"], ["method3", "test-60_0"]]}
 
-% curl http://localhost:8833/ab/test/20161025              (git)-[99b6358...] 
+% curl http://localhost:8833/ab/test/20161025
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
   ["method2", "test-59_0"], ["method3", "test-60_0"]]}
 
 % curl http://localhost:8833/ab/test/since/201610024
 ["20161025"]
-
 % curl http://localhost:8833/ab/test/since/20161026
 []                                 
+
+
+
 \end{shell}
 
-
-% x peek
-% x peek\_latest
-% x peek\_first
-% x since
-% X begin
-% X abort
-% X finish
-% x build
-% truncate
-% get
-% latest
-% first
-% build\_chained
-
-
-% x @route('/<user>/<automata>/since/<timestamp>')
-% x @route('/<user>/<automata>/latest')
-% x @route('/<user>/<automata>/first')
-% x @route('/<user>/<automata>/<timestamp>')
-% x @route('/list')
-% @route('/add', method='POST')
-% @route('/truncate/<user>/<automata>/<timestamp>', method='POST')
 
 
 
@@ -242,6 +258,7 @@ joblist object, accessible by
 
 The jobtuple is a datatype used for storing pairs of names and jobids.
 A user typically never creates these, but rather use
+
 \begin{python}
 
 \end{python}
@@ -250,53 +267,4 @@ A user typically never creates these, but rather use
 .pretty
 .jobid
 .method
-
-
-\section{api}
-Example
-
-\begin{python}
-def main(urd):
-  latest = urd.latest('ab/neu4')
-  print latest
-#{
-#  'user': 'ab',
-#  'automata': 'neu4',
-#  'caption': '',
-#  'timestamp': '53910101',
-#  'joblist': JobList(
-#    [
-#      ('import_amit', 'neu4-1820_0')
-#    ]
-#  )
-#  'deps': {
-#    'ab/neu2': {
-#      'caption': 'raw_repository_5391.gz',
-#      'timestamp': '53910101'
-#      'joblist': JobList(
-#        [
-#          ('import', 'neu-14679_0'),
-#          ('typed', 'neu-14680_0'),
-#          ('addcolumns', 'neu2-4893_0')
-#        ]
-#      ),
-#    }
-#  },
-#}
-\end{python}
-so the jobid is found by
-
-\begin{python}
-  jid = latest.joblist.jobid
-
-  urd.build('my_method',
-    datasets = dict(source=jid),
-    options = dict(length=3),
-  )
-\end{python}
-and if the result is to be stored in urd:
-
-\begin{python}
-  urd.finish()
-\end{python}
 

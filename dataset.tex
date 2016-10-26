@@ -84,7 +84,7 @@ datasets = ('source',)
 
 def synthesis():
   print datasets.source.columns.keys()
-  # [u'GTIN', u'date', u'locale', u'subsource']
+  # ['GTIN', 'date', 'locale', 'subsource']
 \end{python}
 
 
@@ -191,28 +191,32 @@ print datasets.source.previous
 \section{Column Typing}
 The dataset columns are typed.  The following types are available
 
-\begin{tabular}{ll}
-	'number'   &  float or int\\
-	'float64'   &\\
-	'float32'   &\\
-	'int64'   & \\
-	'int32'   &  \\
-	'bool'   &  True or False\\
-	'datetime'   &  \\
-	'date'   &  \\
-	'time'   &  \\
-	'bytes'   &  avoid \\
-	'ascii'   &  ascii is faster in python2, otherwise unicode\\
-	'unicode'   &  use for strings\\
-	'parsed:number'   & int, float or string parsing to int or float \\
-	'parsed:float64'   &  and so on...\\
-	'parsed:float32'   &  \\
-	'parsed:int64'   &  \\
-	'parsed:sint32'   &  \\
-        'json'   &  a datastructure that is jsonable\\
-        'parsed:json'   &  string containing parseable json\\
-\end{tabular}
-
+\begin{table}[h!]
+ \begin{tabular}{ll}
+  \hline
+    number   &  float or int\\
+    float64   &\\
+    float32   &\\
+    int64   & \\
+    int32   &  \\
+    bool   &  True or False\\
+    datetime   &  \\
+    date   &  \\
+    time   &  \\
+    bytes   &  avoid \\
+    ascii   &  ascii is faster in python2, otherwise unicode\\
+    unicode   &  use for strings\\
+    parsed:number   & int, float or string parsing to int or float \\
+    parsed:float64   &  and so on...\\
+    parsed:float32   &  \\
+    parsed:int64   &  \\
+    parsed:sint32   &  \\
+    json   &  a datastructure that is jsonable\\
+    parsed:json   &  string containing parseable json\\
+  \hline
+ \end{tabular}
+ \caption{Available dataset column types.}
+\end{table}
 
 \newpage
 \section{Create New Dataset}

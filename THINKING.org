@@ -3,7 +3,12 @@
 * DONE urd.build(..., name=???)
 * TODO varför finns ingen urd.list() ???
 skall lägga till
-* TODO urd.begin(..., update=???)
+* DONE urd.begin(..., update=???)
+
+* TODO skall man kunna göra urd.build utan urd.begin???
+* TODO Heter det "recall" när man hämtar byggda jobb???
+
+* TODO automatarunner nämns under why_build i urd-kapitlet.  Hur skall det introduceras???
 
 
 * DONE carls nya options

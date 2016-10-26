@@ -1,99 +1,126 @@
-\section{Background}
+\section{Introduction to Urd}
 
-Urd is the primary job dispatcher for the framework, and it is much
-more than that.  Urd is a transaction-log-based service keeping track
-of all jobs for all users of a framework setup.
+Urd haller reda pa var dataset och jobids finns, och vad de beror pa
+och nar.
 
-The idea is that each user of the framework has one or more locations
-in the database where information about executed jobs are stored.
-These locations are called urd-lists.  The lists are readable to
-anyone, but due to authorisation only writeable by the owning user.
+
+Urd is the primary job dispatcher as well as top level controller.  It
+keeps a transaction log database of all dispatched jobs and their
+context, and exposes functions that provides simple access to this
+transaction history.
+
+The database is partitioned into what is called \textsl{lists}.  Each
+user, human or agent, owns one or more lists where information about
+executed jobs are stored.  Lists are globally readable, but writing is
+limited using authentication, so that, for example, only the
+production user may publish a model to go live.
 
 With the exception of experimental work, all work initiated by urd is
-run in closed sessons, with a well defined start and ending point.
+run in closed sessons, with well defined starting and ending points.
 The input dependencies to these sessions are recorded, together with
 the resulting output.
 
 
 
+
 \section{Urd sessions}
 
-A minimal urd session looks like this
-
+Here is an example of a minimal urd session\\
 \begin{python}
 def main(urd):
   urd.begin('test')
   ...
   urd.finish('test', '20161025')
 \end{python}
-This records any jobs carried out between the begin-finish lines into
-the list test with a timestamp of '20161025'.
+Everything dispatched between \texttt{begin} and \texttt{finish} will
+be appended to the \texttt{test} urd list with timestamp
+\texttt{20161025}, as log as the \texttt{finish} function is called,
+since it is responsible for updating the urd transaction log.  Before
+\texttt{finish}, noting is stored, and it is perfectly ok to omit
+\texttt{finish} during development work.
 
-The session takes a number of options
-
+There are a number of options associated with a session, as shown here,\\
 \begin{python}
   urd.begin(path, timestamp=None, caption=None, update=False)
   urd.finish(path, timestamp=None, caption=None)
 \end{python}
-and these rules apply
+and the following rules apply to these options:
 \begin{itemize}
-  \item the same path must be specified in both begin and finish.
-  \item timestamp is mandatory, but could be set in either begin or
-    finish.  Finish overrides begin.
-  \item caption is mandatory, but could be set in either begin or
-    finish.  Finish overrides begin.
-  \item update ???
+  \item the same \texttt{path} must be specified in both \texttt{begin} and \texttt{finish}.
+  \item \texttt{timestamp} is mandatory, but could be set in either \texttt{begin} or
+    \texttt{finish}.  \texttt{finish} overrides \texttt{begin}.
+  \item \texttt{caption} is mandatory, but could be set in either \texttt{begin} or
+    \texttt{finish}.  \texttt{finish} overrides \texttt{begin}.
 \end{itemize}
+There is also an \texttt{update} option that will be discussed in
+section~\ref{update_info}.
+
+
+
+\subsubsection{Timestamp resolution}
+
+Timestamps may be specified in various resolution depending on the
+application.  The following examples cover the available formats\\
+\begin{python}
+   '20161025'              day resolution
+   '20161025 15'           hour resolution
+   '20161025 1525'         minute resolution
+   '20161025 152500'       second resolution
+\end{python}
+
+
+
+\subsubsection{Aborting an Urd Session}
 
 When a session is initiated, a new session cannot start until the
-current has finished.  A session may be aborted, however
-
+current has finished.  A session may be aborted, however,\\
 \begin{python}
   urd.begin('test')
   urd.abort()
 \end{python}
+and aborted sessions are not stored in the urd transaction log.
 
 
 
+\newpage
 \section{Building jobs}
 
-Jobs may be dispatched in a running session.  The syntax is as follows
-
+Jobs are dispatched in session using the \texttt{build} function.  The
+syntax is as follows\\
 \begin{python}
-  jobid = urd.build('method1', options={}, datasets={}, jobids={},)
+  jobid = urd.build('method1', options={}, datasets={}, jobids={}, ...)
 \end{python}
-where options, datasets, and jobids are optional, depending on the
-method to be dispatched.  A jobid is returned upon successful
-completion.
-
-In addition, a name and a caption may optionally be specified
-
+where \texttt{options}, \texttt{datasets}, and \texttt{jobids} are
+optional, depending on the method to be dispatched.  In addition, a
+name and a caption may optionally be specified too\\
 \begin{python}
   jobid = urd.build('method1', name='myjob', caption='looking for something')
 \end{python}
-
 The name will replace the method name in the joblist, in this case,
-this job will now be referred to as myjob, and not method1.  
+this job will now be referred to as \texttt{myjob} (default was
+\texttt{method1}).  A jobid to the finished job is returned upon
+successful completion.
+
 
 
 
 
 \subsection{Building chained jobs}
-It is also possible to build chained jobs implicitly using
-
+It is also possible to build chained jobs implicitly using the
+\texttt{build\_chained} function\\
 \begin{python}
   jobid = urd.build_chained('method1', name='myjob')
 \end{python}
-which takes exactly the same options as the standard build() method,
+which takes the same options as the standard \texttt{build} method,
 with the exception that name is mandatory, since it is used to find
 the previous job of matching type.
 
 
+
 \subsection{Debug:  Why build}
 
-Bye speficying the flag why\_build to the automatarunner it is
-possible to see the reasons for building a job.  For example
-
+By specifying the flag \texttt{why\_build} to the automatarunner it is
+possible to see the reasons for building a job.  For example\\
 \begin{python}
   print urd.build('method3', jobids=dict(firstjob=jid2, secondjob=jid2), name='knut')
 # Would have built from:
@@ -126,17 +153,28 @@ possible to see the reasons for building a job.  For example
 # }
 \end{python}
 A more machine-friendly output is possible by spefifying
-why\_build=True in the build()-request (and not specifying it to the
-automatarunner).
+\texttt{why\_build=True} in the \texttt{build}-request (and not
+specifying it to the automatarunner).
 
 
 
+\newpage
 \section{Sessions with dependency}
 
-Assume that a method, method1, uses some kind of imported transaction
-logs, called tlog.  When dispatching method1, it should be using the
-latest tlog.  This is achieved in the following example
+A job may have dependencies, such as other jobs or datasets.  These
+dependencies are input to the job using the corresponding arguments to
+the \texttt{build} function.  Locating these jobs or datasets,
+however, is exactly a design goal of Urd.  Urd implements a
+\texttt{get} function that looks up jobids and dependencies from a key
+that is composed of a urd list name and a timestamp.  There are also,
+for convenience, \texttt{first} and \texttt{latest} functions to get
+the first and latest job in an urd list.
 
+Here is an example.  Assume that a method, \texttt{method1}, uses some
+kind of imported transaction logs, called \texttt{tlog}.  When
+dispatching \texttt{method1}, it should be using the latest available
+\texttt{tlog}.  The example shows how the function \texttt{latest} is
+used for this\\
 \begin{python}
 def main(urd):
   urd.begin('test')
@@ -144,20 +182,27 @@ def main(urd):
   urd.build('method1', datasets=(tlog=latest_tlog))
   urd.finish('test', '20161025')
 \end{python}
-The latest()-function will record a dependency of tlog to method1.
+Two things have happened here.  First, urd has provided a jobid link
+to the latest available \texttt{tlog}.  Second, the dependency of
+exactly this version of \texttt{tlog} to \texttt{method1} is recorded
+in the urd list \texttt{test} for timestamp \texttt{20161025}.  So, if
+there is a question in the future which version of the \texttt{tlog}
+database that was used on that date for the \texttt{method1} function,
+it is immediately available from urd.
 
+The more general form is \texttt{get}, which is shown below together
+with its derived convenience-functions\\
 \begin{python}
   urd.get('test', '20161001')
   urd.latest('test')
   urd.first('test')
 \end{python}
-
-Running on yesterday's tlog data
-
+And here is an example of running \texttt{method1} on \texttt{tlog} data
+from previous month\\
 \begin{python}
 def main(urd):
   urd.begin('test')
-  tlog = urd.get('tlog', '20161024').joblist.jobid
+  tlog = urd.get('tlog', '20160925').joblist.jobid
   urd.build('method1', datasets=(tlog=tlog))
   urd.finish('test', '20161025')
 \end{python}
@@ -165,8 +210,10 @@ def main(urd):
 
 
 \section{Avoiding recording dependency}
-There are peek-variants available that do not record dependencies.
-
+Depencency-recording will be activated on use of the \texttt{get},
+\texttt{latest}, and \texttt{first} functions.  If, for some reason,
+the point is to just have a look at the database to see what is in
+there, it can be done using the peek-versions, as presented below:\\
 \begin{python}
   urd.peek('test', '20161025')
   urd.peek_latest('test')
@@ -175,11 +222,45 @@ There are peek-variants available that do not record dependencies.
 
 
 
+\newpage
+\section{More on Finding Items in Urd}
+There is a \texttt{list} function that returns what lists are recorded
+in the database:\\
+\begin{pythonBEG}
+  print urd.list()
+  # ['ab/test', 'ab/live']
+\end{pythonBEG}
+And there is also a \texttt{since} function that returns a list of all
+timestamps after the input argument\\
+\begin{pythonMID}
+  print urd.since('20161005')
+  # ["20161006", "20161007", "20161008", "20161009"]
+\end{pythonMID}
+The \texttt{since} is rather relaxed with respect to the resolution of
+the input.  The input timestamp may be truncated from the right down
+to only one digits.  An input of zero is also valid.\\
+\begin{pythonEND}
+  print urd.since('0')
+  # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
+  print urd.since('2016')
+  # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
+  print urd.since('20161')
+  # ["20161004", "20161005", "20161006", "20161007", "20161008"]
+
+  print urd.since('2016105')
+  # ["20161006", "20161007", "20161008"]
+  ...
+  print urd.since('2016105 000000')
+  # ["20161006", "20161007", "20161008"]
+\end{pythonEND}
+
+
+
 \section{Truncating and Updating}
 
 Urd will always keep a consistent history of all events taken place.
 Sometimes, however, it makes sense to re-run events from the past.
-There are two means to achieve this
+There are two means to achieve this, update and truncate.
 
 \subsubsection{update}
 The begin-function takes an optional argument update
@@ -203,6 +284,144 @@ to '20160930'.  Internally, urd stores the complete history, however.
 
 
 
+\newpage
+\section{More on Joblist and Jobtuple}
+
+Urd is using the type joblist to keep track of successfully executed
+jobs.  Each item in the joblist is of type jobtuple.
+
+\subsubsection{Jobtuple}
+
+The \jobtuple type is used to group method names and corresponding
+jobids.  From the docstring: \textsl{ A tuple of (method, jobid) with
+  accessor properties that gives just the jobid for str.}  See the
+following example:
+
+\begin{python}
+>>> jt = JobTuple('imprt', 'jid-0_0')
+
+>>> jt
+('imprt', 'jid-0_0')
+\end{python}
+
+\noindent as expected, and
+
+\begin{python}
+>>> jt.method
+'imprt'
+
+>>> jt.jobid
+'jid-0_0'
+\end{python}
+
+\noindent but note that
+
+\begin{python}
+>>> print jt  # str and encode return jobid only
+jid-0_0
+\end{python}
+
+
+
+\subsubsection{JobList}
+
+\label{sec:joblist}
+The \joblist is a list with add-ons for bookkeeping jobs.  It stores
+instances of \jobtuple.  Here is an example.  First, define a \jobtuple
+
+\begin{python}
+>>> jt = JobTuple('imprt', 'jid-0_0')
+\end{python}
+
+\noindent then define a joblist initiated with the same tuple.  Then
+append some more jobs directly using the \texttt{append} method.
+
+\begin{python}
+>>> jl = JobList(jt)
+>>> jl.append('learn', 'lrn-0_0')
+>>> jl.append('imprt', 'imp-1_0')
+\end{python}
+
+\noindent Let's see how and what is stored in the \joblist.  The
+\texttt{pretty} method is quite useful, but note that just printing
+the object will show the last jobid only.
+
+\begin{python}
+>>> print jl.pretty
+JobList(
+   [  0]  imprt : jid-0_0
+   [  1]  learn : lrn-0_0
+   [  2]  imprt : imp-1_0
+)
+
+>>>  print jl  # jobid of latest appended JobTuple
+imp-1_0
+\end{python}
+
+\noindent It is easy to retreive the last job with a particular \texttt{method} name,
+either by lookup or by using \texttt{find}.
+
+\begin{python}
+>>> jl['imprt']         # latest jobid with name 'imprt'
+('imprt', 'imp-1_0')
+
+>>> print jl['imprt']   # jl['imprt'] is JobTuple
+imp-1_0
+\end{python}
+
+\noindent The Find method returns a \joblist.  Slicing also returns {\joblist}s
+
+\begin{python}
+>>> jl.find('imprt')
+JobList([('imprt', 'jid-0_0'), ('imprt', 'imp-1_0')])
+
+>>> jl[:2]
+JobList([('imprt', 'jid-0_0'), ('learn', 'lrn-0_0')])
+\end{python}
+
+\noindent Looking up by index returns \jobtuple.
+
+\begin{python}
+>>> jl[0]
+('imprt', 'jid-0_0')
+\end{python}
+
+\noindent These conveniences are also supported
+
+\begin{python}
+>>> jl.all              # list of all jobids
+'jid-0_0,lrn-0_0,imp-1_0'
+
+>>> jl.method           # last method
+'import'
+
+>>> jl.jobid            # last jobid
+'imp-1_0'
+\end{python}
+
+Finally, a \joblist may be cleared using
+
+\begin{python}
+jl[:] = ()
+\end{python}
+
+
+
+A simple automata starts with defining the function main that takes an
+urd object as input
+
+this automata will execute the two methods method1 and method2
+consecutively.  Urd will store links to the completed jobs in a
+joblist object, accessible by
+
+
+
+
+The jobtuple is a datatype used for storing pairs of names and jobids.
+A user typically never creates these, but rather use
+
+
+\newpage
 \section{Urd HTTP\_API}
 
 In some situations it is convenient to make calls to urd directly
@@ -231,40 +450,4 @@ without using the framework.  Urd will react to HTTP requests.
 ["20161025"]
 % curl http://localhost:8833/ab/test/since/20161026
 []                                 
-
-
-
 \end{shell}
-
-
-
-
-
-
-
-
-
-\section{Jobtuple and Joblist}
-
-A simple automata starts with defining the function main that takes an
-urd object as input
-
-this automata will execute the two methods method1 and method2
-consecutively.  Urd will store links to the completed jobs in a
-joblist object, accessible by
-
-
-
-
-The jobtuple is a datatype used for storing pairs of names and jobids.
-A user typically never creates these, but rather use
-
-\begin{python}
-
-\end{python}
-
-
-.pretty
-.jobid
-.method
-

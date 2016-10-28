@@ -323,7 +323,7 @@ and the full filename is available through
 
 \begin{python}
 from extras import full_filename
-print full_filename(foo, '')
+print(full_filename(foo, ''))
 \end{python}
 \\
 The mandatory string (which is empty in this case, is a filename
@@ -390,7 +390,7 @@ Params contain all input and initialisation parameters for a job.
 
 \begin{python}
 def synthesis(params):
-  print params.caption
+  print(params.caption)
 # urd_dispatched_method1
 \end{python}
 \\
@@ -423,9 +423,9 @@ from extras import job_params
 jobids = ('anotherjob',)
 
 def synthesis():
-  print jobids.anotherjob
+  print(jobids.anotherjob)
   # will print something like 'jid-0_0'
-  print job_params(jobids.anotherjob).options
+  print(job_params(jobids.anotherjob).options)
   # will print something like {length: 3}
 \end{python}
 

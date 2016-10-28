@@ -43,7 +43,7 @@ including all columns.  %%%% NB: column order???
 
 \begin{python}
 for items in iterate_datasets(sliceno, None, jobids):
-    print items # is a tuple of all columns
+    print(items)  # is a tuple of all columns
 \end{python}
 \\
 Also, if only one column is specified, it is possible to have the
@@ -147,7 +147,7 @@ PLACEHOLDER
 %  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
 %  from dataset import Dataset
 %  for item in Dataset.iterate_list(None, None, datasets.source):
-%    print item
+%    print(item)
 %\end{python}
 
 
@@ -319,7 +319,7 @@ prior to iterating over it.
 \begin{python}
 # pre_callback once per dataset
 def prefun(jobid):
-    print jobid
+    print(jobid)
 for user, item in iterate_datasetchain(sliceno, ('user', 'item',), tip_jobid=jobid,
                                        pre_callback=prefun):
     ...
@@ -334,7 +334,7 @@ previous takes only one.
 \begin{python}
 # callback once per slice
 def prefun(jobid, sliceno):
-    print sliceno, jobid
+    print(sliceno, jobid)
 for user, item in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
                                        pre_callback=prefun):
     ...

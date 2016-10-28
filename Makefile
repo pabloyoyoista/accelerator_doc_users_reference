@@ -3,11 +3,9 @@ DOC=doc
 all:    ${DOC}.pdf
 
 
-gitrevision:
+
+${DOC}.pdf: doc.tex dataset.tex concepts.tex method.tex urd.tex setup.tex iterator.tex standard_methods.tex xmtitle.tex
 	git rev-parse HEAD > gitrevision
-
-
-${DOC}.pdf: gitrevision doc.tex dataset.tex concepts.tex method.tex urd.tex setup.tex iterator.tex standard_methods.tex
 	latexmk -pdf -pdflatex="pdflatex -interactive=nonstopmode -shell-escape" -use-make ${DOC}.tex
 
 clean:

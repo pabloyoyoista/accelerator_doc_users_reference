@@ -1,0 +1,42 @@
+%http://tex.stackexchange.com/questions/40738/how-to-properly-make-a-latex-project
+%Sadly, \input breaks the build. If pdflatex encounters a missing
+%\input file, it generates an error (instead of a warning like with
+%\include), and stops compiling. Yes, latexmk will generate the file
+%and re-start pdflatex, but this is inefficient, and breaks completely
+%if you have multiple such file references, because eventually the
+%compile will end with a ``too many re-runs'' message.  John Collins'
+%answer to my question regarding this provides a workaround for this.
+\newcommand\inputfile[1]{%
+    \InputIfFileExists{#1}{}{\typeout{No file #1.}}%
+}
+\newlength{\drop}% for my convenience
+\newcommand*{\titleLL}{\begingroup% Lost Languages
+  \drop=0.1\textheight
+  \fboxsep 0.5\baselineskip
+  \sffamily
+  \vspace*{\drop}
+  \centering
+  %{\textcolor{SkyBlue}{\HUGE CONUNDRUMS}}\par
+  {
+    \Huge XM Accelerator
+%    {\HUGE CONUNDRUMS}
+  }\par
+  \vspace{0.5\drop}
+  %\colorbox{Dark}{\textcolor{white}{\normalfont\itshape\Large
+  {
+    {
+      \normalfont\itshape\Large
+      User's Reference
+    }
+  }\par
+  \vspace{\drop}
+  {
+    \Large Version: \inputfile{gitrevision}
+  }\par
+  \vfill
+  {
+%    \footnotesize THE PUBLISHER
+  }\par
+  \vspace*{\drop}
+  \endgroup
+}

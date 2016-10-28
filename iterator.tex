@@ -19,6 +19,7 @@ def analysis(sliceno):
     for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
+\\
 data is iterated over all rows and all datasets in the chain, running
 in increasing jobid direction.
 
@@ -32,6 +33,7 @@ def synthesis():
     for user, item in datasets.source.iterate_chain(None, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
+\\
 slices will be iterated one at at time in increasing order.
 
 
@@ -43,6 +45,7 @@ including all columns.  %%%% NB: column order???
 for items in iterate_datasets(sliceno, None, jobids):
     print items # is a tuple of all columns
 \end{python}
+\\
 Also, if only one column is specified, it is possible to have the
 iterator produce a scalar directly
 
@@ -59,6 +62,7 @@ for user, in iterate_datasets(sliceno, ('USER',), jobids):
 for user in iterate_datasets(sliceno, 'USER', jobids):
     userset.add(user)
 \end{python}
+\\
 Both styles are supported by filters and translators.
 
 
@@ -79,6 +83,7 @@ for user, item in datasets.source.iterate_chain(
     columns=('user', 'item',),
     length = options.length):
 \end{python}
+\\
 This will iterate for options.length number of datasets.  Note that a
 length of -1 iterates without bounds and is the default.
 
@@ -101,6 +106,7 @@ for user, item in datasets.source.iterate_chain(
     columns=('user', 'item',),
     stop_jobid = {jobids.preprocess: 'source',}):
 \end{python}
+\\
 this will iterate until reaching end or the dataset
 job\_params(jobids.preprocess).datasets.source.
 
@@ -114,6 +120,7 @@ for user, item in datasets.source.iterate_chain(
     columns=('user', 'item',),
     range={timestamp, ('2016-01-01', '2016-01-31'),}):
 \end{python}
+\\
 this will limit the iterator to exactly the range of lines that
 fulfill the range condition.  It is relatively costly to filter each
 line, and there is a speed advantage by specifying sloppy\_range,
@@ -171,7 +178,8 @@ for merge, _ in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
                                      translator=merger):
     ...
 \end{python}
-\noindent The purpose of this translator is to convert each
+\\
+The purpose of this translator is to convert each
 \texttt{(user, item)} tuple to a string \texttt{user:item}.  This is
 the first output of the translator and iterator and is stored in the
 \texttt{merge} variable.  The second output variable is not used in
@@ -195,8 +203,8 @@ for animal in iterate_datasetchain(None, 'NUM_LEGS', tip_jobid=jobid,
                                      translator={'NUM_LEGS': mapper,}):
     ...
 \end{python}
-\noindent Items missing in a translation-\texttt{dict} yield
-\texttt{None}.
+\\
+Items missing in a translation-\texttt{dict} yield \texttt{None}.
 
 Second, an example of a translation callable.  In this example, each
 user string is output from the iterator reads backwards.
@@ -275,12 +283,14 @@ Column values could also be used directly, i.e. the values get
 evaluated by Python.  For example, assume there is a column
 \texttt{hasbeard} with values being boolean integers, i.e.  \texttt{1}
 or \texttt{0}.  Bearded users may be collected by
+\\
 \begin{python}
 for user, beard in iterate_datasetchain(None, ('user', 'bearded',), tip_jobid=jobid,
                                        filters={'bearded': None}):
     bearded.add(user)
 \end{python}
-\noindent This may seem strange at first, but it works because the key
+\\
+This may seem strange at first, but it works because the key
 for the \texttt{bearded} column exists, and the value is
 \texttt{None}, and not a callable nor a \texttt{dict}.
 
@@ -305,7 +315,7 @@ possible to have callback between slice change.
 
 The example below will print dataset \texttt{jobid} for each dataset
 prior to iterating over it.
-
+\\
 \begin{python}
 # pre_callback once per dataset
 def prefun(jobid):
@@ -314,8 +324,8 @@ for user, item in iterate_datasetchain(sliceno, ('user', 'item',), tip_jobid=job
                                        pre_callback=prefun):
     ...
 \end{python}
-
-\noindent Next is an example of an iterator running over all slices.
+\\
+Next is an example of an iterator running over all slices.
 The callback function is executed before each new slice is iterated.
 Note the difference between this example and the previous.  The
 callback function in this example takes two arguments, while the
@@ -329,13 +339,14 @@ for user, item in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
                                        pre_callback=prefun):
     ...
 \end{python}
-\noindent Post-callback is defined similarly.
+\\
+Post-callback is defined similarly.
 
 
 
 \subsubsection*{Skipping Datasets and Slices from Callbacks}
 It is possible to skip iterations by raising exceptions, as follows
-
+\\
 \begin{python}
 
 # Raise this in pre_callback to skip iterating the coming slice

@@ -32,7 +32,7 @@ A method may use code located in other files, and in that case it is
 possible to ensure that jobs are remaked if any of those files change.
 This is specified in the method using the depend\_extra list, as for
 example:
-
+\\
 \begin{python}
 depend_extra = ('myfunc.py', 'generic_params.py',)
 \end{python}
@@ -41,6 +41,7 @@ A different scenario is when a method needs to be changed, but the
 change does not alter past behaviour, i.e. remake of jobs should be
 actively avoided.  There is a equivalent\_hashes list for that, as
 shown
+\\
 \begin{python}
   equivalent_hashes = ('0c573685f713ac6500a6eda7df1a7b3f',)
 \end{python}
@@ -54,7 +55,7 @@ When a method is dispatched as a job, it will be provided with input
 from the dispatcher.  There are three kinds of input to a method:
 jobids, datasets, and options.  These are specified early in the
 method source code, such as for example
-
+\\
 \begin{python}
 jobids = ('accumulated_costs',)
 datasets = ('transaction_log',)
@@ -96,7 +97,7 @@ could be integers, strings, enumerations, sets, lists, and dicts in a
 recursive fashion.  Options may have a default value.
 
 Options are defined in a method like this
-
+\\
 \begin{python}
   options = dict( ... )  # or
   options = { ... }
@@ -170,12 +171,14 @@ Scalars are either explicitly typed, as
   options = dict(length=int)
   # Requires an intable value or None
 \end{python}
+\\
 or implicitly with default value like
 
 \begin{python}
   options = dict(length=3)
   # Requires an intable value, default is 3 if left unassigned
 \end{python}
+\\
 In these examples, intable means that the value provided should be
 valid input to the int constructor, for example the number 3 or the
 string '3' both yield the integer number 3.
@@ -188,6 +191,7 @@ string '3' both yield the integer number 3.
   options = dict(name=OptionString)
   # Requires a stringable value or None
 \end{python}
+\\
 with default value
 % Testat
 % str med unassigned ger None
@@ -199,12 +203,14 @@ with default value
   options = dict(name='foo')
   # Requires a stringable value, default is 'foo'
 \end{python}
+\\
 sometimes, an example string is convenient
 
 \begin{python}
   options = dict(name=OptionString('bar')
   # Requires a stringable value, provides example
 \end{python}
+\\
 Note that 'bar' is not default, it just gives the programmer a way to
 express what is expected.
 
@@ -215,18 +221,21 @@ express what is expected.
   options = dict(foo=OptionEnum('a b c'))
   # Requires one of the strings 'a', 'b' or 'c'
 \end{python}
+\\
 and with default
 
 \begin{python}
   options = dict(foo=OptionEnum('a b c').b
    # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
 \end{python}
+\\
 or, accepting None
 
 \begin{python}
 options = dict(foo=OptionEnum('a b c', none_ok=True))
 # Requires one of the strings 'a', 'b', or 'c'; or None
 \end{python}
+\\
 This may be combined with a default value too.
 
 The asterisk-wildcard works too
@@ -256,6 +265,7 @@ options=dict(foo={int})
 options = dict(foo={str: str})
 # Requires dict of stringable to stringable
 \end{python}
+\\
 or more complex representations, such as
 
 \begin{python}
@@ -275,6 +285,7 @@ A typical usecase is as follows
 options = dict(ts=datetime)
 # a datetime object if input, or None
 \end{python}
+\\
 or with a default
 
 \begin{python}
@@ -298,6 +309,7 @@ and sliced tells that the file is sliced.
 \begin{python}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
 \end{python}
+\\
 In the method, data is available as
 
 \begin{python}
@@ -306,12 +318,14 @@ In the method, data is available as
   foo.sliced
   foo.extras
 \end{python}
+\\
 and the full filename is available through
 
 \begin{python}
 from extras import full_filename
 print full_filename(foo, '')
 \end{python}
+\\
 The mandatory string (which is empty in this case, is a filename
 extension.
 
@@ -379,6 +393,7 @@ def synthesis(params):
   print params.caption
 # urd_dispatched_method1
 \end{python}
+\\
 The additional argument params is also optionally available, and it
 contains lots of information that is typically not required in a
 regular method.  For a method developer, the most important members
@@ -391,6 +406,7 @@ params.caption     # may be specified when building a job
 params.seed        # seed to initialise a random number generator
 params.starttime   # execution start in epoch time
 \end{python}
+\\
 but params does also contain all options, jobids, and datasets inputs.
 
 
@@ -435,11 +451,13 @@ import blob
 def synthesis()
   blob.load(filename')
 \end{python}
+\\
 saving is as follows
 
 \begin{python}
   blob.save(data, filename <, sliceno> <, temp>)
 \end{python}
+\\
 sliceno and temp are optional.  If sliceno is set, data is stored in a
 sliced file.  This is typically used in analysis, where each thread
 will save its own file.
@@ -463,6 +481,7 @@ def analysis(sliceno):
   # or
   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
 \end{python}
+\\
 where the first only stores when --debug is specified, and the other
 always stores but removes unless --debug is set.
 
@@ -480,6 +499,7 @@ import subjob
 def prepare():
   subjob.build('count_items', options=dict(length=3))
 \end{python}
+\\
 The subjob.build uses the same syntax as urd.build described
 elsewhere, so options, datasets, jobids, and caption are available.
 Similarly, subjob jobid is returned.
@@ -495,5 +515,6 @@ def synthesis():
   jid = subjob.build('create_dataset')
   Dataset(jid).link_to_here(name='thename')
 \end{python}
+\\
 the name argument is optional, the name 'default' is used if left
 empty, corresponding to the default dataset.

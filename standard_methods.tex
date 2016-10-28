@@ -6,15 +6,16 @@
 float32
 float64
 \end{python}
-
+\\
 ignore trailing garbage
-
+\\
 \begin{python}
 float32i
 float64i
 \end{python}
-
+\\
 floatints are integers, i.e. int(float(value)), used for dedotting...
+\\
 \begin{python}
 # e = exact, error on saturate which is int32 when 32 or float64 when 64.
 'floatint64e'  
@@ -40,6 +41,7 @@ floatints are integers, i.e. int(float(value)), used for dedotting...
 \end{python}
 
 specify base, i.e. arg to strtol(...,x)
+\\
 \begin{python}
 #_0 == auto (avoid)
     'int64_0'      
@@ -56,6 +58,7 @@ specify base, i.e. arg to strtol(...,x)
 \end{python}
 
 and with ignore
+\\
 \begin{python}
     'int64_0i'     
     'int32_0i'     
@@ -81,6 +84,7 @@ and with ignore
 \end{python}
 
 time and date
+\\
 \begin{python}
 # strptime-compat format
     'datetime:*'   
@@ -92,6 +96,7 @@ time and date
 \end{python}
 
 strings and byte sequences
+\\
 \begin{python}
 # out from csvimport, lists of bytes
 'bytes'

@@ -134,7 +134,7 @@ By specifying the flag \texttt{why\_build} to the automatarunner it is
 possible to see the reasons for building a job.  For example
 \\
 \begin{python}
-  print urd.build('method3', jobids=dict(firstjob=jid2, secondjob=jid2), name='knut')
+  print(urd.build('method3', jobids=dict(firstjob=jid2, secondjob=jid2), name='knut'))
 # Would have built from:
 # ======================
 # {
@@ -247,7 +247,7 @@ There is a \texttt{list} function that returns what lists are recorded
 in the database:
 \\
 \begin{pythonBEG}
-  print urd.list()
+  print(urd.list())
   # ['ab/test', 'ab/live']
 \end{pythonBEG}
 \\
@@ -255,7 +255,7 @@ And there is also a \texttt{since} function that returns a list of all
 timestamps after the input argument
 \\
 \begin{pythonMID}
-  print urd.since('20161005')
+  print(urd.since('20161005'))
   # ["20161006", "20161007", "20161008", "20161009"]
 \end{pythonMID}
 \\
@@ -264,17 +264,17 @@ the input.  The input timestamp may be truncated from the right down
 to only one digits.  An input of zero is also valid.
 \\
 \begin{pythonEND}
-  print urd.since('0')
+  print(urd.since('0'))
   # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
-  print urd.since('2016')
+  print(urd.since('2016'))
   # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
-  print urd.since('20161')
+  print(urd.since('20161'))
   # ["20161004", "20161005", "20161006", "20161007", "20161008"]
 
-  print urd.since('2016105')
+  print(urd.since('2016105'))
   # ["20161006", "20161007", "20161008"]
   ...
-  print urd.since('2016105 000000')
+  print(urd.since('2016105 000000'))
   # ["20161006", "20161007", "20161008"]
 \end{pythonEND}
 
@@ -344,7 +344,7 @@ as expected, and
 but note that
 
 \begin{pythonEND}
->>> print jt  # str and encode return jobid only
+>>> print(jt)  # str and encode return jobid only
 jid-0_0
 \end{pythonEND}
 
@@ -375,14 +375,14 @@ method is quite useful, but note that just printing the object will
 show the last jobid only.
 
 \begin{pythonMID}
->>> print jl.pretty
+>>> print(jl.pretty)
 JobList(
    [  0]  imprt : jid-0_0
    [  1]  learn : lrn-0_0
    [  2]  imprt : imp-1_0
 )
 
->>>  print jl  # jobid of latest appended JobTuple
+>>>  print(jl)  # jobid of latest appended JobTuple
 imp-1_0
 \end{pythonMID}
 
@@ -393,7 +393,7 @@ name, either by lookup or by using \texttt{find}.
 >>> jl['imprt']         # latest jobid with name 'imprt'
 ('imprt', 'imp-1_0')
 
->>> print jl['imprt']   # jl['imprt'] is JobTuple
+>>> print(jl['imprt'])   # jl['imprt'] is JobTuple
 imp-1_0
 \end{pythonMID}
 \\

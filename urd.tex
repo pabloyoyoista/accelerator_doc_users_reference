@@ -193,7 +193,7 @@ used for this
 def main(urd):
   urd.begin('test')
   latest_tlog = urd.latest('tlog').joblist.jobid
-  urd.build('method1', datasets=(tlog=latest_tlog))
+  urd.build('method1', datasets=dict(tlog=latest_tlog))
   urd.finish('test', '20161025')
 \end{python}
 \\
@@ -221,7 +221,7 @@ from previous month
 def main(urd):
   urd.begin('test')
   tlog = urd.get('tlog', '20160925').joblist.jobid
-  urd.build('method1', datasets=(tlog=tlog))
+  urd.build('method1', datasets=dict(tlog=tlog))
   urd.finish('test', '20161025')
 \end{python}
 

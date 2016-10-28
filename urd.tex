@@ -1,25 +1,22 @@
 \section{Introduction to Urd}
 
-Urd haller reda pa var dataset och jobids finns, och vad de beror pa
-och nar.
+Urd is the key controller in the framework.  It is the primary job
+dispatcher as well as the bookkeeper of all jobs executed.  Events in
+urd are quantified into what is called \textsl{sessions}, and the core
+of urd is a transaction log database storing these sessions together
+with meta information.  The result is a server providing lookups for
+all jobs executed together with their context.
 
-
-Urd is the primary job dispatcher as well as top level controller.  It
-keeps a transaction log database of all dispatched jobs and their
-context, and exposes functions that provides simple access to this
-transaction history.
-
-The database is partitioned into what is called \textsl{lists}.  Each
-user, human or agent, owns one or more lists where information about
-executed jobs are stored.  Lists are globally readable, but writing is
-limited using authentication, so that, for example, only the
-production user may publish a model to go live.
+The Urd database is partitioned into what is called \textsl{lists}.
+Each user, human or agent, owns one or more lists where information
+about executed jobs are stored.  Lists are globally readable, but
+writing is limited using authentication, so that, for example, only
+the production user may publish a model to go live.
 
 With the exception of experimental work, all work initiated by urd is
 run in closed sessons, with well defined starting and ending points.
 The input dependencies to these sessions are recorded, together with
 the resulting output.
-
 
 
 
@@ -288,65 +285,63 @@ to '20160930'.  Internally, urd stores the complete history, however.
 \section{More on Joblist and Jobtuple}
 
 Urd is using the type joblist to keep track of successfully executed
-jobs.  Each item in the joblist is of type jobtuple.
+jobs.  Each item in the joblist is of type jobtuple.  This section
+will start by describing jobtuple first and then joblist.
 
 \subsubsection{Jobtuple}
 
 The \jobtuple type is used to group method names and corresponding
-jobids.  From the docstring: \textsl{ A tuple of (method, jobid) with
-  accessor properties that gives just the jobid for str.}  See the
-following example:
+jobids.  It is basically a tuple with some extra properties, such as a
+conversion of a jobtuple to \texttt{str}, which happens for example
+when printing it, returns the jobid as a string.
 
-\begin{python}
+\begin{pythonBEG}
 >>> jt = JobTuple('imprt', 'jid-0_0')
 
 >>> jt
 ('imprt', 'jid-0_0')
-\end{python}
+\end{pythonBEG}
+as expected, and
 
-\noindent as expected, and
-
-\begin{python}
+\begin{pythonMID}
 >>> jt.method
 'imprt'
 
 >>> jt.jobid
 'jid-0_0'
-\end{python}
+\end{pythonMID}
+but note that
 
-\noindent but note that
-
-\begin{python}
+\begin{pythonEND}
 >>> print jt  # str and encode return jobid only
 jid-0_0
-\end{python}
+\end{pythonEND}
 
 
 
 \subsubsection{JobList}
 
 \label{sec:joblist}
-The \joblist is a list with add-ons for bookkeeping jobs.  It stores
-instances of \jobtuple.  Here is an example.  First, define a \jobtuple
+The \joblist is a list with add-ons for bookkeeping and finding jobs.
+It stores instances of \jobtuple.  Here is an example.  First, define
+a \jobtuple
 
-\begin{python}
+\begin{pythonBEG}
 >>> jt = JobTuple('imprt', 'jid-0_0')
-\end{python}
+\end{pythonBEG}
+then define a joblist initiated with the same tuple.  Then append some
+more jobs directly using the \texttt{append} method.
 
-\noindent then define a joblist initiated with the same tuple.  Then
-append some more jobs directly using the \texttt{append} method.
-
-\begin{python}
+\begin{pythonMID}
 >>> jl = JobList(jt)
 >>> jl.append('learn', 'lrn-0_0')
 >>> jl.append('imprt', 'imp-1_0')
-\end{python}
+\end{pythonMID}
+Let's see how and what is stored in the \joblist.  The \texttt{pretty}
+method is quite useful, but note that just printing the object will
+show the last jobid only.
 
-\noindent Let's see how and what is stored in the \joblist.  The
-\texttt{pretty} method is quite useful, but note that just printing
-the object will show the last jobid only.
-
-\begin{python}
+\begin{pythonMID}
 >>> print jl.pretty
 JobList(
    [  0]  imprt : jid-0_0
@@ -356,39 +351,36 @@ JobList(
 
 >>>  print jl  # jobid of latest appended JobTuple
 imp-1_0
-\end{python}
+\end{pythonMID}
 
-\noindent It is easy to retreive the last job with a particular \texttt{method} name,
-either by lookup or by using \texttt{find}.
+It is easy to retreive the last job with a particular \texttt{method}
+name, either by lookup or by using \texttt{find}.
 
-\begin{python}
+\begin{pythonMID}
 >>> jl['imprt']         # latest jobid with name 'imprt'
 ('imprt', 'imp-1_0')
 
 >>> print jl['imprt']   # jl['imprt'] is JobTuple
 imp-1_0
-\end{python}
+\end{pythonMID}
+The Find method returns a \joblist.  Slicing also returns {\joblist}s
 
-\noindent The Find method returns a \joblist.  Slicing also returns {\joblist}s
-
-\begin{python}
+\begin{pythonMID}
 >>> jl.find('imprt')
 JobList([('imprt', 'jid-0_0'), ('imprt', 'imp-1_0')])
 
 >>> jl[:2]
 JobList([('imprt', 'jid-0_0'), ('learn', 'lrn-0_0')])
-\end{python}
+\end{pythonMID}
+Looking up by index returns \jobtuple.
 
-\noindent Looking up by index returns \jobtuple.
-
-\begin{python}
+\begin{pythonMID}
 >>> jl[0]
 ('imprt', 'jid-0_0')
-\end{python}
+\end{pythonMID}
+These conveniences are also supported
 
-\noindent These conveniences are also supported
-
-\begin{python}
+\begin{pythonEND}
 >>> jl.all              # list of all jobids
 'jid-0_0,lrn-0_0,imp-1_0'
 
@@ -397,28 +389,8 @@ JobList([('imprt', 'jid-0_0'), ('learn', 'lrn-0_0')])
 
 >>> jl.jobid            # last jobid
 'imp-1_0'
-\end{python}
+\end{pythonEND}
 
-Finally, a \joblist may be cleared using
-
-\begin{python}
-jl[:] = ()
-\end{python}
-
-
-
-A simple automata starts with defining the function main that takes an
-urd object as input
-
-this automata will execute the two methods method1 and method2
-consecutively.  Urd will store links to the completed jobs in a
-joblist object, accessible by
-
-
-
-
-The jobtuple is a datatype used for storing pairs of names and jobids.
-A user typically never creates these, but rather use
 
 
 \newpage

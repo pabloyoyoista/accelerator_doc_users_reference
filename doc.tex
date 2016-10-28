@@ -44,9 +44,7 @@
 
 
 
-% Glossary
-% dataset, column, label, row
-% method, analysis, prepare, synthesis
+%\includeonly{urd}
 
 \include{xmtitle}
 
@@ -55,85 +53,93 @@
 \newpage
 
 
-
-\includeonly{urd}
-
-
-\begin{document}
-%\titleLL
-%\thispagestyle{empty}
-%\newpage
-
-\begin{pythonBEG}
-aaaa
-\end{pythonBEG}
-
-\begin{pythonMID}
-aaaa
-\end{pythonMID}
-
-\begin{pythonEND}
-aaaa
-\end{pythonEND}
-
-
 %\tableofcontents
 
 
-\section{dictionary}
+\section*{Glossary}
+
+% \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
+\begin{tabular*}{\textwidth}{ll}
+method    & main source file of program to be executed by framework\\
+package   & a location where methods are stored\\
+job       & a running or completed method\\
+jobid     & a link to a successfully completed method\\
+workdir   & a location where job data and metadata is stored\\
+dataset   & efficient storage of data\\
+chain     & a one-directional list of datasets\\
+urd       & dispatcher and job database\\
+automata  & a script run by urd dispatching or recalling jobs\\
+\end{tabular*}
+
+
+\chapter{Introduction}
+
+The Accelerator is a very efficient environment for running and
+scheduling big data tasks.  It is begin developed continuously since
+the start in 2012, and has been used in seven different projects, of
+which three has been live to customers, and the other four was data
+analysis and insight projects.
+
+Due to its minimalistic implementation, the Accelerator is capable of
+working at high speed with billions of lines of data on a single
+computer.  Two things stand out: first, all jobs are bookkeeped in a
+novel way; and second, data is represented and accessed with close to
+zero overhead.  The end result is a globally optimised data processing
+machine with a wide spectrum of uses.
+
+Some Accelerator features
 \begin{itemize}
-\item job
-\item jobid
-\item method
-\item package
-\item dataset
-\item chain
-\item workdir
-\item urd
-\item automata
+\item \textbf{Data integration} - The Accelerator has been used in
+  several projects with different customers and data, and has thereby
+  adopted to a number of formats and cases.
+\item \textbf{Efficient Data Access} - Data is streamed through jobs
+  using low level operating- and filesystem primitives.
+\item \textbf{Simple job tracking} - Easy to find source data, easy to
+  use results from other users.
+\item \textbf{Transparency} - Total context for all jobs ever run is
+  stored and straightforward to retreive.  Any job could be replayed
 \end{itemize}
 
 
-\chapter{Motivation}
-important points (tenets) about framework:
+
+
+
+\newpage
+Here is a list of some of the background ideas that coloured the work
+on the Accelerator.
 \begin{itemize}
 
-\item \textbf{the value is input data and recipies (code)} everything
-  else is computation.  Computation is repeatable if input data is
-  kept with integrity and code is version controlled.
+\item \textbf{Data, recipies (code), and computation} - Data and code
+  is more important than computation.  If data integrity is
+  maintained, and code version controlled, computation is repeatable
+  and can be replicated.
 
-  Keeping data and code is
-  sufficient for replication.  Make execution fast!
+\item \textbf{Never delete or change input data} - What is saved by
+  freed storage is nothing compared to the cost of loss of history:
+  replication becomes impossible, as well as certain analyses.
 
-\item \textbf{access data very efficiently}
+\item \textbf{Data should be accessable with minimum overhead}
 
-\item live and dev environment is equivalent
+\item \textbf{Appending columns and rows should have minimal overhead.}
 
-\item append columns and rows (chain) with minimal overhead.
+\item \textbf{Live and dev environment is equivalent}
+\item \textbf{ blah - analysis and production same blah@@@}
   
-\item \textbf{never delete data or make it unaccessable}
+\item \textbf{Bookkeep intermediate results.  Use it --- don't recompute!}
 
-\item \textbf{never change data in the database} Don'r rewrite
-  history.  Append new values, but never overwrite.  This prohibits a
-  lot of important analysis work.
-  
-\item \textbf{Keep intermediate results.  Use it --- don't recompute!}
-
-\item traceability
-  
-\item \textbf{Transparency} Replay, total context at any instance in
-  time.
-
-  
 \item \textbf{client server configuration}
+
 \item \textbf{simplicity} use basic file systems, and simple,
   minimalistic programs.  (Maintainability, stability, observability,
-  speed).  Adding layers and applications slows things down.
+  and speed).  Adding layers and applications slows things down.
 
-\item \textbf{Avoid clusters}  Are clusters for speed or redundancy?
 \item \textbf{Moore's law and bottlenecks} CPU, memory size, and disk
   storage increase exponentionally over time for constant price.
   Interconnection speed does not.  Avoid bottlenecks!
+
+\item \textbf{Avoid clusters} Are clusters for speed or redundancy?
+  How many machines does a cluster need to have to par a single
+  machine with data and code stored locally?
 \end{itemize}
 
 

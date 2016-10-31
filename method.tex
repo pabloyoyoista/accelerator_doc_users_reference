@@ -1,8 +1,9 @@
 \section{Methods}
 
-A method is a piece of source code that can be run by the framework.
-When a method is dispatched with a set of inputs, it is called a job.
-A method may be dispatched by urd, or by another method as a subjob.
+Methods are source files executed by the framework.  The nomenclature
+is that methods turn into jobs when they are assigned input arguments
+and get executed by the framework.  A method may be dispatched by urd,
+or by another method as a subjob.
 
 
 
@@ -11,14 +12,14 @@ A method may be dispatched by urd, or by another method as a subjob.
 Methods are stored in directories, called packages, in the main
 framework directory.  A package needs to be present in the main
 configuration file, and the package directory has to contain the file
-``\_\_init\_\_.py'' for python to see it.
+\texttt{\_\_init\_\_.py} for Python to see it.
 
 There are two limitations, that apply to methods, designed to avoid
 accidental execution of the wrong source code.  For a method file to
 be accepted by the framework, the filename has to start with the
-prefix ``a\_''.  Furthermore, the method name, without this prefix must
-be present on a separate line in the ``methods.conf'' file for the
-package.
+prefix \texttt{``a\_''}.  Furthermore, the method name, without this
+prefix must be present on a separate line in the \texttt{methods.conf}
+file for the package.
 
 
 
@@ -26,21 +27,22 @@ package.
 
 The framework is applying a hash function to the method source code to
 determine if a job may be recalled or re-executed.  Chainging the
-method source code is a sure way to enforce a remake of a job.
+method source code in an unique way causes a new job to be built from
+the method code.
 
 A method may use code located in other files, and in that case it is
-possible to ensure that jobs are remaked if any of those files change.
-This is specified in the method using the depend\_extra list, as for
-example:
+possible to ensure that jobs are dispatched if any of those files
+change.  This is specified in the method using the
+\texttt{depend\_extra} list, as for example:
 \\
 \begin{python}
 depend_extra = ('myfunc.py', 'generic_params.py',)
 \end{python}
-
-A different scenario is when a method needs to be changed, but the
-change does not alter past behaviour, i.e. remake of jobs should be
-actively avoided.  There is a equivalent\_hashes list for that, as
-shown
+\\
+A different scenario is when the method source code needs to be
+modified, but the change does not alter past behaviour, i.e. remake of
+jobs should be actively avoided.  There is an
+\texttt{equivalent\_hashes} list for that, as shown
 \\
 \begin{python}
   equivalent_hashes = ('0c573685f713ac6500a6eda7df1a7b3f',)
@@ -49,11 +51,11 @@ shown
 
 
 
-\section{Method inputs}
+\section{Method Inputs}
 
 When a method is dispatched as a job, it will be provided with input
 from the dispatcher.  There are three kinds of input to a method:
-jobids, datasets, and options.  These are specified early in the
+\jobids, \datasets, and \options.  These are specified early in the
 method source code, such as for example
 \\
 \begin{python}
@@ -61,40 +63,40 @@ jobids = ('accumulated_costs',)
 datasets = ('transaction_log',)
 options = dict(length=4)
 \end{python}
-
-Jobids is used to input pointers to other finished jobs, datasets is
-used to input other datasets, and options are used to input any other
-type of parameters specifying running behaviour of the method.  Note
-that jobids and datasets are tuples (and a single entry has to be
-followed by a comma), while options is a dictionary.
-
-Each vill be described in more detail next
-
+\\
+The \texttt{jobids} argument is used to input pointers to other
+finished jobs, \datasets is used to input other datasets, and \options
+is used to input any other type of parameters specifying running
+behaviour of the method.  Note that \jobids and \datasets are tuples
+(and a single entry has to be followed by a comma), while \options is
+a dictionary.  Each vill be described in more detail next
 
 
-\subsection{Input jobids}
-the jobids argument is a tuple of jobids linking this job to other
-jobs.  Inside the running method, a jobid from the jobids tuple is
+
+\subsection{Input Jobids}
+The \jobids argument is a tuple of jobids linking this job to other
+jobs.  Inside the running method, a jobid from the \jobids tuple is
 simply a string that can be passed to various helper functions in
 order to use results from the corresponding jobs.
 
 
 
-\subsection{Input datasets}
-datasets is the way to communicate datasets from automata to job.  In
-the running method, the datasets variable is a tuple of dataset
-objects ready to use.  The dataset class is described in a dedicated
-chapter.
+\subsection{Input Datasets}
+The \datasets argument is the way to communicate datasets from
+automata to job.  In the running method, the \datasets variable is a
+tuple of dataset objects ready to use.  The dataset class is described
+in a dedicated chapter.
 
 
 
 
 \subsection{Input Options}
 
-The options is of type dict and used to pass various information from
-the dispatcher (typically urd or a method) to a method.  Information
-could be integers, strings, enumerations, sets, lists, and dicts in a
-recursive fashion.  Options may have a default value.
+The \options argument is of type \texttt{dict} and used to pass
+various information from the dispatcher (typically Urd or a method) to
+a method.  Information could be integers, strings, enumerations, sets,
+lists, and dicts in a recursive fashion.  Options may have a default
+value.
 
 Options are defined in a method like this
 \\
@@ -147,26 +149,27 @@ to describe the formal rules for option typing and assignment.
 %%%
 %%%
 
-
 Typing and default values are presented in the following sections.
-Default values are assigned if there is no input.
-
-Definition of type is that the constructor must accept the value
-provided.
+Default values are assigned if there is no input.  Note that
+definition of type is that the constructor must accept the value
+provided, for example the string \texttt{'3'} is a valid input for the
+\texttt{int} constructor.
 
 
 \subsubsection{Unspecifieds}
+An option with no typing may be specified by assigning \texttt{None}.
+\\
 \begin{python}
   options = dict(length=None)
   # accepts anything, default is None
 \end{python}
-So length could be set to anything.
+Here, \texttt{length} could be set to anything.
 
 
 
 \subsubsection*{Scalars}
 Scalars are either explicitly typed, as
-
+\\
 \begin{python}
   options = dict(length=int)
   # Requires an intable value or None
@@ -180,36 +183,39 @@ or implicitly with default value like
 \end{python}
 \\
 In these examples, intable means that the value provided should be
-valid input to the int constructor, for example the number 3 or the
-string '3' both yield the integer number 3.
+valid input to the \texttt{int} constructor, for example the number~3
+or the string \texttt{'3'} both yield the integer number 3.
 
 
 
 \subsubsection*{Strings}
-\begin{python}
-  options = dict(name=str)           # or
-  options = dict(name=OptionString)
-  # Requires a stringable value or None
-\end{python}
+A (possibly empty) string with default value \texttt{None} is typed as
 \\
-with default value
-% Testat
-% str med unassigned ger None
-% str med None ger None
-% OptionString med unassigned ger error
-% OptionString med None ger error
-
-\begin{python}
+\begin{pythonBEG}
+  # requires string or None, defaults to None
+  options = dict(name=str)
+\end{pythonBEG}
+\\
+A default value may be specified as follows
+\\
+\begin{pythonMID}
+  # requires string or None, provides default value
   options = dict(name='foo')
-  # Requires a stringable value, default is 'foo'
-\end{python}
+\end{pythonMID}
 \\
-sometimes, an example string is convenient
-
-\begin{python}
+And a string required to be specified and none-empty as
+\\
+\begin{pythonMID}
+  # requires non-empty string
+  options = dict(name=OptionString)
+\end{pythonMID}
+\\
+In some situations, an example string is convenient
+\\
+\begin{pythonEND}
+  # Requires string, provides example (NOT default value)
   options = dict(name=OptionString('bar')
-  # Requires a stringable value, provides example
-\end{python}
+\end{pythonEND}
 \\
 Note that 'bar' is not default, it just gives the programmer a way to
 express what is expected.
@@ -217,157 +223,165 @@ express what is expected.
 
 
 \subsubsection*{Enums}
-\begin{python}
-  options = dict(foo=OptionEnum('a b c'))
+Enumerations are convenient in a number of situations.  They are typed
+as follows
+\\
+\begin{pythonBEG}
   # Requires one of the strings 'a', 'b' or 'c'
-\end{python}
+  options = dict(foo=OptionEnum('a b c'))
+\end{pythonBEG}
 \\
-and with default
-
-\begin{python}
-  options = dict(foo=OptionEnum('a b c').b
+A default value may be specified like this
+\\
+\begin{pythonMID}
    # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
-\end{python}
+  options = dict(foo=OptionEnum('a b c').b
+\end{pythonMID}
 \\
-or, accepting None
-
-\begin{python}
-options = dict(foo=OptionEnum('a b c', none_ok=True))
-# Requires one of the strings 'a', 'b', or 'c'; or None
-\end{python}
+or, like this, accepting \texttt{None}
 \\
-This may be combined with a default value too.
-
-The asterisk-wildcard works too
-
-\begin{python}
-  options = dict(foo=OptionEnum('a b c*'))
+\begin{pythonMID}
+  # Requires one of the strings 'a', 'b', or 'c'; or None
+  options = dict(foo=OptionEnum('a b c', none_ok=True))
+\end{pythonMID}
+\\
+The \texttt{none\_ok} flag may be combined with a default value too.
+\\
+Furthermore, the asterisk-wildcard may be used too
+\\
+\begin{pythonEND}
   # Requires one of the strings 'a', 'b', or any string starting with 'c'
-\end{python}
+  options = dict(foo=OptionEnum('a b c*'))
+\end{pythonEND}
 
 
 
 \subsubsection*{Lists and Sets}
-\begin{python}
-options=dict(foo=[int])
-# Requires list of intable, default is empty list
-\end{python}
-
-\begin{python}
-options=dict(foo={int})
-# Requires set of intable, default is empty set
-\end{python}
+Lists and sets are specified like this
+\\
+\begin{pythonBEG}
+  # Requires list of intable, defaults to empty list
+  options=dict(foo=[int])
+\end{pythonBEG}
+\\
+and
+\\
+\begin{pythonEND}
+  # Requires set of intable, defaults to empty set
+  options=dict(foo={int})
+\end{pythonEND}
 
 
 
 \subsubsection*{More complex stuff}
-\begin{python}
-options = dict(foo={str: str})
-# Requires dict of stringable to stringable
-\end{python}
+It is possible to have more complex types, such as dictionaries of
+dictionaries and so on, for example
 \\
-or more complex representations, such as
-
-\begin{python}
-options = dict(foo={str: {str: int}})
-# Requires dict of stringable to dict of stringable to intable
-\end{python}
+\begin{pythonBEG}
+  # Requires dict of string to string
+  options = dict(foo={str: str})
+\end{pythonBEG}
+\\
+or another example
+\\
+\begin{pythonEND}
+  # Requires dict of string to dict of string to int
+  options = dict(foo={str: {str: int}})
+\end{pythonEND}
+\\
+Containers with a type in the values default to empty containers.
+Otherwise, the specified values are the default contents.
 
 
 
 \subsubsection*{Date and Time}
 The following date and time related types are supported:
-datetime, date, time, and timedelta.
-
-A typical usecase is as follows
-
-\begin{python}
-options = dict(ts=datetime)
-# a datetime object if input, or None
-\end{python}
+\texttt{datetime}, \texttt{date}, \texttt{time}, and
+\texttt{timedelta}.  A typical usecase is as follows
 \\
-or with a default
-
-\begin{python}
-options = dict(ts=datetime(2014, 1, 1))
-#  a datetime object if input, defaults to a datetime(2014, 1, 1) object
-\end{python}
+\begin{pythonBEG}
+  # a datetime object if input, or None
+  options = dict(ts=datetime)
+\end{pythonBEG}
+\\
+and with a default assignment
+\\
+\begin{pythonEND}
+  #  a datetime object if input, defaults to a datetime(2014, 1, 1) object
+  options = dict(ts=datetime(2014, 1, 1))
+\end{pythonEND}
 
 
 
 \subsubsection*{JobWithFile}
 Any file residing in a jobdir may be input to a method like this
-
-\begin{python}
-options = dict(usefile=JobWithFile(jid, 'user.txt')
-\end{python}
-
-There are two additional arguments, sliced and extras.  extras is used
-to pass any information that is helpful in using the specified file,
-and sliced tells that the file is sliced.
-
-\begin{python}
+\\
+\begin{pythonBEG}
+  options = dict(usefile=JobWithFile(jid, 'user.txt')
+\end{pythonBEG}
+\\
+There are two additional arguments, \texttt{sliced} and
+\texttt{extras}.  The \texttt{extras} argument is used to pass any
+information that is helpful in using the specified file, and
+\texttt{sliced} tells that the file is stored in parallel slices.
+\\
+\begin{pythonMID}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
-\end{python}
+\end{pythonMID}
 \\
-In the method, data is available as
-
-\begin{python}
-  foo.jobid
-  foo.filename
-  foo.sliced
-  foo.extras
-\end{python}
+In the method, the \texttt{JobWithFile} object has theese members
 \\
-and the full filename is available through
-
+\begin{pythonEND}
+  usefile.jobid
+  usefile.filename
+  usefile.sliced
+  usefile.extras
+\end{pythonEND}
+\\
+Where the full filename of the file is available through
+\\
 \begin{python}
 from extras import full_filename
-print(full_filename(foo, ''))
+print full_filename(filename, '')
 \end{python}
 \\
 The mandatory string (which is empty in this case, is a filename
-extension.
-
-
+extension.  \textbf{Will be changed!}
 
 
 
 
 
 \newpage
-\section{Code flow:  prepare - analysis - synthesis}
+\section{Code Flow:  \prepare - \analysis - \synthesis}
 
-There are three pre-defined functions in a method, prepare, analysis,
-and synthesis, and they are always run in that order.  Prepare and
-synthesis are single threaded, while analysis provides parallel
-execution.
+There are three pre-defined functions in a method, \prepare,
+\analysis, and \synthesis, and they are always run in that order.
+\prepare and \synthesis are single threaded, while \analysis provides
+parallel execution.
 
 The following combinations are valid and are of practical use
 \begin{itemize}
-\item synthesis-only, used for a single threaded program
-\item analysis-only, used for completely parallel tasks
-\item prepare + analysis, setup and run a parallel job
-\item analysis + synthesis, run a parallel job and combine outputs
-\item prepare + analysis + synthesis, setup, run, and combine a
+\item \synthesis-only, used for a single threaded program
+\item \analysis-only, used for completely parallel tasks
+\item \prepare + \analysis, setup and run a parallel job
+\item \analysis + \synthesis, run a parallel job and combine outputs
+\item \prepare + \analysis + \synthesis, setup, run, and combine a
   parallel task.
 \end{itemize}
-
-All the three functions take options, jobids, and datasets as optional
-arguments.
-
-The analysis function takes a required argument sliceno, which is an
-integer between zero and the total number of slices minus one.  This
-is the unique identity indicator for the analysis process.
+All the three functions take \options, \jobids, and \datasets as
+optional arguments.  The \analysis function takes a required argument
+\texttt{sliceno}, which is an integer between zero and the total
+number of slices minus one.  This is the unique identity indicator for
+the \analysis process.
 
 Return values may be passed from one function to another.  What is
-returned from prepare is called prepare\_res, and may be used as input
-argument to analysis and synthesis.  The return values from analysis
-is available as analysis\_res in synthesis.  The return value from
-synthesis is stored permanently in the jobdir.
-
-A complete example may look like
-
+returned from prepare is called \prepareres, and may be used as input
+argument to \analysis and \synthesis.  The return values from
+\analysis is available as \analysisres in \synthesis.  The return
+value from \synthesis is stored permanently in the jobdir.  A complete
+example may look like
+\\
 \begin{python}
 options = dict(length=4)
 datasets = ('transaction_log')
@@ -385,20 +399,20 @@ def synthesis(analysis_res, prepare_res):
 \end{python}
 
 
-\subsection{params}
-Params contain all input and initialisation parameters for a job.
-
+\subsection{The \params Variable }
+The \params variable contain all input and initialisation parameters
+for a job, such as the caption
+\\
 \begin{python}
 def synthesis(params):
-  print(params.caption)
+  print params.caption
 # urd_dispatched_method1
 \end{python}
 \\
-The additional argument params is also optionally available, and it
-contains lots of information that is typically not required in a
-regular method.  For a method developer, the most important members
-are
-
+The \params variable contains lots of information that is typically
+not required in a regular method.  For a method developer, the most
+important members are
+\\
 \begin{python}
 params.package     # which package the method source code is stored in
 params.slices      # number of slices for the workdirs in use
@@ -411,21 +425,21 @@ but params does also contain all options, jobids, and datasets inputs.
 
 
 
-\subsection{Accessing Another Job's params using job\_params}
+\subsection{Accessing Another Job's \params using \jobparams}
 
-The params data sctructure contains all input and initialisation data
-for a job.  To access another job's params variable, just feed the
-job's jobid into the job\_params() function.
-
+The \params data sctructure contains all input and initialisation data
+for a job.  To access another job's \params variable, just feed the
+job's jobid into the \jobparams function.
+\\
 \begin{python}
 from extras import job_params
 
 jobids = ('anotherjob',)
 
 def synthesis():
-  print(jobids.anotherjob)
+  print jobids.anotherjob
   # will print something like 'jid-0_0'
-  print(job_params(jobids.anotherjob).options)
+  print job_params(jobids.anotherjob).options
   # will print something like {length: 3}
 \end{python}
 
@@ -436,43 +450,42 @@ def synthesis():
 \section{More on Intermediate and Result Files}
 
 \subsection{Sharing Data Inside a Job}
-data is simply shared between prepare, analysis, and synthesis as follows.
+Data is easily shared between \prepare, \analysis, and \synthesis as
+follows.
 \begin{itemize}
-\item what is returned in prepare is available as prepare\_res in analysis and synthesis
-\item what is returned in analysis is available as analysis\_res in synthesis.  analysis\_res is an iterator.
-\item what is returned in synthesis is a persistent file in the job catalog referenced by ``result''.
+\item what is returned in \prepare is available as \prepareres in \analysis and \synthesis
+\item what is returned in \analysis is available as \analysisres in \synthesis.  \analysisres is an iterator.
+\item what is returned in \synthesis is a persistent file in the job catalog referenced by \texttt{result}.
 \end{itemize}
 
 \subsubsection*{The blob module}
 The simplest way to share intra job data is using the blob module.
-
+\\
 \begin{python}
 import blob
 def synthesis()
   blob.load(filename')
 \end{python}
 \\
-saving is as follows
-
+saving data is as follows
+\\
 \begin{python}
   blob.save(data, filename <, sliceno> <, temp>)
 \end{python}
 \\
-sliceno and temp are optional.  If sliceno is set, data is stored in a
-sliced file.  This is typically used in analysis, where each thread
-will save its own file.
-
-temp is used for file persistence.  By default, files are stored
-permanently when a job terminates successfully.  Setting temp to True
-removes them upon completion of the job.
-
-Temporary files are useful when communicating data between the
-functions in the method (and not using the res-files) or in debugging.
+\sliceno and \texttt{temp} are optional.  If \sliceno is set, data is
+stored in a sliced file.  This is typically used in \analysis, where
+each thread will save its own file.  The argument \texttt{temp} is
+used for file persistence.  By default, files are stored permanently
+when a job terminates successfully.  Setting \texttt{temp} to
+\texttt{True} removes them upon completion of the job.  Temporary
+files are useful when communicating data between the functions in the
+method (and not using the res-files) or in debugging.
 
 
 \subsection{debug help}
 There is also a more advanced debug functionality relating to temp.
-
+\\
 \begin{python}
 from extras import Temp
 def analysis(sliceno):
@@ -482,8 +495,8 @@ def analysis(sliceno):
   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
 \end{python}
 \\
-where the first only stores when --debug is specified, and the other
-always stores but removes unless --debug is set.
+where the first only stores when \texttt{--debug} is specified, and
+the other always stores but removes unless \texttt{--debug} is set.
 
 
 \newpage
@@ -491,8 +504,8 @@ always stores but removes unless --debug is set.
 
 Jobs may lanch subjobs.  If the jobs are already built, they will be
 immediately linked in.  The syntax is as follows, assuming we build
-the jobs in prepare:
-
+the jobs in \\prepare:
+\\
 \begin{python}
 import subjob
 
@@ -500,14 +513,14 @@ def prepare():
   subjob.build('count_items', options=dict(length=3))
 \end{python}
 \\
-The subjob.build uses the same syntax as urd.build described
-elsewhere, so options, datasets, jobids, and caption are available.
-Similarly, subjob jobid is returned.
+The \texttt{subjob.build} uses the same syntax as \texttt{urd.build}
+described elsewhere, so \options, \datasets, \jobids, and
+\texttt{caption} are available.  Similarly, subjob jobid is returned.
 
 If there are datasets built in a subjob, these will not be explicitly
-available to urd.  Instead, the dataset definition is copied to the
-launching method like this
-
+available to Urd.  Instead, the dataset definition may be copied to
+the launching method like this
+\\
 \begin{python}
 from Dataset import dataset
 
@@ -516,5 +529,5 @@ def synthesis():
   Dataset(jid).link_to_here(name='thename')
 \end{python}
 \\
-the name argument is optional, the name 'default' is used if left
-empty, corresponding to the default dataset.
+the \texttt{name} argument is optional, the name \texttt{default} is
+used if left empty, corresponding to the default dataset.

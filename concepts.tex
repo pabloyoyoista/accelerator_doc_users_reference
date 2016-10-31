@@ -20,67 +20,32 @@ The server stores results and parameters from all jobs in a database
 that is partitioned into what is called workdirs.  The client, on the
 other hand, keeps a log, called the Urd log, which is bookkeeping all
 dispatched jobs and associated parameters and dependencies.
+Interestingly, data is also stored in jobs, so retreiving data is no
+different from retreiving jobs.
 
 Here is a very simple example
 \\
 \begin{python}
 # a_helloworld.py:
 def analysis(sliceno):
-  print("Hello world: %d" % (sliceno,))
+  print("Hello, world: %d" % (sliceno,))
 
 # automata.py:
 def main(urd):
   urd.begin('test')
   urd.build('helloworld')
 \end{python}
-
-
-\section{Job Bookkeeping}
-
-A promiment feature of both the client and the server is the ability
-to immediately recall instead of recompute previously executed jobs.
-Any job that has been successfully executed may be recalled, provided
-that the job is submitted again with exactly the same input and source
-code.  The framework uses a hash of the method's source code to decide
-if it has changed or not.
-
-The combination of bookkeeping and the client/server architecture
-provides a very powerful environment for accessing and depending on
-previous result.  Not only can a user's own results be recalled, but
-also those from another user or from the ``production'' user in a live
-enviroment.
-
-In a typical application, this dramatically increases performance
-while minimising the probability of errors.  It also allows for a high
-level of transparency.  Past jobs could be replayed in a controlled
-manner, and the complete context with respect to input argments of any
-job could be retreived and used to answer ``what-if''-scenarios.
-
-@@ Jag vill inte ha exempel, utan harda definitioner!
-
-
-
-\section{Urd}
-
-Urd provides a scripting environment for running and recalling jobs.
-It has a transaction-log database that stores information about jobs
-that have been run and their inter-dependencies.
-
-Urd is designed to answer questions like: ``what is the jobid of the
-job that ran customer recommendations on this and this date'', and
-``what data did that recommendation job depend on, which was the
-latest available transaction log at that time''.
-
-
-
-
-\section{Workdirs}
-
-A workdir is where results are stored.  One can think of it as a
-directory populated with jobid-directories.  Workdir are specified
-with absolute paths in the server filesystem.  A workdir has a fixed
-slicing.  All workdir in a project need to have the same number of
-slices.
+\\
+The program is executed by calling
+\\
+\begin{shell}
+% automatarunner.py
+\end{shell}
+\\
+This example will print the string \texttt{Hello, world:} plus a digit
+for each slice a number of
+times to standard
+out.  In more detail, the automata is dispatching the
 
 
 
@@ -114,8 +79,9 @@ the reference jobs.
 \section{Datasets and Chaining}
 
 A particularly efficient way to store data is by using the dataset.
-Data is stored so that it can be retrieved row by row at a very high
-pace and requesting from one to any number of columns.
+Datasets reside inside jobs, abstracting databases to jobs containing
+data.  Data is stored so that it can be retrieved row by row at a very
+high pace and requesting from one to any number of columns.
 
 Data in a dataset is separated into slices, where on a single server,
 the number of slices is close to the number of actual CPU cores for
@@ -132,10 +98,57 @@ without interruption.
 
 
 
+\section{Job Bookkeeping}
+
+A promiment feature of both the client and the server is the ability
+to immediately recall instead of recompute previously executed jobs.
+Any job that has been successfully executed may be recalled, provided
+that the job is submitted again with exactly the same input and source
+code.  The framework uses a hash of the method's source code to decide
+if it has changed or not.
+
+The combination of bookkeeping and the client/server architecture
+provides a very powerful environment for accessing and depending on
+previous result.  Not only can a user's own results be recalled, but
+also those from another user or from the ``production'' user in a live
+enviroment.  In a typical application, this dramatically increases
+performance while minimising the probability of errors.  It also
+allows for a high level of transparency.  Past jobs could be replayed
+in a controlled manner, and the complete context with respect to input
+argments of any job could be retreived and used to answer
+``what-if''-scenarios.
+
+% @@ Jag vill inte ha exempel, utan harda definitioner!
+
+
+
+\section{Workdirs}
+
+A workdir is where results are stored.  One can think of it as a
+directory populated with jobid-directories.  Workdirs are specified
+with absolute paths in the server filesystem.  A workdir has a fixed
+slicing, and all workdirs in a project need to have the same number of
+slices.
+
+
 \section{Method}
 
 Code is executed on the framework is written in methods.  Methods
 allow for parallel execution and more.
 
+
+
+\section{Urd}
+
+Urd provides a scripting environment for running and recalling jobs.
+It has a transaction-log database that stores information about jobs
+that have been run and their inter-dependencies.  Since data is also
+stored in jobs, another of Urd's purposes is to provide lookups to all
+data in a project.
+
+
+
 \section{Automata}
 
+An automata is a script run by urd, in which jobs and data are
+recalled, and new jobs may be dispatched.

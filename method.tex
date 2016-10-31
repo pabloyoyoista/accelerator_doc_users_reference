@@ -42,12 +42,19 @@ depend_extra = ('myfunc.py', 'generic_params.py',)
 A different scenario is when the method source code needs to be
 modified, but the change does not alter past behaviour, i.e. remake of
 jobs should be actively avoided.  There is an
-\texttt{equivalent\_hashes} list for that, as shown
+\texttt{equivalent\_hashes} dict for that, as shown
 \\
 \begin{python}
-  equivalent_hashes = ('0c573685f713ac6500a6eda7df1a7b3f',)
+  equivalent_hashes = {'verifier': ('0c573685f713ac6500a6eda7df1a7b3f',)}
 \end{python}
 
+The verifier string is a hash that depends on everything in the method
+except the equivalent\_hashes block. It is there to avoid the scenario
+where you forget the method has equivalent\_hashes and make changes. When
+the verifier is wrong (as it will be after editing the method) you will be
+informed what the correct verifier would be, so you can use that or discard
+the equivalent\_hashes block, as apropriate. The tuple on the right can
+contain any number of old hashes.
 
 
 

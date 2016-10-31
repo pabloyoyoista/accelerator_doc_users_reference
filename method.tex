@@ -36,9 +36,13 @@ change.  This is specified in the method using the
 \texttt{depend\_extra} list, as for example:
 \\
 \begin{python}
-depend_extra = ('myfunc.py', 'generic_params.py',)
+import generic_params
+depend_extra = (generic_params, 'mystuff.data',)
 \end{python}
 \\
+You can specify a module object or a filename relative to the module
+source.
+
 A different scenario is when the method source code needs to be
 modified, but the change does not alter past behaviour, i.e. remake of
 jobs should be actively avoided.  There is an

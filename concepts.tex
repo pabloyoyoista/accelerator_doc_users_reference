@@ -1,28 +1,28 @@
 
 \section{Introduction}
 
-The accelerator environment is composed of two parts: a server
-providing a set of features for efficient processing of large amounts
-of data, and a client that dispatches jobs on the server.
+On a high level, the accelerator platform is composed of two parts: a
+server providing a set of features for efficient parallel processing
+of large amounts of data, and a client that dispatches jobs on the
+server.
 
-A user may use or write two kinds of programs for the enviromnent.
-the first is called methods, which is parallel programs executed by
-the server.  The second is high level scripts, called automatas, that
-are executed by the client.  Automatas are used to control flow and
-parameters to and from the methods running on the server.
+A user of the platform may use or write two kinds of programs, denoted
+\textsl{methods} and \textsl{automatas}.  Methods are parallel
+programs executed on the server, and automatas are high level scripts
+used to control frlow and parameters to and from the methods running
+on the server.  Programs are written in the Python programming
+language, both Python~2 and Python~3 are supported.  In theory, any
+language may be used, and critical parts of the internals of the
+Accelerator are written in the C~programming language.
 
-Programs are written in the Python programming language, both python 2
-and 3 are supported.  In theory, any language may be used.
+Methods that are running or have completed running are called jobs.
+The server stores results and parameters from all jobs in a database
+that is partitioned into what is called workdirs.  The client, on the
+other hand, keeps a log, called the Urd log, which is bookkeeping all
+dispatched jobs and associated parameters and dependencies.
 
-Methods that have been running are called jobs.  The server stores
-results and parameters from all jobs in a database that is partitioned
-into what is called workdirs.  The client keeps a log, called the urd
-log, which is bookkeeping all dispatched jobs and parameters.
-
-@@@ featurelist here?!
-
-A very simple example
-
+Here is a very simple example
+\\
 \begin{python}
 # a_helloworld.py:
 def analysis(sliceno):

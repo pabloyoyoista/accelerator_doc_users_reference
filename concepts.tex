@@ -1,27 +1,29 @@
 
 \section{Introduction}
 
-On a high level, the accelerator platform is composed of two parts: a
-server providing a set of features for efficient parallel processing
-of large amounts of data, and a client that dispatches jobs on the
-server.
+The Accelerator platform is a complete environment designed for high
+performance parallel computing on large sets of data.  On a high
+level, the platform is composed of two parts: a server providing a set
+of features for efficient parallel processing of large amounts of
+data, and a client that dispatches jobs on the server and provides a
+lookup of all data in a project.
 
 A user of the platform may use or write two kinds of programs, denoted
 \textsl{methods} and \textsl{automatas}.  Methods are parallel
 programs executed on the server, and automatas are high level scripts
-used to control frlow and parameters to and from the methods running
-on the server.  Programs are written in the Python programming
-language, both Python~2 and Python~3 are supported.  In theory, any
-language may be used, and critical parts of the internals of the
-Accelerator are written in the C~programming language.
+used to control flow and parameters to and from the methods running on
+the server.  Programs are written in the Python programming
+language\footnote{ Both Python~2 and Python~3 are supported.}.  In
+theory, any language may be used, and critical parts of the internals
+of the Accelerator are written in the C~programming language.
 
 Methods that are running or have completed running are called jobs.
 The server stores results and parameters from all jobs in a database
 that is partitioned into what is called workdirs.  The client, on the
-other hand, keeps a log, called the Urd log, which is bookkeeping all
-dispatched jobs and associated parameters and dependencies.
-Interestingly, data is also stored in jobs, so retreiving data is no
-different from retreiving jobs.
+other hand, keeps a log, called the \textsl{Urd log}, which is
+bookkeeping all dispatched jobs and associated parameters and
+dependencies.  Interestingly, data is also stored in jobs, so
+retreiving data is no different from retreiving jobs.
 
 Here is a very simple example
 \\

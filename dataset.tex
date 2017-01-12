@@ -200,29 +200,31 @@ The dataset columns are typed.  The following types are available
 \begin{table}[h!]
  \begin{tabular}{ll}
   \hline
-    number   &  float or int\\
-    float64   &\\
-    float32   &\\
-    int64   & \\
-    int32   &  \\
-    bool   &  True or False\\
-    datetime   &  \\
-    date   &  \\
-    time   &  \\
-    bytes   &  avoid \\
-    ascii   &  ascii is faster in python2, otherwise unicode\\
+    number    &  float or int\\
+    float64   &  64 bit double float\\
+    float32   &  32 bit float\\
+    int64     &  64 bit signed integer\\
+    int32     &  32 bit integer\\
+    bool      &  True or False\\
+    date      &  date\\
+    time      &  time\\
+    datetime  &  complete date and time object\\
+    bytes     &  raw input, avoid \\
+    ascii     &  ascii is faster in python2, otherwise unicode\\
     unicode   &  use for strings\\
     parsed:number   & int, float or string parsing to int or float \\
-    parsed:float64   &  and so on...\\
-    parsed:float32   &  \\
-    parsed:int64   &  \\
+    parsed:float64  &  and so on...\\
+    parsed:float32  &  \\
+    parsed:int64    &  \\
     parsed:sint32   &  \\
-    json   &  a datastructure that is jsonable\\
-    parsed:json   &  string containing parseable json\\
+    json            &  a datastructure that is jsonable\\
+    parsed:json     &  string containing parseable json\\
   \hline
  \end{tabular}
  \caption{Available dataset column types.}
 \end{table}
+\textbf{To be completed.}
+
 
 \newpage
 \section{Create New Dataset}

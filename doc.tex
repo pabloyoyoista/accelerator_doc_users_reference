@@ -47,6 +47,9 @@
 \newminted[pythonMID]{python}{bgcolor=bg}
 \newminted[pythonEND]{python}{bgcolor=bg, frame=bottomline}
 \newminted[shell]{bash}{bgcolor=bg_shell, frame=lines}
+\newcommand\inputfile[1]{%
+    \InputIfFileExists{#1}{}{\typeout{No file #1.}}%
+}
 
 \newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
 
@@ -57,10 +60,24 @@
 
 %\includeonly{urd}
 
-\include{xmtitle}
-\thispagestyle{empty}
+
 \begin{document}
-\titleLL
+
+\begin{center}
+  \vspace*{1.5cm}
+  {\huge Expertmaker Accelerator}\\[1cm]
+  {\Large User's Reference}
+  \vspace{1.5cm}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=6cm]{odhner_square.jpg}
+  \end{figure}
+  \vfill
+  {\large DRAFT, \tiny{version: \inputfile{gitrevision}}}\\
+  {\footnotesize Anders Berkeman, Carl Drougge, and Sofia H\"orberg}
+\end{center}
+\thispagestyle{empty}
+
 \newpage
 
 

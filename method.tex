@@ -26,7 +26,7 @@ file for the package.
 \section{Recall and Method Hashing}
 
 The framework is applying a hash function to the method source code to
-determine if a job may be recalled or re-executed.  Chainging the
+determine if a job may be recalled or re-executed.  Changing the
 method source code in an unique way causes a new job to be built from
 the method code.
 
@@ -44,7 +44,7 @@ You can specify a module object or a filename relative to the module
 source.
 
 A different scenario is when the method source code needs to be
-modified, but the change does not alter past behaviour, i.e. remake of
+modified, but the change does not alter past behavior, i.e. remake of
 jobs should be actively avoided.  There is an
 \texttt{equivalent\_hashes} dict for that, as shown
 \\
@@ -57,7 +57,7 @@ except the equivalent\_hashes block. It is there to avoid the scenario
 where you forget the method has equivalent\_hashes and make changes. When
 the verifier is wrong (as it will be after editing the method) you will be
 informed what the correct verifier would be, so you can use that or discard
-the equivalent\_hashes block, as apropriate. The tuple on the right can
+the equivalent\_hashes block, as appropriate. The tuple on the right can
 contain any number of old hashes.
 
 
@@ -78,9 +78,9 @@ options = dict(length=4)
 The \texttt{jobids} argument is used to input pointers to other
 finished jobs, \datasets is used to input other datasets, and \options
 is used to input any other type of parameters specifying running
-behaviour of the method.  Note that \jobids and \datasets are tuples
+behavior of the method.  Note that \jobids and \datasets are tuples
 (and a single entry has to be followed by a comma), while \options is
-a dictionary.  Each vill be described in more detail next
+a dictionary.  Each will be described in more detail next
 
 
 
@@ -153,8 +153,8 @@ to describe the formal rules for option typing and assignment.
    enforce specific keys, only types. (\{'a': 'b'\} is a valid value
    for \{'foo': 'bar'\}) (?)
    
- \item containters with a type in the values default to empty
-   containers (oherwise the specified values are the default contents)
+ \item containers with a type in the values default to empty
+   containers (otherwise the specified values are the default contents)
 
 \end{itemize}
 %%%
@@ -341,7 +341,7 @@ information that is helpful in using the specified file, and
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
 \end{pythonMID}
 \\
-In the method, the \texttt{JobWithFile} object has theese members
+In the method, the \texttt{JobWithFile} object has these members
 \\
 \begin{pythonEND}
   usefile.jobid
@@ -412,7 +412,7 @@ def synthesis(analysis_res, prepare_res):
 
 
 \subsection{The \params Variable }
-The \params variable contain all input and initialisation parameters
+The \params variable contain all input and initialization parameters
 for a job, such as the caption
 \\
 \begin{python}
@@ -429,7 +429,7 @@ important members are
 params.package     # which package the method source code is stored in
 params.slices      # number of slices for the workdirs in use
 params.caption     # may be specified when building a job
-params.seed        # seed to initialise a random number generator
+params.seed        # seed to initialize a random number generator
 params.starttime   # execution start in epoch time
 \end{python}
 \\
@@ -439,7 +439,7 @@ but params does also contain all options, jobids, and datasets inputs.
 
 \subsection{Accessing Another Job's \params using \jobparams}
 
-The \params data sctructure contains all input and initialisation data
+The \params data structure contains all input and initialization data
 for a job.  To access another job's \params variable, just feed the
 job's jobid into the \jobparams function.
 \\
@@ -514,7 +514,7 @@ the other always stores but removes unless \texttt{--debug} is set.
 \newpage
 \section{Subjobs}
 
-Jobs may lanch subjobs.  If the jobs are already built, they will be
+Jobs may launch subjobs.  If the jobs are already built, they will be
 immediately linked in.  The syntax is as follows, assuming we build
 the jobs in \\prepare:
 \\

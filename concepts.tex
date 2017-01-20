@@ -23,7 +23,7 @@ that is partitioned into what is called workdirs.  The client, on the
 other hand, keeps a log, called the \textsl{Urd log}, which is
 bookkeeping all dispatched jobs and associated parameters and
 dependencies.  Interestingly, data is also stored in jobs, so
-retreiving data is no different from retreiving jobs.
+retrieving data is no different from retrieving jobs.
 
 Here is a very simple example
 \\
@@ -53,7 +53,7 @@ out.  In more detail, the automata is dispatching the
 
 \section{Dispatch, Dependencies, and Jobids}
 
-The framework is basically a job dispatcher and depencency tracker.
+The framework is basically a job dispatcher and dependency tracker.
 Input to a job is parameters and source code, called method.  When a
 job is run, a directory is created in the workdir.  A pointer to this
 directory, called a jobid, is returned upon finished execution.
@@ -102,7 +102,7 @@ without interruption.
 
 \section{Job Bookkeeping}
 
-A promiment feature of both the client and the server is the ability
+A prominent feature of both the client and the server is the ability
 to immediately recall instead of recompute previously executed jobs.
 Any job that has been successfully executed may be recalled, provided
 that the job is submitted again with exactly the same input and source
@@ -113,11 +113,11 @@ The combination of bookkeeping and the client/server architecture
 provides a very powerful environment for accessing and depending on
 previous result.  Not only can a user's own results be recalled, but
 also those from another user or from the ``production'' user in a live
-enviroment.  In a typical application, this dramatically increases
-performance while minimising the probability of errors.  It also
+environment.  In a typical application, this dramatically increases
+performance while minimizing the probability of errors.  It also
 allows for a high level of transparency.  Past jobs could be replayed
 in a controlled manner, and the complete context with respect to input
-argments of any job could be retreived and used to answer
+arguments of any job could be retrieved and used to answer
 ``what-if''-scenarios.
 
 % @@ Jag vill inte ha exempel, utan harda definitioner!

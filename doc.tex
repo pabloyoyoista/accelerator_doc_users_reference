@@ -88,15 +88,15 @@
 
 % \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
 \begin{tabular*}{\textwidth}{ll}
-method    & main source file of program to be executed by framework\\
-package   & a location where methods are stored\\
+automata  & a script run by urd dispatching or recalling jobs\\
+chain     & a one-directional list of datasets\\
+dataset   & efficient storage of data\\
 job       & a running or completed method\\
 jobid     & a link to a successfully completed method\\
-workdir   & a location where job data and metadata is stored\\
-dataset   & efficient storage of data\\
-chain     & a one-directional list of datasets\\
+method    & main source file of program to be executed by framework\\
+package   & a location where methods are stored\\
 urd       & dispatcher and job database\\
-automata  & a script run by urd dispatching or recalling jobs\\
+workdir   & a location where job data and metadata is stored\\
 \end{tabular*}
 
 

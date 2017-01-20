@@ -111,7 +111,7 @@ this will iterate until reaching end or the dataset
 job\_params(jobids.preprocess).datasets.source.
 
 It is also possible to iterate over a specified data range.  This
-works for datasets that are sorted on the column of choise.
+works for datasets that are sorted on the column of choice.
 
 \subsubsection*{Iterating over a data range}
 \begin{python}
@@ -158,9 +158,9 @@ a \texttt{dict}.  Translators are similar to \texttt{filters}, and
 always executed before filtering.
 
 The idea behind translators and filters is that they provide a way to
-modify code behaviour by supplying functions as iterator options.  In
+modify code behavior by supplying functions as iterator options.  In
 this way, it is possible to write re-useable simple methods that still
-could be altered significantly in behaviour.
+could be altered significantly in behavior.
 
 
 
@@ -168,7 +168,7 @@ could be altered significantly in behaviour.
 
 A translator function is called with a tuple and is expected to return
 a tuple of the same length.  Using translator functions it is possible
-to mix different columns with eachother before sending them to the
+to mix different columns with each other before sending them to the
 iterator output.  Here is an example
 
 \begin{python}
@@ -198,7 +198,7 @@ First an example illustrating the use of a translation \texttt{dict}.
 Here, integers are translated into more comprehensible strings.
 
 \begin{python}
-mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'SEASTAR',}
+mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'STARFISH',}
 for animal in iterate_datasetchain(None, 'NUM_LEGS', tip_jobid=jobid,
                                      translator={'NUM_LEGS': mapper,}):
     ...
@@ -261,7 +261,7 @@ It is possible to filter on one or more columns independently using a
 output from the iterator.  Here are two examples.  The first example
 will remove all lines except the ones with valid users.  The second
 example will only keep lines with movie items.  (The fact that book is
-false is reduntant --- missing keys will result in discarded lines.)
+false is redundant --- missing keys will result in discarded lines.)
 
 \begin{python}
 # keep valid users only

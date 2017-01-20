@@ -14,7 +14,7 @@ writing is limited using authentication, so that, for example, only
 the production user may publish a model to go live.
 
 With the exception of experimental work, all work initiated by urd is
-run in closed sessons, with well defined starting and ending points.
+run in closed sessions, with well defined starting and ending points.
 The input dependencies to these sessions are recorded, together with
 the resulting output.
 
@@ -165,7 +165,7 @@ possible to see the reasons for building a job.  For example
 # }
 \end{python}
 \\
-A more machine-friendly output is possible by spefifying
+A more machine-friendly output is possible by specifying
 \texttt{why\_build=True} in the \texttt{build}-request (and not
 specifying it to the automatarunner).
 
@@ -228,7 +228,7 @@ def main(urd):
 
 
 \section{Avoiding recording dependency}
-Depencency-recording will be activated on use of the \texttt{get},
+Dependency-recording will be activated on use of the \texttt{get},
 \texttt{latest}, and \texttt{first} functions.  If, for some reason,
 the point is to just have a look at the database to see what is in
 there, it can be done using the peek-versions, as presented below:
@@ -386,7 +386,7 @@ JobList(
 imp-1_0
 \end{pythonMID}
 
-It is easy to retreive the last job with a particular \texttt{method}
+It is easy to retrieve the last job with a particular \texttt{method}
 name, either by lookup or by using \texttt{find}.
 
 \begin{pythonMID}

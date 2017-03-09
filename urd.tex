@@ -33,7 +33,7 @@ def main(urd):
 \\
 Everything dispatched between \texttt{begin} and \texttt{finish} will
 be appended to the \texttt{test} urd list with timestamp
-\texttt{20161025}, as log as the \texttt{finish} function is called,
+\texttt{20161025}, as long as the \texttt{finish} function is called,
 since it is responsible for updating the urd transaction log.  Before
 \texttt{finish}, noting is stored, and it is perfectly ok to omit
 \texttt{finish} during development work.
@@ -454,8 +454,8 @@ without using the framework.  Urd will react to HTTP requests.
   "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
   ["method2", "test-59_0"], ["method3", "test-60_0"]]}
 
-% curl http://localhost:8833/ab/test/since/201610024
+% curl http://localhost:8833/ab/test/since/20161024
 ["20161025"]
 % curl http://localhost:8833/ab/test/since/20161026
-[]                                 
+[]
 \end{shell}

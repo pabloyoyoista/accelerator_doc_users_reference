@@ -207,3 +207,10 @@ def analysis(sliceno):
         return {ts: Counter({b: len(s) for b, s in d.iteritems()}) for ts, d in d.iteritems()}
 
 ** x
+
+* TODO dataset_type target types
+typing:  vad blir det av number, number:int etc?  Performance?
+
+* TODO shell-kommandot för att kolla in dataset??
+
+* TODO minmax and all cool stuff in jobdir

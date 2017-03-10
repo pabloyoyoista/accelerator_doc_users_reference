@@ -200,6 +200,7 @@ The dataset columns are typed.  The following types are available
 \begin{table}[h!]
  \begin{tabular}{ll}
   \hline
+    typename  & explanation \\[1ex]
     number    &  float or int\\
     float64   &  64 bit double float\\
     float32   &  32 bit float\\
@@ -223,6 +224,15 @@ The dataset columns are typed.  The following types are available
  \end{tabular}
  \caption{Available dataset column types.}
 \end{table}
+
+
+\subsection{number}
+number: integer when possible (up to +-2**1007-1), float otherwise
+number:int Never float, but accepts int.0 (or int.00 and so on)
+64 bytes + 1 byte marker, i.e. min 9 bytes.
+
+
+
 \textbf{To be completed.}
 
 

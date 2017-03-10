@@ -1,6 +1,61 @@
-\section{dataset\_type?}
+\section{csvimport}
+
+
+
+
+\clearpage
+\section{dataset\_type}
+
+A dataset imported with \texttt{csvimport} may be typed using
+\texttt{dataset\_type}.  This method parses the input data...
+An example invocation is the following
+
+\begin{python}
+urd.build('dataset_type', ...,
+  options=dict(
+    column2type=dict(
+      auct_start_dt='datetime:%Y-%m-%d',
+      brand='json',
+      item_id='number',
+      comp='unicode:utf-8',
+    ),
+  )
+\end{python}
+
 
 \subsection{typing}
+This section describes all typing options in detail.
+
+\subsubsection{Float Point Numbers}
+Floating point numbers may be stored as 32 or 64 bits.  There are six parsing options
+
+\begin{tabular}{lll}
+\texttt{float32} & \texttt{float64} & default\\
+\texttt{float32i} & \texttt{float64i} & ``ignore'', will discard trailing garbage, such as xxx\\
+\texttt{float32e} & \texttt{float64e} & ``exact'', error if parsed number does not fit in type \\
+\texttt{float32s} & \texttt{float64s} & ``saturate'', saturate to min/max if number does not fit in type \\
+\texttt{float32ei} & \texttt{float64ei} & ``exact'' + ``ignore'' \\
+\texttt{float32si} & \texttt{float64si} & ``saturate'' + ``ignore'' \\
+\end{tabular}
+
+\subsubsection{Integers}
+Integers are stored as either 32 or 64 bits.  Parsing works for several bases...
+
+\begin{tabular}{lll}
+  \texttt{int32\_0}   & \texttt{int64\_0}   & ``auto'', avoid and use a deteministic type if possible \\
+  \texttt{int32\_0i}  & \texttt{int64\_0i}  & same, ignore trailing garbage \\
+  \texttt{int32\_8}   & \texttt{int64\_8}   & ``octal'' \\
+  \texttt{int32\_8i}  & \texttt{int64\_8i}  & same, ignore trailing garbage \\
+  \texttt{int32\_10}  & \texttt{int64\_10}  & ``decimal'' \\
+  \texttt{int32\_10i} & \texttt{int64\_10i} & same, ignore trailing garbage \\
+  \texttt{int32\_16}  & \texttt{int64\_16}  & ``hexadecimal'' \\
+  \texttt{int32\_16i} & \texttt{int64\_16i} & same, ignore trailing garbage \\
+\end{tabular}
+
+There are also a parsing options for integers that are represented in a floating
+point format in the source data.
+
+
 
 \begin{python}
 float32

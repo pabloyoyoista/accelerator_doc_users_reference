@@ -23,8 +23,21 @@ urd.build('dataset_type', ...,
 \end{python}
 
 
-\subsection{typing}
+\subsection{Arguments}
+
+
+\subsection{Typing}
 This section describes all typing options in detail.
+
+\subsubsection{Numbers}
+The \emph{number} type is int or float.
+
+\begin{tabular}{ll}
+  \texttt{number}     & \texttt{int} or \texttt{float}\\
+  \texttt{number:int} & \texttt{int}, converts floats to int.\\
+\end{tabular}
+
+
 
 \subsubsection{Float Point Numbers}
 Floating point numbers may be stored as 32 or 64 bits.  In addition,
@@ -72,80 +85,94 @@ the parsing basically runs \texttt{int(float(value))} for each such
 value.\\
 
 \begin{tabular}{lll}
-  \texttt{floatint32e} & \texttt{floatint64e}  & \\
-  \texttt{floatint32s} & \texttt{floatint64s}  & \\
-  \texttt{floatint32ei}& \texttt{floatint64ei} & \\
-  \texttt{floatint32si}& \texttt{floatint64si} & \\
+  \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
+  \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
+  \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
+  \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
 \end{tabular}
 
 
-\begin{python}
-'strbool'
-# false if in ("false, "0", "f", "no", "off", "nil", "null", "")
-# true  otherwise
-\end{python}
 
-\begin{python}
-#true if float has bits set to one
-'floatbool'
-# with ignore
-'floatbooli'   
-\end{python}
+\subsection{Convert to Boolean}
+It is common that a column holds values that are to be interpreted as
+either \texttt{False} or \texttt{True}.  There are two types that is
+useful in this context.  The first one is \texttt{strbool}, that works like this\\
 
-time and date
+\begin{tabular}{ll}
+  \texttt{strbool} & \texttt{False} if value in (\texttt{"false", "0", "f", "no", "off", "nil", "null", ""})\\
+                   & \texttt{True} otherwise
+\end{tabular}
+\\
+The other is \texttt{floatbool} that is True when the float has bits
+set to one and zero otherwise.  There is also a \texttt{floatbooli}
+that ignores trailing garbage characters.\\
+
+\begin{tabular}{ll}
+  \texttt{floatbool}  & True if float has bits set to one, zero otherwise\\
+  \texttt{floatbooli} & same + \emph{ignore}\\
+\end{tabular}
+
+
+
+\subsection{Time and Date}
+There are three types relating to time available, \texttt{date},
+\texttt{time}, and \texttt{datetime}.  Each of these has a
+corresponding version that ignores trailing garbage characters.
+All time types require a format specification as described below\\
+
+\begin{tabular}{ll}
+  \texttt{date:*}      & a date with format specifier\\
+  \texttt{datei:*}     & same + \emph{ignore}\\
+  \texttt{time:*}      & a time with format specifier\\
+  \texttt{timei:*}     & same + \emph{ignore}\\
+  \texttt{datetime:*}  & a date + time with format specifier\\
+  \texttt{datetimei:*} & same + \emph{ignore}\\
+\end{tabular}\\
+
+The format is standard Python time formats, see for example\\
 \\
 \begin{python}
-# strptime-compat format
-    'datetime:*'   
-    'date:*'       
-    'time:*'       
-    'datetimei:*'  
-    'datei:*'      
-    'timei:*'      
+   # will match for example "2017-03-22"
+   auct_start_dt='date:%Y-%m-%d'  
+   # will match for example "183000", i.e. half past six in the evening
+   tod='time:%H%M%S'
+   # will match for example "2017-03-22 18:30:15"
+   timestamp='datetime:"%Y-%m-%d %H:%M:%S"
 \end{python}
 
-strings and byte sequences
-\\
-\begin{python}
-# out from csvimport, lists of bytes
-'bytes'
-# with strip of characters 8-13,32 from start and end
-'bytesstrip'
-\end{python}
 
-\begin{python}
-# python type "unicode"
-'unicode:*'    
-# with strip
-'unicodestrip:*
-# args are
-#   strict
-#   replace
-#   ignore
-\end{python}
-%python-typen unicode
-%strict, replace, ignore (dataset_typing:376)
-%strict:   ger error
-%replace:  
-%ignore:   radera dåliga tecken
+\subsection{Strings and Byte Sequences}
+There are a number of ways to read string and byte data, depending on
+how the raw input data is to be interpreted.  Here are the basic
+types, and variations and options will be described below.\\
 
-\begin{python}
-# sequence of letters, 7-bit representation
-    'ascii'        
-    'asciistrip'   
-# with argument
-    'ascii:*'      
-    'asciistrip:*' 
-# replace, strict, encode
-# encode är reversibel (originalsträng kan man få tillbaka)
-\end{python}
+\begin{tabular}{ll}
+  \texttt{bytes}      & list of bytes\\
+  \texttt{bytesstrip} & list of bytes, strip characters 8-13,32 from start and end\\
+  \texttt{ascii}      & list of ascii characters\\
+  \texttt{asciistrip} & list of ascii characters, strip characters 8-13,32 from start and end\\
+  \texttt{unicode:*}    & list of unicode characters\\
+\end{tabular}\\
 
-\begin{python}
-# number is int or float
-    'number'       
-# number:int is int, but "37.0" is okay
-    'number:int'  se dataset_typing.py:388
-\end{python}
+\noindent The following also takes argument\\
+
+\begin{tabular}{ll}
+  \texttt{unicodestrip:*}  & list of unicode characters, strip characters 8-13,32 from start and end\\
+\end{tabular}\\
+
+\noindent where the argument is one of \texttt{replace}, \texttt{ignore}, and \texttt{strict}.
+\texttt{strict} will cause error, \texttt{ignore} will erase illegal characters.\\
+
+\begin{tabular}{ll}
+  \texttt{ascii:*}      & list of ascii characters\\
+  \texttt{asciistrip:*} & list of ascii characters, strip characters 8-13,32 from start and end\\
+\end{tabular}\\
+
+\noindent where the argument is one of \texttt{replace}, \texttt{encode}, and \texttt{strict}.
+\texttt{strict} will cause error, \texttt{ignore} will erase illegal characters,
+and \texttt{encode} is reversible encoding.
+
+
 
 
 

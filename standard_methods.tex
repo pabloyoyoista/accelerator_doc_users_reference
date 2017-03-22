@@ -99,7 +99,7 @@ either \texttt{False} or \texttt{True}.  There are two types that is
 useful in this context.  The first one is \texttt{strbool}, that works like this\\
 
 \begin{tabular}{ll}
-  \texttt{strbool} & \texttt{False} if value in (\texttt{"false", "0", "f", "no", "off", "nil", "null", ""})\\
+  \texttt{strbool} & \texttt{False} if value in (\texttt{'false', '0', 'f', 'no', 'off', 'nil', 'null', ''})\\
                    & \texttt{True} otherwise
 \end{tabular}
 \\
@@ -132,12 +132,12 @@ All time types require a format specification as described below\\
 The format is standard Python time formats, see for example\\
 \\
 \begin{python}
-   # will match for example "2017-03-22"
+   # will match for example '2017-03-22'
    auct_start_dt='date:%Y-%m-%d'  
-   # will match for example "183000", i.e. half past six in the evening
+   # will match for example '183000', i.e. half past six in the evening
    tod='time:%H%M%S'
-   # will match for example "2017-03-22 18:30:15"
-   timestamp='datetime:"%Y-%m-%d %H:%M:%S"
+   # will match for example '2017-03-22 18:30:15'
+   timestamp='datetime:'%Y-%m-%d %H:%M:%S'
 \end{python}
 
 

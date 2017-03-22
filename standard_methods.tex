@@ -27,103 +27,57 @@ urd.build('dataset_type', ...,
 This section describes all typing options in detail.
 
 \subsubsection{Float Point Numbers}
-Floating point numbers may be stored as 32 or 64 bits.  There are six parsing options
+Floating point numbers may be stored as 32 or 64 bits.  In addition,
+there are six parsing options that are useful in different scenarios.
+The \emph{ignore} option ignores any trailing characters after the
+number.  Then there are \emph{exact} that causes error if the number
+does not fit, and \emph{saturate} that silently saturates a
+non-fitting number.  These can also be used in combination, see table
+below for all alternatives\\
 
 \begin{tabular}{lll}
-\texttt{float32} & \texttt{float64} & default\\
-\texttt{float32i} & \texttt{float64i} & ``ignore'', will discard trailing garbage, such as xxx\\
-\texttt{float32e} & \texttt{float64e} & ``exact'', error if parsed number does not fit in type \\
-\texttt{float32s} & \texttt{float64s} & ``saturate'', saturate to min/max if number does not fit in type \\
-\texttt{float32ei} & \texttt{float64ei} & ``exact'' + ``ignore'' \\
-\texttt{float32si} & \texttt{float64si} & ``saturate'' + ``ignore'' \\
+\texttt{float32} & \texttt{float64} & \emph{default}\\
+\texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
+\texttt{float32e} & \texttt{float64e} & \emph{exact}, error if parsed number does not fit in type \\
+\texttt{float32s} & \texttt{float64s} & \emph{saturate}, saturate to min/max if number does not fit in type \\
+\texttt{float32ei} & \texttt{float64ei} & \emph{exact} + \emph{ignore} \\
+\texttt{float32si} & \texttt{float64si} & \emph{saturate} + \emph{ignore} \\
 \end{tabular}
 
 \subsubsection{Integers}
-Integers are stored as either 32 or 64 bits.  Parsing works for several bases...
+Integers are stored as either 32 or 64 bits.  Parsing takes base into
+account, so in addition to decimal numbers, it is also straightforward
+to parse octal and hexadecimal numbers.  The \emph{ignore} option
+causes parsing to ignore trailing garbage characters.\\
 
 \begin{tabular}{lll}
-  \texttt{int32\_0}   & \texttt{int64\_0}   & ``auto'', avoid and use a deteministic type if possible \\
-  \texttt{int32\_0i}  & \texttt{int64\_0i}  & same, ignore trailing garbage \\
-  \texttt{int32\_8}   & \texttt{int64\_8}   & ``octal'' \\
-  \texttt{int32\_8i}  & \texttt{int64\_8i}  & same, ignore trailing garbage \\
-  \texttt{int32\_10}  & \texttt{int64\_10}  & ``decimal'' \\
-  \texttt{int32\_10i} & \texttt{int64\_10i} & same, ignore trailing garbage \\
-  \texttt{int32\_16}  & \texttt{int64\_16}  & ``hexadecimal'' \\
-  \texttt{int32\_16i} & \texttt{int64\_16i} & same, ignore trailing garbage \\
+  \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
+  \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
+  \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
+  \texttt{int32\_8i}  & \texttt{int64\_8i}  & \emph{octal}, ignore trailing garbage \\
+  \texttt{int32\_10}  & \texttt{int64\_10}  & \emph{decimal} \\
+  \texttt{int32\_10i} & \texttt{int64\_10i} & \emph{decimal}, ignore trailing garbage \\
+  \texttt{int32\_16}  & \texttt{int64\_16}  & \emph{hexadecimal} \\
+  \texttt{int32\_16i} & \texttt{int64\_16i} & \emph{hexadecimal}, ignore trailing garbage \\
 \end{tabular}
 
-There are also a parsing options for integers that are represented in a floating
-point format in the source data.
 
 
+\subsection{Integers Stored as Floats}
 
-\begin{python}
-float32
-float64
-\end{python}
-\\
-ignore trailing garbage
-\\
-\begin{python}
-float32i
-float64i
-\end{python}
-\\
-floatints are integers, i.e.\ int(float(value)), used for dedotting...
-\\
-\begin{python}
-# e = exact, error on saturate which is int32 when 32 or float64 when 64.
-'floatint64e'  
-'floatint32e'  
-\end{python}
+There are also a parsing options for integers that are represented in
+a floating point format in the source data.  This is useful if integer
+data is stored with decimals, such as \texttt{5.0}.  In pseudocode,
+the parsing basically runs \texttt{int(float(value))} for each such
+value.\\
 
-\begin{python}
-# s = saturate
-'floatint64s'  
-'floatint32s'  
-\end{python}
+\begin{tabular}{lll}
+  \texttt{floatint32e} & \texttt{floatint64e}  & \\
+  \texttt{floatint32s} & \texttt{floatint64s}  & \\
+  \texttt{floatint32ei}& \texttt{floatint64ei} & \\
+  \texttt{floatint32si}& \texttt{floatint64si} & \\
+\end{tabular}
 
-\begin{python}
-# exact and ignore
-'floatint64ei' 
-'floatint32ei' 
-\end{python}
-
-\begin{python}
-# saturate and ignore
-'floatint64si' 
-'floatint32si' 
-\end{python}
-
-specify base, i.e.\ arg to strtol(...,x)
-\\
-\begin{python}
-#_0 == auto (avoid)
-    'int64_0'      
-    'int32_0'      
-# octal
-    'int64_8'      
-    'int32_8'      
-# decimal
-    'int64_10'     
-    'int32_10'     
-# hexadecimal
-    'int64_16'     
-    'int32_16'     
-\end{python}
-
-and with ignore
-\\
-\begin{python}
-    'int64_0i'     
-    'int32_0i'     
-    'int64_8i'     
-    'int32_8i'     
-    'int64_10i'    
-    'int32_10i'    
-    'int64_16i'    
-    'int32_16i'    
-\end{python}
 
 \begin{python}
 'strbool'

@@ -231,3 +231,7 @@ Finns inget om detta - titta i kod eller committmeddelande
 joblist/extras.profile?  Få exekveringstid på en joblista.
 
 * m.-filer
+
+* Vilka argument tar unicode:* egentligen?  unicodestrip:* är strict, replace, ignore
+
+* finns number:float?

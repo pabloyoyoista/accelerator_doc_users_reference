@@ -214,3 +214,20 @@ typing:  vad blir det av number, number:int etc?  Performance?
 * TODO shell-kommandot för att kolla in dataset??
 
 * TODO minmax and all cool stuff in jobdir
+
+
+* Carl [2017-03-10 fre]
+missing:
+"with status(...):" and ^T.
+ 
+iterator:
+s/iterate_datasets/Dataset.iterate/
+s/iterate_datasetchain/ds.iterate_chain/
+
+* merge_auto()
+Finns inget om detta - titta i kod eller committmeddelande
+
+* profilering
+joblist/extras.profile?  Få exekveringstid på en joblista.
+
+* m.-filer

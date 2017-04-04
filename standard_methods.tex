@@ -179,6 +179,28 @@ and \texttt{encode} is reversible encoding.
 \clearpage
 \section{dataset\_rehash}
 
+Dataset rehash will create a new dataset based from its source, and
+hash it based on the column input in the options.
+
+\noindent Datasets:
+
+\begin{tabular}{ll}
+  \texttt{source}   & source dataset to rehash\\
+  \texttt{previous} & previous dataset that will be chained to\\
+\end{tabular}
+
+\noindent Options:
+
+\begin{tabular}{ll}
+  \texttt{hashlabel} & column for hashing, required.\\
+  \texttt{length}    & Go back at most this many datasets. Default is -1, which goes back to previous.source\\
+  \texttt{caption}   & Optional caption.  A reasonable caption is created automatically if left blank\\
+\end{tabular}
+
+\noindent Note that default operation is to rehash a complete chain of
+datasets from \texttt{source} back to \texttt{previous.source}.
+
+
 \clearpage
 \section{dataset\_sort}
 

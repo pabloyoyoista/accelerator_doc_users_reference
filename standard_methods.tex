@@ -195,11 +195,15 @@ hash it based on the column input in the options.
   \texttt{hashlabel} & column for hashing, required.\\
   \texttt{length}    & Go back at most this many datasets. Default is -1, which goes back to previous.source\\
   \texttt{caption}   & Optional caption.  A reasonable caption is created automatically if left blank\\
+  \texttt{as\_chain}  & True generates one dataset per slice, False generates one dataset.  Default \texttt{False}.\\
 \end{tabular}
 
 \noindent Note that default operation is to rehash a complete chain of
 datasets from \texttt{source} back to \texttt{previous.source}.
 
+Internally, \texttt{dataset\_rehash} always generates one dataset per
+slice in a chain.  This is also what is returned if \texttt{as\_chain
+  == True}.  Otherwise, all datasets are concatenated into one.
 
 \clearpage
 \section{dataset\_sort}

@@ -1,7 +1,7 @@
 * DONE subjob.build(..., name=???)
 
 * DONE urd.build(..., name=???)
-* TODO varför finns ingen urd.list() ???
+* DONE varför finns ingen urd.list() ???
 skall lägga till
 * DONE urd.begin(..., update=???)
 
@@ -13,7 +13,12 @@ skall lägga till
 
 * DONE carls nya options
 
-Values are defaults, types get None as default, RequiredOption(…) must be specified. (And OptionEnum without none_ok and no default must be specified.) Containers with a type in in the values default to empty containers (otherwise the specified values are the default contents).
+- Values are defaults,
+- types get None as default,
+- RequiredOption(…) must be specified.
+- (And OptionEnum without none_ok and no default must be specified.)
+- Containers with a type in in the values default to empty containers
+    (otherwise the specified values are the default contents).
 
 options = dict(
     foo=4, # must be int, defaults to 4

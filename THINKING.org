@@ -246,3 +246,21 @@ joblist/extras.profile?  Få exekveringstid på en joblista.
 finns alla "s", "i", "is" etc för float och floatint?
 Varför har jag inte dokumenterat "floatintXi"?
 
+
+
+* jobchain [2017-04-07 fre]
+
+jobchain kan användas för att iterera över _jobb_, men inte över dataset.
+Dataset itererar man över via .chain(), som i
+  datasets = ('source',)
+  for ds in datasets.source.chain():
+     print ds.name
+denna tar alla relevanta options som jobchain tar, dvs stop_jobid (kan
+inte vara jid/gurka, läs nedan), length, reverse.  Output ur .chain()
+är datasetobject (som är ärvda från strängar (praktiskt vid printing,
+men av historiska skäl).
+
+** TODO chain() behöver också ett stop_dataset-argument!
+stop_jobid jobbar bara på just jobid.
+ 
+** TODO dokumentera!

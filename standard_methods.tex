@@ -8,6 +8,32 @@
 
 A dataset imported with \texttt{csvimport} may be typed using
 \texttt{dataset\_type}.  This method parses the input data...
+
+
+
+\subsection{Arguments}
+
+Datasets\\
+
+\begin{tabular}{ll}
+  \texttt{source} & \\
+  \texttt{previous} & \\
+\end{tabular}\\
+
+\noindent Options\\
+
+\begin{tabular}{ll}
+  \texttt{column2type}               & \\%{'COLNAME': TYPENAME},
+  \texttt{defaults}                  & \\%{}, # {'COLNAME': value}, unspecified -> method fails on unconvertible unless filter\_bad
+  \texttt{rename}                    & \\%{}, # {'OLDNAME': 'NEWNAME'} doesn't shadow OLDNAME.
+  \texttt{caption}                   & \\%'typed dataset',
+  \texttt{discard\_untyped}           & \\%bool, # Make unconverted columns inaccessible (``new'' dataset)
+  \texttt{filter\_bad}                & \\%False, # Implies discard_untyped
+  \texttt{numeric\_comma}             & \\%False, # floats as ``3,14''
+\end{tabular}
+
+
+\subsection{Example Invocation}
 An example invocation is the following
 
 \begin{python}
@@ -23,14 +49,12 @@ urd.build('dataset_type', ...,
 \end{python}
 
 
-\subsection{Arguments}
-
 
 \subsection{Typing}
 This section describes all typing options in detail.
 
 \subsubsection{Numbers}
-The \emph{number} type is int or float.
+The \emph{number} type is int or float.\\
 
 \begin{tabular}{ll}
   \texttt{number}     & \texttt{int} or \texttt{float}\\

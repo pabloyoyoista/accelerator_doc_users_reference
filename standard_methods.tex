@@ -203,19 +203,21 @@ and \texttt{encode} is reversible encoding.
 \clearpage
 \section{dataset\_rehash}
 
-\input{dataset_rehash.pdf_t}
+Dataset rehash will create a new dataset based on its \texttt{source}
+dataset.  The new dataset will be hashed on the column specified by
+the \texttt{hashlabel} input option.
 
-Dataset rehash will create a new dataset based from its source, and
-hash it based on the column input in the options.
+\subsection{Input Datasets and Options}
 
-\noindent Datasets:
+Datasets\\
 
 \begin{tabular}{ll}
   \texttt{source}   & source dataset to rehash\\
   \texttt{previous} & previous dataset that will be chained to\\
-\end{tabular}
+\end{tabular}\\
 
-\noindent Options:
+
+\noindent Options\\
 
 \begin{tabular}{ll}
   \texttt{hashlabel} & column for hashing, required.\\
@@ -224,12 +226,75 @@ hash it based on the column input in the options.
   \texttt{as\_chain}  & True generates one dataset per slice, False generates one dataset.  Default \texttt{False}.\\
 \end{tabular}
 
-\noindent Note that default operation is to rehash a complete chain of
-datasets from \texttt{source} back to \texttt{previous.source}.
 
+\subsection{Example Invocation}
+\begin{python}
+urd.build('dataset_rehash',
+  datasets=dict(
+    source=jid,
+  ), 
+  options=dict(
+    hashlabel = 'start_date',
+  )
+)
+\end{python}
+
+
+
+\subsection{Hashing Details}
+Hashing on a column means that each row will be copied to a slice that
+is determined from the value of the \texttt{hashlabel} column.  In
+particular, the value of the row's \texttt{hashlabel} column will be
+fed through a hashing function, and the output modulo the number of
+slices will be the target slice number.  In meta-language, it is
+something like this
+\\
+\begin{python}
+from gzutil import siphash
+target_sliceno = siphash(cols[hashlabel])
+\end{python}
+
+
+\subsection{Note on Chains}
+\subsubsection{1.}
+Note that default operation is to rehash a complete chain of datasets
+from \texttt{source} back to \texttt{previous.source}.  This is
+controlled by the \texttt{length} option.
+
+\subsubsection{2.}
 Internally, \texttt{dataset\_rehash} always generates one dataset per
 slice in a chain.  This is also what is returned if \texttt{as\_chain
-  == True}.  Otherwise, all datasets are concatenated into one.
+  == True}.  Otherwise, all datasets are concatenated into one.  Thus,
+there is a choice of either having the output as a chain of datasets
+or as a single dataset.  The chain will execute faster, since the
+concatenation step is omitted.
+
+
+\clearpage
+\subsection{Internal Operation}
+Figure~\ref{fig:dataset_rehash} shows how rehashing happens...
+
+Each \texttt{analysis} reads one complete slice of the source dataset
+and hashes it into a new dataset.  This means that there is one new
+dataset created per slice.  Each of these datasets are chained and
+named using an integer counter starting at zero.  The last slice,
+however, is named \texttt{default}.
+
+If the \texttt{as\_chain} is set, \texttt{dataset\_rehash} is finished.
+Otherwise, in \texttt{synthesis}, each of the datasets are read in
+turn and concatenated into a single dataset.  When this is finished,
+all datasets except the concatenated one is removed from disk.
+
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{dataset_rehash.pdf_t}
+  \end{center}
+  \caption{\texttt{dataset\_rehash} data flow}
+  \label{fig:dataset_rehash}
+\end{figure}
+
+
 
 \clearpage
 \section{dataset\_sort}

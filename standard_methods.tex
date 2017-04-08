@@ -314,9 +314,37 @@ all datasets except the concatenated one is removed from disk.
 \end{figure}
 
 
+\clearpage
+\section{dataset\_filter\_columns}
+The method \texttt{dataset\_filter\_columns} is used to remove columns
+from a dataset.  This method is typically run before methods that
+operate on all columns of a dataset when only a subset of the columns
+are required.  A typical example is \texttt{dataset\_rehash} that
+operates on all columns of a dataset.  If a subset such as only one of
+the columns is to be rehashed, they can be cut out using
+\texttt{dataset\_filter\_columns}.
+
+Note that no data is copied using this method.  It only updates soft
+links.  So execution is typically significantly below a second.
+
+
+
+
 
 \clearpage
 \section{dataset\_sort}
+The method \texttt{dataset\_sort} is used to sort relatively large
+datasets.  One or more columns may be selected for sorting, and it
+will sort one column at a time.
+
+The method works by reading the columns to sort by, and create an
+indexing column that stipulates the sorting order.  Each column is
+then read in turn and sorted according to the sorting column.
+
+The method has limited sorting capability.  Internally, it sorts one
+column at a time, and it requires to hold that complete column plus an
+indexing column in memory simultaneously.
+
 
 \clearpage
 \section{dataset\_datesplit, dataset\_datesplit\_discarded}
@@ -324,6 +352,4 @@ all datasets except the concatenated one is removed from disk.
 \clearpage
 \section{dataset\_checksum, dataset\_checksum\_chain}
 
-\clearpage
-\section{dataset\_filter\_columns}
 

@@ -1,6 +1,25 @@
 \section{csvimport}
 
+This method is used to import text files in tabular format.  It reads
+plain text files as well as \texttt{gzip} compressed files.
 
+\subsection{Arguments}
+
+\begin{tabular}{ll}
+  \texttt{filename} & \\ %                  : OptionString,
+  \texttt{separator} & \\ %                 : ',',
+  \texttt{labelsonfirstline} & \\ %         : True,
+  \texttt{labels} & \\ %                    : [], # Mandatory if not labelsonfirstline, always sets labels if set.
+  \texttt{hashlabel} & \\ %                 : None,
+  \texttt{quot} & \\ %_support'             : False, # 'foo',''bar'' style CSV
+  \texttt{rename} & \\ %                    : {},    # Labels to replace (if they are in the file) (happens first)
+  \texttt{discard} & \\ %                   : set(), # Labels to not include (if they are in the file)
+  \texttt{allow\_bad} & \\ %               : False, # Still succeed if some lines have too few/many fields.
+\end{tabular}
+
+\begin{tabular}{ll}
+  \texttt{previous}
+\end{tabular}
 
 
 \clearpage

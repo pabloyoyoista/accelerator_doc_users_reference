@@ -519,13 +519,13 @@ immediately linked in.  The syntax is as follows, assuming we build
 the jobs in \\prepare:
 \\
 \begin{python}
-import subjob
+import subjobs
 
 def prepare():
-  subjob.build('count_items', options=dict(length=3))
+  subjobs.build('count_items', options=dict(length=3))
 \end{python}
 \\
-The \texttt{subjob.build} uses the same syntax as \texttt{urd.build}
+The \texttt{subjobs.build} uses the same syntax as \texttt{urd.build}
 described elsewhere, so \options, \datasets, \jobids, and
 \texttt{caption} are available.  Similarly, subjob jobid is returned.
 
@@ -537,7 +537,7 @@ the launching method like this
 from Dataset import dataset
 
 def synthesis():
-  jid = subjob.build('create_dataset')
+  jid = subjobs.build('create_dataset')
   Dataset(jid).link_to_here(name='thename')
 \end{python}
 \\

@@ -5,21 +5,75 @@ plain text files as well as \texttt{gzip} compressed files.
 
 \subsection{Arguments}
 
+\noindent Options\\
+
 \begin{tabular}{ll}
   \texttt{filename} & \\ %                  : OptionString,
   \texttt{separator} & \\ %                 : ',',
   \texttt{labelsonfirstline} & \\ %         : True,
   \texttt{labels} & \\ %                    : [], # Mandatory if not labelsonfirstline, always sets labels if set.
   \texttt{hashlabel} & \\ %                 : None,
-  \texttt{quot} & \\ %_support'             : False, # 'foo',''bar'' style CSV
+  \texttt{quote\_support} \\ %               : False, # 'foo',''bar'' style CSV
   \texttt{rename} & \\ %                    : {},    # Labels to replace (if they are in the file) (happens first)
   \texttt{discard} & \\ %                   : set(), # Labels to not include (if they are in the file)
   \texttt{allow\_bad} & \\ %               : False, # Still succeed if some lines have too few/many fields.
-\end{tabular}
+\end{tabular}\\
+\\
 
+Input \texttt{filename} is mandatory and may either be a plain text
+file or a gzipped file.  A path may be specified as part of the
+filenam, and this path is relative to the configuration option
+\texttt{source\_directory}.  This is to make input files relocateable
+so that reading files from a different directoy will not trig remaking
+the import jobs.
+
+The \texttt{separator} option may contain any character to be used for
+separating the columns in the input file.  The default separator is
+comma.
+
+Labels may be used if they appear on the first line.  This is the
+default.  If \texttt{labelsonfirstline} is set to False, labels must
+be entered using the \texttt{label} list option.
+
+An optional \texttt{hashlabel} may be assigned, but bear in mind that
+hashing will occur on the input text data.  Thus, data is to be hashed
+on for example the integer value of a column, rehashing have to take
+place after typing to integer.
+
+The option \texttt{quote\_support} makes it possible to read files
+with quoted values.
+
+It is possible to rename columns while importing using the
+\texttt{rename} option.  If used, a dictionary with
+\texttt{source\_name} to \texttt{dest\_name} must be provided.
+Columns may also be omitted from importing using the \texttt{discard}
+option.  If used, a set containing columns to omit must be provided.
+
+Finally, there is an \texttt{allow\_bad} option that relaxes the input
+file strictness.  If set to \texttt{False}, which is the default,
+\texttt{csvimport} will assert an error if there are format errors in
+the input data.  Setting it to \texttt{True} makes importing silently
+ignoring any format errors.  Using this option calls for checking the
+result.
+
+
+\noindent Datasets\\
+\\
 \begin{tabular}{ll}
   \texttt{previous}
-\end{tabular}
+\end{tabular}\\
+\\
+The only input dataset is \texttt{previous} which is set to the previous job when creating a chain.
+
+
+\subsection{Output}
+The result of the \texttt{csvimport} is a dataset.  There is also a
+\texttt{report.txt} stored in the jobdir which contains information on
+number of lines read and more (CHECK THIS!)
+
+
+
+
 
 
 \clearpage

@@ -273,6 +273,76 @@ and \texttt{encode} is reversible encoding.
 \clearpage
 \section{dataset\_csvexport}
 
+The \texttt{dataset\_export} metod is used to export datasets to text
+files.  It may write chains of datasets, it may write one dataset per
+slice and more.
+
+
+\subsection{Input Options, Datasets, and Jobids}
+
+\noindent Options\\
+
+\begin{tabular}{ll}
+  \texttt{filename} & \\ %          = OptionString, # .csv or .gz
+  \texttt{separator} & \\ %         = ',',
+  \texttt{labelsonfirstline} & \\ % = True,
+  \texttt{chain\_source} & \\ %       = False, # everything in source is replaced by datasetchain(self, stop=from previous)
+  \texttt{quote\_fields} & \\ %      = '', # can be ' or ``
+  \texttt{labels} & \\ %            = [], # empty means all labels in (first) dataset
+  \texttt{sliced} & \\ %            = False, # one output file per slice, put %02d or similar in filename
+\end{tabular}\\
+
+\noindent Datasets\\
+
+\begin{tabular}{ll}
+  \texttt{datasets} & \\ %  = (['source'],) # normally just one, but you can specify several
+\end{tabular}\\
+
+\noindent jobids\\
+
+\begin{tabular}{ll}
+  \texttt{jobids} & \\ % = ('previous',)
+\end{tabular}
+
+
+The \texttt{dataset\_export} may write a single output file or one
+file per slice.  The output format is either text or gziped text, with
+separators between columns.  Filename is specified by the
+\texttt{filename} option, and if \texttt{sliced} is set to
+\texttt{True} (\texttt{False} is default), the filename should contain
+a \texttt{\%03d} or similar for the slice number to appear in the
+output files.
+
+Any separator may be specified by the \texttt{separator} option.
+Values may be quoted by setting a quote character in the
+\texttt{quote\_fields} option.  Valid quotes are WHAT?
+
+
+Default behaviour is to write the names of the columns on the first
+line.  This is suppressed by setting \texttt{labelsonfirstline} to
+\texttt{False}.  Individual columns may be selected for export using
+the \texttt{labels} list, which defaults to all labels in the first
+dataset in a chain.
+
+How a chain of datasets is to be exported is controlled by the
+\texttt{chain\_source} option.  Internally, this is input as \texttt{stop\_jobid}
+to the iterator creating........By default, it exports everything in a
+chain back to the \texttt{previous} dataset.WHAT ELSE? 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \clearpage
 \section{dataset\_rehash}
 

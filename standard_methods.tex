@@ -469,6 +469,30 @@ The method has limited sorting capability.  Internally, it sorts one
 column at a time, and it requires to hold that complete column plus an
 indexing column in memory simultaneously.
 
+\subsection{Inputs}
+
+\noindent Options\\
+
+\begin{tabular}{ll}
+  \texttt{sort\_columns'} & \\    %       : [OptionString],
+  \texttt{sort\_order} & \\        %     : OrderEnum.ascending,
+  \texttt{sort\_across\_slices} & \\%     : False, # normally only sort within slices
+\end{tabular}\\
+
+\noindent Datasets\\
+
+\begin{tabular}{ll}
+  \texttt{source} & \\
+  \texttt{previous} & \\
+\end{tabular}
+
+Data is sorted based on the columns specified in the list
+\texttt{sort\_columns}.  Data is first sorted on the first column,
+then the second, and so on.
+
+
+
+
 
 \clearpage
 \section{dataset\_datesplit, dataset\_datesplit\_discarded}

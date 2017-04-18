@@ -10,3 +10,7 @@ gitrevision
 _minted-doc/
 *.fls
 *.pyg
+*.fig.bak
+*.pdf_t
+*.pstex
+*.pstex_t

@@ -367,7 +367,10 @@ Datasets\\
   \texttt{length}    & Go back at most this many datasets. Default is -1, which goes back to previous.source\\
   \texttt{caption}   & Optional caption.  A reasonable caption is created automatically if left blank\\
   \texttt{as\_chain}  & True generates one dataset per slice, False generates one dataset.  Default \texttt{False}.\\
-\end{tabular}
+\end{tabular}\\
+
+\noindent Note that columns typed as \texttt{json}, list, and set cannot be used
+for hashing.
 
 
 \subsection{Example Invocation}
@@ -396,6 +399,7 @@ something like this
 from gzutil import siphash
 target_sliceno = siphash(cols[hashlabel])
 \end{python}
+
 
 
 \subsection{Note on Chains}

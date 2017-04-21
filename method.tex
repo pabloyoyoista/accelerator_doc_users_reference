@@ -543,3 +543,17 @@ def synthesis():
 \\
 the \texttt{name} argument is optional, the name \texttt{default} is
 used if left empty, corresponding to the default dataset.
+
+Currently there is no dependency checking on subjobs, so if a subjob
+method is changed, the calling method will not be updated.  The
+current remedy is to use \texttt{depend\_extra} in the callin method,
+like this
+\\
+\begin{python}
+import subjobs
+
+depend_extra = ('a_childjob.py',)
+
+def prepare():
+  subjobs.build('childjob')
+\end{python}

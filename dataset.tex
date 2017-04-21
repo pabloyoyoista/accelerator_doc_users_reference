@@ -3,23 +3,22 @@
 The dataset is the prefered way to store large amounts of data.  The
 dataset is the container for fast and simple access to data.  Data in
 a dataset are stored as a matrix in rows and columns.  Using the
-dataset, data is simple to access and at a very high performance.
+dataset, data is simple to access at very high speed.
 
 Datasets are created in methods, and any job may contain zero, one, or
 more datasets.  The most obvious use of a dataset is the cvsimport
-method that creates a dataset from an input file.
-
-A job may contain more than one dataset.  This allows for efficient
-storage and access of data in some common practical situations.  For
-example, a filtering job may split the input dataset in two or more
-output datasets that can be accessed independently.
+method that creates a dataset from an input file.  But a job may
+contain more than one dataset.  This allows for efficient storage and
+access of data in some common practical situations.  For example, a
+filtering job may split the input dataset in two or more output
+datasets that can be accessed independently.
 
 For performance reasons, datasets are typically split into several
-slices, where each data line exists in exactly one of the slices.  The
+slices, where each data row exists in exactly one of the slices.  The
 actual slicing may be carried out in any fashion, like round robin, or
 even random, but an interesting approach is to slice according to the
 hash value of a certain column.  Slicing according to a hashed column
-ensures that all lines with a certain hash column value ends up in the
+ensures that all rows with a certain hash column value ends up in the
 same slice.
 
 This chapter covers ...
@@ -28,59 +27,60 @@ appending, where datasets grow in number of columns.
 
 
 
-\newpage
 \section{Dataset access}
 
-In a running job, datasets are represented by objects from the Dataset
-class.  These objects are immediately available from the
-datasets-tuple.  For example
+A method's dataset inputs are specified in the \texttt{datasets}
+tuple.  In a running job, the datasets in the input tuple are objects
+of the \texttt{Dataset} class.  For example
 
 \begin{python}
 datasets = ('tlog',)
 
-def synthesis(datasets):
+def synthesis():
   print(datasets.tlog.filename)
 \end{python}
 \\
-Most common dataset operations are available as member functions
-to the dataset class.
+In this example, the \texttt{tlog} input dataset is an object of class
+\texttt{Dataset} when the method is running, so printing its filename
+is straightforward.  Most common dataset operations are available as
+member functions to the \texttt{Dataset} class, so this automatic
+instantiation is very convenient.
 
-A dataset may also be instantiated using jobids, like this
+A dataset object can also be instantiated from a jobid, like this
 
 \begin{python}
 from dataset import Dataset
-d = Dataset('foo-0_0')
+...
+d = Dataset('foo-0')
 \end{python}
 \\
-In this case, d will be an object based on the default dataset
-residing at jobid foo-0\_0.  If there are more datasets in a jobid, or
-the dataset is stored by a different name, it may be accessed like
-this
+In this case, \texttt{d} will be an object based on the default
+dataset residing at jobid \texttt{foo-0}.  If the dataset is stored by
+a different name, it may be accessed like this
 
 \begin{python}
-d = Dataset('foo-0_0/foo')
+d = Dataset('foo-0/bar')
 # or
-d = Dataset(('foo-0_0', 'foo'))
+d = Dataset(('foo-0', 'bar'))
 \end{python}
 \\
-where the latter is more general in that it uses parameters for both
-jobid and name.
+where the latter approach is a bit more flexible in that it uses
+parameters for both jobid and name.
+
 
 
 
 \newpage
-\section{Dataset properties}
+\section{Dataset Properties}
 
 The dataset class has a number of member functions and attributes that
 is intended to make it simple to work with datasets.
 
 
 
-\subsubsection{Column names}
+\subsubsection{Column Names}
 
-Consider the
-following example, which shows how to find the available columns in
-the dataset
+All columns in a dataset may be aquired using the \texttt{columns} property, like this
 
 \begin{python}
 datasets = ('source',)
@@ -92,7 +92,7 @@ def synthesis():
 
 
 
-\subsubsection{Column properties}
+\subsubsection{Column Properties}
 
 For each column, the name, type, and if applicable, the min and max
 values are accessible like this
@@ -110,9 +110,9 @@ print(datasets.source.columns['locale'].max)
 # 9
 \end{python}
 
-\subsubsection{Lines per slice}
+\subsubsection{Rows per Slice}
 
-It may be interesting to see how many lines there are per slice in a
+It may be interesting to see how many rows there are per slice in a
 dataset.  This information is available as a list, for example
 
 \begin{python}
@@ -123,15 +123,16 @@ print(datasets.source.lines)
 #  6418, 6437, 6360, 6106, 6878]
 \end{python}
 \\
-From an efficiency perspective, the variance of the numbers in this
-list should be low, so that all slices will contain about the same
-amount of data.
+The first item in the list is the number of rows in slice 0, and so
+fourth.  From an efficiency perspective, the variance of the numbers
+in this list should be low, so that all slices will contain about the
+same amount of data.
 
-\subsubsection{Dataset shape (i.e.\ number of columns and total number
-  of lines)}
+\subsubsection{Dataset Shape (I.e.\ Number of Columns and Total Number
+  of Lines)}
 
 The shape if the dataset, i.e.\ the number of columns times the total
-number of lines, is available from the shape attribute
+number of rows, is available from the shape attribute
 
 \begin{python}
 print(datasets.source.shape)
@@ -143,7 +144,8 @@ slice from above.
 
 
 
-\subsubsection{hashlabel}
+\subsubsection{Hashlabel}
+
 If the dataset is hashed on a particular column, this column is stored
 in the hashlabel attribute
 
@@ -154,19 +156,21 @@ print(datasets.source.hashlabel)
 
 
 
-\subsubsection{Filename, caption, hashlabel}
+\subsubsection{Filename and Caption}
 
 The dataset may have a filename associated to it.  This makes sense in
 situations for example where the dataset is created from an input
-datafile.  The filename is accessable like this
+datafile using \texttt{csvimport} or similar.  The filename is
+accessable like this
 
 \begin{python}
 print(datasets.source.filename)
 # /data/incoming/raw_repository_5391.gz
 \end{python}
 \\
-Furthermore, it is possible to set a caption when creating a dataset.
-The caption is entirely user-defined, an accessible like this
+It is possible to set a caption when creating a dataset.  The caption
+is entirely user-defined and has no function in the Accelerator.  The
+caption is accessible like this
 
 \begin{python}
 print(datasets.source.caption)
@@ -177,27 +181,24 @@ print(datasets.source.caption)
 
 \subsubsection{Chains}
 
-When a dataset is created, it is possible to input an optional
-parameter previous which is a link to another dataset.  This has
-effect on the dataset iterators, which may continue to iterate over
-dataset boundaries when one dataset is exhausted and continue to the
-next.
-
+When a dataset is created, it is optional to input a link to another
+dataset using the parameter \texttt{previous}.  This has effect on the
+dataset iterators, which may continue to iterate over dataset
+boundaries when one dataset is exhausted and continue to the next.
 This will be described in another section in more detail.  The
 previous dataset is available as an attribute
 
 \begin{python}
 print(datasets.source.previous)
-# neu4-4893_0/default
+# neu4-4893/default
 \end{python}
 
 
 
 \newpage
 \section{Column Typing}
-The dataset columns are typed.  The following types are available
-
-
+The dataset columns are typed.  All types are shown in table~\ref{tab:types}.
+Some of the types are explained in more detail in the following.
 
 \begin{table}[h!]
  \begin{tabular}{ll}

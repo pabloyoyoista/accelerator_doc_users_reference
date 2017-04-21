@@ -201,40 +201,67 @@ The dataset columns are typed.  All types are shown in table~\ref{tab:types}.
 Some of the types are explained in more detail in the following.
 
 \begin{table}[h!]
- \begin{tabular}{ll}
+ \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
   \hline
-    typename  & explanation \\[1ex]
-    number    &  float or int\\
-    float64   &  64 bit double float\\
-    float32   &  32 bit float\\
-    int64     &  64 bit signed integer\\
-    int32     &  32 bit integer\\
-    bool      &  True or False\\
-    date      &  date\\
-    time      &  time\\
-    datetime  &  complete date and time object\\
-    bytes     &  raw input, avoid \\
-    ascii     &  ascii is faster in python2, otherwise unicode\\
-    unicode   &  use for strings\\
-    parsed:number   & int, float or string parsing to int or float \\
-    parsed:float64  &  and so on...\\
-    parsed:float32  &  \\
-    parsed:int64    &  \\
-    parsed:sint32   &  \\
-    json            &  a datastructure that is jsonable\\
-    parsed:json     &  string containing parseable json\\
-  \hline
- \end{tabular}
+   \textbf{typename}   & \textbf{explanation} \\
+   \texttt{number}     &  float or int\\
+   \texttt{number:int} &  int\\
+   \texttt{float64}   &  64 bit (double) float\\
+   \texttt{float32}   &  32 bit float\\
+   \texttt{int64}     &  64 bit signed integer\\
+   \texttt{int32}     &  32 bit integer\\
+   \texttt{bool}      &  True or False\\
+   \texttt{date}      &  date\\
+   \texttt{time}      &  time\\
+   \texttt{datetime}  &  complete date and time object\\
+   \texttt{bytes}     &  raw input, avoid \\
+   \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
+   \texttt{unicode}   &  use for strings\\
+   \texttt{parsed:number}   & int, float or string parsing to int or float \\
+   \texttt{parsed:float64}  &  and so on...\\
+   \texttt{parsed:float32}  &  \\
+   \texttt{parsed:int64}    &  \\
+   \texttt{parsed:int32}    &  \\
+   \texttt{json}            &  a datastructure that is jsonable\\
+   \texttt{parsed:json}     &  string containing parseable json\\
+   \hline
+ \end{tabular*}
  \caption{Available dataset column types.}
+ \label{tab:types}
 \end{table}
 
 
-\subsection{number}
-number: integer when possible (up to $\pm (2^{1007}-1)$), float
-otherwise number:int Never float, but accepts int.0 (or int.00 and so
-on) 8 bytes + 1 byte marker, i.e. min 9 bytes.
+\subsection{Arbitrary precision numbers:  \texttt{number}}
+The type \texttt{number} is integer when possible and float otherwise.
+it can handle very large numbers, up to $\pm (2^{1007}-1)$.  Integers
+are forced using \texttt{number:int}, and it accepts trailing decimal
+zeroes like \texttt{7.0}, \texttt{4.000} etc.  This is useful when
+typing datafiles where numbers are integers but have trailing zero
+decimals.
+
+The number type occupies a minimum of nine bytes, where eight is for
+the number and the additional byte is a marker.
 
 
+\subsection{Standard fixed size numbers}
+The common \texttt{int} and \texttt{float} types in 32 and 64 bit
+versions are available for useage when the range of the data is known.
+
+
+\subsection{Types relating to time}
+The \texttt{date}, \texttt{time}, and \texttt{datetime} are compatible
+with Python's corresponding classes.  \texttt{datetime} is the
+combination of \texttt{date} and \texttt{time}.  A column that is
+typed to any of these may directly take advantage of the high level
+time related methods, like for example
+
+\begin{python}
+  for ts in datasets.source.iterate(sliceno, 'timestamp'):
+    print(ts.strftime('%Y-%m-%d')
+\end{python}
+
+
+\subsection{String types}
 
 \textbf{To be completed.}
 

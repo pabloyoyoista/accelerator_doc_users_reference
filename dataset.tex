@@ -203,27 +203,27 @@ Some of the types are explained in more detail in the following.
 \begin{table}[h!]
  \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
   \hline
-   \textbf{typename}   & \textbf{explanation} \\
+   \textbf{typename}   & \textbf{explanation} \\[1ex]
    \texttt{number}     &  float or int\\
-   \texttt{number:int} &  int\\
+   \texttt{number:int} &  int\\[1ex]
    \texttt{float64}   &  64 bit (double) float\\
    \texttt{float32}   &  32 bit float\\
    \texttt{int64}     &  64 bit signed integer\\
-   \texttt{int32}     &  32 bit integer\\
-   \texttt{bool}      &  True or False\\
+   \texttt{int32}     &  32 bit integer\\[1ex]
+   \texttt{bool}      &  True or False\\[1ex]
    \texttt{date}      &  date\\
    \texttt{time}      &  time\\
-   \texttt{datetime}  &  complete date and time object\\
+   \texttt{datetime}  &  complete date and time object\\[1ex]
    \texttt{bytes}     &  raw input, avoid \\
    \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
-   \texttt{unicode}   &  use for strings\\
-   \texttt{parsed:number}   & int, float or string parsing to int or float \\
-   \texttt{parsed:float64}  &  and so on...\\
-   \texttt{parsed:float32}  &  \\
-   \texttt{parsed:int64}    &  \\
-   \texttt{parsed:int32}    &  \\
+   \texttt{unicode}   &  use for strings\\[1ex]
+   \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
+   \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
+   \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
+   \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
+   \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\[1ex]
    \texttt{json}            &  a datastructure that is jsonable\\
-   \texttt{parsed:json}     &  string containing parseable json\\
+   \texttt{parsed:json}     &  string containing parseable json\\[1ex]
    \hline
  \end{tabular*}
  \caption{Available dataset column types.}

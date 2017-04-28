@@ -248,6 +248,11 @@ The common \texttt{int} and \texttt{float} types in 32 and 64 bit
 versions are available for useage when the range of the data is known.
 
 
+\subsection{The boolean type}
+The \texttt{bool} type is used to store logical \texttt{True} or
+\texttt{False} values only.
+
+
 \subsection{Types relating to time}
 The \texttt{date}, \texttt{time}, and \texttt{datetime} are compatible
 with Python's corresponding classes.  \texttt{datetime} is the
@@ -262,8 +267,19 @@ time related methods, like for example
 
 
 \subsection{String types}
+There are three string types, \texttt{bytes}, \texttt{ascii}, and
+\texttt{unicode}.  Unicode is the prefered choice, and executes faster
+in Python~3.
 
 \textbf{To be completed.}
+
+\subsection{JSON types}
+It is possible to store a more complex data structure in JSON format.
+There are two choice, the \texttt{json} type and the
+\texttt{parsed:json} type.  The first takes a JSON-able datatype as
+input, and the latter inputs a string that is serialized to JSON
+internally.
+
 
 
 \newpage

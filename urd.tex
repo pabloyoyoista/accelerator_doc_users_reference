@@ -430,32 +430,49 @@ These conveniences are also supported
 
 
 \newpage
-\section{Urd HTTP\_API}
+\section{Talking directly to Urd:  The Urd HTTP-API}
 
 In some situations it is convenient to make calls to urd directly
-without using the framework.  Urd will react to HTTP requests.
+without using the framework.  Urd will react to HTTP requests, so a
+tool like \texttt{curl} suffice.
 
+\noindent Show all stored lists like this\\
 \begin{shell}
 % curl http://localhost:8833/list
 ["ab/test"]
-
+\end{shell}
+\\
+Looking up the latest stored job in the test list\\
+\begin{shell}
 % curl http://localhost:8833/ab/test/latest
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
   ["method2", "test-59_0"], ["method3", "test-60_0"]]}
-
+\end{shell}
+\\
+And see the first stored job in the test list\\
+\begin{shell}
 % curl http://localhost:8833/ab/test/first
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
   ["method2", "test-59_0"], ["method3", "test-60_0"]]}
-
+\end{shell}
+\\
+See what is inside the test list stored at \texttt{20161025}\\
+\begin{shell}
 % curl http://localhost:8833/ab/test/20161025
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
   ["method2", "test-59_0"], ["method3", "test-60_0"]]}
-
+\end{shell}
+\\
+And what is avaible in the test list that is more recent than \texttt{20161024}\\
+\begin{shell}
 % curl http://localhost:8833/ab/test/since/20161024
 ["20161025"]
+\end{shell}
+\\
+\begin{shell}
 % curl http://localhost:8833/ab/test/since/20161026
 []
 \end{shell}

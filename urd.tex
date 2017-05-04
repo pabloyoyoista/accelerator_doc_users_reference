@@ -151,8 +151,9 @@ the previous job of matching type.
 \subsection{Debug:  Why build}
 
 By specifying the flag \texttt{why\_build} to the automatarunner it is
-possible to see the reasons for building a job.  For example
-\\
+possible to see the reasons for building a job.  See for listing~\ref{listing:why_build}.
+
+\begin{listing}
 \begin{python}
   print(urd.build('method3', jobids=dict(firstjob=jid2, secondjob=jid2), name='knut'))
 # Would have built from:
@@ -184,7 +185,10 @@ possible to see the reasons for building a job.  For example
 #     }
 # }
 \end{python}
-\\
+\label{listing:why_build}
+\caption{Example output from \texttt{why\_build}.}
+\end{listing}
+
 A more machine-friendly output is possible by specifying
 \texttt{why\_build=True} in the \texttt{build}-request (and not
 specifying it to the automatarunner).

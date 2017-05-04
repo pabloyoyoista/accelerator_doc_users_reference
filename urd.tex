@@ -1,6 +1,6 @@
 \section{Introduction to Urd}
 
-Urd is the key controller in the framework.  It is the primary job
+Urd is the processing flow controller in the framework.  It is the primary job
 dispatcher as well as the bookkeeper of all jobs executed.  Events in
 urd are quantified into what is called \textsl{sessions}, and the core
 of urd is a transaction log database storing these sessions together
@@ -8,9 +8,10 @@ with meta information.  The result is a server providing lookups for
 all jobs executed together with their context.
 
 The Urd database is partitioned into what is called \textsl{lists}.
-Each user, human or agent, owns one or more lists where information
-about executed jobs are stored.  Lists are globally readable, but
-writing is limited using authentication, so that, for example, only
+Lists are where information about executed jobs are stored, and
+Each user or agent may own one or more lists.
+Lists are globally readable, but
+writing requires authentication, so that, for example, only
 the production user may publish a model to go live.
 
 With the exception of experimental work, all work initiated by urd is
@@ -31,9 +32,9 @@ def main(urd):
   urd.finish('test', '2016-10-25')
 \end{python}
 \\
-Everything dispatched between \texttt{begin} and \texttt{finish} will
-be appended to the \texttt{test} urd list with timestamp
-\texttt{20161025}, as long as the \texttt{finish} function is called,
+Every job that is dispatched between \texttt{begin} and \texttt{finish} will
+be appended to the \texttt{test} Urd list with timestamp
+\texttt{20161025}.  The Urd list will be updated as long as the \texttt{finish} function is called,
 since it is responsible for updating the urd transaction log.  Before
 \texttt{finish}, noting is stored, and it is perfectly ok to omit
 \texttt{finish} during development work.
@@ -48,7 +49,7 @@ here,
 \\
 and the following rules apply to these options:
 \begin{itemize}
-  \item the same \texttt{path} must be specified in both \texttt{begin} and \texttt{finish}.
+  \item \texttt{path} is the name of the Urd list, and the same \texttt{path} must be specified in both \texttt{begin} and \texttt{finish}.
   \item \texttt{timestamp} is mandatory, but could be set in either \texttt{begin} or
     \texttt{finish}.  \texttt{finish} overrides \texttt{begin}.
   \item \texttt{caption} is mandatory, but could be set in either \texttt{begin} or
@@ -92,9 +93,9 @@ and aborted sessions are not stored in the urd transaction log.
 
 
 \newpage
-\section{Building jobs}
+\section{Building Jobs}
 
-Jobs are dispatched in session using the \texttt{build} function.  The
+Jobs are dispatched in sessions using the \texttt{build} function.  The
 syntax is as follows
 \\
 \begin{python}
@@ -103,14 +104,14 @@ syntax is as follows
 \\
 where \texttt{options}, \texttt{datasets}, and \texttt{jobids} are
 optional, depending on the method to be dispatched.  In addition, a
-name and a caption may optionally be specified too
+name and a caption may be specified too
 \\
 \begin{python}
   jobid = urd.build('method1', name='myjob', caption='looking for something')
 \end{python}
 \\
-The name will replace the method name in the joblist, in this case,
-this job will now be referred to as \texttt{myjob} (default was
+The name will override the default name (which is the name of the method) in the Urd list.  In this case,
+this job will now be referred to as \texttt{myjob} (instead of default
 \texttt{method1}).  A jobid to the finished job is returned upon
 successful completion.
 
@@ -134,7 +135,7 @@ which in turn will trig execution of the \texttt{reduce} job.
 
 
 
-\subsection{Building chained jobs}
+\subsection{Building Chained Jobs}
 It is also possible to build chained jobs implicitly using the
 \texttt{build\_chained} function
 \\

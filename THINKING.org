@@ -264,3 +264,16 @@ men av historiska skäl).
 stop_jobid jobbar bara på just jobid.
  
 ** TODO dokumentera!
+
+* TODO [2017-04-11 tis] felmeddelande icke-dataset 
+om man stoppar in ett jobid som inte är ett dataset till en iterator
+så får man att "str saknar iteratormetod", typ.  Ett bättre
+felmeddelande vore möjligt.
+
+* TODO Det är inte okej att man stoppar in en option.xxx i iterator och får ut alla kolumner utan varning!
+
+* TODO [2017-04-13 tor] None i set explodedrar i options.
+* TODO [2017-04-13 tor] generic parsed:... för att stoppa in siffra i "valfri" typ
+* TODO [2017-04-20 tor] enkelt sätt att stoppa in jid/dsname i urd.build.  Tuplar funkar ej.
+* TODO [2017-04-18 tis] vilka tecken är ok i kolumnnamn (":" är det inte)
+

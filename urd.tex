@@ -116,6 +116,22 @@ successful completion.
 
 
 
+\subsection{Handling Consecutive Jobs}
+Using the output jobid from the \texttt{build} function, it is
+straightforward to connect jobs in series.  For example\\
+\begin{python}
+  jid_filter = urd.build('filter_data', datasets=dict(source=<some input>))
+  jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
+\end{python}
+\\
+In the example above, the first job, \texttt{filter\_data} creates a
+new dataset from its input.  This is then forwarded to the second job,
+\texttt{reduce}, using the jobid reference \texttt{jid\_filter}.
+
+If the first method or its input data is changed, the job will run
+again.  This will cause the jobid \texttt{jid\_filter} to change too,
+which in turn will trig execution of the \texttt{reduce} job.
+
 
 
 \subsection{Building chained jobs}

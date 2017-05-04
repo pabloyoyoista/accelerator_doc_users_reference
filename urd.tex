@@ -28,7 +28,7 @@ Here is an example of a minimal urd session
 def main(urd):
   urd.begin('test')
   ...
-  urd.finish('test', '20161025')
+  urd.finish('test', '2016-10-25')
 \end{python}
 \\
 Everything dispatched between \texttt{begin} and \texttt{finish} will
@@ -62,13 +62,17 @@ section~\ref{update_info}.
 \subsubsection{Timestamp resolution}
 
 Timestamps may be specified in various resolution depending on the
-application.  The following examples cover the available formats
+application.  The time format is
+\begin{verbatim}
+  "%Y-%m-%dT%H:%M:%S"
+\end{verbatim}
+and it can be truncated as shown in the following examples covering all possible cases.
 \\
 \begin{python}
-   '20161025'              day resolution
-   '20161025 15'           hour resolution
-   '20161025 1525'         minute resolution
-   '20161025 152500'       second resolution
+   '2016-10-25'               day resolution
+   '2016-10-25T15'            hour resolution
+   '2016-10-25T15:25'         minute resolution
+   '2016-10-25T15:25:00'      second resolution
 \end{python}
 
 

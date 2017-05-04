@@ -144,8 +144,8 @@ possible to see the reasons for building a job.  For example
 #         "method3": {
 #             "datasets": {}, 
 #             "jobids": {
-#                 "firstjob": "test-59_0", 
-#                 "secondjob": "test-59_0"
+#                 "firstjob": "test-59", 
+#                 "secondjob": "test-59"
 #             }, 
 #             "options": {}
 #         }
@@ -156,9 +156,9 @@ possible to see the reasons for building a job.  For example
 # ============================
 # {
 #     "method3": {
-#         "test-60_0": {
+#         "test-60": {
 #             "jobids": {
-#                 "firstjob": "test-56_0"
+#                 "firstjob": "test-56"
 #             }
 #         }
 #     }
@@ -325,10 +325,10 @@ conversion of a jobtuple to \texttt{str}, which happens for example
 when printing it, returns the jobid as a string.
 
 \begin{pythonBEG}
->>> jt = JobTuple('imprt', 'jid-0_0')
+>>> jt = JobTuple('imprt', 'jid-0')
 
 >>> jt
-('imprt', 'jid-0_0')
+('imprt', 'jid-0')
 \end{pythonBEG}
 \\
 as expected, and
@@ -338,14 +338,14 @@ as expected, and
 'imprt'
 
 >>> jt.jobid
-'jid-0_0'
+'jid-0'
 \end{pythonMID}
 \\
 but note that
 
 \begin{pythonEND}
 >>> print(jt)  # str and encode return jobid only
-jid-0_0
+jid-0
 \end{pythonEND}
 
 
@@ -358,7 +358,7 @@ It stores instances of \jobtuple.  Here is an example.  First, define
 a \jobtuple
 
 \begin{pythonBEG}
->>> jt = JobTuple('imprt', 'jid-0_0')
+>>> jt = JobTuple('imprt', 'jid-0')
 \end{pythonBEG}
 \\
 then define a joblist initiated with the same tuple.  Then append some
@@ -366,8 +366,8 @@ more jobs directly using the \texttt{append} method.
 
 \begin{pythonMID}
 >>> jl = JobList(jt)
->>> jl.append('learn', 'lrn-0_0')
->>> jl.append('imprt', 'imp-1_0')
+>>> jl.append('learn', 'lrn-0')
+>>> jl.append('imprt', 'imp-1')
 \end{pythonMID}
 \\
 Let's see how and what is stored in the \joblist.  The \texttt{pretty}
@@ -377,13 +377,13 @@ show the last jobid only.
 \begin{pythonMID}
 >>> print(jl.pretty)
 JobList(
-   [  0]  imprt : jid-0_0
-   [  1]  learn : lrn-0_0
-   [  2]  imprt : imp-1_0
+   [  0]  imprt : jid-0
+   [  1]  learn : lrn-0
+   [  2]  imprt : imp-1
 )
 
 >>>  print(jl)  # jobid of latest appended JobTuple
-imp-1_0
+imp-1
 \end{pythonMID}
 
 It is easy to retrieve the last job with a particular \texttt{method}
@@ -391,40 +391,40 @@ name, either by lookup or by using \texttt{find}.
 
 \begin{pythonMID}
 >>> jl['imprt']         # latest jobid with name 'imprt'
-('imprt', 'imp-1_0')
+('imprt', 'imp-1')
 
 >>> print(jl['imprt'])   # jl['imprt'] is JobTuple
-imp-1_0
+imp-1
 \end{pythonMID}
 \\
 The Find method returns a \joblist.  Slicing also returns {\joblist}s
 
 \begin{pythonMID}
 >>> jl.find('imprt')
-JobList([('imprt', 'jid-0_0'), ('imprt', 'imp-1_0')])
+JobList([('imprt', 'jid-0'), ('imprt', 'imp-1')])
 
 >>> jl[:2]
-JobList([('imprt', 'jid-0_0'), ('learn', 'lrn-0_0')])
+JobList([('imprt', 'jid-0'), ('learn', 'lrn-0')])
 \end{pythonMID}
 \\
 Looking up by index returns \jobtuple.
 
 \begin{pythonMID}
 >>> jl[0]
-('imprt', 'jid-0_0')
+('imprt', 'jid-0')
 \end{pythonMID}
 \\
 These conveniences are also supported
 
 \begin{pythonEND}
 >>> jl.all              # list of all jobids
-'jid-0_0,lrn-0_0,imp-1_0'
+'jid-0,lrn-0,imp-1'
 
 >>> jl.method           # last method
 'import'
 
 >>> jl.jobid            # last jobid
-'imp-1_0'
+'imp-1'
 \end{pythonEND}
 
 
@@ -446,24 +446,24 @@ Looking up the latest stored job in the test list\\
 \begin{shell}
 % curl http://localhost:8833/ab/test/latest
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
-  ["method2", "test-59_0"], ["method3", "test-60_0"]]}
+  "timestamp": "20161025", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
 \\
 And see the first stored job in the test list\\
 \begin{shell}
 % curl http://localhost:8833/ab/test/first
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
-  ["method2", "test-59_0"], ["method3", "test-60_0"]]}
+  "timestamp": "20161025", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
 \\
 See what is inside the test list stored at \texttt{20161025}\\
 \begin{shell}
 % curl http://localhost:8833/ab/test/20161025
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "20161025", "joblist": [["method1", "test-56_0"],
-  ["method2", "test-59_0"], ["method3", "test-60_0"]]}
+  "timestamp": "20161025", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
 \\
 And what is avaible in the test list that is more recent than \texttt{20161024}\\

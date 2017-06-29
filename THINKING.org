@@ -1,7 +1,19 @@
+* Påståenden
+ - manualen använder Python3
+**  nomenklatur
+ - jobid är pekare på jobdir
+ - jobdir bor i ett workdir
+ - lines vs rows
+     Det heter dataset.lines, men vi laser typiskt rows.
+     *Föredra* "rows", men csvimport forttsätter heta lines, lite som att det är lines i en fil.
+ - enkelfnuttar (python standard)
+
+
+
 * DONE subjob.build(..., name=???)
 
 * DONE urd.build(..., name=???)
-* DONE varför finns ingen urd.list() ???
+* TODO varför finns ingen urd.list() ???
 skall lägga till
 * DONE urd.begin(..., update=???)
 
@@ -57,11 +69,6 @@ specific keys, only types. ({'a': 'b'} is a valid value for {'foo': 'bar'})
 Carl skall titta på detta.
 
 
-* Manualen använder python3
-  
-* nomenklatur
-jobid är pekare på jobdir
-jobdir bor i ett workdir
 
 * legacy name mismatch
 index, workdir/workspace osv finns i koden, även i
@@ -70,10 +77,6 @@ dokumentationsdelar.
 * koduppstädning
 config-template-filen skall städas
 
-* lines vs rows					       :nomenclature:dataset:
-det heter dataset.lines, men vi laser typiskt rows.
-- Föredra "rows", men csvimport forttsätter heta lines,
-  lite som att det är lines i en fil.
 
 
 * .colums[key]
@@ -85,9 +88,7 @@ fyll i vad som ingår där, ÄVEN hur offsets fungerar om det är relevant.
 * formatting
 skippa suffix 'L' på intar och prefix 'u' på strängar för läsbarhet?
 - inget problem i python3
-
-* enkel- eller dubbelfnuttar??
-- enkelfnuttar (python standard)
+  
 
 * under the hood
 ** DONE DON'T DO column_filename??

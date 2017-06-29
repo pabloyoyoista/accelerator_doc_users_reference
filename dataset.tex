@@ -5,13 +5,14 @@ dataset is the container for fast and simple access to data.  Data in
 a dataset are stored as a matrix in rows and columns.  Using the
 dataset, data is simple to access at very high speed.
 
-Datasets are created in methods, and any job may contain zero, one, or
+Datasets are created by methods, and any job may contain zero, one, or
 more datasets.  The most obvious use of a dataset is the cvsimport
-method that creates a dataset from an input file.  But a job may
-contain more than one dataset.  This allows for efficient storage and
-access of data in some common practical situations.  For example, a
-filtering job may split the input dataset in two or more output
-datasets that can be accessed independently.
+method that creates a dataset from an input file, but much more
+advanced useage is possible since a job may contain more than one
+dataset.  This allows for efficient storage and access of data in some
+common practical situations.  For example, a filtering job may split
+the input dataset in two or more output datasets that can be accessed
+independently.
 
 For performance reasons, datasets are typically split into several
 slices, where each data row exists in exactly one of the slices.  The

@@ -24,14 +24,12 @@ the resulting output.
 \section{Urd sessions}
 
 Here is an example of a minimal urd session
-\\
 \begin{python}
 def main(urd):
   urd.begin('test')
   ...
   urd.finish('test', '2016-10-25')
 \end{python}
-\\
 Every job that is dispatched between \texttt{begin} and \texttt{finish} will
 be appended to the \texttt{test} Urd list with timestamp
 \texttt{20161025}.  The Urd list will be updated as long as the \texttt{finish} function is called,
@@ -41,12 +39,10 @@ since it is responsible for updating the urd transaction log.  Before
 
 There are a number of options associated with a session, as shown
 here,
-\\
 \begin{python}
   urd.begin(path, timestamp=None, caption=None, update=False)
   urd.finish(path, timestamp=None, caption=None)
 \end{python}
-\\
 and the following rules apply to these options:
 \begin{itemize}
   \item \texttt{path} is the name of the Urd list, and the same \texttt{path} must be specified in both \texttt{begin} and \texttt{finish}.
@@ -68,7 +64,6 @@ application.  The time format is
   "%Y-%m-%dT%H:%M:%S"
 \end{verbatim}
 and it can be truncated as shown in the following examples covering all possible cases.
-\\
 \begin{python}
    '2016-10-25'               day resolution
    '2016-10-25T15'            hour resolution
@@ -82,12 +77,10 @@ and it can be truncated as shown in the following examples covering all possible
 
 When a session is initiated, a new session cannot start until the
 current has finished.  A session may be aborted, however,
-\\
 \begin{python}
   urd.begin('test')
   urd.abort()
 \end{python}
-\\
 and aborted sessions are not stored in the urd transaction log.
 
 
@@ -97,19 +90,15 @@ and aborted sessions are not stored in the urd transaction log.
 
 Jobs are dispatched in sessions using the \texttt{build} function.  The
 syntax is as follows
-\\
 \begin{python}
   jobid = urd.build('method1', options={}, datasets={}, jobids={}, ...)
 \end{python}
-\\
 where \texttt{options}, \texttt{datasets}, and \texttt{jobids} are
 optional, depending on the method to be dispatched.  In addition, a
 name and a caption may be specified too
-\\
 \begin{python}
   jobid = urd.build('method1', name='myjob', caption='looking for something')
 \end{python}
-\\
 The name will override the default name (which is the name of the method) in the Urd list.  In this case,
 this job will now be referred to as \texttt{myjob} (instead of default
 \texttt{method1}).  A jobid to the finished job is returned upon
@@ -119,12 +108,11 @@ successful completion.
 
 \subsection{Handling Consecutive Jobs}
 Using the output jobid from the \texttt{build} function, it is
-straightforward to connect jobs in series.  For example\\
+straightforward to connect jobs in series.  For example
 \begin{python}
   jid_filter = urd.build('filter_data', datasets=dict(source=<some input>))
   jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
 \end{python}
-\\
 In the example above, the first job, \texttt{filter\_data} creates a
 new dataset from its input.  This is then forwarded to the second job,
 \texttt{reduce}, using the jobid reference \texttt{jid\_filter}.
@@ -138,11 +126,9 @@ which in turn will trig execution of the \texttt{reduce} job.
 \subsection{Building Chained Jobs}
 It is also possible to build chained jobs implicitly using the
 \texttt{build\_chained} function
-\\
 \begin{python}
   jobid = urd.build_chained('method1', name='myjob')
 \end{python}
-\\
 which takes the same options as the standard \texttt{build} method,
 with the exception that name is mandatory, since it is used to find
 the previous job of matching type.
@@ -213,7 +199,6 @@ kind of imported transaction logs, called \texttt{tlog}.  When
 dispatching \texttt{method1}, it should be using the latest available
 \texttt{tlog}.  The example shows how the function \texttt{latest} is
 used for this
-\\
 \begin{python}
 def main(urd):
   urd.begin('test')
@@ -221,7 +206,6 @@ def main(urd):
   urd.build('method1', datasets=dict(tlog=latest_tlog))
   urd.finish('test', '20161025')
 \end{python}
-\\
 Two things have happened here.  First, urd has provided a jobid link
 to the latest available \texttt{tlog}.  Second, the dependency of
 exactly this version of \texttt{tlog} to \texttt{method1} is recorded
@@ -232,16 +216,13 @@ it is immediately available from urd.
 
 The more general form is \texttt{get}, which is shown below together
 with its derived convenience-functions
-\\
 \begin{python}
   urd.get('test', '20161001')
   urd.latest('test')
   urd.first('test')
 \end{python}
-\\
 And here is an example of running \texttt{method1} on \texttt{tlog} data
 from previous month
-\\
 \begin{python}
 def main(urd):
   urd.begin('test')
@@ -257,7 +238,6 @@ Dependency-recording will be activated on use of the \texttt{get},
 \texttt{latest}, and \texttt{first} functions.  If, for some reason,
 the point is to just have a look at the database to see what is in
 there, it can be done using the peek-versions, as presented below:
-\\
 \begin{python}
   urd.peek('test', '20161025')
   urd.peek_latest('test')
@@ -270,24 +250,19 @@ there, it can be done using the peek-versions, as presented below:
 \section{More on Finding Items in Urd}
 There is a \texttt{list} function that returns what lists are recorded
 in the database:
-\\
 \begin{pythonBEG}
   print(urd.list())
   # ['ab/test', 'ab/live']
 \end{pythonBEG}
-\\
 And there is also a \texttt{since} function that returns a list of all
 timestamps after the input argument
-\\
 \begin{pythonMID}
   print(urd.since('20161005'))
   # ["20161006", "20161007", "20161008", "20161009"]
 \end{pythonMID}
-\\
 The \texttt{since} is rather relaxed with respect to the resolution of
 the input.  The input timestamp may be truncated from the right down
 to only one digits.  An input of zero is also valid.
-\\
 \begin{pythonEND}
   print(urd.since('0'))
   # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
@@ -317,7 +292,6 @@ The begin-function takes an optional argument update
 \begin{python}
   urd.begin('test', '20161025', update=True)
 \end{python}
-\\
 If update is True, the entry in the test list at '20161025' will be
 updated, unless there has been no change.
 
@@ -329,7 +303,6 @@ an urd list.
 \begin{python}
   urd.truncate('test', '20160930')
 \end{python}
-\\
 This will rollback everything that has happened in the test list back
 to '20160930'.  Internally, urd stores the complete history, however.
 
@@ -355,7 +328,6 @@ when printing it, returns the jobid as a string.
 >>> jt
 ('imprt', 'jid-0')
 \end{pythonBEG}
-\\
 as expected, and
 
 \begin{pythonMID}
@@ -365,7 +337,6 @@ as expected, and
 >>> jt.jobid
 'jid-0'
 \end{pythonMID}
-\\
 but note that
 
 \begin{pythonEND}
@@ -385,7 +356,6 @@ a \jobtuple
 \begin{pythonBEG}
 >>> jt = JobTuple('imprt', 'jid-0')
 \end{pythonBEG}
-\\
 then define a joblist initiated with the same tuple.  Then append some
 more jobs directly using the \texttt{append} method.
 
@@ -394,7 +364,6 @@ more jobs directly using the \texttt{append} method.
 >>> jl.append('learn', 'lrn-0')
 >>> jl.append('imprt', 'imp-1')
 \end{pythonMID}
-\\
 Let's see how and what is stored in the \joblist.  The \texttt{pretty}
 method is quite useful, but note that just printing the object will
 show the last jobid only.
@@ -421,7 +390,6 @@ name, either by lookup or by using \texttt{find}.
 >>> print(jl['imprt'])   # jl['imprt'] is JobTuple
 imp-1
 \end{pythonMID}
-\\
 The Find method returns a \joblist.  Slicing also returns {\joblist}s
 
 \begin{pythonMID}
@@ -431,14 +399,12 @@ JobList([('imprt', 'jid-0'), ('imprt', 'imp-1')])
 >>> jl[:2]
 JobList([('imprt', 'jid-0'), ('learn', 'lrn-0')])
 \end{pythonMID}
-\\
 Looking up by index returns \jobtuple.
 
 \begin{pythonMID}
 >>> jl[0]
 ('imprt', 'jid-0')
 \end{pythonMID}
-\\
 These conveniences are also supported
 
 \begin{pythonEND}
@@ -461,42 +427,38 @@ In some situations it is convenient to make calls to urd directly
 without using the framework.  Urd will react to HTTP requests, so a
 tool like \texttt{curl} suffice.
 
-\noindent Show all stored lists like this\\
+\noindent Show all stored lists like this
 \begin{shell}
 % curl http://localhost:8833/list
 ["ab/test"]
 \end{shell}
-\\
-Looking up the latest stored job in the test list\\
+
+Looking up the latest stored job in the test list
 \begin{shell}
 % curl http://localhost:8833/ab/test/latest
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56"],
   ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
-\\
-And see the first stored job in the test list\\
+And see the first stored job in the test list
 \begin{shell}
 % curl http://localhost:8833/ab/test/first
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56"],
   ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
-\\
-See what is inside the test list stored at \texttt{20161025}\\
+See what is inside the test list stored at \texttt{20161025}
 \begin{shell}
 % curl http://localhost:8833/ab/test/20161025
 {"caption": "", "automata": "test", "user": "ab", "deps": {},
   "timestamp": "20161025", "joblist": [["method1", "test-56"],
   ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
-\\
-And what is avaible in the test list that is more recent than \texttt{20161024}\\
+And what is avaible in the test list that is more recent than \texttt{20161024}
 \begin{shell}
 % curl http://localhost:8833/ab/test/since/20161024
 ["20161025"]
 \end{shell}
-\\
 \begin{shell}
 % curl http://localhost:8833/ab/test/since/20161026
 []

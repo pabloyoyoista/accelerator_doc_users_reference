@@ -38,20 +38,26 @@
 
 \usepackage{xspace}
 %%%  A pretty minted-environment for Python  %%%
+% minted
 \usepackage{minted}
-\usemintedstyle{colorful}
+\usemintedstyle{lovelace}
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
-\newminted[python]{python}{bgcolor=bg, frame=lines}
-\newminted[pythonBEG]{python}{bgcolor=bg, frame=topline}
-\newminted[pythonMID]{python}{bgcolor=bg}
-\newminted[pythonEND]{python}{bgcolor=bg, frame=bottomline}
-\newminted[shell]{bash}{bgcolor=bg_shell, frame=lines}
+%\newminted[python]{python}{bgcolor=bg, frame=lines}
+\newminted[python]{python}{frame=lines}
+
+\newminted[pythonBEG]{python}{frame=topline}
+\newminted[pythonMID]{python}{}
+\newminted[pythonEND]{python}{frame=bottomline}
+
+\newminted[shell]{bash}{frame=lines}
+
 \newcommand\inputfile[1]{%
     \InputIfFileExists{#1}{}{\typeout{No file #1.}}%
 }
 
 \newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
+
 
 
 

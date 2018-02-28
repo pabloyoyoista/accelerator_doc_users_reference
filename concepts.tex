@@ -26,7 +26,6 @@ dependencies.  Interestingly, data is also stored in jobs, so
 retrieving data is no different from retrieving jobs.
 
 Here is a very simple example
-\\
 \begin{python}
 # a_helloworld.py:
 def analysis(sliceno):
@@ -37,13 +36,10 @@ def main(urd):
   urd.begin('test')
   urd.build('helloworld')
 \end{python}
-\\
 The program is executed by calling
-\\
 \begin{shell}
 % automatarunner.py
 \end{shell}
-\\
 This example will print the string \texttt{Hello, world:} plus a digit
 for each slice a number of
 times to standard

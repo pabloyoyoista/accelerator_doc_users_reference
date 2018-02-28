@@ -40,7 +40,6 @@ datasets = ('tlog',)
 def synthesis():
   print(datasets.tlog.filename)
 \end{python}
-\\
 In this example, the \texttt{tlog} input dataset is an object of class
 \texttt{Dataset} when the method is running, so printing its filename
 is straightforward.  Most common dataset operations are available as
@@ -54,7 +53,6 @@ from dataset import Dataset
 ...
 d = Dataset('foo-0')
 \end{python}
-\\
 In this case, \texttt{d} will be an object based on the default
 dataset residing at jobid \texttt{foo-0}.  If the dataset is stored by
 a different name, it may be accessed like this
@@ -64,7 +62,6 @@ d = Dataset('foo-0/bar')
 # or
 d = Dataset(('foo-0', 'bar'))
 \end{python}
-\\
 where the latter approach is a bit more flexible in that it uses
 parameters for both jobid and name.
 
@@ -123,7 +120,6 @@ print(datasets.source.lines)
 #  6536, 6405, 6259, 6455, 6036, 6088, 6937, 6245,
 #  6418, 6437, 6360, 6106, 6878]
 \end{python}
-\\
 The first item in the list is the number of rows in slice 0, and so
 fourth.  From an efficiency perspective, the variance of the numbers
 in this list should be low, so that all slices will contain about the
@@ -139,7 +135,6 @@ number of rows, is available from the shape attribute
 print(datasets.source.shape)
 # (4, 184984)
 \end{python}
-\\
 the second number is exactly the sum of the number of lines for each
 slice from above.
 
@@ -168,7 +163,6 @@ accessable like this
 print(datasets.source.filename)
 # /data/incoming/raw_repository_5391.gz
 \end{python}
-\\
 It is possible to set a caption when creating a dataset.  The caption
 is entirely user-defined and has no function in the Accelerator.  The
 caption is accessible like this
@@ -314,7 +308,6 @@ def analysis(sliceno, prepare_res):
   for x, y, z in data:
     dw.write(x, y, z)
 \end{python}
-\\
 Note that the order of the variables in the dw.write function call is
 the same as the order of the add calls in prepare\footnote{in case
   write is called with a dict, the order is unknown, but then names
@@ -354,7 +347,6 @@ One in to set the slice number first
 \begin{python}
   dw.set_slice(sliceno)
 \end{python}
-\\
 while the other is to use one of these functions
 
 \begin{python}
@@ -362,7 +354,6 @@ while the other is to use one of these functions
   dw.get_split_write_list()([value, value, ...])
   dw.get_split_write()(value, value, ...)
 \end{python}
-\\
 that will assign the data to the correct slice automatically.
 
 \subsection{Placeholder:  Creating datasets more manually}
@@ -399,6 +390,5 @@ def analysis(sliceno, prepare_res):
   ...
   dw.write(value)
 \end{python}
-\\
 Note that an error is issued if the total number of appended lines
 does not match the number of lines in the parent dataset.

@@ -34,12 +34,10 @@ A method may use code located in other files, and in that case it is
 possible to ensure that jobs are dispatched if any of those files
 change.  This is specified in the method using the
 \texttt{depend\_extra} list, as for example:
-\\
 \begin{python}
 import generic_params
 depend_extra = (generic_params, 'mystuff.data',)
 \end{python}
-\\
 You can specify a module object or a filename relative to the module
 source.
 
@@ -47,7 +45,6 @@ A different scenario is when the method source code needs to be
 modified, but the change does not alter past behavior, i.e.\ remake of
 jobs should be actively avoided.  There is an
 \texttt{equivalent\_hashes} dict for that, as shown
-\\
 \begin{python}
   equivalent_hashes = {'verifier': ('0c573685f713ac6500a6eda7df1a7b3f',)}
 \end{python}
@@ -68,13 +65,11 @@ When a method is dispatched as a job, it will be provided with input
 from the dispatcher.  There are three kinds of input to a method:
 \jobids, \datasets, and \options.  These are specified early in the
 method source code, such as for example
-\\
 \begin{python}
 jobids = ('accumulated_costs',)
 datasets = ('transaction_log',)
 options = dict(length=4)
 \end{python}
-\\
 The \texttt{jobids} argument is used to input pointers to other
 finished jobs, \datasets is used to input other datasets, and \options
 is used to input any other type of parameters specifying running
@@ -110,7 +105,6 @@ lists, and dicts in a recursive fashion.  Options may have a default
 value.
 
 Options are defined in a method like this
-\\
 \begin{python}
   options = dict( ... )  # or
   options = { ... }
@@ -169,31 +163,26 @@ provided, for example the string \texttt{'3'} is a valid input for the
 
 \subsubsection{Unspecifieds}
 An option with no typing may be specified by assigning \texttt{None}.
-\\
 \begin{python}
   options = dict(length=None)
   # accepts anything, default is None
 \end{python}
-\\
 Here, \texttt{length} could be set to anything.
 
 
 
 \subsubsection*{Scalars}
 Scalars are either explicitly typed, as
-\\
 \begin{python}
   options = dict(length=int)
   # Requires an intable value or None
 \end{python}
-\\
 or implicitly with default value like
 
 \begin{python}
   options = dict(length=3)
   # Requires an intable value, default is 3 if left unassigned
 \end{python}
-\\
 In these examples, intable means that the value provided should be
 valid input to the \texttt{int} constructor, for example the number~3
 or the string \texttt{'3'} both yield the integer number 3.
@@ -202,33 +191,25 @@ or the string \texttt{'3'} both yield the integer number 3.
 
 \subsubsection*{Strings}
 A (possibly empty) string with default value \texttt{None} is typed as
-\\
 \begin{pythonBEG}
   # requires string or None, defaults to None
   options = dict(name=str)
 \end{pythonBEG}
-\\
 A default value may be specified as follows
-\\
 \begin{pythonMID}
   # requires string or None, provides default value
   options = dict(name='foo')
 \end{pythonMID}
-\\
 And a string required to be specified and none-empty as
-\\
 \begin{pythonMID}
   # requires non-empty string
   options = dict(name=OptionString)
 \end{pythonMID}
-\\
 In some situations, an example string is convenient
-\\
 \begin{pythonEND}
   # Requires string, provides example (NOT default value)
   options = dict(name=OptionString('bar')
 \end{pythonEND}
-\\
 Note that 'bar' is not default, it just gives the programmer a way to
 express what is expected.
 
@@ -237,30 +218,22 @@ express what is expected.
 \subsubsection*{Enums}
 Enumerations are convenient in a number of situations.  They are typed
 as follows
-\\
 \begin{pythonBEG}
   # Requires one of the strings 'a', 'b' or 'c'
   options = dict(foo=OptionEnum('a b c'))
 \end{pythonBEG}
-\\
 A default value may be specified like this
-\\
 \begin{pythonMID}
    # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
   options = dict(foo=OptionEnum('a b c').b
 \end{pythonMID}
-\\
 or, like this, accepting \texttt{None}
-\\
 \begin{pythonMID}
   # Requires one of the strings 'a', 'b', or 'c'; or None
   options = dict(foo=OptionEnum('a b c', none_ok=True))
 \end{pythonMID}
-\\
 The \texttt{none\_ok} flag may be combined with a default value too.
-\\
 Furthermore, the asterisk-wildcard may be used too
-\\
 \begin{pythonEND}
   # Requires one of the strings 'a', 'b', or any string starting with 'c'
   options = dict(foo=OptionEnum('a b c*'))
@@ -270,14 +243,11 @@ Furthermore, the asterisk-wildcard may be used too
 
 \subsubsection*{Lists and Sets}
 Lists and sets are specified like this
-\\
 \begin{pythonBEG}
   # Requires list of intable, defaults to empty list
   options=dict(foo=[int])
 \end{pythonBEG}
-\\
 and
-\\
 \begin{pythonEND}
   # Requires set of intable, defaults to empty set
   options=dict(foo={int})
@@ -288,19 +258,15 @@ and
 \subsubsection*{More complex stuff}
 It is possible to have more complex types, such as dictionaries of
 dictionaries and so on, for example
-\\
 \begin{pythonBEG}
   # Requires dict of string to string
   options = dict(foo={str: str})
 \end{pythonBEG}
-\\
 or another example
-\\
 \begin{pythonEND}
   # Requires dict of string to dict of string to int
   options = dict(foo={str: {str: int}})
 \end{pythonEND}
-\\
 Containers with a type in the values default to empty containers.
 Otherwise, the specified values are the default contents.
 
@@ -310,14 +276,11 @@ Otherwise, the specified values are the default contents.
 The following date and time related types are supported:
 \texttt{datetime}, \texttt{date}, \texttt{time}, and
 \texttt{timedelta}.  A typical usecase is as follows
-\\
 \begin{pythonBEG}
   # a datetime object if input, or None
   options = dict(ts=datetime)
 \end{pythonBEG}
-\\
 and with a default assignment
-\\
 \begin{pythonEND}
   #  a datetime object if input, defaults to a datetime(2014, 1, 1) object
   options = dict(ts=datetime(2014, 1, 1))
@@ -327,36 +290,28 @@ and with a default assignment
 
 \subsubsection*{JobWithFile}
 Any file residing in a jobdir may be input to a method like this
-\\
 \begin{pythonBEG}
   options = dict(usefile=JobWithFile(jid, 'user.txt')
 \end{pythonBEG}
-\\
 There are two additional arguments, \texttt{sliced} and
 \texttt{extras}.  The \texttt{extras} argument is used to pass any
 information that is helpful in using the specified file, and
 \texttt{sliced} tells that the file is stored in parallel slices.
-\\
 \begin{pythonMID}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
 \end{pythonMID}
-\\
 In the method, the \texttt{JobWithFile} object has these members
-\\
 \begin{pythonEND}
   usefile.jobid
   usefile.filename
   usefile.sliced
   usefile.extras
 \end{pythonEND}
-\\
 Where the full filename of the file is available through
-\\
 \begin{python}
 from extras import full_filename
 print full_filename(filename, '')
 \end{python}
-\\
 The mandatory string (which is empty in this case, is a filename
 extension.  \textbf{Will be changed!})
 
@@ -393,7 +348,6 @@ argument to \analysis and \synthesis.  The return values from
 \analysis is available as \analysisres in \synthesis.  The return
 value from \synthesis is stored permanently in the jobdir.  A complete
 example may look like
-\\
 \begin{python}
 options = dict(length=4)
 datasets = ('transaction_log')
@@ -414,17 +368,14 @@ def synthesis(analysis_res, prepare_res):
 \subsection{The \params Variable }
 The \params variable contain all input and initialization parameters
 for a job, such as the caption
-\\
 \begin{python}
 def synthesis(params):
   print params.caption
 # urd_dispatched_method1
 \end{python}
-\\
 The \params variable contains lots of information that is typically
 not required in a regular method.  For a method developer, the most
 important members are
-\\
 \begin{python}
 params.package     # which package the method source code is stored in
 params.slices      # number of slices for the workdirs in use
@@ -432,7 +383,6 @@ params.caption     # may be specified when building a job
 params.seed        # seed to initialize a random number generator
 params.starttime   # execution start in epoch time
 \end{python}
-\\
 but params does also contain all options, jobids, and datasets inputs.
 
 
@@ -442,7 +392,6 @@ but params does also contain all options, jobids, and datasets inputs.
 The \params data structure contains all input and initialization data
 for a job.  To access another job's \params variable, just feed the
 job's jobid into the \jobparams function.
-\\
 \begin{python}
 from extras import job_params
 
@@ -472,19 +421,15 @@ follows.
 
 \subsubsection*{The blob module}
 The simplest way to share intra job data is using the blob module.
-\\
 \begin{python}
 import blob
 def synthesis()
   blob.load('filename')
 \end{python}
-\\
 saving data is as follows
-\\
 \begin{python}
   blob.save(data, filename, sliceno=None, temp=None)
 \end{python}
-\\
 \sliceno and \texttt{temp} are optional.  If \sliceno is set, data is
 stored in a sliced file.  This is typically used in \analysis, where
 each thread will save its own file.  The argument \texttt{temp} is
@@ -497,7 +442,6 @@ method (and not using the res-files) or in debugging.
 
 \subsection{debug help}
 There is also a more advanced debug functionality relating to temp.
-\\
 \begin{python}
 from extras import Temp
 def analysis(sliceno):
@@ -506,7 +450,6 @@ def analysis(sliceno):
   # or
   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
 \end{python}
-\\
 where the first only stores when \texttt{--debug} is specified, and
 the other always stores but removes unless \texttt{--debug} is set.
 
@@ -516,15 +459,13 @@ the other always stores but removes unless \texttt{--debug} is set.
 
 Jobs may launch subjobs.  If the jobs are already built, they will be
 immediately linked in.  The syntax is as follows, assuming we build
-the jobs in \\prepare:
-\\
+the jobs in\prepare:
 \begin{python}
 import subjobs
 
 def prepare():
   subjobs.build('count_items', options=dict(length=3))
 \end{python}
-\\
 The \texttt{subjobs.build} uses the same syntax as \texttt{urd.build}
 described elsewhere, so \options, \datasets, \jobids, and
 \texttt{caption} are available.  Similarly, subjob jobid is returned.
@@ -532,7 +473,6 @@ described elsewhere, so \options, \datasets, \jobids, and
 If there are datasets built in a subjob, these will not be explicitly
 available to Urd.  Instead, the dataset definition may be copied to
 the launching method like this
-\\
 \begin{python}
 from Dataset import dataset
 
@@ -540,7 +480,6 @@ def synthesis():
   jid = subjobs.build('create_dataset')
   Dataset(jid).link_to_here(name='thename')
 \end{python}
-\\
 the \texttt{name} argument is optional, the name \texttt{default} is
 used if left empty, corresponding to the default dataset.
 
@@ -548,7 +487,6 @@ Currently there is no dependency checking on subjobs, so if a subjob
 method is changed, the calling method will not be updated.  The
 current remedy is to use \texttt{depend\_extra} in the callin method,
 like this
-\\
 \begin{python}
 import subjobs
 

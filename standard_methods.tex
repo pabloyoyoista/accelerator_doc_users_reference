@@ -1,73 +1,83 @@
 \section{\texttt{csvimport} -- Importing Data Files}
 
-This method is used to import a text file in tabular format into a
-dataset.  A wide range of data formats is supported, and the method
-reads plain text files as well as \texttt{gzip} compressed files.  A
-number of options are available to customise importing to specific
-cases.
+This method is used to import a text file in tabular format (CSV,
+Comma Separated Values) into a dataset.  A wide range of data formats
+is supported, and the method reads plain text files as well as
+\texttt{gzip} compressed files.  A number of options are available to
+customise importing to specific cases.
 
 
 \subsection{Options}
 
-\begin{tabular}{ l l p{10cm}}
-  \textsl{option} & \textsl{default} & \textsl{description}\\[2ex]
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-  \texttt{filename} & \emph{mandatory} & Input \texttt{filename} is mandatory
-  and may either be a plain text file or a gzipped file.  A path may
-  be specified as part of the filenam, and this path is relative to
-  the configuration option \texttt{source\_directory}.  This is to
-  make input files relocateable so that reading files from a different
-  directoy will not trig remaking the import jobs.\\[1ex]
-
+  \texttt{filename} & \emph{mandatory} & Name of file to import.  The
+  filename is mandatory and the file may either be a plain text file
+  or a gzipped file.  It is also possible to specify a filename
+  including a path.  If the path begins with a slash, it is absolute.
+  Otherwise, the path is relative to the \texttt{source\_directory}
+  configuration parameter specified in the configuration
+  file~\ref{void:configuration_file}.  A relative path makes it
+  possible to relocate files to a different directory without trigging
+  job remake.\\[1ex]
+  
   \texttt{separator} & ``,'' & Field separator.  Any character, except
   ``\verb$\0$'', ``\verb$\n$'', and ``\verb$\r$'' will work.\\[1ex]
 
-  \texttt{labelsonfirstline} & \texttt{True} & data on first line of
-  the file will be used as column labels.  If
-  \texttt{labelsonfirstline} is set to False, labels must be entered
-  using the \texttt{label} list option.\\[1ex]
+  \texttt{labelsonfirstline} & \texttt{True} & If set to
+  \texttt{True}, data on the first line of the file will be used as
+  column labels.  If \texttt{False}, labels must be entered using the
+  \texttt{label} option, see \texttt{labels} below.\\[1ex]
 
-  \texttt{labels} & \texttt{[]} & If \texttt{labelsonfirstline} is set
-  to False, labels must be entered using the \texttt{label} option.
-  The options is a list, for example \texttt{labels = ['foo',
-      'bar',]}.\\[1ex]
+  \texttt{labels} & \texttt{[]} & If \texttt{labelsonfirstline} (see
+  above) is set to \texttt{False}, labels must be provided using this
+  option.  For example \texttt{labels =
+    ['foo', 'bar',]}.\\[1ex]
 
-  \texttt{hashlabel} & & An optional \texttt{hashlabel} may be
-  assigned, but bear in mind that hashing will occur on the input text
-  data.  Thus, data is to be hashed on for example the integer value
-  of a column, rehashing have to take place after typing to
-  integer.\\[1ex]
+  \texttt{hashlabel} & \texttt{None} & If not specified, the dataset
+  will be created ``round-robin'', so that rows in the input file will
+  be separated evenly into the dataset slices.  If a valid label is
+  specified, each input data row will be allocated to a slice
+  depending on the output of a hash function applied to the columns
+  data.  \textsl{Note that typing of a dataset typically changes how
+    the data is represented, which most likely voids hashing.  Use
+    this option only for datasets that will not be typed.  Otherwise,
+    use \texttt{dataset\_rehash} after typing.}\\[1ex]
 
-  \texttt{quote\_support} & \texttt{False} & Makes it possible to read
-  files with quoted values, \texttt{'foo', "bar"} style CSV.\\[1ex]
+  \texttt{quote\_support} & \texttt{False} & If set to \texttt{True},
+  it is possible to read CSV files with quoted values, such as
+  \texttt{'foo'} and \texttt{"bar"}.\\[1ex]
 
-  \texttt{rename} & & Labels to replace (if they are in the file)
-  (happens first). If used, a dictionary with \texttt{source\_name} to
-  \texttt{dest\_name} must be provided.  Columns may also be omitted
-  from importing using the \texttt{discard} option.  If used, a set
-  containing columns to omit must be provided.\\[1ex]
+  \texttt{rename} & \texttt{\{\}} & This option makes it possible to
+  change the column names read from the first line of the input file.
+  It accepts a dictionary of type
+  \texttt{\{old\_name:\ new\_name,\}}.\\[1ex]
 
-  \texttt{discard} & \texttt{set()} &Labels to not include (if they
-  are in the file)\\[1ex]
-
-  \texttt{allow\_bad} & \texttt{False} & that relaxes the input file
-  strictness.  If set to \texttt{False}, which is the default,
-  \texttt{csvimport} will assert an error if there are format errors
-  in the input data.  Setting it to \texttt{True} makes importing
-  silently ignoring any format errors.  Using this option calls for
-  checking the result.\\[1ex]
+  \texttt{allow\_bad} & \texttt{False} & Relaxes the input file
+  strictness if set to \texttt{True}.  If set to \texttt{False}, which
+  is the default, \texttt{csvimport} will assert an error if there are
+  format errors in the input data.  Setting it to \texttt{True} makes
+  importing silently ignoring any format errors.  It is recommended to
+  check the resulting dataset if this option is enabled.\\[1ex].
 \end{tabular}
 
 
 \subsection{Datasets}
-The only input dataset is \texttt{previous} which is set to the
-previous job when creating a chain.
-
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \texttt{previous} & \texttt{None} & Previous job if creating a chain.
+\end{tabular}
 
 \subsection{Output}
-The result of the \texttt{csvimport} is a dataset.  There is also a
-\texttt{report.txt} stored in the jobdir which contains information on
-number of lines read and more (CHECK THIS!)
+The result of the \texttt{csvimport} is a dataset named
+\texttt{default}.
+
+\subsection{Extra}
+The method will create a file \texttt{report.txt}, containing
+information about number of rows read and slice distribution, in the
+job directory.  In addition, there is a \texttt{default/dataset.txt}
+info file about columns as well.
 
 
 

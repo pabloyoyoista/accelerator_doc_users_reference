@@ -232,6 +232,12 @@ joblist/extras.profile?  Få exekveringstid på en joblista.
 
 * m.-filer
 
+
 * Vilka argument tar unicode:* egentligen?  unicodestrip:* är strict, replace, ignore
 
 * finns number:float?
+
+* typing
+finns alla "s", "i", "is" etc för float och floatint?
+Varför har jag inte dokumenterat "floatintXi"?
+

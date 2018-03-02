@@ -25,17 +25,17 @@ customise importing to specific cases.
   \texttt{separator} & ``,'' & Field separator.  Any character, except
   ``\verb$\0$'', ``\verb$\n$'', and ``\verb$\r$'' will work.\\[1ex]
 
+  
   \texttt{labelsonfirstline} & \texttt{True} & If set to
-  \texttt{True}, data on the first line of the file will be used as
-  column labels.  If \texttt{False}, labels must be entered using the
+  \mintinline{python}{True}, data on the first line of the file will be used as
+  column labels.  If \mintinline{python}{False}, labels must be entered using the
   \texttt{label} option, see \texttt{labels} below.\\[1ex]
 
-  \texttt{labels} & \texttt{[]} & If \texttt{labelsonfirstline} (see
-  above) is set to \texttt{False}, labels must be provided using this
-  option.  For example \texttt{labels =
-    ['foo', 'bar',]}.\\[1ex]
+  \texttt{labels} & \mintinline{python}{[]} & If \texttt{labelsonfirstline} (see
+  above) is set to \mintinline{python}{False}, labels must be provided using this
+  option.  For example \mintinline{python}{labels = ['foo', 'bar',]}.\\[1ex]
 
-  \texttt{hashlabel} & \texttt{None} & If not specified, the dataset
+  \texttt{hashlabel} & \mintinline{python}{None} & If not specified, the dataset
   will be created ``round-robin'', so that rows in the input file will
   be separated evenly into the dataset slices.  If a valid label is
   specified, each input data row will be allocated to a slice
@@ -45,19 +45,22 @@ customise importing to specific cases.
     this option only for datasets that will not be typed.  Otherwise,
     use \texttt{dataset\_rehash} after typing.}\\[1ex]
 
-  \texttt{quote\_support} & \texttt{False} & If set to \texttt{True},
+  \texttt{quote\_support} & \mintinline{python}{False} & If set to \mintinline{python}{True},
   it is possible to read CSV files with quoted values, such as
-  \texttt{'foo'} and \texttt{"bar"}.\\[1ex]
+  \mintinline{python}{'foo'} and \mintinline{python}{"bar"}.\\[1ex]
 
-  \texttt{rename} & \texttt{\{\}} & This option makes it possible to
+  \texttt{rename} & \mintinline{python}/{}/ & This option makes it possible to
   change the column names read from the first line of the input file.
-  It accepts a dictionary of type
-  \texttt{\{old\_name:\ new\_name,\}}.\\[1ex]
+  Renaming happens first.  It accepts a dictionary of type
+  \mintinline{python}/{old_name: new_name,}/.\\[1ex]
 
-  \texttt{allow\_bad} & \texttt{False} & Relaxes the input file
-  strictness if set to \texttt{True}.  If set to \texttt{False}, which
+  \texttt{discard} & \mintinline{python}/set()/ & labels in the discard set will
+  not be stored in the dataset.\\[1ex]
+  
+  \texttt{allow\_bad} & \mintinline{python}{False} & Relaxes the input file
+  strictness if set to \mintinline{python}{True}.  If set to \mintinline{python}{False}, which
   is the default, \texttt{csvimport} will assert an error if there are
-  format errors in the input data.  Setting it to \texttt{True} makes
+  format errors in the input data.  Setting it to \mintinline{python}{True} makes
   importing silently ignoring any format errors.  It is recommended to
   check the resulting dataset if this option is enabled.\\[1ex].
 \end{tabular}
@@ -66,12 +69,13 @@ customise importing to specific cases.
 \subsection{Datasets}
 \begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
   \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-  \texttt{previous} & \texttt{None} & Previous job if creating a chain.
+  \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a
+  chain.
 \end{tabular}
 
 \subsection{Output}
 The result of the \texttt{csvimport} is a dataset named
-\texttt{default}.  All columns will be of type \texttt{bytes}.
+\texttt{default}.  All columns will be of type \mintinline{python}{bytes}.
 
 \subsection{Extra}
 The method will create a file \texttt{report.txt}, containing
@@ -85,33 +89,48 @@ info file about columns as well.
 
 
 \clearpage
-\section{dataset\_type}
+\section{\texttt{dataset\_type} -- Typing Datasets}
+This method will read a source dataset and create a new dataset that
+is typed.  This is useful for typing datasets created by
+\texttt{csvimport}.
 
-A dataset imported with \texttt{csvimport} may be typed using
-\texttt{dataset\_type}.  This method parses the input data...
 
 
+\subsection{Datasets}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-\subsection{Arguments}
-
-Datasets\\
-
-\begin{tabular}{ll}
-  \texttt{source} & \\
-  \texttt{previous} & \\
-\end{tabular}\\
-
-\noindent Options\\
-
-\begin{tabular}{ll}
-  \texttt{column2type}               & \\%{'COLNAME': TYPENAME},
-  \texttt{defaults}                  & \\%{}, # {'COLNAME': value}, unspecified -> method fails on unconvertible unless filter\_bad
-  \texttt{rename}                    & \\%{}, # {'OLDNAME': 'NEWNAME'} doesn't shadow OLDNAME.
-  \texttt{caption}                   & \\%'typed dataset',
-  \texttt{discard\_untyped}           & \\%bool, # Make unconverted columns inaccessible (``new'' dataset)
-  \texttt{filter\_bad}                & \\%False, # Implies discard_untyped
-  \texttt{numeric\_comma}             & \\%False, # floats as ``3,14''
+  \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
+  \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a chain.
 \end{tabular}
+
+
+\subsection{Options}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+
+  \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
+
+  \texttt{column2type} & \mintinline{python}{\{\}} & A dictionary from column
+  label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\[1ex]
+
+  \texttt{defaults} & & \\[1ex]
+  \texttt{rename} & & \\[1ex]
+  \texttt{caption} & & \\[1ex]
+  \texttt{discard\_untyped} & \mintinline{python}{None}& \\[1ex]
+  \texttt{filter\_bad} & & \\[1ex]
+  \texttt{numeric\_comma} & & \\[1ex]
+
+\end{tabular}
+
+%% \texttt{defaults}                  & \\%{}, # {'COLNAME': value}, unspecified -> method fails on unconvertible unless filter\_bad
+%%   \texttt{rename}                    & \\%{}, # {'OLDNAME': 'NEWNAME'} doesn't shadow OLDNAME.
+%%   \texttt{caption}                   & \\%'typed dataset',
+%%   \texttt{discard\_untyped}           & \\%bool, # Make unconverted columns inaccessible (``new'' dataset)
+%%   \texttt{filter\_bad}                & \\%False, # Implies discard_untyped
+%%   \texttt{numeric\_comma}             & \\%False, # floats as ``3,14''
+%% \end{tabular}
+
 
 
 \subsection{Example Invocation}
@@ -278,64 +297,69 @@ types, and variations and options will be described below.\\
 and \texttt{encode} is reversible encoding.
 
 
+
+
+
 \clearpage
-\section{dataset\_csvexport}
+\section{\texttt{csvexport} -- Exporting Text Files}
 
-The \texttt{dataset\_export} metod is used to export datasets to text
-files.  It may write chains of datasets, it may write one dataset per
-slice and more.
+The \texttt{dataset\_export} metod is used to export datasets to
+column based text files (CSV, Comma Separated Values).  It can export
+plain files and gzip-compressed files, export a chain of datasets,
+export one output file per slice, and more.  Read the Options section
+for full details.
 
+\subsection*{Options}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-\subsection{Input Options, Datasets, and Jobids}
+  \texttt{filename} & \textsl{mandatory} & Name of output file.
+  File will by default be stored in the job's job directory.  The
+  filename has to end with ``\texttt{.csv}'' for plain text files, and
+  ``\texttt{.gz}'' for gzipped output.\\[1ex]
+                                                                                                                                %          .gz
+  \texttt{separator} & ',' & Column separator.\\[1ex]
+  
+  \texttt{labelsonfirstline} & \mintinline{python}{True} & If
+  \mintinline{python}/True/, write column names on first row.\\[1ex]
+  
+  \texttt{chain\_source} & \mintinline{python}{False} & If
+  \mintinline{python}/True/, read a dataset chain from
+  \mintinline{python}/datasets.source/ back to
+  \mintinline{python}/jobids.previous/\\[1ex]
 
-\noindent Options\\
-
-\begin{tabular}{ll}
-  \texttt{filename} & \\ %          = OptionString, # .csv or .gz
-  \texttt{separator} & \\ %         = ',',
-  \texttt{labelsonfirstline} & \\ % = True,
-  \texttt{chain\_source} & \\ %       = False, # everything in source is replaced by datasetchain(self, stop=from previous)
-  \texttt{quote\_fields} & \\ %      = '', # can be ' or ``
-  \texttt{labels} & \\ %            = [], # empty means all labels in (first) dataset
-  \texttt{sliced} & \\ %            = False, # one output file per slice, put %02d or similar in filename
-\end{tabular}\\
-
-\noindent Datasets\\
-
-\begin{tabular}{ll}
-  \texttt{datasets} & \\   = (['source'],) \# normally just one, but you can specify several
-\end{tabular}\\
-
-\noindent jobids\\
-
-\begin{tabular}{ll}
-  \texttt{jobids} & \\ % = ('previous',)
+  \texttt{quote\_fields} & \textsl{empty string} & Export quoted fields.  Must be empty
+  (no quote character, default), ``\texttt{'}``, or ``\texttt{"}``.\\[1ex]
+  
+  \texttt{labels} & \mintinline{python}/[]/ & Specify which labels to
+  export.  An empty list corresponds to all labels in dataset.\\[1ex]
+  
+  \texttt{sliced} & \mintinline{python}/False/ & Each slice is
+  exported in a separate file when \mintinline{python}/True/.  If so,
+  use \mintinline{python}/"%02d"/ or similar in filename as
+  placeholder for the slice number.\\[1ex]
+  \hline
 \end{tabular}
 
 
-The \texttt{dataset\_export} may write a single output file or one
-file per slice.  The output format is either text or gziped text, with
-separators between columns.  Filename is specified by the
-\texttt{filename} option, and if \texttt{sliced} is set to
-\texttt{True} (\texttt{False} is default), the filename should contain
-a \texttt{\%03d} or similar for the slice number to appear in the
-output files.
-
-Any separator may be specified by the \texttt{separator} option.
-Values may be quoted by setting a quote character in the
-\texttt{quote\_fields} option.  Valid quotes are WHAT?
+\subsection*{Datasets}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \texttt{datasets} & \textsl{mandatory} & A single
+  dataset or a \textsl{list} of datasets.\\[1ex]
+  \hline
+\end{tabular}
 
 
-Default behaviour is to write the names of the columns on the first
-line.  This is suppressed by setting \texttt{labelsonfirstline} to
-\texttt{False}.  Individual columns may be selected for export using
-the \texttt{labels} list, which defaults to all labels in the first
-dataset in a chain.
+\subsection*{Jobids}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \texttt{jobids} & \mintinline{python}/None/ & Jobid to
+  previous \texttt{csvexport} if chained.\\[1ex]
+  \hline
+\end{tabular}
 
-How a chain of datasets is to be exported is controlled by the
-\texttt{chain\_source} option.  Internally, this is input as \texttt{stop\_jobid}
-to the iterator creating........By default, it exports everything in a
-chain back to the \texttt{previous} dataset.WHAT ELSE? 
+
 
 
 
@@ -352,116 +376,135 @@ chain back to the \texttt{previous} dataset.WHAT ELSE?
 
 
 \clearpage
-\section{dataset\_rehash}
+\section{\texttt{dataset\_rehash} -- Hash Partition a Dataset}
 
 Dataset rehash will create a new dataset based on its \texttt{source}
-dataset.  The new dataset will be hashed on the column specified by
-the \texttt{hashlabel} input option.
+dataset.  The new dataset will be hashed on a column specified in the
+options.
 
-\subsection{Input Datasets and Options}
+\subsection*{Options}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-Datasets\\
+  \texttt{hashlabel} & \textsl{mandatory} & column for hashing,
+  required.  Note that columns typed as \texttt{list}, \texttt{set},
+  or \texttt{json} cannot be used for hashing.\\[1ex]
 
-\begin{tabular}{ll}
-  \texttt{source}   & source dataset to rehash\\
-  \texttt{previous} & previous dataset that will be chained to\\
-\end{tabular}\\
+  \texttt{length} & \mintinline{python}/-1/ & Go back at most this
+  many datasets in a chain.  Default is -1, which goes back to
+  previous.source if it exists, or to the first dataset in the chain
+  otherwise.\\[1ex]
 
-
-\noindent Options\\
-
-\begin{tabular}{ll}
-  \texttt{hashlabel} & column for hashing, required.\\
-  \texttt{length}    & Go back at most this many datasets. Default is -1, which goes back to previous.source\\
-  \texttt{caption}   & Optional caption.  A reasonable caption is created automatically if left blank\\
-  \texttt{as\_chain}  & True generates one dataset per slice, False generates one dataset.  Default \texttt{False}.\\
-\end{tabular}\\
-
-\noindent Note that columns typed as \texttt{json}, list, and set cannot be used
-for hashing.
+  \texttt{caption} & & Optional caption.  A
+  reasonable caption is created automatically if left blank\\[1ex]
+  \texttt{as\_chain} & & True generates one dataset per slice, False
+  generates one dataset.  Default \texttt{False}.\\[1ex]
+  \hline
+\end{tabular}
 
 
-\subsection{Example Invocation}
-\begin{python}
-urd.build('dataset_rehash',
-  datasets=dict(
-    source=jid,
-  ), 
-  options=dict(
-    hashlabel = 'start_date',
-  )
-)
-\end{python}
+\subsection*{Datasets}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\[1ex]
+  \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\[1ex]
+  \hline
+\end{tabular}
+
+
+
+
+
+%% \subsection{Example Invocation}
+%% \begin{python}
+%% urd.build('dataset_rehash',
+%%   datasets=dict(
+%%     source=jid,
+%%   ), 
+%%   options=dict(
+%%     hashlabel = 'start_date',
+%%   )
+%% )
+%% \end{python}
 
 
 
 \subsection{Hashing Details}
-Hashing on a column means that each row will be copied to a slice that
-is determined from the value of the \texttt{hashlabel} column.  In
-particular, the value of the row's \texttt{hashlabel} column will be
-fed through a hashing function, and the output modulo the number of
-slices will be the target slice number.  In meta-language, it is
-something like this
-\\
+This method will create a new dataset based on all the data in the
+source dataset.  The difference between input and output is in which
+slices the rows will be stored.  For each row, the target slice is
+determined based on the output value of a hashing function applied to
+a certain column (the \texttt{hashlabel}) of that row.  In code, the
+operation is similar to
 \begin{python}
-from gzutil import siphash
-target_sliceno = siphash(cols[hashlabel])
+    from gzutil import siphash
+    target_sliceno = siphash(cols[hashlabel]) % params.slices
 \end{python}
 
+\subsection{Notes on Chains}
+
+\begin{enumerate}
+  \item[1.]  The default operation is to rehash a complete chain of
+    datasets from \texttt{source} back to \texttt{previous.source}.
+    This is controlled by the \texttt{length} option.
+
+  \item[2.]  Internally, \texttt{dataset\_rehash} always generates one
+    dataset per slice in a chain.  This is also what is returned if
+    \mintinline{python}/as\_chain == True/.  Otherwise, all datasets
+    will be concatenated into one.  Thus, there is a choice of either
+    having the output as a chain of datasets or as a single dataset.
+    The chain will execute faster, since the concatenation step is
+    omitted.
+\end{enumerate}
+
+%% \clearpage
+%% \subsection{Internal Operation}
+%% Figure~\ref{fig:dataset_rehash} shows how rehashing happens...
+
+%% Each \texttt{analysis} reads one complete slice of the source dataset
+%% and hashes it into a new dataset.  This means that there is one new
+%% dataset created per slice.  Each of these datasets are chained and
+%% named using an integer counter starting at zero.  The last slice,
+%% however, is named \texttt{default}.
+
+%% If the \texttt{as\_chain} is set, \texttt{dataset\_rehash} is finished.
+%% Otherwise, in \texttt{synthesis}, each of the datasets are read in
+%% turn and concatenated into a single dataset.  When this is finished,
+%% all datasets except the concatenated one is removed from disk.
 
 
-\subsection{Note on Chains}
-\subsubsection{1.}
-Note that default operation is to rehash a complete chain of datasets
-from \texttt{source} back to \texttt{previous.source}.  This is
-controlled by the \texttt{length} option.
-
-\subsubsection{2.}
-Internally, \texttt{dataset\_rehash} always generates one dataset per
-slice in a chain.  This is also what is returned if \texttt{as\_chain
-  == True}.  Otherwise, all datasets are concatenated into one.  Thus,
-there is a choice of either having the output as a chain of datasets
-or as a single dataset.  The chain will execute faster, since the
-concatenation step is omitted.
+%% \begin{figure}[h!]
+%%   \begin{center}
+%%     \input{dataset_rehash.pdf_t}
+%%   \end{center}
+%%   \caption{\texttt{dataset\_rehash} data flow}
+%%   \label{fig:dataset_rehash}
+%% \end{figure}
 
 
 \clearpage
-\subsection{Internal Operation}
-Figure~\ref{fig:dataset_rehash} shows how rehashing happens...
+\section{\texttt{dataset\_filter\_columns} -- Removing Columns from a Dataset}
 
-Each \texttt{analysis} reads one complete slice of the source dataset
-and hashes it into a new dataset.  This means that there is one new
-dataset created per slice.  Each of these datasets are chained and
-named using an integer counter starting at zero.  The last slice,
-however, is named \texttt{default}.
+This method removes columns from a dataset.  It is typically run
+before applying methods that operate on all columns of a dataset when
+only a subset of the columns are required.  A typical example is
+\texttt{dataset\_rehash} that operates on all columns of a dataset.
+If not all columns are needed, time can be saved by removing columns
+using this method prior to applying \texttt{dataset\_rehash}.
 
-If the \texttt{as\_chain} is set, \texttt{dataset\_rehash} is finished.
-Otherwise, in \texttt{synthesis}, each of the datasets are read in
-turn and concatenated into a single dataset.  When this is finished,
-all datasets except the concatenated one is removed from disk.
+Note that this method only updates soft links, and no data is actually
+copied.  So execution is typically significantly below a second and no
+redundant data is written to disk.
 
+\subsection*{Options}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-\begin{figure}[h!]
-  \begin{center}
-    \input{dataset_rehash.pdf_t}
-  \end{center}
-  \caption{\texttt{dataset\_rehash} data flow}
-  \label{fig:dataset_rehash}
-\end{figure}
+  \texttt{columns} & \mintinline{python}/[]/ & A list of columns to
+  keep.\\[1ex]
+  \hline
+\end{tabular}
 
-
-\clearpage
-\section{dataset\_filter\_columns}
-The method \texttt{dataset\_filter\_columns} is used to remove columns
-from a dataset.  This method is typically run before methods that
-operate on all columns of a dataset when only a subset of the columns
-are required.  A typical example is \texttt{dataset\_rehash} that
-operates on all columns of a dataset.  If a subset such as only one of
-the columns is to be rehashed, they can be cut out using
-\texttt{dataset\_filter\_columns}.
-
-Note that no data is copied using this method.  It only updates soft
-links.  So execution is typically significantly below a second.
 
 
 

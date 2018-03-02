@@ -77,11 +77,11 @@ customise importing to specific cases.
 The result of the \texttt{csvimport} is a dataset named
 \texttt{default}.  All columns will be of type \mintinline{python}{bytes}.
 
-\subsection{Extra}
-The method will create a file \texttt{report.txt}, containing
-information about number of rows read and slice distribution, in the
-job directory.  In addition, there is a \texttt{default/dataset.txt}
-info file about columns as well.
+%% \subsection{Extra}
+%% The method will create a file \texttt{report.txt}, containing
+%% information about number of rows read and slice distribution, in the
+%% job directory.  In addition, there is a \texttt{default/dataset.txt}
+%% info file about columns as well.
 
 
 
@@ -149,16 +149,16 @@ urd.build('dataset_type', ...,
 \end{python}
 
 
-
+\clearpage
 \subsection{Typing}
 This section describes all typing options in detail.
 
 \subsubsection{Numbers}
 The \emph{number} type is int or float.\\
 
-\begin{tabular}{ll}
-  \texttt{number}     & \texttt{int} or \texttt{float}\\
-  \texttt{number:int} & \texttt{int}, converts floats to int.\\
+\begin{tabular}{p{2cm}p{2cm}l}
+  \texttt{number}     && \texttt{int} or \texttt{float}\\
+  \texttt{number:int} && \texttt{int}, converts floats to int.\\
 \end{tabular}
 
 
@@ -172,7 +172,8 @@ does not fit, and \emph{saturate} that silently saturates a
 non-fitting number.  These can also be used in combination, see table
 below for all alternatives\\
 
-\begin{tabular}{lll}
+
+\begin{tabular}{p{2cm}p{2cm}l}
 \texttt{float32} & \texttt{float64} & \emph{default}\\
 \texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
 \texttt{float32e} & \texttt{float64e} & \emph{exact}, error if parsed number does not fit in type \\
@@ -187,7 +188,7 @@ account, so in addition to decimal numbers, it is also straightforward
 to parse octal and hexadecimal numbers.  The \emph{ignore} option
 causes parsing to ignore trailing garbage characters.\\
 
-\begin{tabular}{lll}
+\begin{tabular}{p{2cm}p{2cm}l}
   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
   \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
   \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
@@ -200,7 +201,7 @@ causes parsing to ignore trailing garbage characters.\\
 
 
 
-\subsection{Integers Stored as Floats}
+\subsubsection{Integers Stored as Floats}
 
 There are also a parsing options for integers that are represented in
 a floating point format in the source data.  This is useful if integer
@@ -208,7 +209,7 @@ data is stored with decimals, such as \texttt{5.0}.  In pseudocode,
 the parsing basically runs \texttt{int(float(value))} for each such
 value.\\
 
-\begin{tabular}{lll}
+\begin{tabular}{p{2cm}p{2cm}l}
   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
   \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
@@ -217,44 +218,38 @@ value.\\
 
 
 
-\subsection{Convert to Boolean}
+\subsubsection{Convert to Boolean}
 It is common that a column holds values that are to be interpreted as
-either \texttt{False} or \texttt{True}.  There are two types that is
-useful in this context.  The first one is \texttt{strbool}, that works like this\\
+either \texttt{False} or \texttt{True}.  The following types handles
+strings and floats.\\
 
-\begin{tabular}{ll}
-  \texttt{strbool} & \texttt{False} if value in (\texttt{'false', '0', 'f', 'no', 'off', 'nil', 'null', ''})\\
-                   & \texttt{True} otherwise
-\end{tabular}
-\\
-The other is \texttt{floatbool} that is True when the float has bits
-set to one and zero otherwise.  There is also a \texttt{floatbooli}
-that ignores trailing garbage characters.\\
+\begin{tabular}{p{2cm}p{2cm}p{8cm}}
+  \texttt{strbool} && \mintinline{python}{False} if value in (\texttt{'false', '0', 'f', 'no', 'off', 'nil', 'null', ''})\\
+                   && \mintinline{python}{True} otherwise\\[1ex]
 
-\begin{tabular}{ll}
-  \texttt{floatbool}  & True if float has bits set to one, zero otherwise\\
-  \texttt{floatbooli} & same + \emph{ignore}\\
+  \texttt{floatbool} && \mintinline{python}{True} when float has bits
+  set. Is \mintinline{python}{False} otherwise.\\[1ex]
+
+  \texttt{floatbooli} && same + \emph{ignore}\\[1ex]
 \end{tabular}
 
 
 
-\subsection{Time and Date}
+\subsubsection{Time and Date}
 There are three types relating to time available, \texttt{date},
 \texttt{time}, and \texttt{datetime}.  Each of these has a
 corresponding version that ignores trailing garbage characters.
 All time types require a format specification as described below\\
 
-\begin{tabular}{ll}
-  \texttt{date:*}      & a date with format specifier\\
-  \texttt{datei:*}     & same + \emph{ignore}\\
-  \texttt{time:*}      & a time with format specifier\\
-  \texttt{timei:*}     & same + \emph{ignore}\\
-  \texttt{datetime:*}  & a date + time with format specifier\\
-  \texttt{datetimei:*} & same + \emph{ignore}\\
-\end{tabular}\\
-
-The format is standard Python time formats, see for example\\
-\\
+\begin{tabular}{p{2cm}p{2cm}p{8cm}}
+  \texttt{date:*}      && a date with format specifier\\
+  \texttt{datei:*}     && same + \emph{ignore}\\
+  \texttt{time:*}      && a time with format specifier\\
+  \texttt{timei:*}     && same + \emph{ignore}\\
+  \texttt{datetime:*}  && a date + time with format specifier\\
+  \texttt{datetimei:*} && same + \emph{ignore}\\
+\end{tabular}\\[1ex]
+The format is standard Python time formats, like shown in these examples
 \begin{python}
    # will match for example '2017-03-22'
    auct_start_dt='date:%Y-%m-%d'  
@@ -265,34 +260,32 @@ The format is standard Python time formats, see for example\\
 \end{python}
 
 
-\subsection{Strings and Byte Sequences}
+\subsubsection{Strings and Byte Sequences}
 There are a number of ways to read string and byte data, depending on
 how the raw input data is to be interpreted.  Here are the basic
 types, and variations and options will be described below.\\
 
-\begin{tabular}{ll}
-  \texttt{bytes}      & list of bytes\\
-  \texttt{bytesstrip} & list of bytes, strip characters 8-13,32 from start and end\\
-  \texttt{ascii}      & list of ascii characters\\
-  \texttt{asciistrip} & list of ascii characters, strip characters 8-13,32 from start and end\\
-  \texttt{unicode:*}    & list of unicode characters\\
+\begin{tabular}{p{2cm}p{2cm}p{8cm}}
+  \texttt{bytes}      && list of bytes\\
+  \texttt{bytesstrip} && list of bytes, strip characters 8-13,32 from start and end\\
+  \texttt{ascii}      && list of ascii characters\\
+  \texttt{asciistrip} && list of ascii characters, strip characters 8-13,32 from start and end\\
 \end{tabular}\\
 
 \noindent The following also takes argument\\
 
-\begin{tabular}{ll}
-  \texttt{unicodestrip:*}  & list of unicode characters, strip characters 8-13,32 from start and end\\
-\end{tabular}\\
-
-\noindent where the argument is one of \texttt{replace}, \texttt{ignore}, and \texttt{strict}.
+\begin{tabular}{p{2cm}p{2cm}p{8cm}}
+  \texttt{unicode:*}  && list of unicode characters\\
+  \texttt{unicodestrip:*}  && list of unicode characters, strip characters 8-13,32 from start and end\\
+\end{tabular}\\[1ex]
+where the argument is one of \texttt{replace}, \texttt{ignore}, and \texttt{strict}.
 \texttt{strict} will cause error, \texttt{ignore} will erase illegal characters.\\
 
-\begin{tabular}{ll}
-  \texttt{ascii:*}      & list of ascii characters\\
-  \texttt{asciistrip:*} & list of ascii characters, strip characters 8-13,32 from start and end\\
-\end{tabular}\\
-
-\noindent where the argument is one of \texttt{replace}, \texttt{encode}, and \texttt{strict}.
+\begin{tabular}{p{2cm}p{2cm}p{8cm}}
+  \texttt{ascii:*}      && list of ascii characters\\
+  \texttt{asciistrip:*} && list of ascii characters, strip characters 8-13,32 from start and end\\
+\end{tabular}\\[1ex]
+where the argument is one of \texttt{replace}, \texttt{encode}, and \texttt{strict}.
 \texttt{strict} will cause error, \texttt{ignore} will erase illegal characters,
 and \texttt{encode} is reversible encoding.
 
@@ -511,39 +504,49 @@ redundant data is written to disk.
 
 
 \clearpage
-\section{dataset\_sort}
+\section{\texttt{dataset\_sort} -- Sorting a Dataset}
 The method \texttt{dataset\_sort} is used to sort relatively large
 datasets.  One or more columns may be selected for sorting, and it
 will sort one column at a time.
 
-The method works by reading the columns to sort by, and create an
-indexing column that stipulates the sorting order.  Each column is
-then read in turn and sorted according to the sorting column.
+\subsection*{Options}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-The method has limited sorting capability.  Internally, it sorts one
-column at a time, and it requires to hold that complete column plus an
-indexing column in memory simultaneously.
+  \texttt{sort\_columns'} & \textsl{mandatory} & A column or a list of
+  columns.  If a list is specified, sorting will be carried out left
+  to right.\\[1ex]
 
-\subsection{Inputs}
-
-\noindent Options\\
-
-\begin{tabular}{ll}
-  \texttt{sort\_columns'} & \\    %       : [OptionString],
-  \texttt{sort\_order} & \\        %     : OrderEnum.ascending,
-  \texttt{sort\_across\_slices} & \\%     : False, # normally only sort within slices
-\end{tabular}\\
-
-\noindent Datasets\\
-
-\begin{tabular}{ll}
-  \texttt{source} & \\
-  \texttt{previous} & \\
+  \texttt{sort\_order} & \texttt{ascending} & Could be reversed by
+  specifying \texttt{descending}\\[1ex]
+  
+  \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
+  \mintinline{python}/False/, only sort within slices.  Otherwise sort
+  across slices.\\[1ex]
+  \hline
 \end{tabular}
 
-Data is sorted based on the columns specified in the list
-\texttt{sort\_columns}.  Data is first sorted on the first column,
-then the second, and so on.
+
+
+
+\subsection*{Datasets}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
+  \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
+  \hline
+\end{tabular}
+
+\subsection{A Practical Limitation}
+Internally, the method works by reading the columns to sort by, and
+create an indexing column that stipulates the sorting order.  Each
+column is then read in turn and sorted according to the sorting
+column.
+
+Thus, the method has limited sorting capability.  Internally, it sorts
+one column at a time, and it needs to hold that complete column plus
+an indexing column in memory simultaneously.
+
 
 
 

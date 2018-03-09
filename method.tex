@@ -209,25 +209,25 @@ or the string \texttt{'3'} both yield the integer number 3.
 
 \subsubsection*{Strings}
 A (possibly empty) string with default value \texttt{None} is typed as
-\begin{pythonBEG}
+\begin{python}
   # requires string or None, defaults to None
   options = dict(name=str)
-\end{pythonBEG}
+\end{python}
 A default value may be specified as follows
-\begin{pythonMID}
+\begin{python}
   # requires string or None, provides default value
   options = dict(name='foo')
-\end{pythonMID}
+\end{python}
 And a string required to be specified and none-empty as
-\begin{pythonMID}
+\begin{python}
   # requires non-empty string
   options = dict(name=OptionString)
-\end{pythonMID}
+\end{python}
 In some situations, an example string is convenient
-\begin{pythonEND}
+\begin{python}
   # Requires string, provides example (NOT default value)
   options = dict(name=OptionString('bar')
-\end{pythonEND}
+\end{python}
 Note that 'bar' is not default, it just gives the programmer a way to
 express what is expected.
 
@@ -236,55 +236,55 @@ express what is expected.
 \subsubsection*{Enums}
 Enumerations are convenient in a number of situations.  They are typed
 as follows
-\begin{pythonBEG}
+\begin{python}
   # Requires one of the strings 'a', 'b' or 'c'
   options = dict(foo=OptionEnum('a b c'))
-\end{pythonBEG}
+\end{python}
 A default value may be specified like this
-\begin{pythonMID}
+\begin{python}
    # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
   options = dict(foo=OptionEnum('a b c').b
-\end{pythonMID}
+\end{python}
 or, like this, accepting \texttt{None}
-\begin{pythonMID}
+\begin{python}
   # Requires one of the strings 'a', 'b', or 'c'; or None
   options = dict(foo=OptionEnum('a b c', none_ok=True))
-\end{pythonMID}
+\end{python}
 The \texttt{none\_ok} flag may be combined with a default value too.
 Furthermore, the asterisk-wildcard may be used too
-\begin{pythonEND}
+\begin{python}
   # Requires one of the strings 'a', 'b', or any string starting with 'c'
   options = dict(foo=OptionEnum('a b c*'))
-\end{pythonEND}
+\end{python}
 
 
 
 \subsubsection*{Lists and Sets}
 Lists and sets are specified like this
-\begin{pythonBEG}
+\begin{python}
   # Requires list of intable, defaults to empty list
   options=dict(foo=[int])
-\end{pythonBEG}
+\end{python}
 and
-\begin{pythonEND}
+\begin{python}
   # Requires set of intable, defaults to empty set
   options=dict(foo={int})
-\end{pythonEND}
+\end{python}
 
 
 
 \subsubsection*{More complex stuff}
 It is possible to have more complex types, such as dictionaries of
 dictionaries and so on, for example
-\begin{pythonBEG}
+\begin{python}
   # Requires dict of string to string
   options = dict(foo={str: str})
-\end{pythonBEG}
+\end{python}
 or another example
-\begin{pythonEND}
+\begin{python}
   # Requires dict of string to dict of string to int
   options = dict(foo={str: {str: int}})
-\end{pythonEND}
+\end{python}
 Containers with a type in the values default to empty containers.
 Otherwise, the specified values are the default contents.
 
@@ -294,37 +294,37 @@ Otherwise, the specified values are the default contents.
 The following date and time related types are supported:
 \texttt{datetime}, \texttt{date}, \texttt{time}, and
 \texttt{timedelta}.  A typical usecase is as follows
-\begin{pythonBEG}
+\begin{python}
   # a datetime object if input, or None
   options = dict(ts=datetime)
-\end{pythonBEG}
+\end{python}
 and with a default assignment
-\begin{pythonEND}
+\begin{python}
   #  a datetime object if input, defaults to a datetime(2014, 1, 1) object
   options = dict(ts=datetime(2014, 1, 1))
-\end{pythonEND}
+\end{python}
 
 
 
 \subsubsection*{JobWithFile}
 Any file residing in a jobdir may be input to a method like this
-\begin{pythonBEG}
+\begin{python}
   options = dict(usefile=JobWithFile(jid, 'user.txt')
-\end{pythonBEG}
+\end{python}
 There are two additional arguments, \texttt{sliced} and
 \texttt{extras}.  The \texttt{extras} argument is used to pass any
 information that is helpful in using the specified file, and
 \texttt{sliced} tells that the file is stored in parallel slices.
-\begin{pythonMID}
+\begin{python}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
-\end{pythonMID}
+\end{python}
 In the method, the \texttt{JobWithFile} object has these members
-\begin{pythonEND}
+\begin{python}
   usefile.jobid
   usefile.filename
   usefile.sliced
   usefile.extras
-\end{pythonEND}
+\end{python}
 Where the full filename of the file is available through
 \begin{python}
 from extras import full_filename

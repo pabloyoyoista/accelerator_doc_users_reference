@@ -16,96 +16,174 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Methods}
 
-Methods are source files executed by the framework.  The nomenclature
-is that methods turn into jobs when they are assigned input arguments
-and get executed by the framework.  A method may be dispatched by urd,
-or by another method as a subjob.
-
+Methods are source files that can be executed by the Accelerator.
+They may be built by a build script or by another method as a subjob.
+When methods are build, i.e.\ assigned input arguments and executed,
+the result is called a job.
 
 
-\section{Packages and Source code}
+\section{Method Directories and Method Source Files}
 
-Methods are stored in directories, called packages, in the main
-framework directory.  A package needs to be present in the main
-configuration file, and the package directory has to contain the file
-\texttt{\_\_init\_\_.py} for Python to see it.
+Methods are stored in directories, called method directories, one
+level above the Accelerator directory, like this
+\begin{verbatim}
+project_directory
++-- accelerator
++-- method_directory  # here be methods
+\end{verbatim}
+For a method directory to be visible by the Accelerator, two things are needed
+\begin{itemize}
+\item it must be specified in the configuration file, see section~\ref{configfile}, and
+\item the method directory must contain an empty file named
+  \texttt{\_\_init\_\_.py}.
+\end{itemize}
+Furthermore, in order to avoid execution of the wrong files, there are
+two limitations that apply to methods.
+\begin{itemize}
+\item For a method file to be accepted by the Accelerator, the filename has to start with
+  the prefix ``\texttt{a\_}'', and
+\item the method name, without this prefix must be present on a
+  separate line in the \texttt{methods.conf} file for the package, see
+  section~\ref{methods_conf}.
+\end{itemize}
 
-There are two limitations, that apply to methods, designed to avoid
-accidental execution of the wrong source code.  For a method file to
-be accepted by the framework, the filename has to start with the
-prefix \texttt{``a\_''}.  Furthermore, the method name, without this
-prefix must be present on a separate line in the \texttt{methods.conf}
-file for the package.
 
 
+\section{Method Source Code Hashing}
 
-\section{Recall and Method Hashing}
+Prior to executing a method, the Accelerator is applying a hash
+function to the method source code to determine if an eqivalent job
+already exists.  This hash is combined with the input arguments and
+compared to all jobs already built.  Only if the hash and input
+parameter combination is unique will the method be executed.
 
-The framework is applying a hash function to the method source code to
-determine if a job may be recalled or re-executed.  Changing the
-method source code in an unique way causes a new job to be built from
-the method code.
-
-A method may use code located in other files, and in that case it is
-possible to ensure that jobs are dispatched if any of those files
-change.  This is specified in the method using the
-\texttt{depend\_extra} list, as for example:
+A method may import code located in other files, and these other files
+can be included in the hash calculation as well.  This will ensure
+that a change to an imported file will indeed force a re-execution of
+the method if a build is requested.  Additional files are specified in
+the method using the \texttt{depend\_extra} list, as for example:
 \begin{python}
 import generic_params
 depend_extra = (generic_params, 'mystuff.data',)
 \end{python}
-You can specify a module object or a filename relative to the module
-source.
+It is possibe to specify either Python module objects or a filename
+relative to the method's location.
 
 A different scenario is when the method source code needs to be
-modified, but the change does not alter past behavior, i.e.\ remake of
-jobs should be actively avoided.  There is an
-\texttt{equivalent\_hashes} dict for that, as shown
+modified, but the modification does not alter its behavior, so
+rebuilding jobs should be actively avoided.  A simple example would be
+changing the name of a variable in the method.  For this situation,
+there is an \texttt{equivalent\_hashes} \texttt{dict} that can be used
+to specify which versions of the source code that are equivalent.  For
+example
 \begin{python}
   equivalent_hashes = {'verifier': ('0c573685f713ac6500a6eda7df1a7b3f',)}
 \end{python}
-
 The verifier string is a hash that depends on everything in the method
-except the equivalent\_hashes block. It is there to avoid the scenario
-where you forget the method has equivalent\_hashes and make changes. When
-the verifier is wrong (as it will be after editing the method) you will be
-informed what the correct verifier would be, so you can use that or discard
-the equivalent\_hashes block, as appropriate. The tuple on the right can
-contain any number of old hashes.
+except the equivalent\_hashes block.  When the hash value of the
+method does not correspond to the verifier (as will happen after
+editing the method) the Accelerator will informed what the correct
+verifier would be, so it can be added to the list of verifiers if
+appropriate.  The verifier list can contain any number of old hashes.
+
+KOLLA DETTA
 
 
 
-\section{Method Inputs}
+\clearpage
+\section{Method Parameters}
 
-When a method is dispatched as a job, it will be provided with input
-from the dispatcher.  There are three kinds of input to a method:
-\jobids, \datasets, and \options.  These are specified early in the
-method source code, such as for example
+A jobs parameters are available in the \texttt{params} variable.
+There are both input parameters that are assigned from the caller, and
+parameters that are created when the job starts buildind.  Consider
+the following example that pretty-prints the \texttt{params} variable.
+Note that the method explicitly expects input parameters to be
+assigned by the caller in the \jobids, \datasets, and \options
+variables.
+
+\begin{python}
+import json
+
+jobids = ('jid',)
+datasets = ('source', 'parent',)
+options = dict(x='testing', length=3)
+
+def synthesis(params):
+    print(json.dumps(params, indent=4))
+\end{python}
+And here is the corresponding output.
+\begin{leftbar}
+\begin{minted}{json}
+{
+    "link": {},
+    "package": "dev",
+    "method": "test2",
+    "jobid": "EXAMPLE-12",
+    "starttime": 1520652213.4547446,
+    "params": {
+        "test2": {
+            "options": {
+                "x": "testing",
+                "length": 3
+            },
+            "datasets": {
+                "source": "EXAMPLE-0",
+                "parent": null
+            },
+            "jobids": {
+                "jid": "EXAMPLE-0"
+            }
+        }
+    },
+    "slices": 16,
+    "options": {
+        "x": "testing",
+        "length": 3
+    },
+    "datasets": {
+        "source": "EXAMPLE-0",
+        "parent": null
+    },
+    "caption": "fsm_test2",
+    "seed": 53231916470152325,
+    "jobids": {
+        "jid": "EXAMPLE-0"
+    },
+    "hash": "42af401251840b3798e9e78da5b5c5b4ef525ecc"
+}
+\end{minted}
+\end{leftbar}
+
+\section{Input Parameters}
+A method is typically provided with input parameters at build time.
+There are three kinds of method input parameters: \jobids, \datasets,
+and \options.  These parameters are specified early in the method
+source code, such as for example
 \begin{python}
 jobids = ('accumulated_costs',)
 datasets = ('transaction_log',)
 options = dict(length=4)
 \end{python}
-The \texttt{jobids} argument is used to input pointers to other
-finished jobs, \datasets is used to input other datasets, and \options
-is used to input any other type of parameters specifying running
-behavior of the method.  Note that \jobids and \datasets are tuples
-(and a single entry has to be followed by a comma), while \options is
-a dictionary.  Each will be described in more detail next
+The \texttt{jobids} parameter list is used to input links, or jobids,
+to other jobs, while the \datasets parameter list is used to input
+links to datasets. The \options dictionary is used to input any other
+type of parameters to be used by the method at run time.  Note that
+\jobids and \datasets are tuples (and a single entry has to be
+followed by a comma as in the example abov), while \options is a
+dictionary.  Each of these parameters will be described in more detail
+in following sections.
 
 
 
-\subsection{Input Jobids}
-The \jobids argument is a tuple of jobids linking this job to other
-jobs.  Inside the running method, a jobid from the \jobids tuple is
-simply a string that can be passed to various helper functions in
-order to use results from the corresponding jobs.
+\subsection*{Jobids}
+The \jobids parameter is a tuple of jobids linking this job to other
+jobs.  Inside the running method, each item in the \jobids tuple may
+be used as a reference to the corresponding job.
 
 
 
-\subsection{Input Datasets}
+\subsection*{Input Datasets}
 The \datasets argument is the way to communicate datasets from
 automata to job.  In the running method, the \datasets variable is a
 tuple of dataset objects ready to use.  The dataset class is described
@@ -114,7 +192,7 @@ in a dedicated chapter.
 
 
 
-\subsection{Input Options}
+\subsection*{Input Options}
 
 The \options argument is of type \texttt{dict} and used to pass
 various information from the dispatcher (typically Urd or a method) to

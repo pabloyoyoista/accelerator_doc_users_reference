@@ -87,19 +87,20 @@ editing the method) the Accelerator will informed what the correct
 verifier would be, so it can be added to the list of verifiers if
 appropriate.  The verifier list can contain any number of old hashes.
 
-KOLLA DETTA
+\comment{KOLLA DETTA}
 
 
 
 \clearpage
 \section{Method Parameters}
 
-A jobs parameters are available in the \texttt{params} variable.
-There are both input parameters that are assigned from the caller, and
-parameters that are created when the job starts buildind.  Consider
-the following example that pretty-prints the \texttt{params} variable.
-Note that the method explicitly expects input parameters to be
-assigned by the caller in the \jobids, \datasets, and \options
+A jobs parameters are available in the \texttt{params} variable.  It
+contains both input parameters that are assigned from the caller, and
+parameters that are created when the job starts building.  Input
+parameters will be described thoroughly in section~\ref{xx}.  Consider
+the following example method that pretty-prints the \texttt{params}
+variable.  Note that the method explicitly expects input parameters to
+be assigned by the caller in the \jobids, \datasets, and \options
 variables.
 
 \begin{python}
@@ -154,6 +155,26 @@ And here is the corresponding output.
 }
 \end{minted}
 \end{leftbar}
+and a desciption of its keys
+\begin{snugshade}
+\begin{tabular}{ll}
+  \textsl{key} & \textsl{description}\\[2ex]\hline\\[1ex]
+  \texttt{package} & method directory for this method\\
+  \texttt{method} & name of this method\\
+  \texttt{jobid} & jobid of this job\\
+  \texttt{starttime}& start time in epoch format\\
+  \texttt{params} & \\
+  \texttt{slices} & number of slices of current Accelerator configuration \\
+  \texttt{options} & \\
+  \texttt{dataset} & \\
+  \texttt{jobids} & \\
+  \texttt{caption} & a caption\\
+  \texttt{seed} & a random seed available for use\\
+  \texttt{hash} & current source code hash value\\
+\end{tabular}
+\end{snugshade}
+
+
 
 \section{Input Parameters}
 A method is typically provided with input parameters at build time.
@@ -162,7 +183,7 @@ and \options.  These parameters are specified early in the method
 source code, such as for example
 \begin{python}
 jobids = ('accumulated_costs',)
-datasets = ('transaction_log',)
+datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
 The \texttt{jobids} parameter list is used to input links, or jobids,
@@ -174,6 +195,14 @@ followed by a comma as in the example abov), while \options is a
 dictionary.  Each of these parameters will be described in more detail
 in following sections.
 
+Individual elements of the input parameters may be accessed with dot
+notation like this
+\begin{python}
+jobids.accumulated_cost
+datasets.transaction_log
+options.length
+\end{python}
+
 
 
 \subsection*{Jobids}
@@ -181,71 +210,102 @@ The \jobids parameter is a tuple of jobids linking this job to other
 jobs.  Inside the running method, each item in the \jobids tuple may
 be used as a reference to the corresponding job.
 
+\comment{SHOULD WE ALLOW EMPTY JOBIDS?}
+
 
 
 \subsection*{Input Datasets}
 The \datasets argument is the way to communicate datasets from
 automata to job.  In the running method, the \datasets variable is a
-tuple of dataset objects ready to use.  The dataset class is described
-in a dedicated chapter.
+tuple of objects from the dataset class.  The dataset class is
+described in a dedicated chapter~\ref{xx}.
 
+All items in the \datasets tuple must be assigned by the builder to
+avoid run time errors.
+
+\comment{BUT WE NEED TO BE ABLE TO INDICATE START OF CHAIN, FOR EXAMPLE BY None.}
 
 
 
 \subsection*{Input Options}
 
-The \options argument is of type \texttt{dict} and used to pass
-various information from the dispatcher (typically Urd or a method) to
-a method.  Information could be integers, strings, enumerations, sets,
-lists, and dicts in a recursive fashion.  Options may have a default
-value.
+The \options parameter is of type \texttt{dict} and used to pass
+various information from the builder to a job.  This information could
+be integers, strings, enumerations, sets, lists, and dicts in a
+recursive fashion.  Options may have a default value.
 
 Options are defined in a method like this
 \begin{python}
-  options = dict( ... )  # or
-  options = { ... }
+  options = dict(key=value, ... )  # or
+  options = {key: value, ...}
 \end{python}
 
-Options are easiest described by examples, and such will be presented
-in the following sections.  The remaining of this section is dedicated
-to describe the formal rules for option typing and assignment.
+Options are quite advanced, and the following sections introduce how
+to use them both from a formal perspective, and from a set of
+examples.
 
- \begin{itemize}
- \item an input value is required to be of the correct type.
+\subsubsection{Formal Option Rules}
+The \options parameter is vey flexible.  These are the formal rules
+for specifuing options.
+\begin{itemize}
 
- \item An input may be left unassigned, unless
-   \begin{itemize}
-   \item typing is RequiredOptions(), or
-   \item OptionEnum without default
-   \end{itemize}
-   
- \item Typing may be specified using the class name (i.e.\ int), or as
-   a value that will construct into such a class object (i.e.\ the
-   number 3).
+\item Typing may be specified using the class name (i.e.\ \texttt{int}), or as
+  a value that will construct into such a class object (i.e.\ the
+  number 3).  See this example
+  \begin{python}
+options = dict(
+    a = 3,     # typed to int
+    b = int,   #          int
+    c = 3.14,  #          float
+    d = '',    #          str
+)
+  \end{python}
+  but read on to learn about default values and more.
 
- \item If typing is specified as a value, this is the default value if
-   left unspecified.
+ \item An input option value is required to be of the correct type.  This is,
+  if a type is specified for an option, this must be respected by the
+  builder.
 
- \item If typing is specified as a class name, default is None.
+\item An input may be left unassigned, unless
+  \begin{itemize}
+  \item the option is typed to \mintinline{python}/RequiredOptions()/, or
+  \item the option is typed to \mintinline{python}/OptionEnum()/ without a default.
+  \end{itemize}
+  So, except for the two cases above, it is not necessary to supply
+  option values to a method at build time.
 
- \item Values are accepted if they are valid input to the type's
-   constructor, i.e.\ 3 and '3' are valid input for an integer.
+\item If typing is specified as a value, this is the default value if
+  left unspecified.
 
- \item None is a valid input unless
-   \begin{itemize}
-   \item RequiredOptions() and not none\_ok set
-   \item OptionEnum() and not none\_ok set
-   \end{itemize}
+\item If typing is specified as a class name, default is None.
 
- \item All containers can be specified as empty (?)
+\item Values are accepted if they are valid input to the type's
+  constructor, i.e.\ 3 and '3' are valid input for an integer.
 
- \item Complex types (like dicts, dicts of lists of dicts, ...) never
-   enforce specific keys, only types. (\{'a': 'b'\} is a valid value
-   for \{'foo': 'bar'\}) (?)
-   
- \item containers with a type in the values default to empty
-   containers (otherwise the specified values are the default contents)
+\item None is always a valid input unless
+  \begin{itemize}
+  \item RequiredOptions() and not none\_ok set
+  \item OptionEnum() and not none\_ok set
+  \end{itemize}
+  This means that for example something typed to \texttt{int} can be
+  overridden by the builder by assigning it to
+  \mintinline{python}/None/.
 
+\item All containers can be specified as empty \comment{(?)}
+
+\item Complex types (like \texttt{dict}s, \texttt{dict}s of
+  \texttt{list}s of \texttt{dict}s, \dots) never enforce specific
+  keys, only types.  For example, \mintinline{python}/{'a': 'b'}/ is a
+  valid value for \mintinline{python}/{'foo': 'bar'}/. \comment{(?)}
+
+\item Containers with a type in the values default to empty containers.
+  Otherwise the specified values are the default contents.  Example
+  \begin{python}
+options = dict(
+    x = dict,           # will be empty dict as default
+    y = {'foo': 'bar'}  # wil be {'foo': 'bar'} as default
+)
+  \end{python}
 \end{itemize}
 %%%
 %%%
@@ -260,8 +320,7 @@ provided, for example the string \texttt{'3'} is a valid input for the
 \subsubsection{Unspecifieds}
 An option with no typing may be specified by assigning \texttt{None}.
 \begin{python}
-  options = dict(length=None)
-  # accepts anything, default is None
+options = dict(length=None)  # accepts anything, default is None
 \end{python}
 Here, \texttt{length} could be set to anything.
 
@@ -270,14 +329,12 @@ Here, \texttt{length} could be set to anything.
 \subsubsection*{Scalars}
 Scalars are either explicitly typed, as
 \begin{python}
-  options = dict(length=int)
-  # Requires an intable value or None
+options = dict(length=int)   # Requires an intable value or None
 \end{python}
 or implicitly with default value like
-
 \begin{python}
-  options = dict(length=3)
-  # Requires an intable value, default is 3 if left unassigned
+options = dict(length=3)     # Requires an intable value or None,
+                             # default is 3 if left unassigned
 \end{python}
 In these examples, intable means that the value provided should be
 valid input to the \texttt{int} constructor, for example the number~3
@@ -286,100 +343,114 @@ or the string \texttt{'3'} both yield the integer number 3.
 
 
 \subsubsection*{Strings}
-A (possibly empty) string with default value \texttt{None} is typed as
+A (possibly empty) string with default value \mintinline{python}{None} is typed as
 \begin{python}
-  # requires string or None, defaults to None
-  options = dict(name=str)
+options = dict(name=str)     # requires string or None, defaults to None
 \end{python}
 A default value may be specified as follows
 \begin{python}
-  # requires string or None, provides default value
-  options = dict(name='foo')
+options = dict(name='foo')   # requires string or None, provides default value
 \end{python}
 And a string required to be specified and none-empty as
 \begin{python}
-  # requires non-empty string
-  options = dict(name=OptionString)
+from extras import OptionString
+options = dict(name=OptionString)       # requires non-empty string
 \end{python}
 In some situations, an example string is convenient
 \begin{python}
-  # Requires string, provides example (NOT default value)
-  options = dict(name=OptionString('bar')
+from extras import OptionString
+options = dict(name=OptionString('bar') # Requires non-empty string,
+                                        # provides example (NOT default value)
+
 \end{python}
-Note that 'bar' is not default, it just gives the programmer a way to
-express what is expected.
+Note that ``textt{bar}'' is not default, it just gives the programmer
+a way to express what is expected.
 
 
 
 \subsubsection*{Enums}
-Enumerations are convenient in a number of situations.  They are typed
-as follows
+Enumerations are convenient in a number of situations.  An option with
+three enumerations is typed as
 \begin{python}
-  # Requires one of the strings 'a', 'b' or 'c'
-  options = dict(foo=OptionEnum('a b c'))
+# Requires one of the strings 'a', 'b' or 'c'
+from extras import OptionEnum
+options = dict(foo=OptionEnum('a b c'))
+\end{python}
+and there is a flag to have it accept \mintinline{python}/None/ too
+\begin{python}
+# Requires one of the strings 'a', 'b', or 'c'; or None
+from extras import OptionEnum
+options = dict(foo=OptionEnum('a b c', none_ok=True))
 \end{python}
 A default value may be specified like this
 \begin{python}
-   # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
-  options = dict(foo=OptionEnum('a b c').b
+# Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
+from extras import OptionEnum
+options = dict(foo=OptionEnum('a b c').b
 \end{python}
-or, like this, accepting \texttt{None}
+(The \texttt{none\_ok} flag may be combined with a default value.)
+Furthermore, the asterisk-wildcard could be used to accept a wide
+range of inputs
 \begin{python}
-  # Requires one of the strings 'a', 'b', or 'c'; or None
-  options = dict(foo=OptionEnum('a b c', none_ok=True))
+# Requires one of the strings 'a', 'b', or any string starting with 'c'
+options = dict(foo=OptionEnum('a b c*'))
 \end{python}
-The \texttt{none\_ok} flag may be combined with a default value too.
-Furthermore, the asterisk-wildcard may be used too
-\begin{python}
-  # Requires one of the strings 'a', 'b', or any string starting with 'c'
-  options = dict(foo=OptionEnum('a b c*'))
-\end{python}
+\comment{reformulate.  How is it an enum when num inputs is unknown?}
 
 
 
 \subsubsection*{Lists and Sets}
-Lists and sets are specified like this
+Lists are specified like this
 \begin{python}
-  # Requires list of intable, defaults to empty list
-  options=dict(foo=[int])
+# Requires list of intable or None, defaults to empty list
+options=dict(foo=[int])
 \end{python}
-and
+\comment{also accepts empty list}
+and sets are defined similarly
 \begin{python}
-  # Requires set of intable, defaults to empty set
-  options=dict(foo={int})
+# Requires set of intable or None, defaults to empty set
+options=dict(foo={int})
 \end{python}
-
+Note that in both cases, both \mintinline{python}/None/ and an empty
+list/set is valid input.
 
 
 \subsubsection*{More complex stuff}
 It is possible to have more complex types, such as dictionaries of
 dictionaries and so on, for example
 \begin{python}
-  # Requires dict of string to string
-  options = dict(foo={str: str})
+# Requires dict of string to string
+options = dict(foo={str: str})
 \end{python}
 or another example
 \begin{python}
-  # Requires dict of string to dict of string to int
-  options = dict(foo={str: {str: int}})
+# Requires dict of string to dict of string to int
+options = dict(foo={str: {str: int}})
 \end{python}
-Containers with a type in the values default to empty containers.
-Otherwise, the specified values are the default contents.
+As always, containers with a type in the values default to empty
+containers.  Otherwise, the specified values are the default contents.
 
 
 
 \subsubsection*{Date and Time}
 The following date and time related types are supported:
-\texttt{datetime}, \texttt{date}, \texttt{time}, and
-\texttt{timedelta}.  A typical usecase is as follows
+\begin{itemize}
+\item[] \texttt{datetime},
+\item[] \texttt{date},
+\item[] \texttt{time}, and
+\item[] \texttt{timedelta}.
+\end{itemize}
+A typical usecase is as follows
 \begin{python}
-  # a datetime object if input, or None
-  options = dict(ts=datetime)
+# a datetime object if input, or None
+from datetime import datetime
+options = dict(ts=datetime)
 \end{python}
 and with a default assignment
 \begin{python}
-  #  a datetime object if input, defaults to a datetime(2014, 1, 1) object
-  options = dict(ts=datetime(2014, 1, 1))
+#  a datetime object if input, defaults to a datetime(2014, 1, 1) object
+from datetime import datetime
+options = dict(ts=datetime(2014, 1, 1))
 \end{python}
 
 
@@ -387,31 +458,55 @@ and with a default assignment
 \subsubsection*{JobWithFile}
 Any file residing in a jobdir may be input to a method like this
 \begin{python}
-  options = dict(usefile=JobWithFile(jid, 'user.txt')
+from extras import JobWithFile
+options = dict(usefile=JobWithFile(jid, 'user.txt')
 \end{python}
 There are two additional arguments, \texttt{sliced} and
 \texttt{extras}.  The \texttt{extras} argument is used to pass any
-information that is helpful in using the specified file, and
+information that is helpful when using the specified file, and
 \texttt{sliced} tells that the file is stored in parallel slices.
 \begin{python}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
 \end{python}
 In the method, the \texttt{JobWithFile} object has these members
 \begin{python}
-  usefile.jobid
-  usefile.filename
-  usefile.sliced
-  usefile.extras
+usefile.jobid
+usefile.filename
+usefile.sliced
+usefile.extras
 \end{python}
 Where the full filename of the file is available through
 \begin{python}
 from extras import full_filename
-print full_filename(filename, '')
+print(full_filename(filename, ''))
 \end{python}
-The mandatory string (which is empty in this case, is a filename
-extension.  \textbf{Will be changed!})
+The second option to \texttt{full\_filename} is mandatory, it may be
+empty as in the example above, and should hold the filename extension.
+\comment{Will be changed?!}
+\comment{Example of how to use jobwithfile in analysis and prepare/synthesis.  how does slice work?  How does extras work?}
 
 
+
+\subsection{Accessing Another Job's \params using \jobparams}
+
+The previous sections show that the the \params data structure
+contains all input parameters and initialization data for a job.
+Sometimes it is useful to access another job's \params.  There is a
+special function for that, called \texttt{job\_params}, and it is used
+like this
+\begin{python}
+from extras import job_params
+
+jobids = ('anotherjob',)
+
+def synthesis():
+    print(jobids.anotherjob)
+    # will print something like 'jid-0_0'
+    print(job_params(jobids.anotherjob).options)
+    # will print the options of anotherjob, perhaps something like {length: 3}
+\end{python}
+
+\comment{if we ``objectify'' options, we could just do jobids.anotherjob.params}
 
 
 
@@ -483,22 +578,6 @@ but params does also contain all options, jobids, and datasets inputs.
 
 
 
-\subsection{Accessing Another Job's \params using \jobparams}
-
-The \params data structure contains all input and initialization data
-for a job.  To access another job's \params variable, just feed the
-job's jobid into the \jobparams function.
-\begin{python}
-from extras import job_params
-
-jobids = ('anotherjob',)
-
-def synthesis():
-  print jobids.anotherjob
-  # will print something like 'jid-0_0'
-  print job_params(jobids.anotherjob).options
-  # will print something like {length: 3}
-\end{python}
 
 
 

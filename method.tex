@@ -78,7 +78,7 @@ there is an \texttt{equivalent\_hashes} \texttt{dict} that can be used
 to specify which versions of the source code that are equivalent.  For
 example
 \begin{python}
-  equivalent_hashes = {'verifier': ('0c573685f713ac6500a6eda7df1a7b3f',)}
+equivalent_hashes = {'verifier': ('0c573685f713ac6500a6eda7df1a7b3f',)}
 \end{python}
 The verifier string is a hash that depends on everything in the method
 except the equivalent\_hashes block.  When the hash value of the
@@ -155,6 +155,7 @@ And here is the corresponding output.
 }
 \end{minted}
 \end{leftbar}
+\comment{remove ``link''}
 and a desciption of its keys
 \begin{snugshade}
 \begin{tabular}{ll}
@@ -487,7 +488,7 @@ empty as in the example above, and should hold the filename extension.
 
 
 
-\subsection{Accessing Another Job's \params using \jobparams}
+\section{Accessing Another Job's Parameters}
 
 The previous sections show that the the \params data structure
 contains all input parameters and initialization data for a job.
@@ -511,122 +512,138 @@ def synthesis():
 
 
 \newpage
-\section{Code Flow:  \prepare, \analysis, and \synthesis}
+\section{Execution Flow:  \prepare, \analysis, and \synthesis}
 
-There are three pre-defined functions in a method, \prepare,
-\analysis, and \synthesis, and they are always run in that order.
-\prepare and \synthesis are single threaded, while \analysis provides
-parallel execution.
+There are three pre-defined functions in a method that are called by
+the Accelerator at build time.  These are \prepare, \analysis, and
+\synthesis, and they are always run in that order.  \prepare and
+\synthesis executes as single processes, while \analysis provides
+parallel execution.  None of them is mandatory, but at least one must
+be present for the method to execute.
 
-The following combinations are valid and are of practical use
-\begin{itemize}
-\item \synthesis-only, used for a single threaded program
-\item \analysis-only, used for completely parallel tasks
-\item \prepare + \analysis, setup and run a parallel job
-\item \analysis + \synthesis, run a parallel job and combine outputs
-\item \prepare + \analysis + \synthesis, setup, run, and combine a
-  parallel task.
-\end{itemize}
-All the three functions take \options, \jobids, and \datasets as
-optional arguments.  The \analysis function takes a required argument
+All the three functions take the \params variable as optional
+argument.  The input parameters \options, \jobids, and \datasets are
+global, so they do not need to be explicit in a functionc call.  The
+\analysis function is special and takes a required argument
 \texttt{sliceno}, which is an integer between zero and the total
-number of slices minus one.  This is the unique identity indicator for
-the \analysis process.
+number of slices minus one.  This is the unique identifier for each
+\analysis process, and is described in the next section.
 
+
+\subsection{Parallel Processing:  The \analysis function, Slices, and Datasets}
+The number of analysis processes is always equal to the number of
+dataset slices that the Accelerator has in its configuration file.
+The idea is that each slice in a dataset should have exactly one
+corresponding analysis process, so that all slices in a dataset can be
+processed in parallel.
+
+
+\subsection{Return Values}
 Return values may be passed from one function to another.  What is
 returned from prepare is called \prepareres, and may be used as input
 argument to \analysis and \synthesis.  The return values from
-\analysis is available as \analysisres in \synthesis.  The return
-value from \synthesis is stored permanently in the jobdir.  A complete
-example may look like
+\analysis is available as \analysisres in \synthesis.  The
+\analysisres variable is an iterator, yielding the results from each
+slice in turn.  Finally, the return value from \synthesis is stored
+permanently in the job directory.  Here is an example of return value
+passing
 \begin{python}
+# return a set of all users in the source dataset
 options = dict(length=4)
-datasets = ('transaction_log')
+datasets = (source',)
 
 def prepare(options):
-  return options.length * 2
+    return options.length * 2
 
 def analysis(sliceno, prepare_res):
-  return set(
-    u for u in datasets.transaction_log.iterate(sliceno, 'user')
-  )
+    return set(u for u in datasets.source.iterate(sliceno, 'user'))
 
 def synthesis(analysis_res, prepare_res):
-   return analyses_res.merge_auto()
+     return analyses_res.merge_auto()
 \end{python}
+\comment{a better example actually using result passing would be nice}
+In the current implementation, all return values are stored as Python
+\texttt{pickle} files.
 
+Note that when a job completes, it is not possible to retrieve the
+results from \prepare or \analysis anymore.  Only results from
+\synthesis are kept.
 
-\subsection{The \params Variable }
-The \params variable contain all input and initialization parameters
-for a job, such as the caption
+\subsection{Mergin Results from \analysis}
+In the example above, each analysis process returns a \texttt{set}
+that is constructed from a single slice.  In order to create a set of
+all users in the \texttt{source} dataset, all these sets have to be
+merged.  Merging could be done using a \texttt{for}-loop, but merging
+is dependent of the actual type, and writing merging functions is
+error prone.  Therefore, \analysisres has a function called
+\texttt{merge\_auto()}, that is used for merging.  This function can
+merge most datatypes, and even merge container variables in a
+recursive fashion.  For example,
 \begin{python}
-def synthesis(params):
-  print params.caption
-# urd_dispatched_method1
+h = defaultdict(lambda: defaultdict(set))
 \end{python}
-The \params variable contains lots of information that is typically
-not required in a regular method.  For a method developer, the most
-important members are
+is straightforward to merge using \texttt{merge\_auto}.
+
+
+\subsection{Share Data Between Jobs:  the \texttt{blob} Module}
+
+The simplest way to share reasonable amounts of data between jobs is by using the
+\texttt{blob} module.
+
+\subsubsection*{Storing a  Single File}
+Data is saved in this way
 \begin{python}
-params.package     # which package the method source code is stored in
-params.slices      # number of slices for the workdirs in use
-params.caption     # may be specified when building a job
-params.seed        # seed to initialize a random number generator
-params.starttime   # execution start in epoch time
+import blob
+def synthesis():
+    data = ...  # some data created here
+    blob.save(data, filename)
 \end{python}
-but params does also contain all options, jobids, and datasets inputs.
-
-
-
-
-
-
-
-\newpage
-\section{More on Intermediate and Result Files}
-
-\subsection{Sharing Data Inside a Job}
-Data is easily shared between \prepare, \analysis, and \synthesis as
-follows.
-\begin{itemize}
-\item what is returned in \prepare is available as \prepareres in \analysis and \synthesis
-\item what is returned in \analysis is available as \analysisres in \synthesis.  \analysisres is an iterator.
-\item what is returned in \synthesis is a persistent file in the job catalog referenced by \texttt{result}.
-\end{itemize}
-
-\subsubsection*{The blob module}
-The simplest way to share intra job data is using the blob module.
+The data is loaded like this
 \begin{python}
 import blob
 def synthesis()
-  blob.load('filename')
+    blob.load(filename)
 \end{python}
-saving data is as follows
+
+\subsubsection*{Storing a Sliced File}
+It is also possible to use the \texttt{blob} module in \analysis.
+From a user's perspective it will look like a single file is being
+handled, but there is actually one file per slice.  This is how to do
+it
 \begin{python}
-  blob.save(data, filename, sliceno=None, temp=None)
+def analysis(sliceno):
+    # save data in slices like this
+    blob.save(data, filename, sliceno=sliceno)
+    # load like this
+    data = blob.load(filename, sliceno=sliceno)
 \end{python}
-\sliceno and \texttt{temp} are optional.  If \sliceno is set, data is
-stored in a sliced file.  This is typically used in \analysis, where
-each thread will save its own file.  The argument \texttt{temp} is
-used for file persistence.  By default, files are stored permanently
-when a job terminates successfully.  Setting \texttt{temp} to
-\texttt{True} removes them upon completion of the job.  Temporary
-files are useful when communicating data between the functions in the
-method (and not using the res-files) or in debugging.
 
-
-\subsection{debug help}
-There is also a more advanced debug functionality relating to temp.
+\subsubsection*{Save Files for Debugging}
+There is one more argument, \texttt{temp}, which controls persistence
+of the files.  It is by default set to \mintinline{python}/False/,
+which implies that the stored file is not temporary.  But setting it
+to \mintinline{python}/True/, like in the following
+\begin{python}
+    blob.save(data, filename, temp=True)
+\end{python}
+will cause the stored file to be deleted upon job completion.  The
+argument takes two additional values, \texttt{DEBUG} and
+\texttt{DEBUGTEMP}, working like this
+\begin{itemize}
+\item[] \texttt{DEBUG} -- file will be stored \emph{only} in debug
+  mode
+\item[] \texttt{DEBUGTEMP} -- file will always be stored, but
+  \emph{removed} upon job completion only in debug mode.
+\end{itemize}
+Example
 \begin{python}
 from extras import Temp
 def analysis(sliceno):
-  ...
+  # save only if --debug
   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
-  # or
+  # save always, but remove unless --debug
   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
 \end{python}
-where the first only stores when \texttt{--debug} is specified, and
-the other always stores but removes unless \texttt{--debug} is set.
 
 
 \newpage

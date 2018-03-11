@@ -32,6 +32,10 @@
 \usepackage{xspace}
 %\usepackage{pgffor}
 
+\usepackage{fancybox}
+\usepackage{framed}
+\definecolor{shadecolor}{rgb}{0.9,0.9,0.9}
+
 \usepackage{draftwatermark}
 \SetWatermarkText{DRAFT}
 \SetWatermarkScale{4}
@@ -66,12 +70,13 @@
 \usepackage{xspace}
 %%%  A pretty minted-environment for Python  %%%
 % minted
-\usepackage{minted}
+\usepackage{minted, xcolor}
 \usemintedstyle{lovelace}
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
 %\newminted[python]{python}{bgcolor=bg, frame=lines}
-\newminted[python]{python}{frame=lines}
+%\newminted[python]{python}{frame=lines}
+\newminted[python]{python}{bgcolor=bg}
 
 \newminted[pythonBEG]{python}{frame=topline}
 \newminted[pythonMID]{python}{}

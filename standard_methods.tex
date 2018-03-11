@@ -85,6 +85,7 @@ customise importing to specific cases.
 
 
 \subsection{Datasets}
+
 \begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
   \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
   \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a
@@ -129,16 +130,26 @@ is typed.  This is useful for typing datasets created by
 
   \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
 
-  \texttt{column2type} & \mintinline{python}{\{\}} & A dictionary from column
+  \texttt{column2type} & \mintinline{python}/{}/ & A dictionary from column
   label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\[1ex]
 
-  \texttt{defaults} & & \\[1ex]
-  \texttt{rename} & & \\[1ex]
-  \texttt{caption} & & \\[1ex]
-  \texttt{discard\_untyped} & \mintinline{python}{None}& \\[1ex]
-  \texttt{filter\_bad} & & \\[1ex]
-  \texttt{numeric\_comma} & & \\[1ex]
 
+  \texttt{defaults} & \mintinline{python}/{}/& A \texttt{dict} from
+  column name to default value, for example
+  \mintinline{python}/{'COLNAME': value}/.  Method will fail if data
+  is unconvertible unless \mintinline{python}/filter_bad = True/.\\[1ex]
+
+  \texttt{rename} & & --- \\[1ex]
+
+  \texttt{caption} & \textsl{empty string} & A caption.\\[1ex]
+
+  \texttt{discard\_untyped} & \mintinline{python}{None}& --- \\[1ex]
+
+  \texttt{filter\_bad} & & --- \\[1ex]
+
+  \texttt{numeric\_comma} & \mintinline{python}{False}& If
+  \mintinline{python}{True}, write decimal number as ``\texttt{3,14}'' instead of
+  default ``\texttt{3.14}''.\\[1ex]
 \end{tabular}
 
 %% \texttt{defaults}                  & \\%{}, # {'COLNAME': value}, unspecified -> method fails on unconvertible unless filter\_bad
@@ -172,26 +183,26 @@ urd.build('dataset_type', ...,
 This section describes all typing options in detail.
 
 \subsubsection{Numbers}
-The \emph{number} type is int or float.\\
-
-\begin{tabular}{p{2cm}p{2cm}l}
-  \texttt{number}     && \texttt{int} or \texttt{float}\\
+The \emph{number} type is int or float.
+\begin{leftbar}
+\begin{tabular}{p{2cm}p{2cm}p{9cm}}
+  \texttt{number}     && \texttt{int} or \texttt{float} \\
   \texttt{number:int} && \texttt{int}, converts floats to int.\\
 \end{tabular}
+\end{leftbar}
 
 
-
-\subsubsection{Float Point Numbers}
+\subsubsection{Floating Point Numbers}
 Floating point numbers may be stored as 32 or 64 bits.  In addition,
 there are six parsing options that are useful in different scenarios.
 The \emph{ignore} option ignores any trailing characters after the
 number.  Then there are \emph{exact} that causes error if the number
 does not fit, and \emph{saturate} that silently saturates a
 non-fitting number.  These can also be used in combination, see table
-below for all alternatives\\
+below for all alternatives
 
-
-\begin{tabular}{p{2cm}p{2cm}l}
+\begin{leftbar}
+\begin{tabular}{p{2cm}p{2cm}p{9cm}}
 \texttt{float32} & \texttt{float64} & \emph{default}\\
 \texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
 \texttt{float32e} & \texttt{float64e} & \emph{exact}, error if parsed number does not fit in type \\
@@ -199,14 +210,16 @@ below for all alternatives\\
 \texttt{float32ei} & \texttt{float64ei} & \emph{exact} + \emph{ignore} \\
 \texttt{float32si} & \texttt{float64si} & \emph{saturate} + \emph{ignore} \\
 \end{tabular}
+\end{leftbar}
 
 \subsubsection{Integers}
 Integers are stored as either 32 or 64 bits.  Parsing takes base into
 account, so in addition to decimal numbers, it is also straightforward
 to parse octal and hexadecimal numbers.  The \emph{ignore} option
-causes parsing to ignore trailing garbage characters.\\
+causes parsing to ignore trailing garbage characters.
 
-\begin{tabular}{p{2cm}p{2cm}l}
+\begin{leftbar}
+\begin{tabular}{p{2cm}p{2cm}p{9cm}}
   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
   \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
   \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
@@ -216,8 +229,7 @@ causes parsing to ignore trailing garbage characters.\\
   \texttt{int32\_16}  & \texttt{int64\_16}  & \emph{hexadecimal} \\
   \texttt{int32\_16i} & \texttt{int64\_16i} & \emph{hexadecimal}, ignore trailing garbage \\
 \end{tabular}
-
-
+\end{leftbar}
 
 \subsubsection{Integers Stored as Floats}
 
@@ -227,13 +239,14 @@ data is stored with decimals, such as \texttt{5.0}.  In pseudocode,
 the parsing basically runs \texttt{int(float(value))} for each such
 value.\\
 
-\begin{tabular}{p{2cm}p{2cm}l}
+\begin{shaded}
+\begin{tabular}{p{2cm}p{2cm}p{9cm}}
   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
   \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
 \end{tabular}
-
+\end{shaded}
 
 
 \subsubsection{Convert to Boolean}
@@ -268,6 +281,7 @@ All time types require a format specification as described below\\
   \texttt{datetimei:*} && same + \emph{ignore}\\
 \end{tabular}\\[1ex]
 The format is standard Python time formats, like shown in these examples
+
 \begin{python}
    # will match for example '2017-03-22'
    auct_start_dt='date:%Y-%m-%d'  
@@ -394,8 +408,10 @@ dataset.  The new dataset will be hashed on a column specified in the
 options.
 
 \subsection*{Options}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\begin{snugshade}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
+\\
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
 
   \texttt{hashlabel} & \textsl{mandatory} & column for hashing,
   required.  Note that columns typed as \texttt{list}, \texttt{set},
@@ -410,17 +426,19 @@ options.
   reasonable caption is created automatically if left blank\\[1ex]
   \texttt{as\_chain} & & True generates one dataset per slice, False
   generates one dataset.  Default \texttt{False}.\\[1ex]
-  \hline
-\end{tabular}
+\\\end{tabular}
+\end{snugshade}
+
 
 
 \subsection*{Datasets}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\begin{snugshade}
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
+  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
   \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\[1ex]
   \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\[1ex]
-  \hline
 \end{tabular}
+\end{snugshade}
 
 
 
@@ -528,9 +546,10 @@ datasets.  One or more columns may be selected for sorting, and it
 will sort one column at a time.
 
 \subsection*{Options}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+\fbox{
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
   \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-
+  \hline\\[1ex]
   \texttt{sort\_columns'} & \textsl{mandatory} & A column or a list of
   columns.  If a list is specified, sorting will be carried out left
   to right.\\[1ex]
@@ -541,19 +560,21 @@ will sort one column at a time.
   \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
   \mintinline{python}/False/, only sort within slices.  Otherwise sort
   across slices.\\[1ex]
-  \hline
 \end{tabular}
-
+}
 
 
 
 \subsection*{Datasets}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+\fbox{
+\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
   \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \hline\\[1ex]
   \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
   \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
-  \hline
+
 \end{tabular}
+}
 
 \subsection{A Practical Limitation}
 Internally, the method works by reading the columns to sort by, and

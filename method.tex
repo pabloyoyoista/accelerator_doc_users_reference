@@ -234,6 +234,8 @@ jobids = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
+The input parameters are then populated by the builder~\ref{xx>}.
+
 The \texttt{jobids} parameter list is used to input links, or jobids,
 to other jobs, while the \datasets parameter list is used to input
 links to datasets. The \options dictionary is used to input any other
@@ -279,23 +281,22 @@ avoid run time errors.
 
 The \options parameter is of type \texttt{dict} and used to pass
 various information from the builder to a job.  This information could
-be integers, strings, enumerations, sets, lists, and dicts in a
-recursive fashion.  Options may have a default value.
+be integers, strings, enumerations, sets, lists, and dictionaries in a
+recursive fashion, with or without default values.
 
-Options are defined in a method like this
+Options are straightforward to use, but actually quite advanced, and
+the following sections introduce how to use them both from a formal
+perspective, and from a set of examples.  On the highest level,
+options are specified like this
 \begin{python}
   options = dict(key=value, ... )  # or
   options = {key: value, ...}
 \end{python}
 
-Options are quite advanced, and the following sections introduce how
-to use them both from a formal perspective, and from a set of
-examples.
 
 \subsubsection{Formal Option Rules}
-The \options parameter is vey flexible.  These are the formal rules
-for specifuing options.
-\begin{itemize}
+Here are the formal rules for the \options parameter.
+\begin{enumerate}
 
 \item Typing may be specified using the class name (i.e.\ \texttt{int}), or as
   a value that will construct into such a class object (i.e.\ the
@@ -308,11 +309,13 @@ options = dict(
     d = '',    #          str
 )
   \end{python}
-  but read on to learn about default values and more.
+  Values will be default values, and this is descibed thoroughly in
+  the other rules.
 
- \item An input option value is required to be of the correct type.  This is,
-  if a type is specified for an option, this must be respected by the
-  builder.
+ \item An input option value is required to be of the correct type.
+   This is, if a type is specified for an option, this must be
+   respected by the builder.  Regardless of type,
+   \mintinline{python}/None/ is always accepted.
 
 \item An input may be left unassigned, unless
   \begin{itemize}
@@ -325,26 +328,33 @@ options = dict(
 \item If typing is specified as a value, this is the default value if
   left unspecified.
 
-\item If typing is specified as a class name, default is None.
+\item If typing is specified as a class name, default is
+  \mintinline{python}/None/.
 
 \item Values are accepted if they are valid input to the type's
   constructor, i.e.\ 3 and '3' are valid input for an integer.
 
-\item None is always a valid input unless
+\item \mintinline{python}/None/ is always a valid input unless
   \begin{itemize}
   \item RequiredOptions() and not none\_ok set
   \item OptionEnum() and not none\_ok set
   \end{itemize}
   This means that for example something typed to \texttt{int} can be
   overridden by the builder by assigning it to
-  \mintinline{python}/None/.
+  \mintinline{python}/None/.  Also, \mintinline{python}/None/ is also
+  accepted in typed containers, so a type defined as
+  \mintinline{python}/[int]/ will accept the input
+  \mintinline{python}/[1, 2, None]/.
 
-\item All containers can be specified as empty \comment{(?)}
+\item All containers can be specified as empty, for example
+  \mintinline{python}/{}/.  \comment{?}
 
 \item Complex types (like \texttt{dict}s, \texttt{dict}s of
   \texttt{list}s of \texttt{dict}s, \dots) never enforce specific
-  keys, only types.  For example, \mintinline{python}/{'a': 'b'}/ is a
-  valid value for \mintinline{python}/{'foo': 'bar'}/. \comment{(?)}
+  keys, only types.  For example, \mintinline{python}/{'a': 'b'}/
+  defines a dictionary from strings to strings, and for example
+  \mintinline{python}/{'foo': 'bar'}/ is a valid
+  assignment.
 
 \item Containers with a type in the values default to empty containers.
   Otherwise the specified values are the default contents.  Example
@@ -354,16 +364,9 @@ options = dict(
     y = {'foo': 'bar'}  # wil be {'foo': 'bar'} as default
 )
   \end{python}
-\end{itemize}
-%%%
-%%%
+\end{enumerate}
 
-Typing and default values are presented in the following sections.
-Default values are assigned if there is no input.  Note that
-definition of type is that the constructor must accept the value
-provided, for example the string \texttt{'3'} is a valid input for the
-\texttt{int} constructor.
-
+The following sections will describe typing in more detail.
 
 \subsubsection{Unspecifieds}
 An option with no typing may be specified by assigning \texttt{None}.

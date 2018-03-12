@@ -104,13 +104,18 @@ limitations that apply to methods:
 \end{enumerate}
 
 
-\section{Method Source Code Hashing}
+\section{Method Already Built Check}
 
-Prior to executing a method, the Accelerator is applying a hash
-function to the method source code to determine if an eqivalent job
-already exists.  This hash is combined with the input arguments and
-compared to all jobs already built.  Only if the hash and input
-parameter combination is unique will the method be executed.
+Prior to building a method, the Accelerator checks if an equivalent
+job has been build in the past.  If it has, it will not be executed
+again.  This check is based on two things:
+\begin{enumerate}
+\item  the output of a hash function applied to the method source code, and
+\item  the method's input parameters.
+\end{enumerate}
+The hash value is combined with the input arguments and compared to
+all jobs already built.  Only if the hash and input parameter
+combination is unique will the method be executed.
 
 A method may import code located in other files, and these other files
 can be included in the hash calculation as well.  This will ensure
@@ -118,11 +123,13 @@ that a change to an imported file will indeed force a re-execution of
 the method if a build is requested.  Additional files are specified in
 the method using the \texttt{depend\_extra} list, as for example:
 \begin{python}
-import generic_params
-depend_extra = (generic_params, 'mystuff.data',)
+import my_python_module
+depend_extra = (my_python_module, 'mystuff.data',)
 \end{python}
 It is possibe to specify either Python module objects or a filename
 relative to the method's location.
+
+\section{Avoiding Rebuild}
 
 A different scenario is when the method source code needs to be
 modified, but the modification does not alter its behavior, so
@@ -135,10 +142,10 @@ example
 equivalent_hashes = {'verifier': ('0c573685f713ac6500a6eda7df1a7b3f',)}
 \end{python}
 The verifier string is a hash that depends on everything in the method
-except the equivalent\_hashes block.  When the hash value of the
-method does not correspond to the verifier (as will happen after
-editing the method) the Accelerator will informed what the correct
-verifier would be, so it can be added to the list of verifiers if
+except the \texttt{equivalent\_hashes} block.  When the hash value of
+the method does not correspond to the verifier (as will happen after
+editing the method) the Accelerator will tell what the correct
+verifier would be, so that it can be added to the list of verifiers if
 appropriate.  The verifier list can contain any number of old hashes.
 
 \comment{KOLLA DETTA}
@@ -171,36 +178,20 @@ And here is the corresponding output.
 \begin{leftbar}
 \begin{minted}{json}
 {
-    "link": {},
     "package": "dev",
-    "method": "test2",
+    "method": "my_example_method",
     "jobid": "EXAMPLE-12",
     "starttime": 1520652213.4547446,
-    "params": {
-        "test2": {
-            "options": {
-                "x": "testing",
-                "length": 3
-            },
-            "datasets": {
-                "source": "EXAMPLE-0",
-                "parent": null
-            },
-            "jobids": {
-                "jid": "EXAMPLE-0"
-            }
-        }
-    },
     "slices": 16,
     "options": {
-        "x": "testing",
+        "mode": "testing",
         "length": 3
     },
     "datasets": {
-        "source": "EXAMPLE-0",
-        "parent": null
+        "source": "EXAMPLE-3",
+        "parent": "EXAMPLE-2"
     },
-    "caption": "fsm_test2",
+    "caption": "fsm_my_example_method",
     "seed": 53231916470152325,
     "jobids": {
         "jid": "EXAMPLE-0"
@@ -249,16 +240,16 @@ links to datasets. The \options dictionary is used to input any other
 type of parameters to be used by the method at run time.  Note that
 \jobids and \datasets are tuples (and a single entry has to be
 followed by a comma as in the example abov), while \options is a
-dictionary.  Each of these parameters will be described in more detail
-in following sections.
-
-Individual elements of the input parameters may be accessed with dot
-notation like this
+dictionary.  Individual elements of the input parameters may be
+accessed with dot notation like this
 \begin{python}
 jobids.accumulated_cost
 datasets.transaction_log
 options.length
 \end{python}
+Each of these parameters will be described in more detail in following
+sections.
+
 
 
 
@@ -447,12 +438,13 @@ options = dict(foo=OptionEnum('a b c').b
 \end{python}
 (The \texttt{none\_ok} flag may be combined with a default value.)
 Furthermore, the asterisk-wildcard could be used to accept a wide
-range of inputs
+range of strings
 \begin{python}
 # Requires one of the strings 'a', 'b', or any string starting with 'c'
 options = dict(foo=OptionEnum('a b c*'))
 \end{python}
-\comment{reformulate.  How is it an enum when num inputs is unknown?}
+The example above allows the strings ``\texttt{a}'', ``\texttt{b}'',
+and all strings starting with the character ``\texttt{c}''.
 
 
 
@@ -462,31 +454,15 @@ Lists are specified like this
 # Requires list of intable or None, defaults to empty list
 options=dict(foo=[int])
 \end{python}
-\comment{also accepts empty list}
-and sets are defined similarly
+Empty lists are accepted, as well as \mintinline{python}/None/.  In
+addition, \mintinline{python}/None/ is also valid inside the list.
+Sets are defined similarly
 \begin{python}
 # Requires set of intable or None, defaults to empty set
 options=dict(foo={int})
 \end{python}
-Note that in both cases, both \mintinline{python}/None/ and an empty
-list/set is valid input.
-
-
-\subsubsection*{More complex stuff}
-It is possible to have more complex types, such as dictionaries of
-dictionaries and so on, for example
-\begin{python}
-# Requires dict of string to string
-options = dict(foo={str: str})
-\end{python}
-or another example
-\begin{python}
-# Requires dict of string to dict of string to int
-options = dict(foo={str: {str: int}})
-\end{python}
-As always, containers with a type in the values default to empty
-containers.  Otherwise, the specified values are the default contents.
-
+Here too, both \mintinline{python}/None/ or the empty \texttt{set} is
+accepted, and \mintinline{python}/None/ is a valid set member.
 
 
 \subsubsection*{Date and Time}
@@ -512,7 +488,24 @@ options = dict(ts=datetime(2014, 1, 1))
 
 
 
-\subsubsection*{JobWithFile}
+\subsubsection*{More Complex Stuff:  Containing Types}
+It is possible to have more complex types, such as dictionaries of
+dictionaries and so on, for example
+\begin{python}
+# Requires dict of string to string
+options = dict(foo={str: str})
+\end{python}
+or another example
+\begin{python}
+# Requires dict of string to dict of string to int
+options = dict(foo={str: {str: int}})
+\end{python}
+As always, containers with a type in the values default to empty
+containers.  Otherwise, the specified values are the default contents.
+
+
+
+\subsubsection*{A File From Another Job:  \texttt{JobWithFile}}
 Any file residing in a jobdir may be input to a method like this
 \begin{python}
 from extras import JobWithFile
@@ -520,12 +513,13 @@ options = dict(usefile=JobWithFile(jid, 'user.txt')
 \end{python}
 There are two additional arguments, \texttt{sliced} and
 \texttt{extras}.  The \texttt{extras} argument is used to pass any
-information that is helpful when using the specified file, and
+kind of information that is helpful when using the specified file, and
 \texttt{sliced} tells that the file is stored in parallel slices.
 \begin{python}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
 \end{python}
-In the method, the \texttt{JobWithFile} object has these members
+(Creating sliced files is described in section~\ref{xx}.)  In a
+running method, the \texttt{JobWithFile} object has these members
 \begin{python}
 usefile.jobid
 usefile.filename

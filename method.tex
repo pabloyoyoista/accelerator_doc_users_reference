@@ -17,6 +17,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
 Methods are source files that can be executed by the Accelerator.
 They may be built by a build script or by another method as a subjob.
 When methods are build, i.e.\ assigned input arguments and executed,
@@ -60,7 +61,7 @@ For a method directory to be visible by the Accelerator, two things are needed
 
 \subsection*{Creating a New Method Directory}
 Make sure the current directory is either one step above the
-Accelerator directory (prefered), or is the Accelerator directory.
+Accelerator directory (preferred), or is the Accelerator directory.
 \begin{enumerate}
 \item Create and populate the directory, here called \texttt{<dirname>}:
   \begin{shell}
@@ -126,7 +127,7 @@ the method using the \texttt{depend\_extra} list, as for example:
 import my_python_module
 depend_extra = (my_python_module, 'mystuff.data',)
 \end{python}
-It is possibe to specify either Python module objects or a filename
+It is possible to specify either Python module objects or a filename
 relative to the method's location.
 
 \section{Avoiding Rebuild}
@@ -201,7 +202,7 @@ And here is the corresponding output.
 \end{minted}
 \end{leftbar}
 \comment{remove ``link''}
-and a desciption of its keys
+and a description of its keys
 \begin{snugshade}
 \begin{tabular}{ll}
   \textsl{key} & \textsl{description}\\[2ex]\hline\\[1ex]
@@ -241,7 +242,7 @@ to other jobs, while the \datasets parameter list is used to input
 links to datasets. The \options dictionary is used to input any other
 type of parameters to be used by the method at run time.  Note that
 \jobids and \datasets are tuples (and a single entry has to be
-followed by a comma as in the example abov), while \options is a
+followed by a comma as in the example above), while \options is a
 dictionary.  Individual elements of the input parameters may be
 accessed with dot notation like this
 \begin{python}
@@ -265,10 +266,10 @@ be used as a reference to the corresponding job.
 
 
 \subsection*{Input Datasets}
-The \datasets argument is the way to communicate datasets from
-automata to job.  In the running method, the \datasets variable is a
-tuple of objects from the dataset class.  The dataset class is
-described in a dedicated chapter~\ref{xx}.
+The \datasets parameter is a tuple of links to Datasets.  In the
+running method, each item in the \datasets variable is a tuple of
+objects from the dataset class.  The dataset class is described in a
+dedicated chapter~\ref{xx}.
 
 All items in the \datasets tuple must be assigned by the builder to
 avoid run time errors.
@@ -309,7 +310,7 @@ options = dict(
     d = '',    #          str
 )
   \end{python}
-  Values will be default values, and this is descibed thoroughly in
+  Values will be default values, and this is described thoroughly in
   the other rules.
 
  \item An input option value is required to be of the correct type.
@@ -361,7 +362,7 @@ options = dict(
   \begin{python}
 options = dict(
     x = dict,           # will be empty dict as default
-    y = {'foo': 'bar'}  # wil be {'foo': 'bar'} as default
+    y = {'foo': 'bar'}  # will be {'foo': 'bar'} as default
 )
   \end{python}
 \end{enumerate}
@@ -414,8 +415,8 @@ options = dict(name=OptionString('bar') # Requires non-empty string,
                                         # provides example (NOT default value)
 
 \end{python}
-Note that ``textt{bar}'' is not default, it just gives the programmer
-a way to express what is expected.
+Note that ``\texttt{bar}'' is not default, it just gives the
+programmer a way to express what is expected.
 
 
 
@@ -476,7 +477,7 @@ The following date and time related types are supported:
 \item[] \texttt{time}, and
 \item[] \texttt{timedelta}.
 \end{itemize}
-A typical usecase is as follows
+A typical use case is as follows
 \begin{python}
 # a datetime object if input, or None
 from datetime import datetime
@@ -576,7 +577,7 @@ be present for the method to execute.
 
 All the three functions take the \params variable as optional
 argument.  The input parameters \options, \jobids, and \datasets are
-global, so they do not need to be explicit in a functionc call.  The
+global, so they do not need to be explicit in a function call.  The
 \analysis function is special and takes a required argument
 \texttt{sliceno}, which is an integer between zero and the total
 number of slices minus one.  This is the unique identifier for each
@@ -622,7 +623,7 @@ Note that when a job completes, it is not possible to retrieve the
 results from \prepare or \analysis anymore.  Only results from
 \synthesis are kept.
 
-\subsection{Mergin Results from \analysis}
+\subsection{Merging Results from \analysis}
 In the example above, each analysis process returns a \texttt{set}
 that is constructed from a single slice.  In order to create a set of
 all users in the \texttt{source} dataset, all these sets have to be
@@ -630,7 +631,7 @@ merged.  Merging could be done using a \texttt{for}-loop, but merging
 is dependent of the actual type, and writing merging functions is
 error prone.  Therefore, \analysisres has a function called
 \texttt{merge\_auto()}, that is used for merging.  This function can
-merge most datatypes, and even merge container variables in a
+merge most data types, and even merge container variables in a
 recursive fashion.  For example,
 \begin{python}
 h = defaultdict(lambda: defaultdict(set))

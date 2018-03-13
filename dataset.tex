@@ -16,56 +16,91 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Introduction}
+The Dataset class provides fast and simple access to data.  It is the
+prefered way to store data using the Accelerator.  Datasets are
+created by methods, and are therefore located inside job directories.
+There can be any number of Datasets in a job.
 
-The dataset is the prefered way to store large amounts of data.  The
-dataset is the container for fast and simple access to data.  Data in
-a dataset are stored as a matrix in rows and columns.  Using the
-dataset, data is simple to access at very high speed.
-
-Datasets are created by methods, and any job may contain zero, one, or
-more datasets.  The most obvious use of a dataset is the cvsimport
-method that creates a dataset from an input file, but much more
-advanced useage is possible since a job may contain more than one
-dataset.  This allows for efficient storage and access of data in some
-common practical situations.  For example, a filtering job may split
-the input dataset in two or more output datasets that can be accessed
+The most obvious way to generate a dataset is using the
+\texttt{cvsimport} method that creates a dataset from an input file.
+But much more advanced use is possible since a job may contain more
+than one Dataset.  Being able to create several Datasets at once
+allows for efficient storage and access of data in some common
+practical situations.  For example, a filtering job may split the
+input Dataset into two or more output Datasets that can be accessed
 independently.
 
 For performance reasons, datasets are typically split into several
 slices, where each data row exists in exactly one of the slices.  The
-actual slicing may be carried out in any fashion, like round robin, or
-even random, but an interesting approach is to slice according to the
-hash value of a certain column.  Slicing according to a hashed column
-ensures that all rows with a certain hash column value ends up in the
-same slice.
+actual slicing may be carried out in different ways, like round robin,
+or even random, but an interesting approach is to slice according to
+the hash value of a certain column.  Slicing according to a hashed
+column ensures that all rows with a certain column value always ends
+up in the same slice.
 
-This chapter covers ...
+\comment{This chapter covers ...
 chaining, where datasets grows in number of lines, and column
-appending, where datasets grow in number of columns.
+appending, where datasets grow in number of columns.}
+
+
+\section{Chaining}
+When a dataset is created, it is optional to input a link to another
+dataset using the parameter \texttt{previous}.  This is called
+\emph{chaining}.  Chaining provides a lightweight way to append rows
+to datasets, simply by linking datasets together.  A typical use case
+is the import of log files.  A new dataset is created from each new
+log file, and each dataset chains to the previous.  Reading the full
+chain will access all log rows.  This has effect on the dataset
+\emph{iterators} (see section~\ref{xx}), which may continue iterating
+over the next dataset in the chain when the current dataset is
+exhausted.
+
+
+\section{Slicing and Hashing}
+Datasets are by default sliced into a number of slices specified by
+the Accelerator's configuration file~\ref{}.  Slicing means that the
+rows of data in the dataset are distributed into different sets,
+called slices.  Typically, there is one file on disk for each slice
+and column.  The main reason for doing this is performance.  All files
+could be read in parallel.  A technical detail is that if the files
+become too small, all slices will be grouped into a single file which
+is read by seek offset for each slice.  This will greatly improve
+performance on systems with significant disk seek time.
+
+Datasets can be sliced in a number of different ways.  A simple method
+is to use round-robin, which cycles through the slices when writing.
+Round-robin will balance the number of rows per slice as equal as
+possible, which is a good thing in many scenarios.
+
+Another way is to slice by looking at the values of a fixed single
+column and put all rows with equal values in the same column.  This
+way, data will be sliced ``by content'', and the number of rows per
+slice may vary significantly.  In the context of the Accelerator, this
+is called \emph{hashing}, and a dataset can be hashed on any single
+column.  The advantage of this method is that data in each slice
+becomes independent in many application, which is ideal for parallel
+processing of the dataset.
 
 
 
-\section{Dataset access}
-
-A method's dataset inputs are specified in the \texttt{datasets}
-tuple.  In a running job, the datasets in the input tuple are objects
-of the \texttt{Dataset} class.  For example
-
+\section{Dataset as Input Parameter}
+Datasets may be input to a method using the \texttt{datasets} input
+parameter list.  In a running job, the items in this list are object
+of the \texttt{Dataset} class.  This class has a number of member
+functions, for example
 \begin{python}
-datasets = ('tlog',)
+datasets = ('source',)
 
 def synthesis():
-  print(datasets.tlog.filename)
+  print(datasets.source.shape)
 \end{python}
-In this example, the \texttt{tlog} input dataset is an object of class
-\texttt{Dataset} when the method is running, so printing its filename
-is straightforward.  Most common dataset operations are available as
-member functions to the \texttt{Dataset} class, so this automatic
-instantiation is very convenient.
+will print the number of rows and columns of the \texttt{source}
+Dataset.
 
-A dataset object can also be instantiated from a jobid, like this
 
+\section{Datasets from Jobids}
+Although a not so common operation, a Dataset object can be
+instantiated from a jobid, like this
 \begin{python}
 from dataset import Dataset
 ...
@@ -74,63 +109,62 @@ d = Dataset('foo-0')
 In this case, \texttt{d} will be an object based on the default
 dataset residing at jobid \texttt{foo-0}.  If the dataset is stored by
 a different name, it may be accessed like this
-
 \begin{python}
 d = Dataset('foo-0/bar')
 # or
 d = Dataset(('foo-0', 'bar'))
 \end{python}
-where the latter approach is a bit more flexible in that it uses
-parameters for both jobid and name.
 
 
 
 
-\newpage
+
+
+
+\clearpage
 \section{Dataset Properties}
+The Dataset class has a number of member functions and attributes that
+is intended to make it simple to work with.  These functions will be
+described in the next sections.
 
-The dataset class has a number of member functions and attributes that
-is intended to make it simple to work with datasets.
 
-
-
-\subsubsection{Column Names}
-
-All columns in a dataset may be aquired using the \texttt{columns} property, like this
-
+\subsection*{Column Names}
+All columns in a dataset may be aquired using the \texttt{columns}
+property, like this
 \begin{python}
 datasets = ('source',)
 
 def synthesis():
   print(datasets.source.columns.keys())
+  # may print something like
   # ['GTIN', 'date', 'locale', 'subsource']
 \end{python}
+The \texttt{columns} attribute is actually a dictionary from column
+name to properties, as will be shown in the next section.
 
 
-
-\subsubsection{Column Properties}
-
-For each column, the name, type, and if applicable, the min and max
-values are accessible like this
-
+\subsection*{Column Properties}
+For each column, the name, type, and if applicable, the minimum and
+maximum values are accessible like this
 \begin{python}
-# each key, i.e. column, has a number of properties, of which the
-# most important ones are shown below
 print(datasets.source.columns['locale'].type)
-# ascii
+# number
+
 print(datasets.source.columns['locale'].name)
 # locale
+
 print(datasets.source.columns['locale'].min)
 # 3
+
 print(datasets.source.columns['locale'].max)
-# 9
+# 107
 \end{python}
 
-\subsubsection{Rows per Slice}
+
+\subsection*{Rows per Slice}
 
 It may be interesting to see how many rows there are per slice in a
 dataset.  This information is available as a list, for example
-
 \begin{python}
 print(datasets.source.lines)
 # [5771, 6939, 6212, 6312, 6702, 6341, 5988, 6195,
@@ -139,30 +173,24 @@ print(datasets.source.lines)
 #  6418, 6437, 6360, 6106, 6878]
 \end{python}
 The first item in the list is the number of rows in slice 0, and so
-fourth.  From an efficiency perspective, the variance of the numbers
-in this list should be low, so that all slices will contain about the
-same amount of data.
+fourth.  The total number of rows in the Dataset is the sum of these
+numbers.
 
-\subsubsection{Dataset Shape (I.e.\ Number of Columns and Total Number
-  of Lines)}
 
-The shape if the dataset, i.e.\ the number of columns times the total
-number of rows, is available from the shape attribute
-
+\subsection*{Dataset Shape}
+The shape of the dataset, i.e.\ the number of rows and columns, is
+available from the shape attribute
 \begin{python}
 print(datasets.source.shape)
 # (4, 184984)
 \end{python}
-the second number is exactly the sum of the number of lines for each
+The second number is exactly the sum of the number of lines for each
 slice from above.
 
 
-
-\subsubsection{Hashlabel}
-
-If the dataset is hashed on a particular column, this column is stored
-in the hashlabel attribute
-
+\subsection*{Hashlabel}
+If the dataset is hashed on a particular column, the name of this
+column is stored in the hashlabel attribute
 \begin{python}
 print(datasets.source.hashlabel)
 # GTIN
@@ -170,243 +198,260 @@ print(datasets.source.hashlabel)
 
 
 
-\subsubsection{Filename and Caption}
-
+\subsection*{Filename and Caption}
 The dataset may have a filename associated to it.  This makes sense in
-situations for example where the dataset is created from an input
-datafile using \texttt{csvimport} or similar.  The filename is
-accessable like this
-
+situations for example where the dataset is created from an input data
+file using \texttt{csvimport} or similar.  The filename is accessable
+using the \texttt{filename} attribute:
 \begin{python}
 print(datasets.source.filename)
 # /data/incoming/raw_repository_5391.gz
 \end{python}
-It is possible to set a caption when creating a dataset.  The caption
-is entirely user-defined and has no function in the Accelerator.  The
-caption is accessible like this
-
+Furthermore, it is possible to set a caption at dataset creation time.
+The caption is entirely user-defined and has no function in the
+Accelerator.  The caption is accessible like this
 \begin{python}
 print(datasets.source.caption)
-# flattening
+# rehash_of_raw_data
 \end{python}
 
 
 
-\subsubsection{Chains}
-
-When a dataset is created, it is optional to input a link to another
-dataset using the parameter \texttt{previous}.  This has effect on the
-dataset iterators, which may continue to iterate over dataset
-boundaries when one dataset is exhausted and continue to the next.
-This will be described in another section in more detail.  The
-previous dataset is available as an attribute
-
+\subsection*{Chains}
+The previous dataset in a dataset chain is found in the
+\texttt{previous} attribute:
 \begin{python}
 print(datasets.source.previous)
-# neu4-4893/default
+# import-4893/default
 \end{python}
 
 
 
 \newpage
 \section{Column Typing}
-The dataset columns are typed.  All types are shown in table~\ref{tab:types}.
-Some of the types are explained in more detail in the following.
+The dataset columns are typed.  All types are shown in
+table~\ref{tab:types}.  More details follow in the next sections.
 
-\begin{table}[h!]
- \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
-  \hline
-   \textbf{typename}   & \textbf{explanation} \\[1ex]
+\begin{snugshade}
+%\begin{table}[h!]
+ \begin{tabular}{p{3cm} p{8cm}}
+\\
+   \textbf{typename}   & \textbf{explanation} \\[2ex]\hline\\
    \texttt{number}     &  float or int\\
    \texttt{number:int} &  int\\[1ex]
+   
    \texttt{float64}   &  64 bit (double) float\\
    \texttt{float32}   &  32 bit float\\
    \texttt{int64}     &  64 bit signed integer\\
    \texttt{int32}     &  32 bit integer\\[1ex]
+   
    \texttt{bool}      &  True or False\\[1ex]
+   
    \texttt{date}      &  date\\
    \texttt{time}      &  time\\
    \texttt{datetime}  &  complete date and time object\\[1ex]
+   
    \texttt{bytes}     &  raw input, avoid \\
    \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
    \texttt{unicode}   &  use for strings\\[1ex]
+   
    \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
    \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
    \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
    \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
    \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\[1ex]
+   
    \texttt{json}            &  a datastructure that is jsonable\\
    \texttt{parsed:json}     &  string containing parseable json\\[1ex]
-   \hline
- \end{tabular*}
- \caption{Available dataset column types.}
- \label{tab:types}
-\end{table}
+   
+ \end{tabular}
+% \caption{Available dataset column types.}
+% \label{tab:types}
+%\end{table}
+\end{snugshade}
 
+\comment{what are parsed:xx for?}
 
 \subsection{Arbitrary precision numbers:  \texttt{number}}
 The type \texttt{number} is integer when possible and float otherwise.
 it can handle very large numbers, up to $\pm (2^{1007}-1)$.  Integers
-are forced using \texttt{number:int}, and it accepts trailing decimal
-zeroes like \texttt{7.0}, \texttt{4.000} etc.  This is useful when
-typing datafiles where numbers are integers but have trailing zero
-decimals.
+are enforced using \texttt{number:int}, and it accepts trailing
+decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This is useful
+when typing datafiles where numbers actually are integers but have
+trailing zero decimals.
 
-The number type occupies a minimum of nine bytes, where eight is for
-the number and the additional byte is a marker.
+The \texttt{number} type occupies a minimum of nine bytes on disk,
+where eight is for the number itself and the additional byte is a
+marker.
 
 
-\subsection{Standard fixed size numbers}
+\subsection{Standard Fixed Size Numbers}
 The common \texttt{int} and \texttt{float} types in 32 and 64 bit
-versions are available for useage when the range of the data is known.
+versions are available for use when the range of the data is known.
 
 
-\subsection{The boolean type}
-The \texttt{bool} type is used to store logical \texttt{True} or
-\texttt{False} values only.
+\subsection{Booleans}
+The \texttt{bool} type is used to store logical
+\mintinline{python}/True/ or \mintinline{python}/False/ values only.
 
 
-\subsection{Types relating to time}
+\subsection{Types Relating to Time}
 The \texttt{date}, \texttt{time}, and \texttt{datetime} are compatible
-with Python's corresponding classes.  \texttt{datetime} is the
+with Python's corresponding classes, where \texttt{datetime} is the
 combination of \texttt{date} and \texttt{time}.  A column that is
 typed to any of these may directly take advantage of the high level
 time related methods, like for example
-
 \begin{python}
-  for ts in datasets.source.iterate(sliceno, 'timestamp'):
+for ts in datasets.source.iterate(sliceno, 'timestamp'):
     print(ts.strftime('%Y-%m-%d')
 \end{python}
+\comment{Uh, percent-d looks silly}
 
 
-\subsection{String types}
+\subsection{String Types}
 There are three string types, \texttt{bytes}, \texttt{ascii}, and
-\texttt{unicode}.  Unicode is the prefered choice, and executes faster
-in Python~3.
+\texttt{unicode}.  The \texttt{bytes} type is what is assigned to
+columns by \texttt{csvimport}.  For columns with text,
+\texttt{unicode} is the prefered choice, and it executes faster in
+Python~3.
 
-\textbf{To be completed.}
 
-\subsection{JSON types}
-It is possible to store a more complex data structure in JSON format.
-There are two choice, the \texttt{json} type and the
+\subsection{JSON Types}
+It is possible to store more complex data structures using the JSON
+format.  There are two versions, the \texttt{json} type and the
 \texttt{parsed:json} type.  The first takes a JSON-able datatype as
 input, and the latter inputs a string that is serialized to JSON
 internally.
 
 
 
-\newpage
-\section{Create New Dataset}
-Datasets are either created in prepare + analysis, or in just
-synthesis.
+\clearpage
+\section{Create a New Dataset}
+Datasets are created by methods using the \texttt{DatasetWriter}
+class.  The most common scenario is to set up the new dataset in
+\prepare, and write data to it in parallel in \analysis, but is is
+also possible to write a dataset in an entirely serial fashion in
+\synthesis.  When a dataset-creating method terminates, it will create
+and store all required meta-information, such as min/max values, for
+the created dataset(s) automatically.
 
-\subsection{Create in prepare + analysis}
-A simple example writing three columns to the default dataset is
-presented next.  Note that the example creates a dataset chain,
-linking the currently created dataset to the dataset that is input
-with the name previous.
+The most common arguments to \texttt{DatasetWriter} are
+\begin{snugshade}
+  \begin{tabular}{p{3cm} p{8cm}}
+    \\
+    \textbf{argument} & \textbf{description}\\[1ex]\hline\\[1ex]
+    \texttt{filename}  & if there is a filename associated, store it here\\
+    \texttt{caption}   & additional caption\\
+    \texttt{hashlabel} & name of column specifying hash for slicing\\
+    \texttt{previous}  & previous Dataset, for chaining\\
+    \texttt{name}      & default set to \texttt{default}\\
+    \texttt{parent}    & parent Dataset when adding columns\\
+  \end{tabular}
+\end{snugshade}
+\noindent See section~\ref{} for a complete list of arguments and
+advanced dataset use.
 
+
+
+
+\subsection{Create in \prepare + \analysis}
+
+The following example will use \texttt{DatasetWriter} to create a
+Dataset with three columns.  The name of the dataset will be
+\texttt{firstset}.  If the name is omitted, the the name
+\texttt{default} will be used instead.  The writer will be initialised
+in \prepare, and data will be written to the Dataset in \analysis.
+Note that the example creates a dataset \emph{chain}, linking the
+dataset under creation to the dataset named \texttt{previous} from the
+input parameters.  The Dataset will also be sliced by column
+\texttt{X}.
 \begin{python}
 from dataset import DatasetWriter
 datasets = ('previous',)
 
 def prepare():
-  dw = DatasetWriter(
-    hashlabel = 'X',
-    previous = datasets.previous,
-  )
-  dw.add('X', number)
-  dw.add('Y', number)
-  dw.add('Z', number)
-  return dw
+    dw = DatasetWriter(
+        previous = datasets.previous,
+        hashlabel = 'X',
+        name = 'firstset'
+    )
+    dw.add('X', 'number')
+    dw.add('Y', 'unicode')
+    dw.add('Z', 'time')
+    return dw
 
 def analysis(sliceno, prepare_res):
-  dw = prepare_res
-  ...
-  for x, y, z in data:
-    dw.write(x, y, z)
+    dw = prepare_res
+    ...
+    for x, y, z in some_data:
+        dw.write(x, y, z)
 \end{python}
-Note that the order of the variables in the dw.write function call is
-the same as the order of the add calls in prepare\footnote{in case
-  write is called with a dict, the order is unknown, but then names
-  are looked up using the dict keys.}.
-
-DatasetWriter takes a number of optional arguments such as caption and
-filename.  The argument ``name'' specifies the name of the dataset,
-which is set to be ``default'' when unassigned.  Several datasets can
-be created in the same method using more than one datasetwriter
-instance with different ``name''s.
-
-There is some flexibility in the way the write function may be called
-
+The order of the variables in the dw.write function call is the same
+as the order of the add calls in prepare.  There are a few alternative
+ways of writing data, as shown here
 \begin{python}
-  dw.write_dict({column: value})
-  dw.write_list([value, value, ...])
-  dw.write(value, value, ...)
-  # or even
-  dw.writers[name].write(value)  # return True if hashed to correct slice
+dw.write_dict({column: value})
+dw.write_list([value, value, ...])
+dw.write(value, value, ...)
 \end{python}
+Several Datasets can be created simultaneously using multiple writers
+with different names.
 
 
 
-\subsection{Creating Hashed datasets}
-
-If hashlabel is set, one can use dw.hashcheck(value) to check if value
-belongs to the slice.  It is also possible to just call the writer
-since it will discard anything not belonging to the correct slice.
-
-
-
+\clearpage
 \subsection{Create in synthesis}
 
-There are two options if the dataset is to be created in synthesis.
-One in to set the slice number first
-
+There are two possible ways to create a Dataset in \synthesis.  One is
+to set the slice number first
 \begin{python}
-  dw.set_slice(sliceno)
+dw.set_slice(sliceno)
 \end{python}
 while the other is to use one of these functions
-
 \begin{python}
-  dw.get_split_write_dict()({column: value})
-  dw.get_split_write_list()([value, value, ...])
-  dw.get_split_write()(value, value, ...)
+dw.get_split_write_dict()({column: value})
+dw.get_split_write_list()([value, value, ...])
+dw.get_split_write()(value, value, ...)
 \end{python}
-that will assign the data to the correct slice automatically.
+that will assign the data to the correct slice automatically.  The
+latter method is almost always simpler.
 
-\subsection{Placeholder:  Creating datasets more manually}
+
+\subsection{More Advanced Dataset Creation}
+Currently out-of-scope of this manual.  Please see the file
+\texttt{dataset.py} for full information.
 
 
-\newpage
-\section{Appending new columns to an existing Dataset}
+\clearpage
+\section{Appending New Columns to an Existing Dataset}
 
-With minimal overhead, the dataset supports adding new columns to an
-existing dataset.  This is implemented by storing the new column data
-together with a pointer to the dataset
+With minimal overhead, existing datasets could be extended with new
+columns.  Internally, this is implemented by storing the new column
+data together with a pointer to the ``parent'' dataset.
 
-Appending new columns work exactly the same way as creating a dataset,
+Appending new columns works the same way as when creating a dataset,
 with the exception that a link to a dataset that is to be appended to
 is input to the writer constructor.  The following example appends one
 column to an existing dataset while maintaining the chain.  Note that
-appending does only apply to one dataset, and not to the complete
-chain.
-
+appending a column does only apply to one single dataset, and not to
+the complete chain of datasets, if present.
 \begin{python}
 datasets = ("source", "previous",)
 
 def prepare():
-  dw = dataset.DatasetWriter(
-    parent=datasets.source,
-    previous=datasets.previous,
-    caption="flattening_attempt_1"
-  )
-  dw.add(name, type)
-  return dw
+    dw = dataset.DatasetWriter(
+        parent=datasets.source,
+        previous=datasets.previous,
+        caption="with the new colum"
+    )
+    dw.add(name, type)
+    return dw
 
 def analysis(sliceno, prepare_res):
-  dw = prepare_res
-  ...
-  dw.write(value)
+    dw = prepare_res
+    ...
+    dw.write(value)
 \end{python}
-Note that an error is issued if the total number of appended lines
-does not match the number of lines in the parent dataset.
+The \texttt{DatasetWriter} will automatically check that the number of
+appended rows does match the number of rows in the parent dataset.
+Otherwise, an error will be issued and execution will terminate.

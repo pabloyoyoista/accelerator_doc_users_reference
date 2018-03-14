@@ -292,7 +292,7 @@ iterator output.  Here is an example
 \begin{python}
 def merger(user, item):
     return "%s:%s" % (user, item), None
-for merge, _ in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
+for merge, _ in datasets.source.iterate_chain(None, ('user', 'item',),
                                      translator=merger):
     ...
 \end{python}
@@ -316,7 +316,7 @@ Here, integers are translated into more comprehensible strings.
 
 \begin{python}
 mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'STARFISH',}
-for animal in iterate_datasetchain(None, 'NUM_LEGS', tip_jobid=jobid,
+for animal in datasets.source.iterate_chain(None, 'NUM_LEGS',
                                      translator={'NUM_LEGS': mapper,}):
     ...
 \end{python}
@@ -328,7 +328,7 @@ user string is output from the iterator reads backwards.
 \begin{python}
 def reverse(x):
     return x[::-1]
-for resu, item in iterate_datasetchain(None, ('USER', 'ITEM',), tip_jobid=jobid,
+for resu, item in dataset.source.iterate_chain(None, ('USER', 'ITEM',),
                                        translator={'USER': reverse,}):
     ...
 \end{python}
@@ -356,13 +356,12 @@ are functionally equivalent
 \begin{python}
 # Ex1.  filter users that are bearded and longhaired
 filter=lambda line: line[1] and line[2]
-for user, beard, hair in iterate_datasetchain(None, ('user', 'bearded', 'longhaired'),
-                                       tip_jobid=jobid, filters=filter):
+for user, beard, hair in datasets.source.iterate_chain(None, ('user', 'bearded', 'longhaired'),
+                                       filters=filter):
     ...
 
 # Ex2.  filter users that are bearded and longhaired
-for user, beard, hair in iterate_datasetchain(None, ('user', 'bearded', 'longhaired'),
-                                       tip_jobid=jobid):
+for user, beard, hair in datasets.source.iterate_chain(None, ('user', 'bearded', 'longhaired')):
     if beard and hair:
         ...
 \end{python}
@@ -400,7 +399,7 @@ evaluated by Python.  For example, assume there is a column
 \texttt{hasbeard} with values being boolean integers, i.e.\ \texttt{1}
 or \texttt{0}.  Bearded users may be collected by
 \begin{python}
-for user, beard in iterate_datasetchain(None, ('user', 'bearded',), tip_jobid=jobid,
+for user, beard in datasets.source.iterate_chain(None, ('user', 'bearded',), tip_jobid=jobid,
                                        filters={'bearded': None}):
     bearded.add(user)
 \end{python}
@@ -433,7 +432,7 @@ prior to iterating over it.
 # pre_callback once per dataset
 def prefun(jobid):
     print(jobid)
-for user, item in iterate_datasetchain(sliceno, ('user', 'item',), tip_jobid=jobid,
+for user, item in datasets.source.iterate_chain(sliceno, ('user', 'item',),
                                        pre_callback=prefun):
     ...
 \end{python}
@@ -447,7 +446,7 @@ previous takes only one.
 # callback once per slice
 def prefun(jobid, sliceno):
     print(sliceno, jobid)
-for user, item in iterate_datasetchain(None, ('user', 'item',), tip_jobid=jobid,
+for user, item in datasets.source.iterate_chain(None, ('user', 'item',),
                                        pre_callback=prefun):
     ...
 \end{python}

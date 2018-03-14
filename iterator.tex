@@ -45,6 +45,11 @@ Both iterators share these arguments
   on a dataset being hashed on a particular column, set this to make
   the iterator verify that it is the case.  Execution will terminate
   if the hashlabel is incorrect.\\
+
+  \texttt{rehash} & False & Setting this to \mintinline{python}/True/
+  will rehash the dataset on the fly based on the \texttt{hashlabel}
+  column.  Ideally, rehashing should be made using the
+  \texttt{dataset\_rehash} method~\ref{xx}.\\
   
   \texttt{filters} & None & Filters decide which rows to include.
   Explained in section~\ref{xx}\\
@@ -255,7 +260,7 @@ for user, item in datasets.source.iterate_chain(
 
 
 
-\section{Iterating Hashed Datasets}
+\section{Hashed Datasets and Hashing Datasets}
 Hashing a dataset on a particular columns, see~\ref{xx} may simplify
 the code in methods using the dataset.  This code will not work
 properly if it turns out that it is being fed with unhashed datasets.
@@ -267,6 +272,12 @@ s = {user: item for user, item datasets.source.iterate_chain( \
 \end{python}
 Execution will terminate if the hashlabel is not correct.
 
+It is possible to rehash the dataset on-the-fly.  This is done by
+setting the \texttt{rehash} argument to the iterator to
+\mintinline{python}/True/.  The prefered way to rehash is to use the
+\texttt{dataset\_rehash} method~\ref{xx}, since it will store the
+rehashed dataset for later use, which in most scenarios will be more
+efficient.
 
 
 \section{Translators}

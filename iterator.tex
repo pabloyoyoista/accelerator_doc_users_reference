@@ -16,68 +16,165 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Dataset Iterators}
-
-Iterators are used to stream dataset data one line at a time into a
-method.  Data may be streamed from a single dataset, or from a chain
-of datasets, one dataset at a time.
+Iterators are members of the \texttt{dataset} class.  They are
+available in methods for streaming dataset data one row at a time into
+a program.
 
 
-\subsection{Basic Iteration}
+\section{Basic Iteration}
 
-The iterator iterates over specified data columns.  The output will be
-one line at a time, formatted as a tuple.
+The iterator iterates over one or more specified data columns.  Each
+output is a tuple corresponding to the specified columns for one data
+row.  In case of iterating over a single column, the output may
+optionally be a scalar for more efficient computing.  Iterators can be
+parallel, in \analysis, or sequential, in \prepare or \synthesis.
 
-\subsubsection*{A Simple Parallel Iterator Invocation}
-Read variables X and Y in all slices in parallel
+There are two iterators available, one for single dataset iteration
+(called \texttt{iterate}), and one for iterating over dataset chains
+(called (\texttt{iterate\_chain}).  Both iterators share these arguments
+\begin{snugshade}
+\begin{tabular}{llp{6cm}}
 
+  \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
+  over, or \mintinline{python}/None/ to iterate over all slices
+  sequenctially. \\
+
+  \texttt{columns} & None & Tuple of column labels or a single name if
+  iterating over one column.\\
+
+  \texttt{hashlabel} & None & Name of hash column.  If dataset is not
+  hashed, the iterator will re-hash on-the-fly.\\
+
+  \texttt{filters} & None & Filters decide which rows to include.
+  Explained in section~\ref{xx}\\
+
+  \texttt{translators} & None & Translators transform data values.
+  Explained in section~\ref{xx}\\
+  
+  \texttt{status\_reporting} & True & Give status when pressing
+  \texttt{C-t}.  Unless manually \texttt{zip}ing iterators, this
+  should be set to default \mintinline{python}/True/.  See
+  \texttt{dataset.py} for full information.\\
+\end{tabular}
+\end{snugshade}
+In addition, \texttt{iterate\_chain} takes these arguments too
+\begin{snugshade}
+\begin{tabular}{lll}
+  \texttt{length}&&\\
+  \texttt{range}&&\\
+  \texttt{sloppy\_range}&&\\
+  \texttt{reverse}&&\\
+  \texttt{stop\_ds}&&\\
+  \texttt{pre\_callback}&&\\
+  \texttt{post\_callback}&&\\
+\end{tabular}
+\end{snugshade}
+
+
+
+\subsection*{Parallel Iterator Invocation}
+For parallel iteration in \analysis, the iterator needs to know the
+number of the current slice.  The following is an example of iteration
+that happens independently in each slice.
+\comment{speca sliceno och labels - argumenten}
 \begin{python}
+datasets = ('source',)
+
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(sliceno, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
-data is iterated over all rows and all datasets in the chain, running
-in increasing jobid direction.
+The program creates dictionaries mapping \texttt{user}s to sets of
+\texttt{item}s for the \texttt{source} dataset.  (If we assume that
+the dataset is hashed~\ref{xx}, this operation is entirely parallel
+and there is no need to merge all the results from the analysis
+processes later.
 
-
-\subsubsection*{Iterate over all data in synthesis}
-It is possible to iterate over all slices in a single loop by
-specifying sliceno=None as follows
-
+\subsection*{Sequential Iteratior Invocation}
+By specifying the \texttt{sliceno} parameter to
+\mintinline{python}/None/, the iterator will run through all slices of
+the dataset, one at a time, like in this example
 \begin{python}
 def synthesis():
-    for user, item in datasets.source.iterate_chain(None, columns=('user', 'item',)):
+    h = defaultdict(set)
+    for user, item in datasets.source.iterate(None, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
-slices will be iterated one at at time in increasing order.
+Slices will be iterated one at at time in increasing order.
 
 
-\subsection{Special cases, iterating over all or a singe column}
-If column names are omitted, the iterator will produce a tuple of data
-including all columns.  %%%% NB: column order???
 
+
+%% "''Iterator over the specified columns from datasets
+%% (iterable of dataset-specifiers, or single dataset-specifier).
+%% callbacks are called before and after each dataset is iterated.
+
+%% filters decide which rows to include and can be a callable
+%% (called with the candidate tuple), or a dict {name: filter}.
+%% In the latter case each individual filter is called with the column
+%% value, or if it's None uses the column value directly.
+%% All filters must say yes to yield a row.
+%% examples:
+%% filters={'some_col': some_dict.get}
+%% filters={'some_col': some_set.__contains__}
+%% filters={'some_col': some_str.__eq__}
+%% filters=lambda line: line[0] == line[1]
+
+%% translators transform data values. It can be a callable (called with the
+%% candidate tuple and expected to return a tuple of the same length) or a
+%% dict {name: translation}.
+%% Each translation can be a function (called with the column value and
+%% returning the new value) or dict. Items missing in the dict yield None,
+%% which can be removed with filters={'col': None}.
+
+%% Translators run before filters.
+
+%% You can also pass a single name (a str) as columns, in which case you
+%% don't get a tuple back (just the values). Tuple-filters/translators also
+%% get just the value in this case (column versions are unaffected).
+
+%% If you pass a false value for columns you get all columns in name order.
+
+%% range limits which rows you see. Specify {colname: (start, stop)} and
+%% only rows where start <= colvalue < stop will be returned.
+%% If you set sloppy_range=True you may get all rows from datasets that
+%% contain any rows you asked for. (This can be faster.)
+
+%% status_reporting should normally be left as True, which will give you
+%% information about this iteration in ^T, but there is one case where you
+%% need to turn it off:
+%% If you manually zip a bunch of iterators, only one should do status
+%% reporting. (Otherwise it looks like you have nested iteration in ^T,
+%% and you will get warnings about incorrect ending order of statuses.)
+
+%% def iterate(self, sliceno, columns=None, hashlabel=None, filters=None, translators=None, status_reporting=True):
+
+
+\subsection*{Special Cases, Iterating Over All or a Singe Column}
+It is possible to iterate over all columns in a dataset by specifying
+an empty list of column names, like this
 \begin{python}
-for items in iterate_datasets(sliceno, None, jobids):
+for items in dataset.source.iterate(sliceno, None):
     print(items)  # is a tuple of all columns
 \end{python}
-Also, if only one column is specified, it is possible to have the
-iterator produce a scalar directly
+The iterator will output a tuples populated with all column values for
+each row.  The columns will be in sorted column name order.
 
+Iterators output tuples, but in the case of iterating over a single
+column it is more efficient to output scalars instead.  Here are the
+two different ways to iterate over a single column
 \begin{python}
-# alternative 1, use lists/tuples always
-for user in iterate_datasets(sliceno, ('USER',), jobids):
+# alternative 1, use lists/tuples
+for user in datasets.source.iterate(sliceno, ('USER',)):
     userset.add(user[0])  # user is a tuple
 
-# alternative 2, target is tuple
-for user, in iterate_datasets(sliceno, ('USER',), jobids):
-    userset.add(user)
-
-# alternative 3, input is string, not list
-for user in iterate_datasets(sliceno, 'USER', jobids):
+# alternative 2, specify column as string, not list
+for user in datasets.source.iterate(sliceno, 'USER',):
     userset.add(user)
 \end{python}
-Both styles are supported by filters and translators.
+Both styles are supported by filters and translators introduced later
+i this chapter.
 
 
 

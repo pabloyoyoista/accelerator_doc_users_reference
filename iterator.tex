@@ -36,7 +36,7 @@ Both iterators share these arguments
 \starttable
   \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
   over, or \mintinline{python}/None/ to iterate over all slices
-  sequenctially. \\
+  sequentially. \\
 
   \RP \texttt{columns} & \pyNone & Tuple of column labels or a single name if
   iterating over one column.\\
@@ -113,7 +113,7 @@ the dataset is hashed~\ref{xx}, this operation is entirely parallel
 and there is no need to merge all the results from the analysis
 processes later.
 
-\subsection*{Sequential Iteratior Invocation}
+\subsection*{Sequential Iterator Invocation}
 By specifying the \texttt{sliceno} parameter to
 \mintinline{python}/None/, the iterator will run through all slices of
 the dataset, one at a time, like in this example
@@ -189,7 +189,7 @@ i this chapter.
 \section{Halting Iteration}
 
 Iteration over a dataset chain will continue until all data is
-exhausted or some stop criteria is fulfulled.  There are several
+exhausted or some stop criteria is fulfilled.  There are several
 mechanisms for stopping, and they may be combined in a single
 expression.  If so, iteration will be over the shortest range of the
 conditions.
@@ -229,8 +229,8 @@ This will iterate until reaching end or the dataset
 
 \section{Iterating Over a Data Range}
 It is possible to iterate over rows having a specified column's value
-within a certain range.  This works best on datasets that a sorted on
-the specified column.  \comment{eller ja?}
+within a certain range.  This works best on datasets that are sorted
+on the specified column.  \comment{eller ja?}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
     sliceno, ('user', 'item',),
@@ -246,7 +246,7 @@ contain part of the range.
 
 \section{Iterating in the Reverse Direction}
 By default, iterating over a chain of dataset starts at the oldest
-dataset and ends at the latest dataset.  This behaviour can be
+dataset and ends at the latest dataset.  This behavior can be
 reversed by specifying \mintinline{python}/reverse=True/.  But note
 that row iteration is always in the forward direction within each
 dataset!
@@ -272,7 +272,7 @@ Execution will terminate if the hashlabel is not correct.
 
 It is possible to rehash the dataset on-the-fly.  This is done by
 setting the \texttt{rehash} argument to the iterator to
-\mintinline{python}/True/.  The prefered way to rehash is to use the
+\mintinline{python}/True/.  The preferred way to rehash is to use the
 \texttt{dataset\_rehash} method~\ref{xx}, since it will store the
 rehashed dataset for later use, which in most scenarios will be more
 efficient.

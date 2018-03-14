@@ -20,18 +20,17 @@ Iterators are members of the \texttt{dataset} class.  They are
 available in methods for streaming dataset data one row at a time into
 a program.
 
-
-\section{Basic Iteration}
-
 The iterator iterates over one or more specified data columns.  Each
 output is a tuple corresponding to the specified columns for one data
 row.  In case of iterating over a single column, the output may
 optionally be a scalar for more efficient computing.  Iterators can be
 parallel, in \analysis, or sequential, in \prepare or \synthesis.
-
-There are two iterators available, one for single dataset iteration
-(called \texttt{iterate}), and one for iterating over dataset chains
-(called (\texttt{iterate\_chain}).  Both iterators share these arguments
+There are two iterators available,
+\begin{itemize}
+\item [] \texttt{iterate()}, for  single dataset iteration, and
+\item [] \texttt{iterate\_chain()} for iterating over dataset chains.
+\end{itemize}
+Both iterators share these arguments
 \begin{snugshade}
 \begin{tabular}{llp{6cm}}
 
@@ -42,9 +41,11 @@ There are two iterators available, one for single dataset iteration
   \texttt{columns} & None & Tuple of column labels or a single name if
   iterating over one column.\\
 
-  \texttt{hashlabel} & None & Name of hash column.  If dataset is not
-  hashed, the iterator will re-hash on-the-fly.\\
-
+  \texttt{hashlabel} & None & Name of hash column.  If the code relies
+  on a dataset being hashed on a particular column, set this to make
+  the iterator verify that it is the case.  Execution will terminate
+  if the hashlabel is incorrect.\\
+  
   \texttt{filters} & None & Filters decide which rows to include.
   Explained in section~\ref{xx}\\
 
@@ -57,26 +58,44 @@ There are two iterators available, one for single dataset iteration
   \texttt{dataset.py} for full information.\\
 \end{tabular}
 \end{snugshade}
+\comment{heter det columns här men labels överallt annars?  Var heter det labels förutom hashlabel?}
 In addition, \texttt{iterate\_chain} takes these arguments too
 \begin{snugshade}
-\begin{tabular}{lll}
-  \texttt{length}&&\\
-  \texttt{range}&&\\
-  \texttt{sloppy\_range}&&\\
-  \texttt{reverse}&&\\
-  \texttt{stop\_ds}&&\\
-  \texttt{pre\_callback}&&\\
-  \texttt{post\_callback}&&\\
+\begin{tabular}{llp{6cm}}
+  \texttt{length}&$-1$& Number of datasets in a chain to iterate over.
+  Default is $-1$, which corresponds to all datasets in a chain.\\
+  
+  \texttt{range}& None& Filter rows based on a column's value being
+  within a range.\\
+
+  \texttt{sloppy\_range}& False & Used with \texttt{range}, but will
+  iterate over full datasets for those datasets that have values
+  within range.  This might be faster.\\
+  
+  \texttt{reverse}& \mintinline{python}/False/& Iterate chain
+  backwards.  Default is to iterate forward, i.e.\ from oldest to
+  newest dataset.\\
+
+  \texttt{stop\_ds}&None& The first dataset older than all datasets in the chain.\comment{duh}\\ 
+
+  \texttt{pre\_callback}&None& A function that will be called before
+  iterating each dataset.\\
+
+  \texttt{post\_callback}&None& A function that will be called after
+  iterating each dataset.\\
 \end{tabular}
 \end{snugshade}
 
 
+\section{Basic Iteration}
+Basic use include iterating in parallel or serial over one dataset or
+a chain of datasets.
 
 \subsection*{Parallel Iterator Invocation}
 For parallel iteration in \analysis, the iterator needs to know the
 number of the current slice.  The following is an example of iteration
 that happens independently in each slice.
-\comment{speca sliceno och labels - argumenten}
+
 \begin{python}
 datasets = ('source',)
 
@@ -103,52 +122,37 @@ def synthesis():
 \end{python}
 Slices will be iterated one at at time in increasing order.
 
+\subsection*{Iterate Over Chains}
+To iterate over several datasets in a chain, use
+\texttt{iterate\_chain}.  The following example will iterate over the
+last three datasets in the chain.
+\begin{python}
+datasets = ('source',)
 
+def analysis(sliceno):
+    h = defaultdict(set)
+    for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',), length=3):
+        h[user].add(item)
+\end{python}
+using \texttt{iterate\_chain} without explicitly specifying
+\texttt{length} will default to a \texttt{length} of $-1$, which
+corresponds to all datasets in the chain.
 
+Here is an interesting example that will iterate over the datasets in
+the chain that are new since the last invocation of the method.
+\begin{python}
+datasets = ('source',)
+jobids = ('previous',)
 
-%% "''Iterator over the specified columns from datasets
-%% (iterable of dataset-specifiers, or single dataset-specifier).
-%% callbacks are called before and after each dataset is iterated.
+def analysis(sliceno):
+    h = defaultdict(set)
+    for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',), stop_id=jobids.params.source):
+        h[user].add(item)
+\end{python}
+\comment{funkar detta?}  Assuming that \texttt{previous} is a jobid to
+the previous invocation of the method, \texttt{jobids.params.source}
+will be the input \texttt{source} dataset to that job.  
 
-%% filters decide which rows to include and can be a callable
-%% (called with the candidate tuple), or a dict {name: filter}.
-%% In the latter case each individual filter is called with the column
-%% value, or if it's None uses the column value directly.
-%% All filters must say yes to yield a row.
-%% examples:
-%% filters={'some_col': some_dict.get}
-%% filters={'some_col': some_set.__contains__}
-%% filters={'some_col': some_str.__eq__}
-%% filters=lambda line: line[0] == line[1]
-
-%% translators transform data values. It can be a callable (called with the
-%% candidate tuple and expected to return a tuple of the same length) or a
-%% dict {name: translation}.
-%% Each translation can be a function (called with the column value and
-%% returning the new value) or dict. Items missing in the dict yield None,
-%% which can be removed with filters={'col': None}.
-
-%% Translators run before filters.
-
-%% You can also pass a single name (a str) as columns, in which case you
-%% don't get a tuple back (just the values). Tuple-filters/translators also
-%% get just the value in this case (column versions are unaffected).
-
-%% If you pass a false value for columns you get all columns in name order.
-
-%% range limits which rows you see. Specify {colname: (start, stop)} and
-%% only rows where start <= colvalue < stop will be returned.
-%% If you set sloppy_range=True you may get all rows from datasets that
-%% contain any rows you asked for. (This can be faster.)
-
-%% status_reporting should normally be left as True, which will give you
-%% information about this iteration in ^T, but there is one case where you
-%% need to turn it off:
-%% If you manually zip a bunch of iterators, only one should do status
-%% reporting. (Otherwise it looks like you have nested iteration in ^T,
-%% and you will get warnings about incorrect ending order of statuses.)
-
-%% def iterate(self, sliceno, columns=None, hashlabel=None, filters=None, translators=None, status_reporting=True):
 
 
 \subsection*{Special Cases, Iterating Over All or a Singe Column}
@@ -179,87 +183,93 @@ i this chapter.
 
 
 
-\subsection{Halting Iteration}
+\section{Halting Iteration}
 
 Iteration over a dataset chain will continue until all data is
-exhausted.  Sometimes, one wish to limit the number of iterations.
-There are several mechanisms for that, and they may be combined in the
-same expression.  If so, iteration will be over the shortest range of
-the conditions.
+exhausted or some stop criteria is fulfulled.  There are several
+mechanisms for stopping, and they may be combined in a single
+expression.  If so, iteration will be over the shortest range of the
+conditions.
 
-\subsubsection*{Halting using length}
+\subsection*{Halting Using \texttt{length}}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno,
-    columns=('user', 'item',),
+    sliceno, ('user', 'item',),
     length = options.length):
 \end{python}
-This will iterate for options.length number of datasets.  Note that a
-length of -1 iterates without bounds and is the default.
+This will iterate for the last \texttt{options.length} number of
+datasets.  Note that a length of $-1$ is default and will iterate
+without bounds.
 
 
-\subsubsection*{Halting using stop\_jobid}
+\subsection*{Halting Using \texttt{stop\_id}}
+Similar to using \texttt{length}, but will stop when reaching a
+certain dataset.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno,
-    columns=('user', 'item',),
+    sliceno, ('user', 'item',),
     stop_jobid = datasets.stopjob):
 \end{python}
 
 A more advanced, but very useful, method is to stop at a dataset that
 is input to another job
-
-\subsubsection*{Halting using another job's input parameters}
+\subsection*{Halting Using Another Job's Input Parameters}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno,
-    columns=('user', 'item',),
-    stop_jobid = {jobids.preprocess: 'source',}):
+    sliceno, ('user', 'item',),
+    stop_id = {jobids.previous: 'source',}):
 \end{python}
-this will iterate until reaching end or the dataset
-job\_params(jobids.preprocess).datasets.source.
+This will iterate until reaching end or the dataset
+\texttt{job\_params(jobids.preprocess).datasets.source}.
 
-It is also possible to iterate over a specified data range.  This
-works for datasets that are sorted on the column of choice.
 
-\subsubsection*{Iterating over a data range}
+
+\section{Iterating Over a Data Range}
+It is possible to iterate over rows having a specified column's value
+within a certain range.  This works best on datasets that a sorted on
+the specified column.  \comment{eller ja?}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno,
-    columns=('user', 'item',),
+    sliceno, ('user', 'item',),
     range={timestamp, ('2016-01-01', '2016-01-31'),}):
 \end{python}
-this will limit the iterator to exactly the range of lines that
-fulfill the range condition.  It is relatively costly to filter each
-line, and there is a speed advantage by specifying sloppy\_range,
-which will iterate over all datasets that contain part of the range.
+This example will limit the iterator to exactly the range of lines
+that fulfill the range condition.  It is relatively costly to filter
+each line, and there is a speed advantage by specifying
+\texttt{sloppy\_range}, which will iterate over all datasets that
+contain part of the range.
 
-\subsection{Iterating in the reverse direction}
 
-It is possible to iterate the dataset chain in the backwards direction
-by specifying reverse=True, but note that iteration is always in the
-forward direction within each dataset.
 
+\section{Iterating in the Reverse Direction}
+By default, iterating over a chain of dataset starts at the oldest
+dataset and ends at the latest dataset.  This behaviour can be
+reversed by specifying \mintinline{python}/reverse=True/.  But note
+that row iteration is always in the forward direction within each
+dataset!
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno,
-    columns=('user', 'item',),
+    sliceno, ('user', 'item',),
     reverse=True):
 \end{python}
 
-@@@ HASHLABEL FOR AVOIDING MISTAKES!!!
-
-\subsection{iterate\_list}
-PLACEHOLDER
-%\begin{python}
-%  # def iterate_list(sliceno, columns, jobids, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None):
-%  from dataset import Dataset
-%  for item in Dataset.iterate_list(None, None, datasets.source):
-%    print(item)
-%\end{python}
 
 
-\subsection{Translators}
+\section{Iterating Hashed Datasets}
+Hashing a dataset on a particular columns, see~\ref{xx} may simplify
+the code in methods using the dataset.  This code will not work
+properly if it turns out that it is being fed with unhashed datasets.
+Therefore, it is a good idea to \emph{assert} the hashlabel by
+entering it into the iterator function, like this
+\begin{python}
+s = {user: item for user, item datasets.source.iterate_chain( \
+     sliceno, ('user', 'item',), hashlabel='user')}
+\end{python}
+Execution will terminate if the hashlabel is not correct.
+
+
+
+\section{Translators}
 
 Translators transform data values. A translator is either a callable or
 a \texttt{dict}.  Translators are similar to \texttt{filters}, and
@@ -272,7 +282,7 @@ could be altered significantly in behavior.
 
 
 
-\subsubsection*{Callable Translator}
+\subsection*{Callable Translator}
 
 A translator function is called with a tuple and is expected to return
 a tuple of the same length.  Using translator functions it is possible
@@ -294,7 +304,7 @@ this application, but a variable still has to be assigned.
 
 
 
-\subsubsection*{Translator dict}
+\subsection*{Translator dict}
 
 One or more columns may be translated independently using a translator
 dictionary, specified as \texttt{\{name:\ translation\}}.  A
@@ -326,7 +336,7 @@ for resu, item in iterate_datasetchain(None, ('USER', 'ITEM',), tip_jobid=jobid,
 
 
 %\newpage
-\subsection{Filters}
+\section{Filters}
 
 Filters are run \emph{after} translators.
 
@@ -334,7 +344,7 @@ Filters decide which rows to pass to the iterator output.  A filter is
 either a callable or a \texttt{dict}.
 
 
-\subsubsection*{Callable Filter}
+\subsection*{Callable Filter}
 
 Callable filters receive the iterator tuple as input.  The output must
 be \texttt{True} for the tuple to be output from the iterator,
@@ -360,7 +370,7 @@ for user, beard, hair in iterate_datasetchain(None, ('user', 'bearded', 'longhai
 
 
 
-\subsubsection*{Filter Dict}
+\subsection*{Filter Dict}
 
 It is possible to filter on one or more columns independently using a
 \texttt{dict}.  All filters must be \texttt{True} for a line to be
@@ -382,7 +392,7 @@ filters={'user': validusers.__contains__, 'item': validitems.get}
 
 
 
-\subsubsection*{Filter by Column Values}
+\subsection*{Filter by Column Values}
 
 
 Column values could also be used directly, i.e.\ the values get
@@ -409,7 +419,7 @@ for the \texttt{bearded} column exists, and the value is
     
 
 
-\subsection{Callback}
+\section{Callback}
 \label{sec:callback}
 
 It is also possible to inject callback functions, either before or

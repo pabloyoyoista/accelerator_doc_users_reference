@@ -368,7 +368,7 @@ Dataset with three columns.  The name of the dataset will be
 in \prepare, and data will be written to the Dataset in \analysis.
 Note that the example creates a dataset \emph{chain}, linking the
 dataset under creation to the dataset named \texttt{previous} from the
-input parameters.  The Dataset will also be sliced by column
+input parameters.
 \texttt{X}.
 \begin{python}
 from dataset import DatasetWriter
@@ -377,7 +377,6 @@ datasets = ('previous',)
 def prepare():
     dw = DatasetWriter(
         previous = datasets.previous,
-        hashlabel = 'X',
         name = 'firstset'
     )
     dw.add('X', 'number')
@@ -420,6 +419,27 @@ dw.get_split_write()(value, value, ...)
 \end{python}
 that will assign the data to the correct slice automatically.  The
 latter method is almost always simpler.
+
+
+
+\subsection{Creating Hashed Datasets}
+Creating a hashed dataset is accomplished by setting
+the \texttt{hashlabel} argument of \texttt{DatasetWriter}.  It is up
+to the dataset generating method to make sure that each row is written
+to the correct slice, according to the hash function value of the
+hashlabel column.  A row should go into slice $n$ if and only if
+\begin{python}
+from gzutil import siphash24
+assert siphash24(hashcol) % options.slices == n
+\end{python}
+Otherwise an exception will occur.  It is possible to override this
+behavior by calling
+\begin{python}
+dw.enable_hash_discard()
+\end{python}
+first in each slice or after each \texttt{set\_slice()}.  Then, writes
+that belongs to another slice are silently ignored.
+
 
 
 \subsection{More Advanced Dataset Creation}

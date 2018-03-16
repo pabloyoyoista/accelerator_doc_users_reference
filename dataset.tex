@@ -255,13 +255,13 @@ table~\ref{tab:types}.  More details follow in the next sections.
    \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
    \texttt{unicode}   &  use for strings\\[1ex]
    
+   \texttt{json}            &  a datastructure that is jsonable\\
+   
    \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
    \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
    \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
    \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
    \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\[1ex]
-   
-   \texttt{json}            &  a datastructure that is jsonable\\
    \texttt{parsed:json}     &  string containing parseable json\\[1ex]
    
  \end{tabular}
@@ -316,12 +316,17 @@ columns by \texttt{csvimport}.  For columns with text,
 Python~3.
 
 
-\subsection{JSON Types}
+\subsection{JSON Type}
 It is possible to store more complex data structures using the JSON
-format.  There are two versions, the \texttt{json} type and the
-\texttt{parsed:json} type.  The first takes a JSON-able datatype as
-input, and the latter inputs a string that is serialized to JSON
-internally.
+format.  The \texttt{JSON} type accept a JSON-able datastructure as
+input.
+
+\subsection{\texttt{parsed} Types}
+In addition, there are a few types prefixed with \texttt{parsed:} that
+allow for a more flexible assignment of values.  For example,
+the \texttt{parsed:number} type accepts both \texttt{int}s
+and \texttt{float}s, as well as strings that are parseable to a
+number, such as \texttt{'3.14'}.
 
 
 

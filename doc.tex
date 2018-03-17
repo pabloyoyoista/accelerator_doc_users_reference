@@ -34,7 +34,6 @@
 
 \usepackage{fancybox}
 \usepackage{framed}
-\definecolor{shadecolor}{rgb}{0.9,0.9,0.9}
 
 \usepackage{draftwatermark}
 \SetWatermarkText{DRAFT}
@@ -93,6 +92,19 @@
 \newcommand{\pyNone}{\mintinline{python}/None/\xspace}
 \newcommand{\pyTrue}{\mintinline{python}/True/\xspace}
 \newcommand{\pyFalse}{\mintinline{python}/False/\xspace}
+
+
+% for snugshade
+\definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
+% table with three columns - macros
+\def\starttable{%
+  \begin{snugshade}
+    \begin{tabular}{p{3.2cm}p{1.8cm}p{9cm}}\hline\\[-1ex]
+      \textbf{name} & \textbf{default} & \textbf{description}\\[1ex]
+      \hline\\[1ex]}
+\def\stoptable{\\[1ex]\hline\end{tabular}\end{snugshade}}
+\def\RP #1&#2&#3{ #1&#2&#3}
+
 
 
 

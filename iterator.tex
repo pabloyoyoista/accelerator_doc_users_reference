@@ -31,65 +31,63 @@ There are two iterators available,
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains.
 \end{itemize}
 Both iterators share these arguments
-\begin{snugshade}
-\begin{tabular}{llp{6cm}}
 
-  \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
+
+\starttable
+  \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
   over, or \mintinline{python}/None/ to iterate over all slices
   sequenctially. \\
 
-  \texttt{columns} & None & Tuple of column labels or a single name if
+  \RP \texttt{columns} & \pyNone & Tuple of column labels or a single name if
   iterating over one column.\\
 
-  \texttt{hashlabel} & None & Name of hash column.  If the code relies
+  \RP \texttt{hashlabel} & \pyNone & Name of hash column.  If the code relies
   on a dataset being hashed on a particular column, set this to make
   the iterator verify that it is the case.  Execution will terminate
   if the hashlabel is incorrect.\\
 
-  \texttt{rehash} & False & Setting this to \mintinline{python}/True/
+  \RP \texttt{rehash} & \pyFalse & Setting this to \mintinline{python}/True/
   will rehash the dataset on the fly based on the \texttt{hashlabel}
   column.  Ideally, rehashing should be made using the
   \texttt{dataset\_rehash} method~\ref{xx}.\\
   
-  \texttt{filters} & None & Filters decide which rows to include.
+  \RP \texttt{filters} & \pyNone & Filters decide which rows to include.
   Explained in section~\ref{xx}\\
 
-  \texttt{translators} & None & Translators transform data values.
+  \RP \texttt{translators} & \pyNone & Translators transform data values.
   Explained in section~\ref{xx}\\
   
-  \texttt{status\_reporting} & True & Give status when pressing
+  \RP \texttt{status\_reporting} & \pyTrue & Give status when pressing
   \texttt{C-t}.  Unless manually \texttt{zip}ing iterators, this
   should be set to default \mintinline{python}/True/.  See
   \texttt{dataset.py} for full information.\\
-\end{tabular}
-\end{snugshade}
+\stoptable
+
 \comment{heter det columns här men labels överallt annars?  Var heter det labels förutom hashlabel?}
 In addition, \texttt{iterate\_chain} takes these arguments too
-\begin{snugshade}
-\begin{tabular}{llp{6cm}}
-  \texttt{length}&$-1$& Number of datasets in a chain to iterate over.
+\starttable
+  \RP \texttt{length}&$-1$& Number of datasets in a chain to iterate over.
   Default is $-1$, which corresponds to all datasets in a chain.\\
   
-  \texttt{range}& None& Filter rows based on a column's value being
+  \RP \texttt{range}& \pyNone& Filter rows based on a column's value being
   within a range.\\
 
-  \texttt{sloppy\_range}& False & Used with \texttt{range}, but will
+  \RP \texttt{sloppy\_range}& \pyFalse & Used with \texttt{range}, but will
   iterate over full datasets for those datasets that have values
   within range.  This might be faster.\\
   
-  \texttt{reverse}& \mintinline{python}/False/& Iterate chain
+  \RP \texttt{reverse}& \pyFalse & Iterate chain
   backwards.  Default is to iterate forward, i.e.\ from oldest to
   newest dataset.\\
 
-  \texttt{stop\_ds}&None& The first dataset older than all datasets in the chain.\comment{duh}\\ 
+  \RP \texttt{stop\_ds}& \pyNone & The first dataset older than all datasets in the chain.\comment{duh}\\ 
 
-  \texttt{pre\_callback}&None& A function that will be called before
+  \RP \texttt{pre\_callback}& \pyNone & A function that will be called before
   iterating each dataset.\\
 
-  \texttt{post\_callback}&None& A function that will be called after
+  \RP \texttt{post\_callback}& \pyNone & A function that will be called after
   iterating each dataset.\\
-\end{tabular}
-\end{snugshade}
+\stoptable
 
 
 \section{Basic Iteration}

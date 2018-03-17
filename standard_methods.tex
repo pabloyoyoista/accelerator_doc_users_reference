@@ -27,10 +27,10 @@ customise importing to specific cases.
 
 \subsection{Options}
 
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-
-  \texttt{filename} & \emph{mandatory} & Name of file to import.  The
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\starttable
+  \RP \texttt{filename} & \emph{mandatory} & Name of file to import.  The
   filename is mandatory and the file may either be a plain text file
   or a gzipped file.  It is also possible to specify a filename
   including a path.  If the path begins with a slash, it is absolute.
@@ -38,22 +38,22 @@ customise importing to specific cases.
   configuration parameter specified in the configuration
   file~\ref{void:configuration_file}.  A relative path makes it
   possible to relocate files to a different directory without trigging
-  job remake.\\[1ex]
+  job remake.\\
   
-  \texttt{separator} & ``,'' & Field separator.  Any character, except
-  ``\verb$\0$'', ``\verb$\n$'', and ``\verb$\r$'' will work.\\[1ex]
+  \RP \texttt{separator} & ``,'' & Field separator.  Any character, except
+  ``\verb$\0$'', ``\verb$\n$'', and ``\verb$\r$'' will work.\\
 
   
-  \texttt{labelsonfirstline} & \texttt{True} & If set to
+  \RP \texttt{labelsonfirstline} & \texttt{True} & If set to
   \mintinline{python}{True}, data on the first line of the file will be used as
   column labels.  If \mintinline{python}{False}, labels must be entered using the
-  \texttt{label} option, see \texttt{labels} below.\\[1ex]
+  \texttt{label} option, see \texttt{labels} below.\\
 
-  \texttt{labels} & \mintinline{python}{[]} & If \texttt{labelsonfirstline} (see
+  \RP \texttt{labels} & \mintinline{python}{[]} & If \texttt{labelsonfirstline} (see
   above) is set to \mintinline{python}{False}, labels must be provided using this
-  option.  For example \mintinline{python}{labels = ['foo', 'bar',]}.\\[1ex]
+  option.  For example \mintinline{python}{labels = ['foo', 'bar',]}.\\
 
-  \texttt{hashlabel} & \mintinline{python}{None} & If not specified, the dataset
+  \RP \texttt{hashlabel} & \mintinline{python}{None} & If not specified, the dataset
   will be created ``round-robin'', so that rows in the input file will
   be separated evenly into the dataset slices.  If a valid label is
   specified, each input data row will be allocated to a slice
@@ -61,36 +61,38 @@ customise importing to specific cases.
   data.  \textsl{Note that typing of a dataset typically changes how
     the data is represented, which most likely voids hashing.  Use
     this option only for datasets that will not be typed.  Otherwise,
-    use \texttt{dataset\_rehash} after typing.}\\[1ex]
+    use \texttt{dataset\_rehash} after typing.}\\
 
-  \texttt{quote\_support} & \mintinline{python}{False} & If set to \mintinline{python}{True},
+  \RP \texttt{quote\_support} & \mintinline{python}{False} & If set to \mintinline{python}{True},
   it is possible to read CSV files with quoted values, such as
-  \mintinline{python}{'foo'} and \mintinline{python}{"bar"}.\\[1ex]
+  \mintinline{python}{'foo'} and \mintinline{python}{"bar"}.\\
 
-  \texttt{rename} & \mintinline{python}/{}/ & This option makes it possible to
+  \RP \texttt{rename} & \mintinline{python}/{}/ & This option makes it possible to
   change the column names read from the first line of the input file.
   Renaming happens first.  It accepts a dictionary of type
-  \mintinline{python}/{old_name: new_name,}/.\\[1ex]
+  \mintinline{python}/{old_name: new_name,}/.\\
 
-  \texttt{discard} & \mintinline{python}/set()/ & labels in the discard set will
-  not be stored in the dataset.\\[1ex]
+  \RP \texttt{discard} & \mintinline{python}/set()/ & labels in the discard set will
+  not be stored in the dataset.\\
   
-  \texttt{allow\_bad} & \mintinline{python}{False} & Relaxes the input file
+  \RP \texttt{allow\_bad} & \mintinline{python}{False} & Relaxes the input file
   strictness if set to \mintinline{python}{True}.  If set to \mintinline{python}{False}, which
   is the default, \texttt{csvimport} will assert an error if there are
   format errors in the input data.  Setting it to \mintinline{python}{True} makes
   importing silently ignoring any format errors.  It is recommended to
-  check the resulting dataset if this option is enabled.\\[1ex].
-\end{tabular}
-
+  check the resulting dataset if this option is enabled.\\
+%\end{tabular}
+\stoptable
 
 \subsection{Datasets}
 
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-  \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a
-  chain.
-\end{tabular}
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\starttable
+  \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a
+  chain.\\
+\stoptable
+  %\end{tabular}
 
 \subsection{Output}
 The result of the \texttt{csvimport} is a dataset named
@@ -112,53 +114,49 @@ The result of the \texttt{csvimport} is a dataset named
 This method will read a source dataset and create a new dataset that
 is typed.  This is useful for typing datasets created by
 \texttt{csvimport}.
+\comment{Only new dataset when filter\_bad}
+
 
 
 
 \subsection{Datasets}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-
-  \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
-  \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a chain.
-\end{tabular}
-
+\starttable
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\
+  \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a chain.\\
+%\end{tabular}
+\stoptable
 
 \subsection{Options}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\starttable
+  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
 
-  \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
-
-  \texttt{column2type} & \mintinline{python}/{}/ & A dictionary from column
+  \RP \texttt{column2type} & \mintinline{python}/{}/ & A dictionary from column
   label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\[1ex]
 
 
-  \texttt{defaults} & \mintinline{python}/{}/& A \texttt{dict} from
+  \RP \texttt{defaults} & \mintinline{python}/{}/& A \texttt{dict} from
   column name to default value, for example
   \mintinline{python}/{'COLNAME': value}/.  Method will fail if data
   is unconvertible unless \mintinline{python}/filter_bad = True/.\\[1ex]
 
-  \texttt{rename} & & --- \\[1ex]
+  \RP \texttt{rename} & & \comment{hur  funkar denna?} \\[1ex]
 
-  \texttt{caption} & \textsl{empty string} & A caption.\\[1ex]
+  \RP \texttt{caption} & \textsl{empty string} & A caption.\\[1ex]
 
-  \texttt{discard\_untyped} & \mintinline{python}{None}& --- \\[1ex]
+  \RP \texttt{discard\_untyped} & \mintinline{python}{None}& \comment{explanation} \\[1ex]
 
-  \texttt{filter\_bad} & & --- \\[1ex]
+  \RP \texttt{filter\_bad} & & \comment{explanation} \\[1ex]
 
-  \texttt{numeric\_comma} & \mintinline{python}{False}& If
+  \RP \texttt{numeric\_comma} & \mintinline{python}{False}& If
   \mintinline{python}{True}, write decimal number as ``\texttt{3,14}'' instead of
   default ``\texttt{3.14}''.\\[1ex]
-\end{tabular}
-
-%% \texttt{defaults}                  & \\%{}, # {'COLNAME': value}, unspecified -> method fails on unconvertible unless filter\_bad
-%%   \texttt{rename}                    & \\%{}, # {'OLDNAME': 'NEWNAME'} doesn't shadow OLDNAME.
-%%   \texttt{caption}                   & \\%'typed dataset',
-%%   \texttt{discard\_untyped}           & \\%bool, # Make unconverted columns inaccessible (``new'' dataset)
-%%   \texttt{filter\_bad}                & \\%False, # Implies discard_untyped
-%%   \texttt{numeric\_comma}             & \\%False, # floats as ``3,14''
-%% \end{tabular}
+%\end{tabular}
+\stoptable
+  
 
 
 
@@ -200,7 +198,6 @@ number.  Then there are \emph{exact} that causes error if the number
 does not fit, and \emph{saturate} that silently saturates a
 non-fitting number.  These can also be used in combination, see table
 below for all alternatives
-
 \begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{9cm}}
 \texttt{float32} & \texttt{float64} & \emph{default}\\
@@ -217,7 +214,6 @@ Integers are stored as either 32 or 64 bits.  Parsing takes base into
 account, so in addition to decimal numbers, it is also straightforward
 to parse octal and hexadecimal numbers.  The \emph{ignore} option
 causes parsing to ignore trailing garbage characters.
-
 \begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{9cm}}
   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
@@ -231,38 +227,42 @@ causes parsing to ignore trailing garbage characters.
 \end{tabular}
 \end{leftbar}
 
-\subsubsection{Integers Stored as Floats}
 
+
+\subsubsection{Integers Stored as Floats}
 There are also a parsing options for integers that are represented in
 a floating point format in the source data.  This is useful if integer
 data is stored with decimals, such as \texttt{5.0}.  In pseudocode,
 the parsing basically runs \texttt{int(float(value))} for each such
-value.\\
-
-\begin{shaded}
+value.
+\begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{9cm}}
   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
   \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
 \end{tabular}
-\end{shaded}
+\end{leftbar}
+
 
 
 \subsubsection{Convert to Boolean}
 It is common that a column holds values that are to be interpreted as
 either \texttt{False} or \texttt{True}.  The following types handles
-strings and floats.\\
-
+strings and floats.
+\begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
-  \texttt{strbool} && \mintinline{python}{False} if value in (\texttt{'false', '0', 'f', 'no', 'off', 'nil', 'null', ''})\\
-                   && \mintinline{python}{True} otherwise\\[1ex]
+  \texttt{strbool} && \mintinline{python}{False} if value in
+  (\pyFalse, \texttt{0}, \texttt{f}, \texttt{no}, \texttt{off},
+  \texttt{nil}, \texttt{null}, ````)\\ && \mintinline{python}{True}
+  otherwise\\
 
-  \texttt{floatbool} && \mintinline{python}{True} when float has bits
-  set. Is \mintinline{python}{False} otherwise.\\[1ex]
+  \texttt{floatbool} && \mintinline{python}{True} when float has
+  bits set. Is \mintinline{python}{False} otherwise.\\
 
-  \texttt{floatbooli} && same + \emph{ignore}\\[1ex]
+  \texttt{floatbooli} && same + \emph{ignore}\\
 \end{tabular}
+\end{leftbar}
 
 
 
@@ -271,7 +271,7 @@ There are three types relating to time available, \texttt{date},
 \texttt{time}, and \texttt{datetime}.  Each of these has a
 corresponding version that ignores trailing garbage characters.
 All time types require a format specification as described below\\
-
+\begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{date:*}      && a date with format specifier\\
   \texttt{datei:*}     && same + \emph{ignore}\\
@@ -279,7 +279,8 @@ All time types require a format specification as described below\\
   \texttt{timei:*}     && same + \emph{ignore}\\
   \texttt{datetime:*}  && a date + time with format specifier\\
   \texttt{datetimei:*} && same + \emph{ignore}\\
-\end{tabular}\\[1ex]
+\end{tabular}
+\end{leftbar}
 The format is standard Python time formats, like shown in these examples
 
 \begin{python}
@@ -295,29 +296,33 @@ The format is standard Python time formats, like shown in these examples
 \subsubsection{Strings and Byte Sequences}
 There are a number of ways to read string and byte data, depending on
 how the raw input data is to be interpreted.  Here are the basic
-types, and variations and options will be described below.\\
-
+types, and variations and options will be described below.
+\begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{bytes}      && list of bytes\\
   \texttt{bytesstrip} && list of bytes, strip characters 8-13,32 from start and end\\
   \texttt{ascii}      && list of ascii characters\\
   \texttt{asciistrip} && list of ascii characters, strip characters 8-13,32 from start and end\\
-\end{tabular}\\
-
-\noindent The following also takes argument\\
-
+\end{tabular}
+\end{leftbar}
+\noindent The following also takes argument
+\begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{unicode:*}  && list of unicode characters\\
-  \texttt{unicodestrip:*}  && list of unicode characters, strip characters 8-13,32 from start and end\\
-\end{tabular}\\[1ex]
-where the argument is one of \texttt{replace}, \texttt{ignore}, and \texttt{strict}.
-\texttt{strict} will cause error, \texttt{ignore} will erase illegal characters.\\
-
+  \texttt{unicodestrip:*} && list of unicode characters, strip
+  characters 8-13,32 from start and end\\
+\end{tabular}
+\end{leftbar}
+\noindent where the argument is one of \texttt{replace}, \texttt{ignore}, and
+\texttt{strict}.  \texttt{strict} will cause error, \texttt{ignore}
+will erase illegal characters.
+\begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{ascii:*}      && list of ascii characters\\
   \texttt{asciistrip:*} && list of ascii characters, strip characters 8-13,32 from start and end\\
-\end{tabular}\\[1ex]
-where the argument is one of \texttt{replace}, \texttt{encode}, and \texttt{strict}.
+\end{tabular}
+\end{leftbar}
+\noindent where the argument is one of \texttt{replace}, \texttt{encode}, and \texttt{strict}.
 \texttt{strict} will cause error, \texttt{ignore} will erase illegal characters,
 and \texttt{encode} is reversible encoding.
 
@@ -335,55 +340,56 @@ export one output file per slice, and more.  Read the Options section
 for full details.
 
 \subsection*{Options}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\starttable
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
-  \texttt{filename} & \textsl{mandatory} & Name of output file.
+  \RP \texttt{filename} & \textsl{mandatory} & Name of output file.
   File will by default be stored in the job's job directory.  The
   filename has to end with ``\texttt{.csv}'' for plain text files, and
   ``\texttt{.gz}'' for gzipped output.\\[1ex]
                                                                                                                                 %          .gz
-  \texttt{separator} & ',' & Column separator.\\[1ex]
+  \RP \texttt{separator} & ',' & Column separator.\\[1ex]
   
-  \texttt{labelsonfirstline} & \mintinline{python}{True} & If
+  \RP \texttt{labelsonfirstline} & \mintinline{python}{True} & If
   \mintinline{python}/True/, write column names on first row.\\[1ex]
   
-  \texttt{chain\_source} & \mintinline{python}{False} & If
+  \RP \texttt{chain\_source} & \mintinline{python}{False} & If
   \mintinline{python}/True/, read a dataset chain from
   \mintinline{python}/datasets.source/ back to
   \mintinline{python}/jobids.previous/\\[1ex]
 
-  \texttt{quote\_fields} & \textsl{empty string} & Export quoted fields.  Must be empty
+  \RP \texttt{quote\_fields} & \textsl{empty string} & Export quoted fields.  Must be empty
   (no quote character, default), ``\texttt{'}``, or ``\texttt{"}``.\\[1ex]
   
-  \texttt{labels} & \mintinline{python}/[]/ & Specify which labels to
+  \RP \texttt{labels} & \mintinline{python}/[]/ & Specify which labels to
   export.  An empty list corresponds to all labels in dataset.\\[1ex]
   
-  \texttt{sliced} & \mintinline{python}/False/ & Each slice is
+  \RP \texttt{sliced} & \mintinline{python}/False/ & Each slice is
   exported in a separate file when \mintinline{python}/True/.  If so,
   use \mintinline{python}/"%02d"/ or similar in filename as
   placeholder for the slice number.\\[1ex]
-  \hline
-\end{tabular}
-
+%\end{tabular}
+\stoptable
 
 \subsection*{Datasets}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-  \texttt{datasets} & \textsl{mandatory} & A single
+\starttable
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \RP \mintinline{python}{[source,]} & \textsl{mandatory} & A single
   dataset or a \textsl{list} of datasets.\\[1ex]
-  \hline
-\end{tabular}
+\stoptable
+%\end{tabular}
 
 
 \subsection*{Jobids}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-  \texttt{jobids} & \mintinline{python}/None/ & Jobid to
+\starttable
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+  \texttt{previous} & \mintinline{python}/None/ & Jobid to
   previous \texttt{csvexport} if chained.\\[1ex]
-  \hline
-\end{tabular}
-
+%\end{tabular}
+\stoptable
 
 
 
@@ -408,38 +414,41 @@ dataset.  The new dataset will be hashed on a column specified in the
 options.
 
 \subsection*{Options}
-\begin{snugshade}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
-\\
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
-
-  \texttt{hashlabel} & \textsl{mandatory} & column for hashing,
+%\begin{snugshade}
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
+%\\
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
+\starttable
+  \RP \texttt{hashlabel} & \textsl{mandatory} & column for hashing,
   required.  Note that columns typed as \texttt{list}, \texttt{set},
-  or \texttt{json} cannot be used for hashing.\\[1ex]
+  or \texttt{json} cannot be used for hashing.\\
 
-  \texttt{length} & \mintinline{python}/-1/ & Go back at most this
+  \RP \texttt{length} & \mintinline{python}/-1/ & Go back at most this
   many datasets in a chain.  Default is -1, which goes back to
   previous.source if it exists, or to the first dataset in the chain
-  otherwise.\\[1ex]
+  otherwise.\\
 
-  \texttt{caption} & & Optional caption.  A
-  reasonable caption is created automatically if left blank\\[1ex]
-  \texttt{as\_chain} & & True generates one dataset per slice, False
-  generates one dataset.  Default \texttt{False}.\\[1ex]
-\\\end{tabular}
-\end{snugshade}
+  \RP \texttt{caption} & & Optional caption.  A
+  reasonable caption is created automatically if left blank\\
 
+  \texttt{as\_chain} & \pyFalse & True generates one dataset per slice, False
+  generates one dataset.  Default \texttt{False}.\\
+%\\\end{tabular}
+%\end{snugshade}
+\stoptable
 
 
 \subsection*{Datasets}
-\begin{snugshade}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
-  \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\[1ex]
-  \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\[1ex]
-\end{tabular}
-\end{snugshade}
 
+\starttable
+%\begin{snugshade}
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
+  \RP \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\[1ex]
+  \RP \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\[1ex]
+%\end{tabular}
+%\end{snugshade}
+\stoptable
 
 
 
@@ -466,8 +475,8 @@ determined based on the output value of a hashing function applied to
 a certain column (the \texttt{hashlabel}) of that row.  In code, the
 operation is similar to
 \begin{python}
-    from gzutil import siphash
-    target_sliceno = siphash(cols[hashlabel]) % params.slices
+from gzutil import siphash
+target_sliceno = siphash(cols[hashlabel]) % params.slices
 \end{python}
 
 \subsection{Notes on Chains}
@@ -526,14 +535,13 @@ copied.  So execution is typically significantly below a second and no
 redundant data is written to disk.
 
 \subsection*{Options}
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-
-  \texttt{columns} & \mintinline{python}/[]/ & A list of columns to
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+\starttable
+  \RP \texttt{columns} & \mintinline{python}/[]/ & A list of columns to
   keep.\\[1ex]
-  \hline
-\end{tabular}
-
+%\end{tabular}
+\stoptable
 
 
 
@@ -546,35 +554,38 @@ datasets.  One or more columns may be selected for sorting, and it
 will sort one column at a time.
 
 \subsection*{Options}
-\fbox{
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-  \hline\\[1ex]
-  \texttt{sort\_columns'} & \textsl{mandatory} & A column or a list of
+
+%\fbox{
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+%  \hline\\[1ex]
+\starttable
+\RP \texttt{sort\_columns'} & \textsl{mandatory} & A column or a list of
   columns.  If a list is specified, sorting will be carried out left
   to right.\\[1ex]
 
-  \texttt{sort\_order} & \texttt{ascending} & Could be reversed by
+  \RP \texttt{sort\_order} & \texttt{ascending} & Could be reversed by
   specifying \texttt{descending}\\[1ex]
   
-  \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
+  \RP \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
   \mintinline{python}/False/, only sort within slices.  Otherwise sort
   across slices.\\[1ex]
-\end{tabular}
-}
-
+%\end{tabular}
+%}
+\stoptable
 
 
 \subsection*{Datasets}
-\fbox{
-\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-  \hline\\[1ex]
-  \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
-  \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
-
-\end{tabular}
-}
+%\fbox{
+%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
+%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
+%  \hline\\[1ex]
+\starttable
+\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
+\RP \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
+\stoptable
+%\end{tabular}
+%}
 
 \subsection{A Practical Limitation}
 Internally, the method works by reading the columns to sort by, and

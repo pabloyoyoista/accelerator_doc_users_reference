@@ -439,3 +439,154 @@ def synthesis():
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Iterators: Working with Data}
+
+Data in a dataset is typically accessed using an \emph{iterator} that
+reads and streams one dataset slice at a time to a CPU core.  In this
+section, we'll have a look at iterators for reading data, how to take
+advantage of slicing to have parallel processing, and how to
+efficiently create datasets.
+
+\subsection{Iterator Basics}
+
+Assume that we have a dataset with a column containing movie titles
+named \texttt{movie}, and we want to know the ten most frequent
+movies.  Consider the following example of a complete method
+\begin{python}
+from collections import Counter
+datasets = ('source',)
+
+def synthesis():
+    c = Counter(movie for movie in datasets.source.iterate(None, 'movie'))
+    print(c.most_common(10))
+\end{python}
+This will print the ten most common movie titles and their
+corresponding counts in the \texttt{source} dataset.  The code will
+run on a single CPU core, because of the \texttt{synthesis} function,
+which is called only once.  The \texttt{iterate} (class-)method
+therefore has to read through all slices, one at a time, in a serial
+fashion, and this is reflected by the first argument to the iterator
+being \texttt{None}.
+
+
+\subsection{Parallel Execution}
+The Accelerator is much about parallel processing, and since datasets
+are sliced, we can modify the above program to execute in parallel by
+doing the following modification
+\begin{python}
+def analysis(sliceno):
+    return Counter(movie for movie in datasets.source.iterate(sliceno, 'movie'))
+
+def synthesis(analysis_res)
+    c = analysis_res.merge_auto()
+    print(c.most_common(10))
+\end{python}
+Here, we run \texttt{iterate} inside the \texttt{analysis()} function.
+This function is forked once for each slice, and the argument
+\texttt{sliceno} will contain an integer between zero and the number
+of slices minus one.  The returned value from the analysis functions
+will be available as input to the synthesis function in the
+\texttt{analysis\_res} Python iterable.  It is possible to merge the
+results explicitly, but the iterator comes with a rather magic method
+\texttt{merge\_auto()}, which merges the results from all slices into
+one based on the data type.  It can for example merge
+\texttt{Counter}s, \texttt{set}s, and composed types like
+\texttt{set}s of \texttt{Counter}s, and so on.
+
+
+\subsection{Iterating over Several Columns}
+Since each column is stored independently in a dataset, there is no
+overhead from reading a subset of a dataset's columns.  In the
+previous section we've seen how to iterate over a single column using
+\texttt{iterate}.  Iterating over more columns is straightforward by
+feeding a list of column names to \texttt{iterate}, like in this
+example
+\begin{python}
+from collections import defaultdict
+datasets = {'source',}
+
+def analysis(sliceno):
+    user2movieset = defaultdict(set)
+    for user, movie in datasets.source.iterate(sliceno, ('user', 'movie')):
+    user2movieset[user].add(movie)
+    return user2movieset
+\end{python}
+This example creates a lookup dictionary from users to sets of movies.
+It is also possible to iterate over all columns by specifying an empty
+list of columns or by using the value \texttt{None}.
+\begin{python}
+...
+def analysis(sliceno):
+    for columns in datasets.source.iterate(sliceno, None):
+    print(columns)
+    break
+\end{python}
+This example will print the first row for each slice of a dataset and
+then exit.
+
+
+\subsection{Iterating over Dataset Chains}
+
+Previously, we've seen how to iterate over a single dataset using
+\texttt{iterate}.  There is a corresponding function,
+\texttt{iterate\_chain}, that is used for iterating over chains of
+datasets.  This function takes a number of arguments, such as
+\begin{itemize}
+\item[] \texttt{length}, i.e.\ the number of datasets to iterate over.
+  By default, it will iterate over all datasets in the chain.
+\item[] \texttt{callbacks}, functions that can be called before and/or
+  after each dataset in a chain.  Very useful for aggregating data
+  between datasets.
+\item[] \texttt{stop\_jobid} which stops iterating at a certain jobid.
+  This jobid could be from \textsl{another} job's parameters, so we
+  can for example iterate exactly over all new datasets not covered by
+  a previous job.
+
+\item[] \texttt{range}, which allows for iterating over a range of
+  data.
+\end{itemize}
+The \texttt{range} options is based on the max/min values stored for
+each column in the dataset.  Assuming that the chain is sorted, one
+can for example set \mintinline{python}{range={timestamp, ('2016-01-01', '2016-01-31')}}
+in order to get rows within the specified range only.  The %
+\texttt{range} is quite costly, since it requires each row in the
+dataset chain with dates within the range to be checked against the
+range criterion.  Therefore, there is a \texttt{sloppy} version that
+iterates over complete datasets in the chain that contains at least
+one row with a date within the range.  This is useful, for example, to
+very quickly produce histograms or plots of subsets of the data.
+
+
+\subsection{Asserting the Hashlabel}
+Depending on how the parallel processing is implemented in a method,
+some methods will only work if the input datasets are hashed on a
+certain column.  To make sure this is the case, there is an optional
+\texttt{hashlabel} parameter to the iterators that will cause a
+failure if the supplied column name does not correspond to the
+dataset's hashlabel.
+
+It is also possible to have the iterate re-hash on-the-fly.  In
+general this is not recommended, since there is a
+\texttt{dataset\_rehash} method that does the same and stores the
+result for immediate re-use.  Using \texttt{dataset\_rehash} will be
+much more efficient.
+
+\subsection{Dataset Translators and Filters}
+
+The iterator may perform data translation and filtering on-the-fly
+using the \texttt{translators} and \texttt{filters} options.  Here is
+an example of how a dictionary can be fed into the iterator to map a
+column
+\begin{python}
+mapper = {2: ``HUMANLIKE'', 4: ``LABRADOR'', 5: ``STARFISH'',}
+for animal in datasets.source.iterate_chain(sliceno, \
+  ``NUM_LEGS'', translator={``NUM_LEGS'': mapper,}):
+    ...
+\end{python}
+This will iterate over the \texttt{NUM\_LEGS} column, and map numbers
+to strings according to the \texttt{mapper} dict.
+
+Filters work similarly.
+

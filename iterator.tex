@@ -328,6 +328,7 @@ for animal in datasets.source.iterate(None, 'NUM_LEGS',
                                       translator={'NUM_LEGS': mapper,}):
     ...
 \end{python}
+\comment{note that is example is same as in overview!}
 This translator will substitute the integers 2,4, and 5 into strings.
 Items missing in a translation-\texttt{dict} yield \pyNone.  The next
 example illustrates a callable inside a translator \texttt{dict}.  In

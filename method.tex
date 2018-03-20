@@ -597,6 +597,7 @@ dataset slices that the Accelerator has in its configuration file.
 The idea is that each slice in a dataset should have exactly one
 corresponding analysis process, so that all slices in a dataset can be
 processed in parallel.
+\comment{utveckla}
 
 
 \subsection{Return Values}
@@ -646,12 +647,44 @@ h = defaultdict(lambda: defaultdict(set))
 is straightforward to merge using \texttt{merge\_auto}.
 
 
-\subsection{Share Data Between Jobs:  the \texttt{blob} Module}
+\section{Job Directories}
+A successfully build of a method results in a new job directory on
+disk.  The job directory will be stored in the current workdir and
+have a structure as follows, assuming the current workdir
+is \texttt{test}, and the current jobid is \texttt{test-0}.
+\begin{verbatim}
+workdirs/test/
+    test-0/
+        setup.json
+        method.tar.gz
+        result.pickle
+        post.json
+\end{verbatim}
+The \texttt{setup.json} will contain information for the job,
+including name of method, input parameters, and, after execution, some
+profiling information.  \texttt{post.json} contains profiling
+information, and is written only of the job builds successfully.  All
+source files, i.e.\ the method's source and \texttt{depend\_extra}s
+are stored in the \texttt{tar}-archive \texttt{method.tar.gz}.
+Finally, the return value from \texttt{synthesis} is stored as a
+Python pickle file with the name \texttt{result.json}.
 
-The simplest way to share reasonable amounts of data between jobs is by using the
+If the job contains datasets, these will be stored in directories,
+such as for example \texttt{default}, in the root of the job
+directory.
+
+\comment{workdirs must be described elsewere}
+\comment{current workdir must be explained elsewhere}
+
+
+\clearpage
+\section{Share Data Between Jobs:  the \texttt{blob} Module}
+
+The simplest way to share reasonable amounts of data between jobs is
+by using the
 \texttt{blob} module.
 
-\subsubsection*{Storing a  Single File}
+\subsection*{Storing a  Single File}
 Data is saved in this way
 \begin{python}
 import blob
@@ -666,7 +699,7 @@ def synthesis()
     blob.load(filename)
 \end{python}
 
-\subsubsection*{Storing a Sliced File}
+\subsection*{Storing a Sliced File}
 It is also possible to use the \texttt{blob} module in \analysis.
 From a user's perspective it will look like a single file is being
 handled, but there is actually one file per slice.  This is how to do
@@ -679,7 +712,7 @@ def analysis(sliceno):
     data = blob.load(filename, sliceno=sliceno)
 \end{python}
 
-\subsubsection*{Save Files for Debugging}
+\subsection*{Save Files for Debugging}
 There is one more argument, \texttt{temp}, which controls persistence
 of the files.  It is by default set to \mintinline{python}/False/,
 which implies that the stored file is not temporary.  But setting it
@@ -707,7 +740,7 @@ def analysis(sliceno):
 \end{python}
 
 
-\newpage
+\clearpage
 \section{Subjobs}
 
 Jobs may launch subjobs, i.e.\ methods may build other methods in a
@@ -759,3 +792,66 @@ def prepare():
   subjobs.build('childjob')
 \end{python}
 \end{enumerate}
+Furthermore, there is a limit to the recursion depth of subjobs, to
+avoid creating unlimited number of jobs by accident.
+
+
+
+\clearpage
+\section{Summary}
+A recap and bit more flesh on the bones regarding jobs
+\begin{itemize}
+\item[1.]  Data and metadata relating to a job is stored in a job directory.
+\item[2.]  Jobids are pointers to such job directories.
+\end{itemize}
+The files stored in the job directory at dispatch are complete in the
+sense that they contain all information required to run the job.  So
+the Accelerator job dispatcher actually just creates processes and
+points them to the job directory.  New processes have to go and figure
+out their purpose by themselves by looking in this directory.
+
+A running job has its \textsl{current working directory} pointing into
+the job directory, so any files created by the job (including return
+values) will by default be stored in the job's directory.
+\comment{not mentioned elsewhere}
+
+When a job completes, the meta data files are updated with profiling
+infomation, such as execution time spent in single and parallel
+processing modes.
+
+All code that is directly related to the job is also stored in the job
+directory in a compressed archive.  This archive is typically limited
+to the method's source, but the code may have manually added
+dependencies to any other files, and in that case these will be added
+too.  This way, source code and results are always connected and
+conveniently stored in the same directory for future reference.
+\begin{itemize}
+\item[3.]  Unique jobs are only executed once.
+\end{itemize}
+Among the meta information stored in the job directory is a hash
+digest of the method's source code (including manually added
+dependencies).  This hash, together with the input parameters, is used
+to figure out if a result could be re-used instead of re-computed.
+This brings a number of attractive advantages.
+\begin{itemize}
+\item[4.]  Jobs may link to eachother using jobids.
+\end{itemize}
+Which means that jobs may share results and parameters with eachother.
+\begin{itemize}
+\item[5.]  Jobs are stored in workdirs.
+\item[6.]  There may be any number of workdirs.
+\end{itemize}
+This adds a layer of ``physical separation''.  All jobs relating to
+importing a set of data may be stored in one workdir, perhaps named
+\texttt{import}, and development work may be stored in a workdir
+\texttt{dev}, etc.  Jobids are created by appending a counter to the
+workdir name, so a job \texttt{dev-42} may access data in
+\texttt{import-37}, and so on, which helps manual inspection.
+\comment{jobid creation not mentioned elsewhere}
+\begin{itemize}
+\item[7.] Jobs may dispatch other jobs.
+\end{itemize}
+It is perfectly fine for a job to dispatch any number of new jobs, and
+these jobs are called \textsl{subjobs}.  A maximum allowed recursion
+depth is defined to avoid infinite recursion.
+

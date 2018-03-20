@@ -61,7 +61,6 @@ important ones right now are
   \end{center}
 \end{figure}
 
-\clearpage
 
 
 
@@ -229,3 +228,214 @@ while a floating point value must be supplied to \texttt{param2}.
 Datasets will be described in more details later, and the
 \texttt{datasets} parameter is similar to the \texttt{jobids}
 parameter.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Datasets: Storing Data}
+
+The \texttt{dataset} is the Accelerator's default storage type for
+small or large quantities of data, designed for parallel processing
+and high performance.  Datasets are built on top of jobs, so
+\emph{datasets are created by methods and stored in job directories,
+  just like any job result.}
+
+Internally, data in a dataset is stored in a row-column format, and is
+typically \emph{sliced} into a fixed number of slices to allow
+efficient parallell access.  Columns are accessed independently.
+Furthermore, datasets may be \textsl{hashed}, so that slicing is based
+on the hash value of a given column.  In many practical applications,
+hashing makes parallel processes independent, minimising the need for
+complicated merging operations.  This is explained further in
+section~\ref{sec:dataset-hashing}.
+
+
+
+\subsection{Importing Data}
+
+Let's have a look at the common operation of \textsl{importing},
+i.e.\ creating a dataset from a file.  See
+figure~\ref{fig:dataset_csvimport}.
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/import_file1.pdftex_t}
+    \caption{Importing \texttt{file0.txt}.}
+    \label{fig:dataset_csvimport}
+  \end{center}
+\end{figure}
+
+\noindent The standard method \texttt{csvimport}, is designed to parse
+a pletoria of ``comma separated values''-file formats and store the
+data as a dataset.  The method takes several input options, where the
+file name is mandatory.  The created dataset is stored in the
+resulting job, and the name of the dataset will by default be the
+jobid plus the string \texttt{default}.  For example, if the
+\texttt{csvimport} jobid is \texttt{imp-0}, the dataset will be
+referenced by \texttt{imp-0/default}.  In this case, and always when
+there is no ambiguity, the jobid alone (\texttt{imp-0}) could be used
+too.
+
+
+
+
+
+\subsection{Linking Datasets, Chaining}
+
+Just like jobs can be linked to eachother, datasets can link to
+eachother too.  Since datasets are build on top of jobs, this is
+straightforward.  Assume that we've just imported \texttt{file0.txt}
+into \texttt{imp-0/default} and that there is more data like it stored
+in \texttt{file1.txt}.  We can import the latter file and supply a
+link to the previous dataset, see
+figure~\ref{fig:dataset_csvimport_chain}.
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/import_file0file1.pdftex_t}
+    \caption{Chaining the import of \texttt{file1.txt} to the previous
+      import of \texttt{file0.txt}.}
+    \label{fig:dataset_csvimport_chain}
+  \end{center}
+\end{figure}
+
+\noindent The \texttt{imp-1} (or \texttt{imp-1/default}) dataset
+reference can now be used to access all data imported from both files!
+
+Linking datasets containing related content is called \emph{chaining},
+and this is particularly convenient when dealing with data that grows
+over time.  Good example are all kind of \emph{log} data, such as logs
+of transactions, user interactions, etc.
+
+Using chaining, we can extend datasets with more rows just by linking,
+which is a very lightweight operation.
+
+
+
+\subsection{Adding New Columns to a Dataset}
+We have seen how easy it is to add more lines to data to a dataset
+using chaining.  The only thing that needs to be done is to set a
+link, so the overhead is minimal.
+
+Now we'll see that is it equally simple to add new columns to an
+existing dataset.  Adding columns is also a common operation and the
+Accelerator handles it efficiently using links.
+
+The idea is very simple.  Assume that we have a ``source'' dataset to
+which we want to add a new column.  We create a new dataset containing
+\textsl{only} the new column, and while creating it we instruct the
+Accelerator to link the source dataset to the new column.
+
+Accessing the new one-column dataset will transparently access all the
+data in the source dataset too, making it indistinguishable from a
+single dataset.  See Figure~\ref{fig:dep_dataset_append_column}.
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/dataset_append_column.pdftex_t}
+    \caption{caption here}
+    \label{fig:dep_dataset_append_column}
+  \end{center}
+\end{figure}
+
+
+
+
+
+\subsection{Multiple Datasets in a Job}
+
+We've seen that datasets are created by methods and stored in job
+directories.  Typically, a method creates a single dataset in the job
+directory, but there is no limit on how many datasets that could be
+created and stored in a single job directory.  This leads to some
+interesting applications.
+
+One application where it is convenient to create multiple datasets in
+a job is when splitting data into subsets based on some condition.
+For example, assume that we want to separate a dataset into two
+disjoint datasets based on a column storing a boolean value.  See
+Figure~\ref{fig:dep_dataset_csvimport_chain}.
+
+\begin{figure}[h!]
+  \hspace{1cm}
+  \input{figures/filter_dataset.pdftex_t}
+  \caption{\texttt{job-1} separates the dataset
+    \texttt{job-0/default} into two new datasets, named
+    \texttt{job-1/train} and \texttt{job-1/test}.}
+  \label{fig:dep_dataset_csvimport_chain}
+\end{figure}
+
+The figure shows how \texttt{job-1} has created two datasets,
+\texttt{job-1/train} and \texttt{job-1/test}, based on the input
+dataset \texttt{job-0/default}.  A third job, \texttt{job-2} is then
+accessing the \texttt{job-1/train} dataset.  (Note that \texttt{job-1}
+does not have a \texttt{default} dataset.)
+
+
+
+%% Short repetition on the direction of the arrow.  \texttt{job\_1}
+%% filtered the \texttt{dataset} from \texttt{job\_0}.  So if we take a
+%% look at \texttt{job\_1} and wonder where the input data is, we just
+%% follow the link back to \texttt{job\_0}.  If this job is an import, it
+%% will hold the name of the file that was imported.  If not, it will
+%% link back to another job, and so on, all the way down to the source of
+%% the dataset.  So there is full tracking and easy observability of
+%% everything that relates to job execution in the Accelerator.
+
+\emph{
+  Let us look at an example of when such dataset splitting
+  makes sense, and how it relates to the design methodology that the
+  Accelerator is based upon.  Assume that we have a (perhaps large)
+  dataset that we want to split into, say, a training set and a
+  validation set.  Even if one set is small, it makes sense to split the
+  dataset into two disjoint sets.  This way, we ``physically'' separate
+  the data into two sets, while keeping all the data in the same place.
+  This is good for transparency reasons, and any method following the
+  split may iterate over both subsets to read the complete data.
+}
+
+
+\subsection{Parallel Dataset Access and Hashing}
+As shown in detail in section~\ref{xx}, data in datasets are stored in
+multiple files, allowing for fast parallel reads.  The parameter
+\texttt{slices} (\ref{xx}) determines how many slices that the dataset
+should be partitioned into.  This parameter also sets the number of
+parallel \texttt{analysis}-processes, so that each \texttt{analysis}
+process operates on a unique slice of the dataset.
+
+Datasets can be partitioned, sliced, in different ways.  One obvious
+way is to use round robin, where each consecutive data row is written
+to the next slice, modulo the number of slices.  This leads to
+datasets with approximately equal number of rows per slice.  Another
+alternative to slicing is to slice based on the hash value of a
+particular column's values.  Using this method, all rows with the same
+value in the hash column end up in the same slice.  This is efficient
+for some parallel processing tasks.
+
+
+
+
+\subsection{Dataset Column Types}
+\label{sec:dataset-typing}
+There are a number of useful types available for dataset columns.
+They include floating and integer point numbers, booleans, timestamps,
+several string types, and json types.  Several of these types are
+designed to make importing data from text files straightforward,
+without parse errors, overflows etc.
+
+
+
+\subsection{Dataset Attributes}
+The dataset has a number of attributes associated with it, such as
+shape, number of rows, column names and types, and more.
+An attribute is accessed like this
+\begin{python}
+datasets = ('source',)
+def synthesis():
+    print(datasets.source.shape)
+\end{python}
+
+
+

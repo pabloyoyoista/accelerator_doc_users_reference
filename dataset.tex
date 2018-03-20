@@ -43,6 +43,40 @@ chaining, where datasets grows in number of lines, and column
 appending, where datasets grow in number of columns.}
 
 
+\section{Dataset Internals}
+
+On a high level, the dataset stores a \textsl{matrix} of rows and
+columns.  Each column is represented by a column name,
+or \emph{label}, and all columns have the same number of rows.
+Columns are typed, and there is a wide range of types available.
+Typing will be introduced in section~\ref{sec:dataset-typing}.
+
+The dataset is further split into disjoint slices, where each slice
+holds a unique subset of the dataset's rows.  Slicing makes simple but
+efficient parallel processing possible.  See Figure~\ref{fig:slices}.
+The number of slices is set initally by the user, and all workdirs
+that are used together in a project must use the same number of
+slices.  \comment{info om workdirs och slices annanstädes}
+
+On a low level, there is one file stored on disk for each slice and
+column.  A job that needs to read only a subset of the total number of
+columns may open and read from the relevant files only.
+
+A technical note: If the number of slices is large and files are
+small, there will be a signinficant overhead from disk \texttt{seek()}
+if using rotating disks.  The Accelerator mitigates this by using
+single files with offset-indexing when appropriate.
+
+\begin{figure}[b!]
+  \begin{center}
+     \input{figures/dataset_concept.pdftex_t}
+     \caption{A ``movie rating'' dataset composed of four columns
+              sliced into three slices.}
+     \label{fig:slices}
+  \end{center}
+\end{figure}
+
+
 \section{Chaining}
 When a dataset is created, it is optional to input a link to another
 dataset using the parameter \texttt{previous}.  This is called
@@ -62,24 +96,35 @@ the Accelerator's configuration file~\ref{}.  Slicing means that the
 rows of data in the dataset are distributed into different sets,
 called slices.  Typically, there is one file on disk for each slice
 and column.  The main reason for doing this is performance.  All files
-could be read in parallel.  A technical detail is that if the files
-become too small, all slices will be grouped into a single file which
-is read by seek offset for each slice.  This will greatly improve
-performance on systems with significant disk seek time.
+could be read in parallel.
 
 Datasets can be sliced in a number of different ways.  A simple method
 is to use round-robin, which cycles through the slices when writing.
 Round-robin will balance the number of rows per slice as equal as
-possible, which is a good thing in many scenarios.
+possible, which is a good thing in many scenarios.  In mathematical
+terms, round robin would be
+\begin{equation}
+  \textrm{row}~n \longrightarrow \textrm{slice}(n~\textrm{mod}~N)
+\end{equation}
 
 Another way is to slice by looking at the values of a fixed single
 column and put all rows with equal values in the same column.  This
 way, data will be sliced ``by content'', and the number of rows per
 slice may vary significantly.  In the context of the Accelerator, this
 is called \emph{hashing}, and a dataset can be hashed on any single
-column.  The advantage of this method is that data in each slice
-becomes independent in many application, which is ideal for parallel
-processing of the dataset.
+column.  Written as an equation, it will look like this
+\begin{equation}
+\textrm{row}~n \longrightarrow \textrm{slice}(\textrm{hash}(\textrm{word})~\textrm{mod}~N)
+\end{equation}
+
+The advantage of this method is that data in each slice becomes
+independent in many application, which is ideal for parallel
+processing of the dataset.  The hash function used by the Accelerator
+is a well-known function called \texttt{siphash24} that is available
+from the \texttt{gzutil} library
+\begin{python}
+from gzutil import siphash24
+\end{python}
 
 
 
@@ -117,7 +162,7 @@ d = Dataset(('foo-0', 'bar'))
 
 
 
-
+                      
 
 
 
@@ -159,6 +204,12 @@ print(datasets.source.columns['locale'].min)
 print(datasets.source.columns['locale'].max)
 # 107
 \end{python}
+Creation of the \texttt{max} and \texttt{min} values is a simple
+operation that is done in linear time when the dataset is created.
+Maximum and minimum values are used for example when iterating over
+chains of sorted datasets, to quickly decide if a dataset is outside
+range and can be skipped in its entirety, see
+section~\ref{sec:iterator-maxmin}.
 
 
 \subsection*{Rows per Slice}
@@ -229,8 +280,16 @@ print(datasets.source.previous)
 
 \newpage
 \section{Column Typing}
-The dataset columns are typed.  All types are shown in
-table~\ref{tab:types}.  More details follow in the next sections.
+The dataset columns are typed.  This means, for example, that if a
+column's type is \texttt{date}, each value read from the column will
+be in Python's \texttt{date} format, ready for processing.  The same
+goes for all types, including \texttt{json}, which may return rather
+complex datatypes.
+
+All available types are shown in table~\ref{tab:types}.  More details
+follow in the next sections.
+
+
 
 \begin{snugshade}
 %\begin{table}[h!]

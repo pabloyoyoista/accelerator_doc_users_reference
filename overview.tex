@@ -21,8 +21,8 @@ parameters.
 Let's begin with a simple ``hello world'' program.  We create a method
 with the following contents
 \begin{python}
-  def synthesis():
-  return ``hello world''
+def synthesis():
+    return ``hello world''
 \end{python}
 This program does not take any input parameters.  It just returns a
 string and exits.  Running methods on the Accelerator is further
@@ -77,13 +77,13 @@ method that just reads and prints the result from the previous job to
 goes like this
 
 \begin{python}
-  import blob
+import blob
 
-  jobids = {'hello_world_job',}
+jobids = {'hello_world_job',}
 
-  def synthesis():
-  x = blob.load(jobid=jobids.hello_world_job)
-  print(x)
+def synthesis():
+    x = blob.load(jobid=jobids.hello_world_job)
+    print(x)
 \end{python}
 
 This method expects the \texttt{hello\_world\_job} input parameter to
@@ -170,16 +170,16 @@ variable.  The \texttt{params} variable is make available by adding it
 as input to \texttt{prepare()}, \texttt{analysis()}, or
 \texttt{synthesis()}, like this
 \begin{python}
-  def synthesis(params):
-  print(params)
+def synthesis(params):
+    print(params)
 \end{python}
 Accessing the \texttt{params} variable for \textsl{another} job is
 done like this
 \begin{python}
-  jobids = {'thejob',}
+jobids = {'thejob',}
 
-  def synthesis():
-  print(jobids.thejob.params)
+def synthesis():
+    print(jobids.thejob.params)
 \end{python}
 it turns out it can be very useful to know for example which datasets
 another job has been processing, and so on.
@@ -205,7 +205,7 @@ seed, the hash of the source code, and method execution start time.
 The \texttt{jobids} parameter is a set containing any number of input
 jobids.  For example
 \begin{python}
-  jobid = {'sales_stats', 'overhead_stats',}
+jobid = {'sales_stats', 'overhead_stats',}
 \end{python}
 When a method is to be executed, actual links to jobs, i.e.\ jobids,
 are passed using these parameters.
@@ -214,12 +214,12 @@ are passed using these parameters.
 \subsubsection*{Input parameter \texttt{options}}
 Options are supplied as a dictionary and is very flexible in typing.  For example
 \begin{python}
-  options = dict(
-  name = 'alice',
-  defaultnames = set('alice', 'bob'),
-  param1 = 1,
-  param2 = float,
-  )
+options = dict(
+    name = 'alice',
+    defaultnames = set('alice', 'bob'),
+    param1 = 1,
+    param2 = float,
+)
 \end{python}
 Here, values are defaults, so \texttt{param1} is default set to 1,
 while a floating point value must be supplied to \texttt{param2}.

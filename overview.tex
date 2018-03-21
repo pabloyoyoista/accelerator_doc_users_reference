@@ -1,3 +1,32 @@
+This chapter presents an overview of the Accelerator's features in a
+rather non-formal way.
+
+\section{High Level View}
+
+The Accelerator is a client-server based application, and from a high
+level, it can be visualised like in figure~\ref{fig:overview}.
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/overview.pdftex_t}
+    \caption{High level view of the Accelerator framework.  See text
+      for details.}
+    \label{fig:overview}
+  \end{center}
+\end{figure}
+This manual will describe the setup in detail.  For now, the most
+important features are as follows.  On the left side there is a
+\texttt{runner} client.  To the right, there are two servers, called
+\texttt{daemon} and \texttt{urd}.  The \texttt{runner} program runs
+scripts, called \texttt{build scripts}, that execute jobs on the
+\texttt{daemon} server.  This server will load and store information
+and results for all jobs executed using the \textsl{workdirs} file
+system based database.  In parallel, all jobs covered by a build
+script will be stored by the \texttt{urd} server into the \textsl{job
+  logs} file system database.  \texttt{urd} is also responsible for
+finding collections, or lists, of related previously executed jobs.
+
+
+
 \section{Jobs:  Executing Code}
 The basic operation of the Accelerator is to execute small programs
 called \textsl{methods}.  In a method, some reserved function names
@@ -22,7 +51,7 @@ Let's begin with a simple ``hello world'' program.  We create a method
 with the following contents
 \begin{python}
 def synthesis():
-    return ``hello world''
+    return "hello world"
 \end{python}
 This program does not take any input parameters.  It just returns a
 string and exits.  Running methods on the Accelerator is further
@@ -234,6 +263,7 @@ parameter.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \section{Datasets: Storing Data}
 
 The \texttt{dataset} is the Accelerator's default storage type for
@@ -441,6 +471,7 @@ def synthesis():
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \section{Iterators: Working with Data}
 
 Data in a dataset is typically accessed using an \emph{iterator} that
@@ -567,6 +598,8 @@ certain column.  To make sure this is the case, there is an optional
 failure if the supplied column name does not correspond to the
 dataset's hashlabel.
 
+
+
 It is also possible to have the iterate re-hash on-the-fly.  In
 general this is not recommended, since there is a
 \texttt{dataset\_rehash} method that does the same and stores the
@@ -580,9 +613,9 @@ using the \texttt{translators} and \texttt{filters} options.  Here is
 an example of how a dictionary can be fed into the iterator to map a
 column
 \begin{python}
-mapper = {2: ``HUMANLIKE'', 4: ``LABRADOR'', 5: ``STARFISH'',}
+mapper = {2: "HUMANLIKE", 4: "LABRADOR", 5: "STARFISH",}
 for animal in datasets.source.iterate_chain(sliceno, \
-  ``NUM_LEGS'', translator={``NUM_LEGS'': mapper,}):
+  "NUM_LEGS", translator={"NUM_LEGS": mapper,}):
     ...
 \end{python}
 This will iterate over the \texttt{NUM\_LEGS} column, and map numbers

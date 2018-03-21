@@ -16,14 +16,14 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[a4paper]{report}
+\documentclass[a4paper]{book}
 \usepackage{graphicx}
 \usepackage{color}
 %% Replace serif font with (postscript) helvetica
 %\usepackage[scaled]{helvet}
 %\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \usepackage[T1]{fontenc}
-\setlength{\textwidth}{160mm}
+\setlength{\textwidth}{140mm}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\evensidemargin}{0mm}
 \setlength{\textheight}{250mm}
@@ -208,16 +208,24 @@ workdir   & a location where job data and metadata is stored\\
 \chapter{Overview}
 \include{concepts}
 
+\chapter{Practicalities}
+\include{practicalities}
+
+
+
+\chapter{Basic Build Scripting}
+\include{urd_basic}
+
 \chapter{High Level Control:  Urd}
 \include{urd}
 
-\chapter{Method}
+\chapter{Jobs}
 \include{method}
 
-\chapter{Dataset}
+\chapter{Datasets}
 \include{dataset}
 
-\chapter{Iterator}
+\chapter{Iterators}
 \include{iterator}
 
 \chapter{Standard Methods}

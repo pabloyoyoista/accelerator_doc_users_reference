@@ -16,29 +16,63 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Accelerator is a very efficient environment for running and
-scheduling big data tasks.  It has been in continuous development
-since 2012, and has been used in seven different projects, of which
-three has been live to customers, and the other four was data analysis
-and insight projects.
+The Accelerator is a tool for fast data processing, capable of working
+at high speed with terabytes of data with billions of rows on a single
+computer.  Typical applications include data analysis work as well as
+live production systems for varous data processing tasks, such as
+recommendation systems, and more.  It has a small footprint and runs
+on laptops as well as rack servers.
 
-Due to its minimalistic implementation, the Accelerator is capable of
-working at high speed with terabytes of data with billions of lines on
-a single computer.  Two things stand out: first, all jobs are
-bookkeeped in a novel way; and second, data is represented and
-accessed with close to zero overhead.  The end result is a globally
-optimised data processing machine with a wide spectrum of uses.
+It was first used in 2012, and has been continuously developed and
+improved since.  It has been in use in projects for companies like
+Safeway, Starbucks, eBay, and Vodafone.  Most project have been
+related to data analysis, some to optimisation, and some projects have
+been live-running recommendation systems for years.  The Accelerator
+has evolved from being the core of these projects.  In 2016, it was
+aquired by Ebay, who contributed it to the open source community early
+2018.
 
-Some Accelerator features
+Data set sizes in these projects range from a few hundred lines up to
+several tens of billions rows with multiple columns.  The number of
+items in a dataset used in a live system was well above $10^{11}$, and
+this was handled with ease on a \emph{single} 32 core computer.
+
+The authors are Anders Berkeman, Carl Drougge, and Sofia H\"orberg.
+More than 1600 commits have been removed to clean up the open version
+of the code base.  Extensive testing has been done by Stefan
+H{\aa}konsson.
+
+
+\section{Main Design Goals}
+The Accelerator is designed to process log-files.  Most data can be
+represented in terms of log files, a format that brings determinism
+(i.e.\ repeatability) as well as transparency, which are important,
+but hard to achieve, factors in many projects.  The Accelerator is
+developed bottom up for high performance and simplicity, and the main
+design goals are
 \begin{itemize}
-\item \textbf{Data integration} - The Accelerator has been used in
-  several projects with different customers and data, and has thereby
-  adopted to a number of formats and cases.
-\item \textbf{Efficient Data Access} - Data is streamed through jobs
-  using low level operating- and filesystem primitives.
-\item \textbf{Simple job tracking} - Easy to find source data, easy to
-  use results from other users.
-\item \textbf{Transparency} - Total context for all jobs ever run is
-  stored and straightforward to retreive.  Any job could be retrieved
-  or replayed.
+
+\item[] Parallel processing should be made simple.  Modern computers
+  come with several cores, it should be straightforward to make use of
+  them.
+
+\item[] Data rates should be as fast as possible.  It should be
+  possible to process large datasets, even on commodity hardware.
+
+\item[] Never recompute old results, always recycle jobs, when
+  possible.  Also, sharing results between multiple users should be
+  effortless.
+
+\item[] Organise and keep track of all jobs, files, and results in
+  order to work with projects having 100.000s of input files and lots
+  of programs and scripts processing them.
+  
 \end{itemize}
+In addition, the Accelerator is designed to be used in all levels of a
+project, including data analysis, algorithm development, as well as
+production.  Using the same tool for analysis and production closes
+the loop between input and output, making it really simple to analyse
+and get insights from the whole system.
+
+
+

@@ -38,7 +38,8 @@ write jobs to.  There can only be one target workdir.\\
 
 \RP \texttt{source\_workdirs} & & a comma separated list of workdirs
 available for reading.  These will be the only workdirs that the
-Accelerator can ``see''.\\
+Accelerator can ``see''.  \texttt{standard\_methods} is bundled with
+the Accelerator and is commonly used.\\
 
 \RP \texttt{method\_directories} && a comma separated list of
 directories containing methods.  These will be the only directories
@@ -60,10 +61,10 @@ seting up a similar system on another physical machine.)\\
 \stoptable
 \comment{ta bort mandatory-kolumnen}
 
-
-\begin{verbatim}
-# var=value, value can have ${VAR=DEFAULT} to import env vars.
-\end{verbatim}
+It is possible to assign values in the configuration file using shell
+environment variables.  In the example above, workdirs are specified
+relative to \texttt{\$\{HOME\}}, for example.  In general, the
+assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 \section{Runner Arguments}
 

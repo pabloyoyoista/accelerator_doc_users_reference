@@ -1,10 +1,15 @@
 
-\section{Configuration File}
+\section{Accelerator Configuration File}
 
 The Accelerator is shipped with a configuration file template with
 comments to each line.  It is a good idea to copy and modify this when
 a new configuration file is needed.  Below is an example configuration
-file
+file that defines two workdirs, called \texttt{import} and
+\texttt{processing}.  Both are available for reading, but only the
+latter may be written to.  Methods available for use are the
+\texttt{standard\_methods} bundled with the Accelerator, and methods
+defined in the directory \texttt{dev} (if they are defined in
+\texttt{dev/methods.conf}).
 \begin{leftbar}
 \begin{shell}
 workdir=import:${HOME}/accelerator/workdirs/import:16

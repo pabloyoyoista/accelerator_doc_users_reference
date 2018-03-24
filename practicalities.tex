@@ -71,8 +71,85 @@ environment variables.  In the example above, workdirs are specified
 relative to \texttt{\$\{HOME\}}, for example.  In general, the
 assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
-\section{Runner Arguments}
+\section{Runner Invocation}
+The \texttt{runner} is used to execute build scripts.  it is invocated
+like this
+\begin{shell}
+% automatarunner.py [options] [script]
+\end{shell}
+assuming the current work directory is the texttt{Accelerator}
+directory.  The \texttt{script} is either a filename, or the suffix to
+a filename starting with \texttt{automata\_}.
+\comment{andra pa detta}
 
-\section{Daemon Arguments}
+When the \texttt{runner} starts, it will first instruct the
+Accelerator to scan all method directories to see if there are any new
+or changed methods.  Thereafter, the Accelerator will proceed and scan
+all source workdirs to see if any new jobs have been created (by
+another Accelerator daemon).  Thereafter, it will execute the build
+script.
+
+\begin{tabular}{p{3cm}p{8cm}}
+  \texttt{-h}\hspace{1cm}\texttt{--help} & show help message and
+  exit.\\[1ex]
+
+  \texttt{-p PORT }\hspace{1cm}\texttt{--port=PORT} & Accelerator
+  listening port\\[4ex]
+
+  \texttt{-S SOCKET}\hspace{1cm}\texttt{--socket=SOCKET} & Accelerator
+  unix socket (default \texttt{./socket.dir/default})\\[4ex]
+
+  \texttt{-s SCRIPT}\hspace{1cm}\texttt{--script=SCRIPT} & build
+  script to run. \texttt{package/automata\_<SCRIPT>.py}.  Defaults to
+  ``\texttt{automata}''.  Can be bare arg too.\\[4ex]
+
+  \texttt{-A}\hspace{1cm}\texttt{--abort} & abort (fail) current job(s).\\[1ex]
+
+  \texttt{-q}\hspace{1cm}\texttt{--quick} & skip method updates and
+  workdirs checking for new jobs.\\[1ex]
+  
+\end{tabular}
+
+\begin{verbatim}
+Options:
+  -h, --help            show this help message and exit
+  -p PORT, --port=PORT  framework listening port
+  -H HOSTNAME, --hostname=HOSTNAME
+                        framework hostname
+  -S SOCKET, --socket=SOCKET
+                        framework unix socket (default ./socket.dir/default)
+  -s SCRIPT, --script=SCRIPT
+                        automata script to run. package/[automata_]script.py.
+                        default "automata". Can be bare arg too.
+  -P PACKAGE, --package=PACKAGE
+                        package where to look for script, default all method
+                        directories in alphabetical order
+  -f FLAGS, --flags=FLAGS
+                        comma separated list of flags
+  -A, --abort           abort (fail) currently running job(s)
+  -q, --quick           skip method updates and checking workdirs for new jobs
+  -w, --just_wait       just wait for running job, don't run any automata
+  --verbose=VERBOSE     verbosity style {no, status, dots, log}
+  --quiet               same as --verbose=no
+  --horizon=HORIZON     Time horizon - dates after this are not visible in
+                        urd.latest
+\end{verbatim}
+
+
+
+
+\section{Daemon Invocation}
+
+\begin{verbatim}
+usage: daemon.py [-h] [--debug] [--config CONFIG_FILE]
+                 [--port PORT | --socket SOCKET]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug
+  --config CONFIG_FILE  Configuration file (default: ../conf/framework.conf)
+  --port PORT           Listen on tcp port (default: None)
+  --socket SOCKET       Listen on unix socket (default: socket.dir/default)
+\end{verbatim}
 
 \section{Urd Arguments}

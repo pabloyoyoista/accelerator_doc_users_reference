@@ -71,6 +71,8 @@ environment variables.  In the example above, workdirs are specified
 relative to \texttt{\$\{HOME\}}, for example.  In general, the
 assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
+
+\clearpage
 \section{Runner Invocation}
 The \texttt{runner} is used to execute build scripts.  it is invocated
 like this
@@ -88,68 +90,79 @@ or changed methods.  Thereafter, the Accelerator will proceed and scan
 all source workdirs to see if any new jobs have been created (by
 another Accelerator daemon).  Thereafter, it will execute the build
 script.
+\begin{snugshade}
+\begin{tabular}{p{3cm}p{10cm}}
+  \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
 
-\begin{tabular}{p{3cm}p{8cm}}
-  \texttt{-h}\hspace{1cm}\texttt{--help} & show help message and
-  exit.\\[1ex]
-
-  \texttt{-p PORT }\hspace{1cm}\texttt{--port=PORT} & Accelerator
+  \texttt{-p PORT }\hspace{2cm}\texttt{---port=PORT} & Accelerator
   listening port\\[4ex]
 
-  \texttt{-S SOCKET}\hspace{1cm}\texttt{--socket=SOCKET} & Accelerator
-  unix socket (default \texttt{./socket.dir/default})\\[4ex]
+  \texttt{-H HOSTNAME}\hspace{2cm}\texttt{---hostname=HOSTNAME} &
+  framework hostname\\[4ex]
+  
+  \texttt{-S SOCKET}\hspace{2cm}\texttt{---socket=SOCKET} &
+  Accelerator unix socket (default
+  \texttt{./socket.dir/default})\\[4ex]
 
-  \texttt{-s SCRIPT}\hspace{1cm}\texttt{--script=SCRIPT} & build
+  \texttt{-s SCRIPT}\hspace{1cm}\texttt{---script=SCRIPT} & build
   script to run. \texttt{package/automata\_<SCRIPT>.py}.  Defaults to
   ``\texttt{automata}''.  Can be bare arg too.\\[4ex]
 
-  \texttt{-A}\hspace{1cm}\texttt{--abort} & abort (fail) current job(s).\\[1ex]
+  \texttt{-A}\hspace{2cm}\texttt{---abort} & abort (fail) current
+  job(s).\\[4ex]
 
-  \texttt{-q}\hspace{1cm}\texttt{--quick} & skip method updates and
-  workdirs checking for new jobs.\\[1ex]
+  \texttt{-P PACKAGE}\hspace{2cm}\texttt{---package=PACKAGE} & method
+  dirs \comment{HUH}\\[4ex]
+
+  \texttt{-f FLAGS}\hspace{2cm}\texttt{---flags=FLAGS} & comma
+  separated list of flags\comment{flags}\\[4ex]
   
+  \texttt{-q}\hspace{2cm}\texttt{---quick} & skip method updates and
+  workdirs checking for new jobs.\\[4ex]
+
+  \texttt{-w}\hspace{2cm}\texttt{---just\_wait} & just wait for running
+  job, do not run a build script.\\[4ex]
+
+  \texttt{---verbose=VERBOSE} & verbosity level, one of \texttt{no},
+  \texttt{status}. \texttt{dots}, or \texttt{log}.\\[4ex]
+
+  \texttt{---quiet} & same as \texttt{---verbose=no}\\[4ex]
+
+  \texttt{---horizon=HORIZON} & Time horizon - dates after this are
+  not visible in \texttt{urd.latest}.\\[4ex]
 \end{tabular}
-
-\begin{verbatim}
-Options:
-  -h, --help            show this help message and exit
-  -p PORT, --port=PORT  framework listening port
-  -H HOSTNAME, --hostname=HOSTNAME
-                        framework hostname
-  -S SOCKET, --socket=SOCKET
-                        framework unix socket (default ./socket.dir/default)
-  -s SCRIPT, --script=SCRIPT
-                        automata script to run. package/[automata_]script.py.
-                        default "automata". Can be bare arg too.
-  -P PACKAGE, --package=PACKAGE
-                        package where to look for script, default all method
-                        directories in alphabetical order
-  -f FLAGS, --flags=FLAGS
-                        comma separated list of flags
-  -A, --abort           abort (fail) currently running job(s)
-  -q, --quick           skip method updates and checking workdirs for new jobs
-  -w, --just_wait       just wait for running job, don't run any automata
-  --verbose=VERBOSE     verbosity style {no, status, dots, log}
-  --quiet               same as --verbose=no
-  --horizon=HORIZON     Time horizon - dates after this are not visible in
-                        urd.latest
-\end{verbatim}
+\end{snugshade}
 
 
 
 
+\clearpage
 \section{Daemon Invocation}
 
 \begin{verbatim}
-usage: daemon.py [-h] [--debug] [--config CONFIG_FILE]
-                 [--port PORT | --socket SOCKET]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --debug
-  --config CONFIG_FILE  Configuration file (default: ../conf/framework.conf)
-  --port PORT           Listen on tcp port (default: None)
-  --socket SOCKET       Listen on unix socket (default: socket.dir/default)
+daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
 \end{verbatim}
 
-\section{Urd Arguments}
+Optional arguments
+\begin{snugshade}
+\begin{tabular}{p{3cm}p{10cm}}
+  \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
+
+  \texttt{---debug} & \comment{ga}\\[2ex]
+  
+  \texttt{---config CONFIG\_FILE} & configuration file, default
+  \texttt{../conf/framework.conf}\\[4ex]
+
+  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
+
+  \texttt{---socket SOCKET} & listen on unix socket, default
+  \texttt{socket.dir/default}\\[4ex]
+
+\end{tabular}
+\end{snugshade}
+
+
+\clearpage
+\section{Urd Invocation}

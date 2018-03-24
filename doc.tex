@@ -106,7 +106,7 @@
 \def\RP #1&#2&#3{ #1&#2&#3}
 
 
-
+\usepackage{multirow}
 
 
 
@@ -136,20 +136,20 @@
 %\tableofcontents
 
 
-\section*{Glossary}
+%% \section*{Glossary}
 
-% \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
-\begin{tabular*}{\textwidth}{ll}
-automata  & a script run by urd dispatching or recalling jobs\\
-chain     & a one-directional list of datasets\\
-dataset   & efficient storage of data\\
-job       & a running or completed method\\
-jobid     & a link to a successfully completed method\\
-method    & main source file of program to be executed by framework\\
-package   & a location where methods are stored\\
-urd       & dispatcher and job database\\
-workdir   & a location where job data and metadata is stored\\
-\end{tabular*}
+%% % \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
+%% \begin{tabular*}{\textwidth}{ll}
+%% automata  & a script run by urd dispatching or recalling jobs\\
+%% chain     & a one-directional list of datasets\\
+%% dataset   & efficient storage of data\\
+%% job       & a running or completed method\\
+%% jobid     & a link to a successfully completed method\\
+%% method    & main source file of program to be executed by framework\\
+%% package   & a location where methods are stored\\
+%% urd       & dispatcher and job database\\
+%% workdir   & a location where job data and metadata is stored\\
+%% \end{tabular*}
 
 
 \chapter{Introduction}
@@ -205,8 +205,8 @@ workdir   & a location where job data and metadata is stored\\
 \chapter{NEW Overview}
 \include{overview}
 
-\chapter{Overview}
-\include{concepts}
+%\chapter{Overview}
+%\include{concepts}
 
 \chapter{Practicalities}
 \include{practicalities}

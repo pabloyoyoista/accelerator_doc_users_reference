@@ -1,5 +1,37 @@
+There are three main components in the Accelerator framework, the
+\texttt{daemon}, the \texttt{runner}, and \texttt{urd}.  How to
+configure and run these components is the topic of this chapter.
 
-\section{Accelerator Configuration File}
+
+\section{Daemon}
+
+\subsection{Invocation}
+
+\begin{verbatim}
+daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
+\end{verbatim}
+
+Optional arguments
+\begin{snugshade}
+\begin{tabular}{p{3cm}p{10cm}}
+  \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
+
+  \texttt{---debug} & \comment{ga}\\[2ex]
+  
+  \texttt{---config CONFIG\_FILE} & configuration file, default
+  \texttt{../conf/framework.conf}\\[4ex]
+
+  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
+
+  \texttt{---socket SOCKET} & listen on unix socket, default
+  \texttt{socket.dir/default}\\[4ex]
+\end{tabular}
+\end{snugshade}
+
+
+
+\subsection{Configuration File}
 
 The Accelerator is shipped with a configuration file template with
 comments to each line.  It is a good idea to copy and modify this when
@@ -72,12 +104,15 @@ relative to \texttt{\$\{HOME\}}, for example.  In general, the
 assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 
+
 \clearpage
-\section{Runner Invocation}
+\section{Runner}
+
+\subsection{Invocation}
 The \texttt{runner} is used to execute build scripts.  it is invocated
 like this
 \begin{shell}
-% automatarunner.py [options] [script]
+automatarunner.py [options] [script]
 \end{shell}
 assuming the current work directory is the texttt{Accelerator}
 directory.  The \texttt{script} is either a filename, or the suffix to
@@ -135,34 +170,36 @@ script.
 \end{snugshade}
 
 
+\subsection{Authorization to Urd}
+Authorisation to Urd could be set in the \texttt{URD\_AUTH}
+environment variable.  A common way to invoke the runner with Urd
+authorisation is like this
+\begin{shell}
+% URD_AUTH=user:passwd ./runner [script]
+\end{shell}
+
 
 
 \clearpage
-\section{Daemon Invocation}
+\section{Urd}
 
-\begin{verbatim}
-daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
-\end{verbatim}
+\subsection{database}
 
-Optional arguments
+The \texttt{passwd} file.
+
+
+\subsection{Invocation}
+\begin{shell}
+urd.py [-h] [--port PORT] [--path PATH]
+\end{shell}
+
 \begin{snugshade}
 \begin{tabular}{p{3cm}p{10cm}}
   \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
   exit.\\[4ex]
 
-  \texttt{---debug} & \comment{ga}\\[2ex]
-  
-  \texttt{---config CONFIG\_FILE} & configuration file, default
-  \texttt{../conf/framework.conf}\\[4ex]
+  \texttt{---port PORT} & listen on TCP port\\[4ex]
 
-  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
-
-  \texttt{---socket SOCKET} & listen on unix socket, default
-  \texttt{socket.dir/default}\\[4ex]
-
+  \texttt{---path PATH} & path to database\\[4ex]
 \end{tabular}
 \end{snugshade}
-
-
-\clearpage
-\section{Urd Invocation}

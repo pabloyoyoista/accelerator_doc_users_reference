@@ -64,39 +64,40 @@ py3=/usr/bin/python3.5
 \end{shell}
 \end{leftbar}
 \noindent and here are explanations to all keywords
-\starttable
+\starttabletwo
 
-\RP \texttt{workdir} & & A \textsl{workdir}, defined as
+\RPtwo \texttt{workdir} & A \textsl{workdir}, defined as
 \texttt{name:path:slices}.  At least one workdir needs to be defined.
-All workdirs used together must have the same number of slices.\\
+All workdirs used together must have the same number of slices.\\[1ex]
 
-\RP \texttt{target\_workdir} & & \textsl{workdir} used to
-write jobs to.  There can only be one target workdir.\\
+\RPtwo \texttt{target\_workdir} & \textsl{workdir} used to
+write jobs to.  There can only be one target workdir.\\[1ex]
 
-\RP \texttt{source\_workdirs} & & a comma separated list of workdirs
+\RPtwo \texttt{source\_workdirs} & a comma separated list of workdirs
 available for reading.  These will be the only workdirs that the
 Accelerator can ``see''.  \texttt{standard\_methods} is bundled with
-the Accelerator and is commonly used.\\
+the Accelerator and is commonly used.\\[1ex]
 
-\RP \texttt{method\_directories} && a comma separated list of
+\RPtwo \texttt{method\_directories} & a comma separated list of
 directories containing methods.  These will be the only directories
-where the Accelerator can ``see'' methods.\\
+where the Accelerator can ``see'' methods.\\[1ex]
 
-\RP \texttt{result\_directory} & & A path that is available to all
-jobs.  \comment{result\_directory borde finnas med i params.}  \\
+\RPtwo \texttt{result\_directory} & A path that is available to all
+jobs.  \textsl{Currently not in use.}  \\[1ex]
 
-\RP \texttt{source\_directory} & & Default root path for
+\RPtwo \texttt{source\_directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if source
 files are moved to another directory.  (This typically happens when
-seting up a similar system on another physical machine.)\\
+seting up a similar system on another physical machine.)\\[1ex]
 
-\RP \texttt{logfilename} && location of the Accelerator's log.\\
+\RPtwo \texttt{logfilename} & location of the Accelerator's log.\\[1ex]
 
-\RP \texttt{py2} and \texttt{py3} && path to Python executables.
-\comment{mandatory, are there reasonable defaults?}\\
+\RPtwo \texttt{py2} and \texttt{py3} & path to Python executables.
+Current versions of the methods in the \texttt{standard\_methods}
+directory require \texttt{python2}.
+\comment{fill in more details here}\\[1ex]
 
-\stoptable
-\comment{ta bort mandatory-kolumnen}
+\stoptabletwo
 
 It is possible to assign values in the configuration file using shell
 environment variables.  In the example above, workdirs are specified

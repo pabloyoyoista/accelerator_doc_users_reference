@@ -216,3 +216,18 @@ incremental job counter.
 To create a new workdir, stop the \texttt{daemon}, add the workdir
 information to the configuration file, make it
 the \textsl{default\_workdir}, and start the \texttt{daemon} again.
+
+
+\section{Progress Indication}
+
+During job building, it is possible to press \texttt{C-t},
+i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, to get status
+information.  The status will cover the processing state, if it is
+in \prepare, \analysis, or \synthesis.  If in \analysis, it will list
+all analysis processes that are active at the moment.  If iterating
+over a dataset, there will be information about that, including which
+dataset in a chain that is currently iterated by which \analysis
+process.
+
+Note that \texttt{C-t} could be pressed either in the \texttt{daemon}
+or \texttt{runner} shells.

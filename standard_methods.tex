@@ -116,6 +116,25 @@ is typed.  This is useful for typing datasets created by
 \texttt{csvimport}.
 \comment{Only new dataset when filter\_bad}
 
+Default behaviour is to append new columns with typed data.  These
+columns will have the same name as the untyped version of the data,
+making the untyped data ``inaccessible'', even if it is still in the
+dataset.  Using the \texttt{rename} options, typed columns could be
+assigned a name that differs from the original columns, so that both
+typed and untyped data is available simultaneously.  This brings
+transparency to the typing process.
+
+Some datasets may have contain data that is incorrect in the sense
+that it causes parsing errors when typing.  Unparseable data could
+either be replaced by a default value or removed from the dataset.
+Removing rows from a dataset is not possible.  Instead, the
+\texttt{dataset\_type} method will create a new dataset containing
+only rows with typeable data.
+
+
+
+
+
 
 
 

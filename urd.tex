@@ -18,199 +18,173 @@
 
 \section{Introduction to Urd}
 
-Urd is the processing flow controller in the framework.  It is the primary job
-dispatcher as well as the bookkeeper of all jobs executed.  Events in
-urd are quantified into what is called \textsl{sessions}, and the core
-of urd is a transaction log database storing these sessions together
-with meta information.  The result is a server providing lookups for
-all jobs executed together with their context.
+Urd is the processing flow controller in the framework.  It is the
+primary job dispatcher as well as the bookkeeper of all jobs executed.
+Events in urd are quantified into what is called \textsl{sessions}.
+The core of Urd is a transaction log database storing these sessions
+together with meta information.  The result is a server providing
+lookups for all jobs executed together with their context.
 
 The Urd database is partitioned into what is called \textsl{lists}.
-Lists are where information about executed jobs are stored, and
-Each user or agent may own one or more lists.
-Lists are globally readable, but
-writing requires authentication, so that, for example, only
-the production user may publish a model to go live.
+Lists are where information about executed jobs are stored, and how
+they relate to eachother.  Lists are globally readable, but writing
+requires authentication, so that, for example, only the production
+user may publish a model to go live.
 
-With the exception of experimental work, all work initiated by urd is
+With the exception of experimental work, all work initiated by Urd is
 run in closed sessions, with well defined starting and ending points.
 The input dependencies to these sessions are recorded, together with
 the resulting output.
 
 
 
-\section{Urd sessions}
+\section{Urd Sessions}
 
-Here is an example of a minimal urd session
+A minimal example of creating an Urd session is as follows
 \begin{python}
 def main(urd):
-  urd.begin('test')
-  ...
-  urd.finish('test', '2016-10-25')
+    urd.begin('test')
+    ...
+    urd.finish('test', '2016-10-25')
 \end{python}
-Every job that is dispatched between \texttt{begin} and \texttt{finish} will
-be appended to the \texttt{test} Urd list with timestamp
-\texttt{20161025}.  The Urd list will be updated as long as the \texttt{finish} function is called,
-since it is responsible for updating the urd transaction log.  Before
-\texttt{finish}, noting is stored, and it is perfectly ok to omit
-\texttt{finish} during development work.
+Every job that is dispatched between \texttt{begin} and
+\texttt{finish} will be appended to the \texttt{test} Urd list with
+timestamp \texttt{20161025}.  In addition, all lookups of jobs done by
+Urd will be appended to the Urd list as dependencies.
+
+The Urd list will be updated only when the \texttt{finish} function is
+called, since it is responsible for updating the urd transaction log.
+Before \texttt{finish}, nothing is stored, and it is perfectly okay to
+omit \texttt{finish} during development work.
 
 There are a number of options associated with a session, as shown
 here,
 \begin{python}
-  urd.begin(path, timestamp=None, caption=None, update=False)
-  urd.finish(path, timestamp=None, caption=None)
+urd.begin(path, timestamp, caption=None, update=False)
+urd.finish(path, timestamp, caption=None)
 \end{python}
-and the following rules apply to these options:
+and the following applies
 \begin{itemize}
-  \item \texttt{path} is the name of the Urd list, and the same \texttt{path} must be specified in both \texttt{begin} and \texttt{finish}.
-  \item \texttt{timestamp} is mandatory, but could be set in either \texttt{begin} or
-    \texttt{finish}.  \texttt{finish} overrides \texttt{begin}.
-  \item \texttt{caption} is mandatory, but could be set in either \texttt{begin} or
-    \texttt{finish}.  \texttt{finish} overrides \texttt{begin}.
+\item [] \texttt{path} is the name of the Urd list, and the same
+  \texttt{path} must be specified in both \texttt{begin} and
+  \texttt{finish}.
+
+\item [] \texttt{timestamp} is mandatory, but could be set in either
+  \texttt{begin}, \texttt{finish}, or both.  \texttt{finish}
+  overrides \texttt{begin}.  \comment{is that so?}
+
+\item [] \texttt{caption} is optional, and can be set in either
+  \texttt{begin} or \texttt{finish}.  \texttt{finish} overrides
+  \texttt{begin}.  \comment{is that so?}
 \end{itemize}
 There is also an \texttt{update} option that will be discussed in
 section~\ref{update_info}.
 
 
 
-\subsubsection{Timestamp resolution}
+\subsection{Timestamp resolution}
 
 Timestamps may be specified in various resolution depending on the
 application.  The time format is
 \begin{verbatim}
-  "%Y-%m-%dT%H:%M:%S"
+"%Y-%m-%dT%H:%M:%S"
 \end{verbatim}
 and it can be truncated as shown in the following examples covering all possible cases.
 \begin{python}
-   '2016-10-25'               day resolution
-   '2016-10-25T15'            hour resolution
-   '2016-10-25T15:25'         minute resolution
-   '2016-10-25T15:25:00'      second resolution
+'2016-10-25'               day resolution
+'2016-10-25T15'            hour resolution
+'2016-10-25T15:25'         minute resolution
+'2016-10-25T15:25:00'      second resolution
 \end{python}
 
 
 
-\subsubsection{Aborting an Urd Session}
+\subsection{Aborting an Urd Session}
 
-When a session is initiated, a new session cannot start until the
-current has finished.  A session may be aborted, however,
+When an Urd session is initiated, a new session cannot be started
+until the current session has finished.  A session may be aborted,
+however, like this
 \begin{python}
-  urd.begin('test')
-  urd.abort()
+urd.begin('test')
+urd.abort()
 \end{python}
-and aborted sessions are not stored in the urd transaction log.
+Aborted sessions are not stored in the Urd transaction log.
 
 
 
-\newpage
+
 \section{Building Jobs}
 
-Jobs are dispatched in sessions using the \texttt{build} function.  The
-syntax is as follows
+Jobs are dispatched in Urd sessions using the \texttt{build} function.
+The syntax is just the same as in the previous section that did not
+use sessions.
 \begin{python}
-  jobid = urd.build('method1', options={}, datasets={}, jobids={}, ...)
+jobid = urd.build('method1', options={}, datasets={}, jobids={}, ...)
 \end{python}
-where \texttt{options}, \texttt{datasets}, and \texttt{jobids} are
+Here, \texttt{options}, \texttt{datasets}, and \texttt{jobids} are
 optional, depending on the method to be dispatched.  In addition, a
 name and a caption may be specified too
 \begin{python}
-  jobid = urd.build('method1', name='myjob', caption='looking for something')
+jobid = urd.build('method1', name='myjob', caption='looking for something')
 \end{python}
-The name will override the default name (which is the name of the method) in the Urd list.  In this case,
-this job will now be referred to as \texttt{myjob} (instead of default
-\texttt{method1}).  A jobid to the finished job is returned upon
+The name will override the default name, which is the name of the
+method, in the Urd list.  In this case, this job will now be referred
+to as \texttt{myjob} (instead of default \texttt{method1}).  This is
+useful to separate jobs if the same method is used multiple times in
+the same list.  A jobid to the finished job is returned upon
 successful completion.
 
 
 
 \subsection{Handling Consecutive Jobs}
+
 Using the output jobid from the \texttt{build} function, it is
 straightforward to connect jobs in series.  For example
 \begin{python}
-  jid_filter = urd.build('filter_data', datasets=dict(source=<some input>))
-  jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
+jid_filter = urd.build('filter_data', datasets=dict(source=<some input>))
+jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
 \end{python}
-In the example above, the first job, \texttt{filter\_data} creates a
-new dataset from its input.  This is then forwarded to the second job,
-\texttt{reduce}, using the jobid reference \texttt{jid\_filter}.
+In the example above, the first method, \texttt{filter\_data}, creates
+a new dataset from its input.  This is then forwarded to the second
+method, \texttt{reduce}, using the jobid reference
+\texttt{jid\_filter}.
 
-If the first method or its input data is changed, the job will run
-again.  This will cause the jobid \texttt{jid\_filter} to change too,
-which in turn will trig execution of the \texttt{reduce} job.
+If the first method or its input data is changed, the first job will
+be run again.  This will cause the jobid \texttt{jid\_filter} to
+change too, which will, in turn, trig execution of the \texttt{reduce}
+job.  The Urd list will contain jobids to both jobs, and all input
+parameters as well, so it is clear which \texttt{filter\_data} job
+that was used as input for the \texttt{reduce} job.
 
 
 
 \subsection{Building Chained Jobs}
-It is also possible to build chained jobs implicitly using the
-\texttt{build\_chained} function
+
+Using the \texttt{build\_chained} function, it is possible to build
+chained jobs implicitly, like this
 \begin{python}
-  jobid = urd.build_chained('method1', name='myjob')
+jobid = urd.build_chained('method1', name='myjob')
 \end{python}
-which takes the same options as the standard \texttt{build} method,
-with the exception that name is mandatory, since it is used to find
-the previous job of matching type.
+This function takes the same options as the standard \texttt{build}
+method, with the exception that name is mandatory, since it is used to
+find the previous job of matching type.
 
 
 
-\subsection{Debug:  Why build}
-
-By specifying the flag \texttt{why\_build} to the automatarunner it is
-possible to see the reasons for building a job.  See for listing~\ref{listing:why_build}.
-
-\begin{listing}
-\begin{python}
-  print(urd.build('method3', jobids=dict(firstjob=jid2, secondjob=jid2), name='knut'))
-# Would have built from:
-# ======================
-# {
-#     "caption": "fsm_method3", 
-#     "method": "method3", 
-#     "params": {
-#         "method3": {
-#             "datasets": {}, 
-#             "jobids": {
-#                 "firstjob": "test-59", 
-#                 "secondjob": "test-59"
-#             }, 
-#             "options": {}
-#         }
-#     }, 
-#     "why_build": "on_build"
-# }
-# Could have avoided build if:
-# ============================
-# {
-#     "method3": {
-#         "test-60": {
-#             "jobids": {
-#                 "firstjob": "test-56"
-#             }
-#         }
-#     }
-# }
-\end{python}
-\label{listing:why_build}
-\caption{Example output from \texttt{why\_build}.}
-\end{listing}
-
-A more machine-friendly output is possible by specifying
-\texttt{why\_build=True} in the \texttt{build}-request (and not
-specifying it to the automatarunner).
 
 
 
-\newpage
-\section{Sessions with dependency}
+\section{Urd Sessions with Dependencies}
 
+\comment{forst en import-automata har, och sedan anvand den...}
 A job may have dependencies, such as other jobs or datasets.  These
 dependencies are input to the job using the corresponding arguments to
 the \texttt{build} function.  Locating these jobs or datasets,
 however, is exactly a design goal of Urd.  Urd implements a
 \texttt{get} function that looks up jobids and dependencies from a key
-that is composed of a urd list name and a timestamp.  There are also,
-for convenience, \texttt{first} and \texttt{latest} functions to get
-the first and latest job in an urd list.
+that is composed of an Urd list name plus a timestamp.  There are
+also, for convenience, \texttt{first} and \texttt{latest} functions to
+get the first and latest job in an Urd list.
 
 Here is an example.  Assume that a method, \texttt{method1}, uses some
 kind of imported transaction logs, called \texttt{tlog}.  When
@@ -251,20 +225,24 @@ def main(urd):
 
 
 
-\section{Avoiding recording dependency}
+\section{Avoiding Recording Dependency}
 Dependency-recording will be activated on use of the \texttt{get},
 \texttt{latest}, and \texttt{first} functions.  If, for some reason,
 the point is to just have a look at the database to see what is in
-there, it can be done using the peek-versions, as presented below:
+there, it can be done using the peek functions, \texttt{peek} and
+\texttt{peek\_latest}, like this:
 \begin{python}
-  urd.peek('test', '20161025')
-  urd.peek_latest('test')
-  urd.peek_first('test')
+urd.peek('test', '20161025')
+urd.peek_latest('test')
+urd.peek_first('test')
 \end{python}
+Note that this is in general not recommended.  These functions will
+look up Urd lists with jobids that may be used to build new jobs, but
+these dependencies will not be stored in the current Urd session,
+causing a loss of continuity and visibility.
 
 
 
-\newpage
 \section{More on Finding Items in Urd}
 There is a \texttt{list} function that returns what lists are recorded
 in the database:
@@ -300,33 +278,29 @@ to only one digits.  An input of zero is also valid.
 
 \section{Truncating and Updating}
 
-Urd will always keep a consistent history of all events taken place.
-Sometimes, however, it makes sense to re-run events from the past.
-There are two means to achieve this, update and truncate.
+Since the Urd database is designed using log files, it will always
+keep a consistent history of all events taken place.  It is not
+possible to erase or modify old entries, but it is okay to update the
+latest or set a marker in the log indicating that the list is starting
+over from a certain date and everything before this marker should not
+be considered anymore.
 
-\subsubsection{update}
-The begin-function takes an optional argument update
-
+To update a list, use the \texttt{update} argument
 \begin{python}
-  urd.begin('test', '20161025', update=True)
+urd.begin('test', '20161025', update=True)
 \end{python}
 If update is True, the entry in the test list at '20161025' will be
-updated, unless there has been no change.
-
-\subsubsection{Truncate}
-
-The truncate() class member is used to rollback an arbitrary amount of
-an urd list.
-
+updated, unless there has been no change.  and in order to set a
+marker in the database indicating that everything before a certain
+date in time should be discarded, do like this
 \begin{python}
-  urd.truncate('test', '20160930')
+urd.truncate('test', '20160930')
 \end{python}
-This will rollback everything that has happened in the test list back
-to '20160930'.  Internally, urd stores the complete history, however.
+This will rollback everything that has happened in the \texttt{test}
+list back to '20160930'.  Remember, internally Urd stores the complete
+history in a log file in plain text.
 
 
-
-\newpage
 \section{More on Joblist and Jobtuple}
 
 Urd is using the type joblist to keep track of successfully executed

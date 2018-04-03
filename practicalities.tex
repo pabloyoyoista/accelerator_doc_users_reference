@@ -85,8 +85,14 @@ the Accelerator and is commonly used.\\[1ex]
 directories containing methods.  These will be the only directories
 where the Accelerator can ``see'' methods.\\[1ex]
 
-\RPtwo \texttt{result\_directory} & A path that is available to all
-jobs.  \textsl{Currently not in use.}  \\[1ex]
+\RPtwo \texttt{result\_directory} & A common path that is available to all
+jobs.  It can be accessed in a method like this
+\begin{python}
+def synthesis(RESULT_DIRECTORY):
+    ...
+\end{python}
+It has been used very sparsely by the Accelerator team since it voids
+the possibility to see where a file comes from.\\[1ex]
 
 \RPtwo \texttt{source\_directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if source

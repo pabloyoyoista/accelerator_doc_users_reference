@@ -209,6 +209,9 @@ urd.py [-h] [--port PORT] [--path PATH]
 \section{Workdirs}
 \comment{Workdirs are dirs containing a \texttt{slices}-something-something}
 
+Jobdirs will inherit the workdir name and add a suffix that is an
+incremental job counter.
+
 \subsection{Creating a Workdir}
 To create a new workdir, stop the \texttt{daemon}, add the workdir
 information to the configuration file, make it

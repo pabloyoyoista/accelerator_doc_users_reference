@@ -176,7 +176,9 @@ find the previous job of matching type.
 
 \section{Urd Sessions with Dependencies}
 
+
 \comment{forst en import-automata har, och sedan anvand den...}
+
 A job may have dependencies, such as other jobs or datasets.  These
 dependencies are input to the job using the corresponding arguments to
 the \texttt{build} function.  Locating these jobs or datasets,
@@ -186,25 +188,44 @@ that is composed of an Urd list name plus a timestamp.  There are
 also, for convenience, \texttt{first} and \texttt{latest} functions to
 get the first and latest job in an Urd list.
 
-Here is an example.  Assume that a method, \texttt{method1}, uses some
-kind of imported transaction logs, called \texttt{tlog}.  When
-dispatching \texttt{method1}, it should be using the latest available
-\texttt{tlog}.  The example shows how the function \texttt{latest} is
-used for this
+Here is an example.  Assume that we have a build script that imports
+data files.  Information about the import jobs is stored in the
+\texttt{import} Urd list.
 \begin{python}
 def main(urd):
-  urd.begin('test')
-  latest_tlog = urd.latest('tlog').joblist.jobid
-  urd.build('method1', datasets=dict(tlog=latest_tlog))
-  urd.finish('test', '20161025')
+    now = '20180403'
+    urd.begin('import', now)
+    jid_prev = urd.latest('import')
+    urd.build('csvimport',
+        options=dict(filename='log' + now + '.txt',),
+        datasets=dict(previous=jid_prev)
+    )
+    urd.finish('import')
+\end{python}
+Note how the \texttt{previous} dataset is assigned from the output of
+the \texttt{urd.latest} call, making the import jobs \textsl{chained}.
+The call to \texttt{latest} will be recorded in the \texttt{import}
+Urd list as well.
+
+Now, assume that a method \texttt{computesomething}, uses these
+imported datasets.  When dispatching \texttt{computesomething}, it
+should be using the latest available \texttt{import}.  This example
+shows again how the function \texttt{latest} is used for this purpose
+\begin{python}
+def main(urd):
+    urd.begin('test')
+    latest_import = urd.latest('import').joblist.jobid
+    urd.build('computesomething', datasets=dict(source=latest_import))
+    urd.finish('test', '20180403')
 \end{python}
 Two things have happened here.  First, urd has provided a jobid link
-to the latest available \texttt{tlog}.  Second, the dependency of
-exactly this version of \texttt{tlog} to \texttt{method1} is recorded
-in the urd list \texttt{test} for timestamp \texttt{20161025}.  So, if
-there is a question in the future which version of the \texttt{tlog}
-database that was used on that date for the \texttt{method1} function,
-it is immediately available from urd.
+to the latest available \texttt{import} dataset.  Second, the
+dependency of exactly this version of \texttt{import} to
+\texttt{computesomething} is recorded in the urd list \texttt{test}
+for timestamp \texttt{20180403}.  So, if there is a question in the
+future which version of the \texttt{import} database that was used on
+that date for the \texttt{computesomething} function, it is
+immediately available from urd.
 
 The more general form is \texttt{get}, which is shown below together
 with its derived convenience-functions
@@ -213,13 +234,13 @@ with its derived convenience-functions
   urd.latest('test')
   urd.first('test')
 \end{python}
-And here is an example of running \texttt{method1} on \texttt{tlog} data
+And here is an example of running \texttt{computesomething} on \texttt{import} data
 from previous month
 \begin{python}
 def main(urd):
   urd.begin('test')
-  tlog = urd.get('tlog', '20160925').joblist.jobid
-  urd.build('method1', datasets=dict(tlog=tlog))
+  import = urd.get('import', '20160925').joblist.jobid
+  urd.build('computesomething', datasets=dict(import=import))
   urd.finish('test', '20161025')
 \end{python}
 

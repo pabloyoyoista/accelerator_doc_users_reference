@@ -13,8 +13,8 @@ daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
 
 Optional arguments
 \begin{snugshade}
-\begin{tabular}{p{3cm}p{10cm}}
-  \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
   exit.\\[4ex]
 
   \texttt{---debug} & \comment{ga}\\[2ex]
@@ -28,6 +28,9 @@ Optional arguments
   \texttt{socket.dir/default}\\[4ex]
 \end{tabular}
 \end{snugshade}
+The Accelerator and Runner will connect using a unix socket by
+default.  There is no need to configure anything.  Setting a port will
+make communication happen over that port instead.
 
 
 
@@ -127,17 +130,17 @@ all source workdirs to see if any new jobs have been created (by
 another Accelerator daemon).  Thereafter, it will execute the build
 script.
 \begin{snugshade}
-\begin{tabular}{p{3cm}p{10cm}}
-  \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
   exit.\\[4ex]
 
-  \texttt{-p PORT }\hspace{2cm}\texttt{---port=PORT} & Accelerator
+  \texttt{-p PORT }\hspace{3cm}\texttt{---port=PORT} & Accelerator
   listening port\\[4ex]
 
-  \texttt{-H HOSTNAME}\hspace{2cm}\texttt{---hostname=HOSTNAME} &
+  \texttt{-H HOSTNAME}\hspace{3cm}\texttt{---hostname=HOSTNAME} &
   framework hostname\\[4ex]
   
-  \texttt{-S SOCKET}\hspace{2cm}\texttt{---socket=SOCKET} &
+  \texttt{-S SOCKET}\hspace{3cm}\texttt{---socket=SOCKET} &
   Accelerator unix socket (default
   \texttt{./socket.dir/default})\\[4ex]
 
@@ -145,19 +148,19 @@ script.
   script to run. \texttt{package/automata\_<SCRIPT>.py}.  Defaults to
   ``\texttt{automata}''.  Can be bare arg too.\\[4ex]
 
-  \texttt{-A}\hspace{2cm}\texttt{---abort} & abort (fail) current
+  \texttt{-A}\hspace{3cm}\texttt{---abort} & abort (fail) current
   job(s).\\[4ex]
 
-  \texttt{-P PACKAGE}\hspace{2cm}\texttt{---package=PACKAGE} & method
+  \texttt{-P PACKAGE}\hspace{3cm}\texttt{---package=PACKAGE} & method
   dirs \comment{HUH}\\[4ex]
 
-  \texttt{-f FLAGS}\hspace{2cm}\texttt{---flags=FLAGS} & comma
+  \texttt{-f FLAGS}\hspace{3cm}\texttt{---flags=FLAGS} & comma
   separated list of flags\comment{flags}\\[4ex]
   
-  \texttt{-q}\hspace{2cm}\texttt{---quick} & skip method updates and
+  \texttt{-q}\hspace{3cm}\texttt{---quick} & skip method updates and
   workdirs checking for new jobs.\\[4ex]
 
-  \texttt{-w}\hspace{2cm}\texttt{---just\_wait} & just wait for running
+  \texttt{-w}\hspace{3cm}\texttt{---just\_wait} & just wait for running
   job, do not run a build script.\\[4ex]
 
   \texttt{---verbose=VERBOSE} & verbosity level, one of \texttt{no},
@@ -195,8 +198,8 @@ urd.py [-h] [--port PORT] [--path PATH]
 \end{shell}
 
 \begin{snugshade}
-\begin{tabular}{p{3cm}p{10cm}}
-  \texttt{-h}\hspace{2cm}\texttt{---help} & show help message and
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
   exit.\\[4ex]
 
   \texttt{---port PORT} & listen on TCP port\\[4ex]

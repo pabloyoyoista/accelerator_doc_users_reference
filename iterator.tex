@@ -25,14 +25,13 @@ output is a tuple corresponding to the specified columns for one data
 row.  In case of iterating over a single column, the output may
 optionally be a scalar for more efficient computing.  Iterators can be
 parallel, in \analysis, or sequential, in \prepare or \synthesis.
-There are two iterators available,
+There are three iterators available,
 \begin{itemize}
-\item [] \texttt{iterate()}, for  single dataset iteration, and
+\item [] \texttt{iterate()}, for single dataset iteration,
+\item [] \texttt{iterate\_list()} for iterating over a list of datasets, and
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains.
 \end{itemize}
-Both iterators share these arguments
-
-
+All iterators share these arguments
 \starttable
   \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
   over, or \mintinline{python}/None/ to iterate over all slices
@@ -62,7 +61,6 @@ Both iterators share these arguments
   should be set to default \mintinline{python}/True/.  See
   \texttt{dataset.py} for full information.\\
 \stoptable
-
 \comment{heter det columns här men labels överallt annars?  Var heter det labels förutom hashlabel?}
 In addition, \texttt{iterate\_chain} takes these arguments too
 \starttable
@@ -80,7 +78,7 @@ In addition, \texttt{iterate\_chain} takes these arguments too
   backwards.  Default is to iterate forward, i.e.\ from oldest to
   newest dataset.\\
 
-  \RP \texttt{stop\_ds}& \pyNone & The first dataset older than all datasets in the chain.\comment{duh}\\ 
+  \RP \texttt{stop\_ds}& \pyNone & Iterate back to this dataset.\\
 
   \RP \texttt{pre\_callback}& \pyNone & A function that will be called before
   iterating each dataset.\\
@@ -88,7 +86,10 @@ In addition, \texttt{iterate\_chain} takes these arguments too
   \RP \texttt{post\_callback}& \pyNone & A function that will be called after
   iterating each dataset.\\
 \stoptable
-
+while \texttt{iterate\_list} takes a \texttt{datasets} parameter
+\starttable
+  \RP \texttt{datasets} &\pyNone& List of datasets to iterate over.
+\stoptable
 
 \section{Basic Iteration}
 Basic use include iterating in parallel or serial over one dataset or

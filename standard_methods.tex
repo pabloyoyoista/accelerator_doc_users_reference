@@ -162,7 +162,11 @@ only rows with typeable data.
   \mintinline{python}/{'COLNAME': value}/.  Method will fail if data
   is unconvertible unless \mintinline{python}/filter_bad = True/.\\[1ex]
 
-  \RP \texttt{rename} & & \comment{hur  funkar denna?} \\[1ex]
+  \RP \texttt{rename} & & A dictionary from old name to new name, for
+  example \mintinline{python}/{'old': 'new'}/ The old name and data
+  will be preserved, unless a new dataset is created \comment{true?},
+  and the column with the new name will contain the typed
+  data. \\[1ex]
 
   \RP \texttt{caption} & \textsl{empty string} & A caption.\\[1ex]
 

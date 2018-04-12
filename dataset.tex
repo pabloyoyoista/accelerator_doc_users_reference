@@ -518,15 +518,17 @@ column to an existing dataset while maintaining the chain.  Note that
 appending a column does only apply to one single dataset, and not to
 the complete chain of datasets, if present.
 \begin{python}
-datasets = ("source", "previous",)
+from dataset import DatasetWriter
+
+datasets = ('source', 'previous',)
 
 def prepare():
-    dw = dataset.DatasetWriter(
+    dw = DatasetWriter(
         parent=datasets.source,
         previous=datasets.previous,
-        caption="with the new colum"
+        caption='with the new colum'
     )
-    dw.add(name, type)
+    dw.add('newcolname', 'unicode')
     return dw
 
 def analysis(sliceno, prepare_res):

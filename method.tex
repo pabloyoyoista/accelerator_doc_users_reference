@@ -19,7 +19,6 @@
 
 
 Methods are source files that can be executed by the Accelerator.
-\comment{borja med job eftersom kapitlet bytt namn.}
 When the Accelerator runs, or \emph{builds}, a method, the result is
 called a \emph{job}.  Jobs are built either by build scripts,
 see~\ref{xx}, or from methods, using \emph{subjobs}, that will be
@@ -158,7 +157,6 @@ editing the method) the Accelerator will tell what the correct
 verifier would be, so that it can be added to the list of verifiers if
 appropriate.  The verifier list can contain any number of old hashes.
 
-\comment{KOLLA DETTA}
 
 
 
@@ -269,7 +267,6 @@ The \jobids parameter is a tuple of jobids linking this job to other
 jobs.  Inside the running method, each item in the \jobids tuple may
 be used as a reference to the corresponding job.
 
-\comment{SHOULD WE ALLOW EMPTY JOBIDS?}
 
 
 
@@ -282,7 +279,6 @@ dedicated chapter~\ref{xx}.
 All items in the \datasets tuple must be assigned by the builder to
 avoid run time errors.
 
-\comment{BUT WE NEED TO BE ABLE TO INDICATE START OF CHAIN, FOR EXAMPLE BY None.}
 
 
 
@@ -356,7 +352,7 @@ options = dict(
   \mintinline{python}/[1, 2, None]/.
 
 \item All containers can be specified as empty, for example
-  \mintinline{python}/{}/.  \comment{?}
+  \mintinline{python}/{}/ which expects a \texttt{dict}.
 
 \item Complex types (like \texttt{dict}s, \texttt{dict}s of
   \texttt{list}s of \texttt{dict}s, \dots) never enforce specific
@@ -538,15 +534,15 @@ usefile.filename
 usefile.sliced
 usefile.extras
 \end{python}
-Where the full filename of the file is available through
-\begin{python}
-from extras import full_filename
-print(full_filename(filename, ''))
-\end{python}
-The second option to \texttt{full\_filename} is mandatory, it may be
-empty as in the example above, and should hold the filename extension.
-\comment{Will be changed?!}
-\comment{Example of how to use jobwithfile in analysis and prepare/synthesis.  how does slice work?  How does extras work?}
+%% Where the full filename of the file is available through
+%% \begin{python}
+%% from extras import full_filename
+%% print(full_filename(filename, ''))
+%% \end{python}
+%% The second option to \texttt{full\_filename} is mandatory, it may be
+%% empty as in the example above, and should hold the filename extension.
+%% \comment{Will be changed?!}
+%% \comment{Example of how to use jobwithfile in analysis and prepare/synthesis.  how does slice work?  How does extras work?}
 
 
 
@@ -569,7 +565,6 @@ def synthesis():
     # will print the options of anotherjob, perhaps something like {length: 3}
 \end{python}
 
-\comment{if we ``objectify'' options, we could just do jobids.anotherjob.params}
 
 
 
@@ -596,9 +591,9 @@ number of slices minus one.  This is the unique identifier for each
 The number of analysis processes is always equal to the number of
 dataset slices that the Accelerator has in its configuration file.
 The idea is that each slice in a dataset should have exactly one
-corresponding analysis process, so that all slices in a dataset can be
+corresponding \analysis process, so that all slices in a dataset can be
 processed in parallel.
-\comment{utveckla}
+
 
 
 \subsection{Return Values}
@@ -624,7 +619,6 @@ def analysis(sliceno, prepare_res):
 def synthesis(analysis_res, prepare_res):
      return analyses_res.merge_auto()
 \end{python}
-\comment{a better example actually using result passing would be nice}
 In the current implementation, all return values are stored as Python
 \texttt{pickle} files.
 
@@ -674,8 +668,8 @@ If the job contains datasets, these will be stored in directories,
 such as for example \texttt{default}, in the root of the job
 directory.
 
-\comment{workdirs must be described elsewere}
-\comment{current workdir must be explained elsewhere}
+
+
 
 
 \clearpage
@@ -755,7 +749,7 @@ def prepare():
   subjobs.build('count_items', options=dict(length=3))
 \end{python}
 It is possible to build subjobs in \prepare and \synthesis, but not in
-\analysis.  \comment{right?}  The \texttt{subjobs.build} call uses the
+\analysis.    The \texttt{subjobs.build} call uses the
 same syntax as \texttt{urd.build} described in section~\ref{xx}, so
 the input parameters \options, \datasets, \jobids, and
 \texttt{caption} are available here too.  Similarly, the return value
@@ -814,7 +808,6 @@ out their purpose by themselves by looking in this directory.
 A running job has its \textsl{current working directory} pointing into
 the job directory, so any files created by the job (including return
 values) will by default be stored in the job's directory.
-\comment{not mentioned elsewhere}
 
 When a job completes, the meta data files are updated with profiling
 infomation, such as execution time spent in single and parallel
@@ -848,7 +841,6 @@ importing a set of data may be stored in one workdir, perhaps named
 \texttt{dev}, etc.  Jobids are created by appending a counter to the
 workdir name, so a job \texttt{dev-42} may access data in
 \texttt{import-37}, and so on, which helps manual inspection.
-\comment{jobid creation not mentioned elsewhere}
 \begin{itemize}
 \item[7.] Jobs may dispatch other jobs.
 \end{itemize}

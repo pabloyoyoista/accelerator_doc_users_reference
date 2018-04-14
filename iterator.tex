@@ -31,6 +31,12 @@ There are three iterators available,
 \item [] \texttt{iterate\_list()} for iterating over a list of datasets, and
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains.
 \end{itemize}
+Many common iterator usecases require only two
+options, \texttt{sliceno} (mandatory) and \texttt{columns}, so a typical call may look like this
+\begin{python}
+for x in dataset.source.iterate(sliceno, ('movie', 'user',)):
+\end{python}
+
 All iterators share these arguments
 \starttable
   \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
@@ -61,7 +67,7 @@ All iterators share these arguments
   should be set to default \mintinline{python}/True/.  See
   \texttt{dataset.py} for full information.\\
 \stoptable
-\comment{heter det columns här men labels överallt annars?  Var heter det labels förutom hashlabel?}
+
 In addition, \texttt{iterate\_chain} takes these arguments too
 \starttable
   \RP \texttt{length}&$-1$& Number of datasets in a chain to iterate over.
@@ -150,12 +156,15 @@ jobids = ('previous',)
 
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',), stop_id=jobids.params.source):
+    for user, item in datasets.source.iterate_chain(
+            sliceno,
+            columns=('user', 'item',),
+            stop_id=jobids.params.source):
         h[user].add(item)
 \end{python}
-\comment{funkar detta?}  Assuming that \texttt{previous} is a jobid to
-the previous invocation of the method, \texttt{jobids.params.source}
-will be the input \texttt{source} dataset to that job.  
+Assuming that \texttt{previous} is a jobid to the previous invocation
+of the method, \texttt{jobids.params.source} will be the
+input \texttt{source} dataset to that job.
 
 
 
@@ -231,7 +240,7 @@ This will iterate until reaching end or the dataset
 \section{Iterating Over a Data Range}
 It is possible to iterate over rows having a specified column's value
 within a certain range.  This works best on datasets that are sorted
-on the specified column.  \comment{eller ja?}
+on the specified column.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
     sliceno, ('user', 'item',),
@@ -329,7 +338,6 @@ for animal in datasets.source.iterate(None, 'NUM_LEGS',
                                       translator={'NUM_LEGS': mapper,}):
     ...
 \end{python}
-\comment{note that is example is same as in overview!}
 This translator will substitute the integers 2,4, and 5 into strings.
 Items missing in a translation-\texttt{dict} yield \pyNone.  The next
 example illustrates a callable inside a translator \texttt{dict}.  In
@@ -487,4 +495,3 @@ And to abort iterating completely
 # post_callback will not run.
 raise StopIteration
 \end{python}
-\comment{e denna definierad ens?}

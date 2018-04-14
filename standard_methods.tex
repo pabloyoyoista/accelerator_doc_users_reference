@@ -114,7 +114,6 @@ The result of the \texttt{csvimport} is a dataset named
 This method will read a source dataset and create a new dataset that
 is typed.  This is useful for typing datasets created by
 \texttt{csvimport}.
-\comment{Only new dataset when filter\_bad}
 
 Default behaviour is to append new columns with typed data.  These
 columns will have the same name as the untyped version of the data,
@@ -164,15 +163,15 @@ only rows with typeable data.
 
   \RP \texttt{rename} & & A dictionary from old name to new name, for
   example \mintinline{python}/{'old': 'new'}/ The old name and data
-  will be preserved, unless a new dataset is created \comment{true?},
+  will be preserved, unless a new dataset is created ,
   and the column with the new name will contain the typed
   data. \\[1ex]
 
   \RP \texttt{caption} & \textsl{empty string} & A caption.\\[1ex]
 
-  \RP \texttt{discard\_untyped} & \mintinline{python}{None}& \comment{explanation} \\[1ex]
+  \RP \texttt{discard\_untyped} & \mintinline{python}{None}& Force creation of new dataset.\\[1ex]
 
-  \RP \texttt{filter\_bad} & & \comment{explanation} \\[1ex]
+  \RP \texttt{filter\_bad} & \pyFalse &  remove rows containing untypeable data.  Will create new dataset.\\[1ex]
 
   \RP \texttt{numeric\_comma} & \mintinline{python}{False}& If
   \mintinline{python}{True}, write decimal number as ``\texttt{3,14}'' instead of

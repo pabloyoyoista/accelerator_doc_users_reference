@@ -19,7 +19,9 @@
 The Dataset class provides fast and simple access to data.  It is the
 prefered way to store data using the Accelerator.  Datasets are
 created by methods, and are therefore located inside job directories.
-There can be any number of Datasets in a job.
+There can be any number of Datasets in a job.  Datasets are
+lightweight -- adding new columns to a dataset, or appending datasets
+to eachother are instantaneous operations.
 
 The most obvious way to generate a dataset is using the
 \texttt{cvsimport} method that creates a dataset from an input file.
@@ -38,9 +40,6 @@ the hash value of a certain column.  Slicing according to a hashed
 column ensures that all rows with a certain column value always ends
 up in the same slice.
 
-\comment{This chapter covers ...
-chaining, where datasets grows in number of lines, and column
-appending, where datasets grow in number of columns.}
 
 
 \section{Dataset Internals}
@@ -56,7 +55,7 @@ holds a unique subset of the dataset's rows.  Slicing makes simple but
 efficient parallel processing possible.  See Figure~\ref{fig:slices}.
 The number of slices is set initally by the user, and all workdirs
 that are used together in a project must use the same number of
-slices.  \comment{info om workdirs och slices annanstädes}
+slices.
 
 On a low level, there is one file stored on disk for each slice and
 column.  A job that needs to read only a subset of the total number of
@@ -362,7 +361,6 @@ time related methods, like for example
 for ts in datasets.source.iterate(sliceno, 'timestamp'):
     print(ts.strftime('%Y-%m-%d')
 \end{python}
-\comment{Uh, percent-d looks silly}
 
 
 \subsection{String Types}

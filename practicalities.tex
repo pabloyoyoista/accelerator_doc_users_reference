@@ -17,7 +17,7 @@ Optional arguments
   \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
   exit.\\[4ex]
 
-  \texttt{---debug} & \comment{ga}\\[2ex]
+  \texttt{---debug} & Start in debug mode.  See section~\ref{xx}\\[2ex]
   
   \texttt{---config CONFIG\_FILE} & configuration file, default
   \texttt{../conf/framework.conf}\\[4ex]
@@ -127,7 +127,7 @@ automatarunner.py [options] [script]
 assuming the current work directory is the texttt{Accelerator}
 directory.  The \texttt{script} is either a filename, or the suffix to
 a filename starting with \texttt{automata\_}.
-\comment{andra pa detta}
+
 
 When the \texttt{runner} starts, it will first instruct the
 Accelerator to scan all method directories to see if there are any new
@@ -158,10 +158,10 @@ script.
   job(s).\\[4ex]
 
   \texttt{-P PACKAGE}\hspace{3cm}\texttt{---package=PACKAGE} & method
-  dirs \comment{HUH}\\[4ex]
+  dir.\\[4ex]
 
   \texttt{-f FLAGS}\hspace{3cm}\texttt{---flags=FLAGS} & comma
-  separated list of flags\comment{flags}\\[4ex]
+  separated list of flags\\[4ex]
   
   \texttt{-q}\hspace{3cm}\texttt{---quick} & skip method updates and
   workdirs checking for new jobs.\\[4ex]
@@ -217,10 +217,34 @@ urd.py [-h] [--port PORT] [--path PATH]
 
 
 \section{Workdirs}
-\comment{Workdirs are dirs containing a \texttt{slices}-something-something}
+Workdirs is where jobs are stored.  The Accelerator must have one
+target workdir, and may optionally have several source workdirs.
+Target and source workdirs are specified in the daemon configuration
+file.
 
-Jobdirs will inherit the workdir name and add a suffix that is an
-incremental job counter.
+Any directory empty directory can be a workdir, and by adding it as
+target workdir, it will be initiated at daemon startup.  The
+initiation process creates a file named
+\texttt{<workdir>-slices.conf}, that will contain the number
+of slices that is used for the workdir.
+
+Jobdirs are stored in the workdir by the daemon, and jobdirs will
+inherit the workdir name and add a suffix that is an incremental job
+counter.  Here is an example of a workdir named \texttt{test}, that
+contains three jobdirs.
+\begin{shell}
+test/
+    test-slices.conf
+    test-0/
+    test-1/
+    test-2/
+    test-LATEST -> test-2
+\end{shell}
+The link \texttt{<workdir>-latest} is always pointing to the last
+jobdir created.  This is useful for example when iteratively testing a
+method, since the output of the method is available without knowing
+the exact jobdir name.
+
 
 \subsection{Creating a Workdir}
 To create a new workdir, stop the \texttt{daemon}, add the workdir

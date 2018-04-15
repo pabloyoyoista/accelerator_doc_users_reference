@@ -152,7 +152,7 @@ script.
 
   \texttt{-s SCRIPT}\hspace{1cm}\texttt{---script=SCRIPT} & build
   script to run. \texttt{package/automata\_<SCRIPT>.py}.  Defaults to
-  ``\texttt{automata}''.  Can be bare arg too.\\[4ex]
+  ``\texttt{automata}''.  Can be bare arg too.\\[2ex]
 
   \texttt{-A}\hspace{3cm}\texttt{---abort} & abort (fail) current
   job(s).\\[4ex]
@@ -160,10 +160,11 @@ script.
   \texttt{-P PACKAGE}\hspace{3cm}\texttt{---package=PACKAGE} & Run
   build script from this method directory.  Useful if the same script
   name exists in several method directories, for example for testing
-  purposes.\\[4ex]
+  purposes.\\[2ex]
 
-  \texttt{-f FLAGS}\hspace{3cm}\texttt{---flags=FLAGS} & comma
-  separated list of flags\\[4ex]
+  \texttt{-f FLAGS}\hspace{3cm}\texttt{---flags=FLAGS} & Comma
+  separated list of flags, exposed as the set \texttt{urd.flags} in
+  build script.\\[2ex]
   
   \texttt{-q}\hspace{3cm}\texttt{---quick} & skip method updates and
   workdirs checking for new jobs.\\[4ex]
@@ -172,9 +173,9 @@ script.
   job, do not run a build script.\\[4ex]
 
   \texttt{---verbose=VERBOSE} & verbosity level, one of \texttt{no},
-  \texttt{status}. \texttt{dots}, or \texttt{log}.\\[4ex]
+  \texttt{status}. \texttt{dots}, or \texttt{log}.\\[2ex]
 
-  \texttt{---quiet} & same as \texttt{---verbose=no}\\[4ex]
+  \texttt{---quiet} & same as \texttt{---verbose=no}\\[2ex]
 
   \texttt{---horizon=HORIZON} & Time horizon - dates after this are
   not visible in \texttt{urd.latest}.\\[4ex]

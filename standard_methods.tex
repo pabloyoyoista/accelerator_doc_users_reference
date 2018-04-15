@@ -303,15 +303,14 @@ All time types require a format specification as described below\\
   \texttt{datetimei:*} && same + \emph{ignore}\\
 \end{tabular}
 \end{leftbar}
-The format is standard Python time formats, like shown in these examples
-
+\noindent The format is standard Python time formats, like shown in these examples
 \begin{python}
-   # will match for example '2017-03-22'
-   auct_start_dt='date:%Y-%m-%d'  
-   # will match for example '183000', i.e. half past six in the evening
-   tod='time:%H%M%S'
-   # will match for example '2017-03-22 18:30:15'
-   timestamp='datetime:'%Y-%m-%d %H:%M:%S'
+# will match for example '2017-03-22'
+auct_start_dt='date:%Y-%m-%d'  
+# will match for example '183000', i.e. half past six in the evening
+tod='time:%H%M%S'
+# will match for example '2017-03-22 18:30:15'
+timestamp='datetime:'%Y-%m-%d %H:%M:%S'
 \end{python}
 
 
@@ -339,8 +338,8 @@ individual unparsable characters.  For unicode, there are two types,
 \end{leftbar}
 The asterisk represents options that take the form
 \begin{python}
-  "<codec>" #or
-  "<codec>/<errors>"
+"<codec>" #or
+"<codec>/<errors>"
 \end{python}
 where \texttt{<codec>} is for example \texttt{utf-8}.  The
 \texttt{/<errors>} part is optional, and could be one of

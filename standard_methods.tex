@@ -182,6 +182,7 @@ only rows with typeable data.
 
 
 
+\clearpage
 \subsection{Example Invocation}
 An example invocation is the following
 
@@ -198,7 +199,7 @@ urd.build('dataset_type', ...,
 \end{python}
 
 
-\clearpage
+
 \subsection{Typing}
 This section describes all typing options in detail.
 
@@ -357,6 +358,11 @@ be one of
 \end{tabular}
 \end{snugshade}
 \noindent Using \texttt{strict} will cause errors if unparsable.
+Example.  Typing the string "\texttt{ab\textbackslash xffc}" will give
+an error (\texttt{strict}), "\texttt{abc}" (ignore), or
+"\texttt{ab\textbackslash ufffdc}" (replace).
+
+
 
 Ascii is similar, there are two types
 \begin{leftbar}

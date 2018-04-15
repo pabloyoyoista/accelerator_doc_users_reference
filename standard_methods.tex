@@ -346,9 +346,15 @@ The asterisk represents options that take the form
 \texttt{unicode:codec/errors} will read bytes encoded in
 \texttt{codec} and write "unicode" (which is stored as utf-8, but
 that's invisible to the Python side).  \texttt{codec} is often
-\texttt{utf-8}, but see Python documentation on \texttt{bytes.decode}
-for more information.  The \texttt{errors} part is optional, and can
-be one of
+\texttt{utf-8}, but could be for example \texttt{utf-8},
+\texttt{ascii}, \texttt{iso-8859-1}, \texttt{iso-8859-15},
+\texttt{cp437}, or \texttt{windows-1252} etc.  See the Python
+documentation
+\begin{center}
+  \texttt{https://docs.python.org/2/library/codecs.html\#standard-encodings}
+\end{center}
+for more information.  The \texttt{errors} part is optional, and
+can be one of
 \begin{snugshade}
 \begin{tabular}{p{2cm}p{10cm}}
   \texttt{strict} &The default, an error marks this row as bad\\[1ex]
@@ -357,8 +363,8 @@ be one of
   replacement character ("\texttt{\textbackslash ufffd}").\\[1ex]
 \end{tabular}
 \end{snugshade}
-\noindent Using \texttt{strict} will cause errors if unparsable.
-Example.  Typing the string "\texttt{ab\textbackslash xffc}" will give
+\noindent Using \texttt{strict} will cause errors if unparsable.  For
+example, typing the string "\texttt{ab\textbackslash xffc}" will give
 an error (\texttt{strict}), "\texttt{abc}" (ignore), or
 "\texttt{ab\textbackslash ufffdc}" (replace).
 

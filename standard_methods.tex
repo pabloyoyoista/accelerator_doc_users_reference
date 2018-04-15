@@ -327,6 +327,7 @@ described below.
   \texttt{asciistrip} && list of ascii characters, strip characters 8-13,32 from start and end\\
 \end{tabular}
 \end{leftbar}
+
 When typing to unicode and ascii, there are several ways to handle
 individual unparsable characters.  For unicode, there are two types,
 \begin{leftbar}
@@ -338,11 +339,15 @@ individual unparsable characters.  For unicode, there are two types,
 \end{leftbar}
 The asterisk represents options that take the form
 \begin{python}
-"<codec>" #or
-"<codec>/<errors>"
+"codec" #or
+"codec/errors"
 \end{python}
-where \texttt{<codec>} is for example \texttt{utf-8}.  The
-\texttt{/<errors>} part is optional, and could be one of
+\texttt{unicode:codec/errors} will read bytes encoded in
+\texttt{codec} and write "unicode" (which is stored as utf-8, but
+that's invisible to the Python side).  \texttt{codec} is often
+\texttt{utf-8}, but see Python documentation on \texttt{bytes.decode}
+for more information.  The \texttt{errors} part is optional, and can
+be one of
 \begin{snugshade}
 \begin{tabular}{p{2cm}p{10cm}}
   \texttt{strict} &The default, an error marks this row as bad\\[1ex]

@@ -317,8 +317,9 @@ The format is standard Python time formats, like shown in these examples
 
 \subsubsection{Strings and Byte Sequences}
 There are a number of ways to read string and byte data, depending on
-how the raw input data is to be interpreted.  Here are the basic
-types, and variations and options will be described below.
+how the raw input data is to be interpreted.  The basic types are
+shown first, and the more advanced variations and options will be
+described below.
 \begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{bytes}      && list of bytes\\
@@ -327,7 +328,8 @@ types, and variations and options will be described below.
   \texttt{asciistrip} && list of ascii characters, strip characters 8-13,32 from start and end\\
 \end{tabular}
 \end{leftbar}
-\noindent The following also takes argument
+When typing to unicode and ascii, there are several ways to handle
+individual unparsable characters.  For unicode, there are two types,
 \begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{unicode:*}  && list of unicode characters\\
@@ -335,20 +337,42 @@ types, and variations and options will be described below.
   characters 8-13,32 from start and end\\
 \end{tabular}
 \end{leftbar}
-\comment{och vad med :utf-8???}
-\noindent where the argument is one of \texttt{replace}, \texttt{ignore}, and
-\texttt{strict}.  \texttt{strict} will cause error, \texttt{ignore}
-will erase illegal characters.
+The asterisk represents options that take the form
+\begin{python}
+  "<codec>" #or
+  "<codec>/<errors>"
+\end{python}
+where \texttt{<codec>} is for example \texttt{utf-8}.  The
+\texttt{/<errors>} part is optional, and could be one of
+\begin{snugshade}
+\begin{tabular}{p{2cm}p{10cm}}
+  \texttt{strict} &The default, an error marks this row as bad\\[1ex]
+  \texttt{ignore} & All unparsable bytes are discarded.\\[1ex]
+  \texttt{replace} & All unparsable bytes are replaced by the unicode
+  replacement character ("\texttt{\textbackslash ufffd}").\\[1ex]
+\end{tabular}
+\end{snugshade}
+\noindent Using \texttt{strict} will cause errors if unparsable.
+
+Ascii is similar, there are two types
 \begin{leftbar}
 \begin{tabular}{p{2cm}p{2cm}p{8cm}}
   \texttt{ascii:*}      && list of ascii characters\\
   \texttt{asciistrip:*} && list of ascii characters, strip characters 8-13,32 from start and end\\
 \end{tabular}
 \end{leftbar}
-\noindent where the argument is one of \texttt{replace}, \texttt{encode}, and \texttt{strict}.
-\texttt{strict} will cause error, \texttt{ignore} will erase illegal characters,
-and \texttt{encode} is reversible encoding.
-
+where the argument is one of
+\begin{snugshade}
+\begin{tabular}{p{2cm}p{10cm}}
+  \texttt{strict} & The default, an error marks this row as bad\\[1ex]
+  \texttt{ignore} & All unparsable bytes are discarded\\[1ex]
+  \texttt{replace} & All unparsable bytes are replaced by an octal
+  escapes "\texttt{\textbackslash ooo}"\\[1ex]
+  \texttt{encode} & Like replace except "\texttt{\textbackslash}" is also replaced by
+  "\texttt{\textbackslash 134}" (for full reversability).\\[1ex]
+\end{tabular}
+\end{snugshade}
+\noindent Using \texttt{strict} will cause errors if unparsable.
 
 
 

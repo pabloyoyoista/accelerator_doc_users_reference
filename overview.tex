@@ -55,7 +55,7 @@ def synthesis():
 \end{python}
 This program does not take any input parameters.  It just returns a
 string and exits.  Running methods on the Accelerator is further
-explained in section~\ref{sec:urd}.
+explained in section~\ref{chap:urd_basic}.
 
 When execution of the method is completed, a single link, called a
 \texttt{jobid} is the only thing that is returned to the user.  The
@@ -116,7 +116,7 @@ def synthesis():
 \end{python}
 
 This method expects the \texttt{hello\_world\_job} input parameter to
-be provided at execution time, and we will see in section~\ref{xxx}
+be provided at execution time, and we will see in section~\ref{sec:jobparams}
 how to do this.  The method then reads the result from the provided
 jobid and assigns it to the variable \texttt{x}, which is then printed
 to \texttt{stdout}.  Note that this method does not return anything.
@@ -177,9 +177,11 @@ job's directory making them available to other jobs.
     \label{fig:prepanasyn}
   \end{center}
 \end{figure}
+
+
+
 \subsection{Job Parameters}
-
-
+\label{sec:jobparams}
 We've seen how jobids from completed jobs can be used as input to new
 jobs.  Jobid parameters is one of three kinds of input parameters that
 a job can take.  Here the input parameters are summarised:
@@ -279,7 +281,7 @@ Furthermore, datasets may be \textsl{hashed}, so that slicing is based
 on the hash value of a given column.  In many practical applications,
 hashing makes parallel processes independent, minimising the need for
 complicated merging operations.  This is explained further in
-section~\ref{sec:dataset-hashing}.
+chapter~\ref{chap:datasets}.
 
 
 
@@ -428,9 +430,9 @@ does not have a \texttt{default} dataset.)
 
 
 \subsection{Parallel Dataset Access and Hashing}
-As shown in detail in section~\ref{xx}, data in datasets are stored in
+As shown in detail in section~\ref{chap:datasets}, data in datasets are stored in
 multiple files, allowing for fast parallel reads.  The parameter
-\texttt{slices} (\ref{xx}) determines how many slices that the dataset
+\texttt{slices}  determines how many slices that the dataset
 should be partitioned into.  This parameter also sets the number of
 parallel \texttt{analysis}-processes, so that each \texttt{analysis}
 process operates on a unique slice of the dataset.

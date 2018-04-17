@@ -17,19 +17,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+The Accelerator is producing \emph{jobs}.  A job is a storage of all
+information associated with a computation, including source code,
+input parameters, outputs (results), and profiling information.  Jobs
+are static, and cannot be altered or removed by the Accelerator.
 
-Methods are source files that can be executed by the Accelerator.
-When the Accelerator runs, or \emph{builds}, a method, the result is
-called a \emph{job}.  Jobs are built either by build scripts,
-see~\ref{xx}, or from methods, using \emph{subjobs}, that will be
+The source files that are executed are called \emph{methods}.  When
+the Accelerator executes, or \emph{builds}, a method, the result is
+a \emph{job}.  Jobs are dispatched either by build scripts,
+see~\ref{chap:urd_basic}, or from methods, using \emph{subjobs}, that will be
 explained in this chapter.  At build time, the job is typically
 assigned some \emph{input parameters}.
 
-This chapter covers most aspects of methods.  It describes what
-methods are and how they are stored.  When they are built and when
-not.  What input parameters look like in full detail.  How to access
-another job's parameters.  Parallel processing.  Return values and
-result merging.  Storing and retreiving data.  Building subjobs.
+This chapter covers most aspects of jobs and methods.  It describes
+what methods are and how they are stored.  When they are built and
+when not.  What input parameters look like in full detail.  How to
+access another job's parameters.  Parallel processing.  Return values
+and result merging.  Storing and retreiving data.  Building subjobs.
 
 
 \section{Method Directories}
@@ -38,7 +42,7 @@ Methods are stored in and grouped into method directories,
 corresponding to file system directories.  The recommended location of
 method directories is one level above the Accelerator's home
 directory.  This is set up automatically if the Accelerator is
-installed using the Project Skeleton repository~\ref{xx}.
+installed using the Project Skeleton repository~\ref{SKELETON_INSTALLATION_CHAPTER}.
 
 Method directories are just like any directories, with the addition of
 two specific files, \texttt{\_\_init\_\_.py} and \texttt{methods.conf}.
@@ -61,7 +65,7 @@ project_directory/
 For a method directory to be visible by the Accelerator, two things are needed
 \begin{enumerate}
 \item it must be specified in the Accelerator's configuration file,
-  see section~\ref{configfile};
+  see section~\ref{sec:configfile};
 \item the method directory must contain an empty file named
   \texttt{\_\_init\_\_.py}; and
 \item the method directory must have a \texttt{methods.conf} file.
@@ -78,7 +82,7 @@ Accelerator directory (preferred), or is the Accelerator directory.
 % touch <dirname>/methods.conf
   \end{shell}
 \item Add the method directory \texttt{<dirname>} to the Accelerator's
-  configuration file, see~\ref{xx}.
+  configuration file, see~\ref{sec:configfile}.
 \item Restart the Accelerator
 \end{enumerate}
 
@@ -93,7 +97,7 @@ limitations that apply to methods:
   filename has to start with the prefix ``\texttt{a\_}'';
 \item the method name, without this prefix must be present on a
   separate line in the \texttt{methods.conf} file for the package, see
-  section~\ref{methods_conf}; and
+  section~\ref{sec:methods_conf}; and
 \item the method name must be \emph{globally} unique, i.e.\ there can
   not be a method with the same name in any other method directory
   visible to the Accelerator.
@@ -107,7 +111,7 @@ limitations that apply to methods:
     \texttt{<name>}.
   \item Add the method name \texttt{<name>} (without the prefix ``\texttt{a\_}'' and
     suffix ``\texttt{.py}'') to the \texttt{methods.conf} file in the
-    same method directory.  See section~\ref{xx}.
+    same method directory.  See section~\ref{sec:methods_conf}.
   \item (Make sure that the method directory is in the Accelerator's
     configuration file.)
 \end{enumerate}
@@ -166,7 +170,7 @@ appropriate.  The verifier list can contain any number of old hashes.
 A jobs parameters are available in the \texttt{params} variable.  It
 contains both input parameters that are assigned from the caller, and
 parameters that are created when the job starts building.  Input
-parameters will be described thoroughly in section~\ref{xx}.  Consider
+parameters will be described thoroughly in section~\ref{sec:input_params}.  Consider
 the following example method that pretty-prints the \texttt{params}
 variable.  Note that the method explicitly expects input parameters to
 be assigned by the caller in the \jobids, \datasets, and \options
@@ -232,6 +236,8 @@ and a description of its keys
 
 
 \section{Input Parameters}
+\label{sec:input_params}
+
 A method is typically provided with input parameters at build time.
 There are three kinds of method input parameters: \jobids, \datasets,
 and \options.  These parameters are specified early in the method
@@ -241,7 +247,7 @@ jobids = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
-The input parameters are then populated by the builder~\ref{xx>}.
+The input parameters are then populated by the builder~\ref{chap:urd}.
 
 The \texttt{jobids} parameter list is used to input links, or jobids,
 to other jobs, while the \datasets parameter list is used to input
@@ -274,7 +280,7 @@ be used as a reference to the corresponding job.
 The \datasets parameter is a tuple of links to Datasets.  In the
 running method, each item in the \datasets variable is a tuple of
 objects from the dataset class.  The dataset class is described in a
-dedicated chapter~\ref{xx}.
+dedicated chapter~\ref{chap:datasets}.
 
 All items in the \datasets tuple must be assigned by the builder to
 avoid run time errors.
@@ -526,7 +532,7 @@ kind of information that is helpful when using the specified file, and
 \begin{python}
 options = dict(usefile=JobWithFile(jid, 'user.txt', sliced=True, extras={'uid': 37}))
 \end{python}
-(Creating sliced files is described in section~\ref{xx}.)  In a
+(Creating sliced files is described in section~\ref{sec:create_dataset_in_analysis}.)  In a
 running method, the \texttt{JobWithFile} object has these members
 \begin{python}
 usefile.jobid
@@ -753,7 +759,7 @@ def prepare():
 \end{python}
 It is possible to build subjobs in \prepare and \synthesis, but not in
 \analysis.    The \texttt{subjobs.build} call uses the
-same syntax as \texttt{urd.build} described in section~\ref{xx}, so
+same syntax as \texttt{urd.build} described in chapter~\ref{chap:urd}, so
 the input parameters \options, \datasets, \jobids, and
 \texttt{caption} are available here too.  Similarly, the return value
 from a subjob build is a jobid to the built job.
@@ -851,3 +857,7 @@ It is perfectly fine for a job to dispatch any number of new jobs, and
 these jobs are called \textsl{subjobs}.  A maximum allowed recursion
 depth is defined to avoid infinite recursion.
 
+
+\section{Methods.conf}
+\label{sec:methods_conf}
+DESCRIBE METHODS CONF HERE

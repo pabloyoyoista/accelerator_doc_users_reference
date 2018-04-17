@@ -16,6 +16,8 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\label{chap:urd}
+
 \section{Introduction to Urd}
 
 Urd is the processing flow controller in the framework.  It is the
@@ -78,7 +80,7 @@ and the following applies
   \texttt{begin}.
 \end{itemize}
 There is also an \texttt{update} option that will be discussed in
-section~\ref{update_info}.
+section~\ref{sec:trunc-update}.
 
 
 
@@ -298,7 +300,7 @@ to only one digits.  An input of zero is also valid.
 
 
 \section{Truncating and Updating}
-
+\label{sec:trunc-update}
 Since the Urd database is designed using log files, it will always
 keep a consistent history of all events taken place.  It is not
 possible to erase or modify old entries, but it is okay to update the

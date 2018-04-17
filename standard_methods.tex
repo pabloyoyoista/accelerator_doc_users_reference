@@ -36,7 +36,7 @@ customise importing to specific cases.
   including a path.  If the path begins with a slash, it is absolute.
   Otherwise, the path is relative to the \texttt{source\_directory}
   configuration parameter specified in the configuration
-  file~\ref{void:configuration_file}.  A relative path makes it
+  file~\ref{sec:configfile}.  A relative path makes it
   possible to relocate files to a different directory without trigging
   job remake.\\
   
@@ -471,6 +471,7 @@ for full details.
 
 \clearpage
 \section{\texttt{dataset\_rehash} -- Hash Partition a Dataset}
+\label{sec:dataset_rehash}
 
 Dataset rehash will create a new dataset based on its \texttt{source}
 dataset.  The new dataset will be hashed on a column specified in the

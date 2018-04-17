@@ -86,14 +86,16 @@ to datasets, simply by linking datasets together.  A typical use case
 is the import of log files.  A new dataset is created from each new
 log file, and each dataset chains to the previous.  Reading the full
 chain will access all log rows.  This has effect on the dataset
-\emph{iterators} (see section~\ref{xx}), which may continue iterating
+\emph{iterators} (see chapter~\ref{chap:iterators}), which may continue iterating
 over the next dataset in the chain when the current dataset is
 exhausted.
 
 
 \section{Slicing and Hashing}
+\label{sec:slicing_and_hashing}
+
 Datasets are by default sliced into a number of slices specified by
-the Accelerator's configuration file~\ref{}.  Slicing means that the
+the Accelerator's configuration file~\ref{sec:configfile}.  Slicing means that the
 rows of data in the dataset are distributed into different sets,
 called slices.  Typically, there is one file on disk for each slice
 and column.  The main reason for doing this is performance.  All files
@@ -210,7 +212,7 @@ operation that is done in linear time when the dataset is created.
 Maximum and minimum values are used for example when iterating over
 chains of sorted datasets, to quickly decide if a dataset is outside
 range and can be skipped in its entirety, see
-section~\ref{sec:iterator-maxmin}.
+section~\ref{sec:iterate_sloppy_range}.
 
 
 \subsection*{Rows per Slice}
@@ -287,7 +289,7 @@ be in Python's \texttt{date} format, ready for processing.  The same
 goes for all types, including \texttt{json}, which may return rather
 complex datatypes.
 
-All available types are shown in table~\ref{tab:types}.  More details
+All available types are shown in the following table.  More details
 follow in the next sections.
 
 
@@ -410,8 +412,8 @@ The most common arguments to \texttt{DatasetWriter} are
     \texttt{parent}    & parent Dataset when adding columns\\
   \end{tabular}
 \end{snugshade}
-\noindent See section~\ref{} for a complete list of arguments and
-advanced dataset use.
+%\noindent See section~\ref{} for a complete list of arguments and
+%advanced dataset use.
 
 
 
@@ -465,18 +467,19 @@ with different names.
 \subsection{Create in synthesis}
 
 There are two possible ways to create a Dataset in \synthesis.  One is
-to set the slice number first
+to first set a slice number
 \begin{python}
 dw.set_slice(sliceno)
 \end{python}
-while the other is to use one of these functions
+before writing data into that slice.  The other is to use one of
+the \texttt{split\_write} functions
 \begin{python}
 dw.get_split_write_dict()({column: value})
 dw.get_split_write_list()([value, value, ...])
 dw.get_split_write()(value, value, ...)
 \end{python}
-that will assign the data to the correct slice automatically.  The
-latter method is almost always simpler.
+These writers will write round-robin if the dataset is not hashed, and
+to the ``right'' slice if the dataset is hashed.
 
 
 

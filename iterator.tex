@@ -16,6 +16,8 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\label{chap:iterators}
+
 Iterators are members of the \texttt{dataset} class.  They are
 available in methods for streaming dataset data one row at a time into
 a program.
@@ -54,13 +56,13 @@ All iterators share these arguments
   \RP \texttt{rehash} & \pyFalse & Setting this to \mintinline{python}/True/
   will rehash the dataset on the fly based on the \texttt{hashlabel}
   column.  Ideally, rehashing should be made using the
-  \texttt{dataset\_rehash} method~\ref{xx}.\\
+  \texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}.\\
   
   \RP \texttt{filters} & \pyNone & Filters decide which rows to include.
-  Explained in section~\ref{xx}\\
+  Explained in section~\ref{sec:filters}\\
 
   \RP \texttt{translators} & \pyNone & Translators transform data values.
-  Explained in section~\ref{xx}\\
+  Explained in section~\ref{sec:translators}\\
   
   \RP \texttt{status\_reporting} & \pyTrue & Give status when pressing
   \texttt{C-t}.  Unless manually \texttt{zip}ing iterators, this
@@ -116,7 +118,7 @@ def analysis(sliceno):
 \end{python}
 The program creates dictionaries mapping \texttt{user}s to sets of
 \texttt{item}s for the \texttt{source} dataset.  (If we assume that
-the dataset is hashed~\ref{xx}, this operation is entirely parallel
+the dataset is hashed~\ref{sec:slicing_and_hashing}, this operation is entirely parallel
 and there is no need to merge all the results from the analysis
 processes later.
 
@@ -238,6 +240,7 @@ This will iterate until reaching end or the dataset
 
 
 \section{Iterating Over a Data Range}
+\label{sec:iterate_sloppy_range}
 It is possible to iterate over rows having a specified column's value
 within a certain range.  This works best on datasets that are sorted
 on the specified column.
@@ -269,7 +272,7 @@ for user, item in datasets.source.iterate_chain(
 
 
 \section{Hashed Datasets and Hashing Datasets}
-Hashing a dataset on a particular columns, see~\ref{xx} may simplify
+Hashing a dataset on a particular columns, see~\ref{sec:slicing_and_hashing} may simplify
 the code in methods using the dataset.  This code will not work
 properly if it turns out that it is being fed with unhashed datasets.
 Therefore, it is a good idea to \emph{assert} the hashlabel by
@@ -283,12 +286,13 @@ Execution will terminate if the hashlabel is not correct.
 It is possible to rehash the dataset on-the-fly.  This is done by
 setting the \texttt{rehash} argument to the iterator to
 \mintinline{python}/True/.  The preferred way to rehash is to use the
-\texttt{dataset\_rehash} method~\ref{xx}, since it will store the
+\texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}, since it will store the
 rehashed dataset for later use, which in most scenarios will be more
 efficient.
 
 
 \section{Translators}
+\label{sec:translators}
 
 Translators transform iterator output data values on-the-fly.  A
 translator is either a callable or a \texttt{dict}.  Translators are
@@ -356,6 +360,8 @@ strings will be reversed.
 
 
 \section{Filters}
+\label{sec:filters}
+
 Filter are used to decide which output data rows that are allowed to
 reach the iterator output.  Filters are run \emph{after} translators.
 As for translators, filter are either a callables or a \texttt{dict}s.

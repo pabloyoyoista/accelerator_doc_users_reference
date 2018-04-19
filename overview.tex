@@ -492,7 +492,7 @@ from collections import Counter
 datasets = ('source',)
 
 def synthesis():
-    c = Counter(movie for movie in datasets.source.iterate(None, 'movie'))
+    c = Counter(datasets.source.iterate(None, 'movie'))
     print(c.most_common(10))
 \end{python}
 This will print the ten most common movie titles and their
@@ -510,7 +510,7 @@ are sliced, we can modify the above program to execute in parallel by
 doing the following modification
 \begin{python}
 def analysis(sliceno):
-    return Counter(movie for movie in datasets.source.iterate(sliceno, 'movie'))
+    return Counter(datasets.source.iterate(sliceno, 'movie'))
 
 def synthesis(analysis_res)
     c = analysis_res.merge_auto()

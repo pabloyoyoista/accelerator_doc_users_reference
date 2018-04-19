@@ -269,3 +269,27 @@ process.
 
 Note that \texttt{C-t} could be pressed either in the \texttt{daemon}
 or \texttt{runner} shells.
+
+
+
+\section{Typical Installation}
+Traditionally, the Accelerator is installed as a \texttt{git
+submodule} to the current project it is used in.  This makes it
+possible to update the Accelerator and project code independently,
+while linking a specific version of the Accelerator to the project.
+Thus, the project will always use a specific Accelerator commit,
+making the project independent of changes to the Accelerator.
+
+Here is a typical setup
+\begin{shell}
+project/
+    accelerator/
+    dev/
+    conf/
+\end{shell}
+Methods are stored in the \texttt{dev} directory, and Accelerator
+configuration files in \texttt{conf}.  These files are version
+controlled using \texttt{git}.  The \texttt{accelerator} directory is
+a \texttt{submodule}, which means that the project repository is
+storing the repository location \textsl{and} the commit of the
+Accelerator.

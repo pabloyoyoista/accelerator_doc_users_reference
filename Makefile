@@ -13,3 +13,8 @@ ${DOC}.pdf: doc.tex dataset.tex concepts.tex method.tex urd.tex setup.tex iterat
 clean:
 	latexmk -CA
 	rm -f ${DOC}.pdf
+
+
+show_missing_refs:
+	cat doc.log| grep -e Refere -e '(..*\.tex' | less
+

@@ -269,20 +269,20 @@ causing a loss of continuity and visibility.
 \section{More on Finding Items in Urd}
 There is a \texttt{list} function that returns what lists are recorded
 in the database:
-\begin{pythonBEG}
+\begin{python}
   print(urd.list())
   # ['ab/test', 'ab/live']
-\end{pythonBEG}
+\end{python}
 And there is also a \texttt{since} function that returns a list of all
 timestamps after the input argument
-\begin{pythonMID}
+\begin{python}
   print(urd.since('20161005'))
   # ["20161006", "20161007", "20161008", "20161009"]
-\end{pythonMID}
+\end{python}
 The \texttt{since} is rather relaxed with respect to the resolution of
 the input.  The input timestamp may be truncated from the right down
 to only one digits.  An input of zero is also valid.
-\begin{pythonEND}
+\begin{python}
   print(urd.since('0'))
   # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
   print(urd.since('2016'))
@@ -295,7 +295,7 @@ to only one digits.  An input of zero is also valid.
   ...
   print(urd.since('2016105 000000'))
   # ["20161006", "20161007", "20161008"]
-\end{pythonEND}
+\end{python}
 
 
 
@@ -337,27 +337,27 @@ jobids.  It is basically a tuple with some extra properties, such as a
 conversion of a jobtuple to \texttt{str}, which happens for example
 when printing it, returns the jobid as a string.
 
-\begin{pythonBEG}
+\begin{python}
 >>> jt = JobTuple('imprt', 'jid-0')
 
 >>> jt
 ('imprt', 'jid-0')
-\end{pythonBEG}
+\end{python}
 as expected, and
 
-\begin{pythonMID}
+\begin{python}
 >>> jt.method
 'imprt'
 
 >>> jt.jobid
 'jid-0'
-\end{pythonMID}
+\end{python}
 but note that
 
-\begin{pythonEND}
+\begin{python}
 >>> print(jt)  # str and encode return jobid only
 jid-0
-\end{pythonEND}
+\end{python}
 
 
 
@@ -368,22 +368,22 @@ The \joblist is a list with add-ons for bookkeeping and finding jobs.
 It stores instances of \jobtuple.  Here is an example.  First, define
 a \jobtuple
 
-\begin{pythonBEG}
+\begin{python}
 >>> jt = JobTuple('imprt', 'jid-0')
-\end{pythonBEG}
+\end{python}
 then define a joblist initiated with the same tuple.  Then append some
 more jobs directly using the \texttt{append} method.
 
-\begin{pythonMID}
+\begin{python}
 >>> jl = JobList(jt)
 >>> jl.append('learn', 'lrn-0')
 >>> jl.append('imprt', 'imp-1')
-\end{pythonMID}
+\end{python}
 Let's see how and what is stored in the \joblist.  The \texttt{pretty}
 method is quite useful, but note that just printing the object will
 show the last jobid only.
 
-\begin{pythonMID}
+\begin{python}
 >>> print(jl.pretty)
 JobList(
    [  0]  imprt : jid-0
@@ -393,36 +393,36 @@ JobList(
 
 >>>  print(jl)  # jobid of latest appended JobTuple
 imp-1
-\end{pythonMID}
+\end{python}
 
 It is easy to retrieve the last job with a particular \texttt{method}
 name, either by lookup or by using \texttt{find}.
 
-\begin{pythonMID}
+\begin{python}
 >>> jl['imprt']         # latest jobid with name 'imprt'
 ('imprt', 'imp-1')
 
 >>> print(jl['imprt'])   # jl['imprt'] is JobTuple
 imp-1
-\end{pythonMID}
+\end{python}
 The Find method returns a \joblist.  Slicing also returns {\joblist}s
 
-\begin{pythonMID}
+\begin{python}
 >>> jl.find('imprt')
 JobList([('imprt', 'jid-0'), ('imprt', 'imp-1')])
 
 >>> jl[:2]
 JobList([('imprt', 'jid-0'), ('learn', 'lrn-0')])
-\end{pythonMID}
+\end{python}
 Looking up by index returns \jobtuple.
 
-\begin{pythonMID}
+\begin{python}
 >>> jl[0]
 ('imprt', 'jid-0')
-\end{pythonMID}
+\end{python}
 These conveniences are also supported
 
-\begin{pythonEND}
+\begin{python}
 >>> jl.all              # list of all jobids
 'jid-0,lrn-0,imp-1'
 
@@ -431,7 +431,7 @@ These conveniences are also supported
 
 >>> jl.jobid            # last jobid
 'imp-1'
-\end{pythonEND}
+\end{python}
 
 
 

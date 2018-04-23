@@ -36,7 +36,6 @@
 \setlength{\voffset}{-20mm}
 %\usepackage{showframe}
 \usepackage{xspace}
-%\usepackage{pgffor}
 
 \usepackage{fancybox}
 \usepackage{framed}
@@ -54,11 +53,6 @@
 %\newcommand{\urd}{\texttt{urd}\xspace}
 \newcommand{\joblist}{\texttt{JobList}\xspace}
 \newcommand{\jobtuple}{\texttt{JobTuple}\xspace}
-%\newcommand{\callmethod}{\texttt{call\_method}\xspace}
-%\newcommand{\arecord}{\texttt{a.record}\xspace}
-%\newcommand{\automatacommon}{\texttt{automata\_common}\xspace}
-%\newcommand{\defaultdict}{\texttt{defaultdict}\xspace}
-%\newcommand{\jobid}{\texttt{jobid}\xspace}
 \newcommand{\jobids}{\texttt{jobids}\xspace}
 \newcommand{\datasets}{\texttt{datasets}\xspace}
 \newcommand{\options}{\texttt{options}\xspace}
@@ -70,30 +64,24 @@
 \newcommand{\params}{\texttt{params}\xspace}
 \newcommand{\jobparams}{\texttt{job\_params}\xspace}
 \newcommand{\sliceno}{\texttt{sliceno}\xspace}
-% \newcommand{\jobids}{\texttt{jobids}\xspace}
 
-\usepackage{xspace}
+
 %%%  A pretty minted-environment for Python  %%%
 % minted
 \usepackage{minted, xcolor}
 \usemintedstyle{lovelace}
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
-%\newminted[python]{python}{bgcolor=bg, frame=lines}
-%\newminted[python]{python}{frame=lines}
 \newminted[python]{python}{bgcolor=bg}
 
-\newminted[pythonBEG]{python}{frame=topline}
-\newminted[pythonMID]{python}{}
-\newminted[pythonEND]{python}{frame=bottomline}
-
 \newminted[shell]{bash}{}
+
 
 \newcommand\inputfile[1]{%
     \InputIfFileExists{#1}{}{\typeout{No file #1.}}%
 }
 
-\newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
+%\newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
 
 \newcommand{\pyNone}{\mintinline{python}/None/\xspace}
 \newcommand{\pyTrue}{\mintinline{python}/True/\xspace}
@@ -145,31 +133,7 @@
 
 \newpage
 
-
 %\tableofcontents
-
-
-%% \section*{Glossary}
-
-%% % \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} l}
-%% \begin{tabular*}{\textwidth}{ll}
-%% automata  & a script run by urd dispatching or recalling jobs\\
-%% chain     & a one-directional list of datasets\\
-%% dataset   & efficient storage of data\\
-%% job       & a running or completed method\\
-%% jobid     & a link to a successfully completed method\\
-%% method    & main source file of program to be executed by framework\\
-%% package   & a location where methods are stored\\
-%% urd       & dispatcher and job database\\
-%% workdir   & a location where job data and metadata is stored\\
-%% \end{tabular*}
-
-
-\chapter{Introduction}
-\include{introduction}
-
-
-
 
 
 % \newpage
@@ -188,20 +152,10 @@
 %   freed storage is nothing compared to the cost of loss of history:
 %   replication becomes impossible, as well as certain analyses.
 
-% \item \textbf{Data should be accessable with minimum overhead}
-
-% \item \textbf{Appending columns and rows should have minimal overhead.}
-
 % \item \textbf{Live and dev environment is equivalent}
 % \item \textbf{ blah - analysis and production same blah@@@}
   
 % \item \textbf{Bookkeep intermediate results.  Use it --- don't recompute!}
-
-% \item \textbf{client server configuration}
-
-% \item \textbf{simplicity} use basic file systems, and simple,
-%   minimalistic programs.  (Maintainability, stability, observability,
-%   and speed).  Adding layers and applications slows things down.
 
 % \item \textbf{Moore's law and bottlenecks} CPU, memory size, and disk
 %   storage increase exponentionally over time for constant price.
@@ -213,18 +167,14 @@
 % \end{itemize}
 
 
+\chapter{Introduction}
+\include{introduction}
 
-
-\chapter{NEW Overview}
+\chapter{Overview}
 \include{overview}
-
-%\chapter{Overview}
-%\include{concepts}
 
 \chapter{Practicalities}
 \include{practicalities}
-
-
 
 \chapter{Basic Build Scripting}
 \include{urd_basic}
@@ -243,7 +193,7 @@
 
 \chapter{Standard Methods}
 The Accelerator is shipped with a set of common standard methods.
-These are found in the directory \texttt{./standard\_methods}.
+These are found in the method directory \texttt{./standard\_methods}.
 \include{standard_methods}
 
 \chapter{Command Line Tools}

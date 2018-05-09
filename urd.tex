@@ -18,58 +18,73 @@
 
 \label{chap:urd}
 
+This chapted is the continuation of the chapter~\ref{chap:urd_basic},
+``Basic Build Scripting''.  Please read about build script and
+joblists before proceeding.
+
+
 \section{Introduction to Urd}
+
+Build scripts, as presented in chapter~\ref{chap:urd_basic}, provides
+a powerful way to build and link jobs.  In may cases, however, this is
+not enough.  For example, when a project matures, there is a need for
+separation, and if a project uses lots of input files, something is
+needed to keep track of them.
 
 Urd is the processing flow controller in the framework.  It is the
 primary job dispatcher as well as the bookkeeper of all jobs executed.
-Events in urd are quantified into what is called \textsl{sessions}.
+It provides a way to look up existing jobs and datasets, and provides
+separation in that it eliminates the need to replay build scripts to
+find old jobids and datasets.
+
+Events in urd are separated into what is called \textsl{sessions}.
 The core of Urd is a transaction log database storing these sessions
 together with meta information.  The result is a server providing
 lookups for all jobs executed together with their context.
 
 The Urd database is partitioned into what is called \textsl{lists}.
-Lists are where information about executed jobs are stored, and how
-they relate to eachother.  Lists are globally readable, but writing
-requires authentication, so that, for example, only the production
-user may publish a model to go live.
+Lists record sessions and key them using a timestamp.  Lists are
+globally readable, but writing requires authentication, so that, for
+example, only the production user may publish a model to go live.
 
-With the exception of experimental work, all work initiated by Urd is
-run in closed sessions, with well defined starting and ending points.
-The input dependencies to these sessions are recorded, together with
-the resulting output.
+With the exception of experimental work and the build script basics
+presented in the previous chapter, all work initiated by Urd is run in
+closed sessions, with well defined starting and ending points.  The
+input parameters to these sessions are recorded as dependencies,
+together with the resulting output.
 
 
 
 \section{Urd Sessions}
 
-A minimal example of creating an Urd session is as follows
+Urd sessions exists between the \texttt{urd.begin()}
+and \texttt{urd.finish()} functions, like in this minimal example
 \begin{python}
 def main(urd):
-    urd.begin('test')
+    urd.begin('user/test', '2018-05-09')
     ...
-    urd.finish('test', '2016-10-25')
+    urd.finish('user/test')
 \end{python}
-Every job that is dispatched between \texttt{begin} and
-\texttt{finish} will be appended to the \texttt{test} Urd list with
-timestamp \texttt{20161025}.  In addition, all lookups of jobs done by
-Urd will be appended to the Urd list as dependencies.
-
-The Urd list will be updated only when the \texttt{finish} function is
-called, since it is responsible for updating the urd transaction log.
-Before \texttt{finish}, nothing is stored, and it is perfectly okay to
-omit \texttt{finish} during development work.
+All jobs dispatched between \texttt{begin} and \texttt{finish} will be
+appended to the \texttt{user/test} \textsl{Urd list} with
+timestamp \texttt{2018-05-09}.  This also includes meta information,
+such as all lookups of jobs done by Urd in the session that will be
+appended as dependencies.
 
 There are a number of options associated with a session, as shown
 here,
 \begin{python}
-urd.begin(path, timestamp, caption=None, update=False)
-urd.finish(path, timestamp, caption=None)
+urd.begin(urdlist, timestamp, caption=None, update=False)
+urd.finish(urdlist, timestamp, caption=None)
 \end{python}
 and the following applies
 \begin{itemize}
-\item [] \texttt{path} is the name of the Urd list, and the same
-  \texttt{path} must be specified in both \texttt{begin} and
-  \texttt{finish}.
+\item [] \texttt{urdlist} is the name of the Urd list, and the same
+  \texttt{urdlist} must be specified in both \texttt{begin}
+  and \texttt{finish}.  The \texttt{urdlist} is specified as
+  ``\texttt{user/list}'', where the ``\texttt{user/}'' part is
+  optional.  The \texttt{user} should correspond to the
+  current \texttt{URD\_AUTH} settings, see section~\ref{xxx}.
 
 \item [] \texttt{timestamp} is mandatory, but could be set in either
   \texttt{begin}, \texttt{finish}, or both.  \texttt{finish}
@@ -78,20 +93,28 @@ and the following applies
 \item [] \texttt{caption} is optional, and can be set in either
   \texttt{begin} or \texttt{finish}.  \texttt{finish} overrides
   \texttt{begin}.
-\end{itemize}
-There is also an \texttt{update} option that will be discussed in
+
+\item [] \texttt{update}.  This optiong will be discussed in
 section~\ref{sec:trunc-update}.
+\end{itemize}
+
+The Urd transaction database will be updated when the \texttt{finish}
+function is called.  Before calling \texttt{finish}, nothing is
+stored, and it is perfectly okay to omit \texttt{finish} during
+development work.
 
 
 
-\subsection{Timestamp resolution}
+
+\subsection{Timestamp Resolution}
 
 Timestamps may be specified in various resolution depending on the
 application.  The time format is
-\begin{verbatim}
+\begin{python}
 "%Y-%m-%dT%H:%M:%S"
-\end{verbatim}
-and it can be truncated as shown in the following examples covering all possible cases.
+\end{python}
+and it can be truncated as shown in the following examples covering
+all possible cases.
 \begin{python}
 '2016-10-25'               day resolution
 '2016-10-25T15'            hour resolution
@@ -105,7 +128,7 @@ and it can be truncated as shown in the following examples covering all possible
 
 When an Urd session is initiated, a new session cannot be started
 until the current session has finished.  A session may be aborted,
-however, like this
+however, using the \texttt{abort()} function, like this
 \begin{python}
 urd.begin('test')
 urd.abort()
@@ -118,68 +141,57 @@ Aborted sessions are not stored in the Urd transaction log.
 \section{Building Jobs}
 
 Jobs are dispatched in Urd sessions using the \texttt{build} function.
-The syntax is just the same as in the previous section that did not
-use sessions.
+The syntax is just the same as in the previous chapter that did not
+use sessions, but will be repeated here for convenience.\\[-3ex]
 \begin{python}
-jobid = urd.build('method1', options={}, datasets={}, jobids={}, ...)
+jobid = urd.build(method, options={}, datasets={}, jobids={}, name='', caption='')
 \end{python}
-Here, \texttt{options}, \texttt{datasets}, and \texttt{jobids} are
-optional, depending on the method to be dispatched.  In addition, a
-name and a caption may be specified too
-\begin{python}
-jobid = urd.build('method1', name='myjob', caption='looking for something')
-\end{python}
-The name will override the default name, which is the name of the
-method, in the Urd list.  In this case, this job will now be referred
-to as \texttt{myjob} (instead of default \texttt{method1}).  This is
-useful to separate jobs if the same method is used multiple times in
-the same list.  A jobid to the finished job is returned upon
-successful completion.
-
-
-
-\subsection{Handling Consecutive Jobs}
-
-Using the output jobid from the \texttt{build} function, it is
-straightforward to connect jobs in series.  For example
-\begin{python}
-jid_filter = urd.build('filter_data', datasets=dict(source=<some input>))
-jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
-\end{python}
-In the example above, the first method, \texttt{filter\_data}, creates
-a new dataset from its input.  This is then forwarded to the second
-method, \texttt{reduce}, using the jobid reference
-\texttt{jid\_filter}.
-
-If the first method or its input data is changed, the first job will
-be run again.  This will cause the jobid \texttt{jid\_filter} to
-change too, which will, in turn, trig execution of the \texttt{reduce}
-job.  The Urd list will contain jobids to both jobs, and all input
-parameters as well, so it is clear which \texttt{filter\_data} job
-that was used as input for the \texttt{reduce} job.
-
-
-
-\subsection{Building Chained Jobs}
-
-Using the \texttt{build\_chained} function, it is possible to build
-chained jobs implicitly, like this
-\begin{python}
-jobid = urd.build_chained('method1', name='myjob')
-\end{python}
-This function takes the same options as the standard \texttt{build}
-method, with the exception that name is mandatory, since it is used to
-find the previous job of matching type.
-
-
-
+The \texttt{name} is used to override the default name (which is the name of the method) in the Urd joblist.
 
 
 
 \section{Urd Sessions with Dependencies}
 
+Perhaps it is easiest to explain this using an example.  In order to
+keep things separate in a project, data import and data processing is
+separated into different build scripts.  Here is a very simple example
+import script
+\begin{python}
+def main(urd):
+    urd.begin('import/txn', '2018-05-03')
+    urd.build('csvimport', options=dict(filename='txn1.txt'))
+    urd.finish('import/txn')
+\end{python}
+(Larger, more realtime, projects, may create one Urd session per hour
+or day, depending on how often new data is added to the system.)
 
-\comment{forst en import-automata har, och sedan anvand den...}
+The import script has stored the session's joblist to Urd in the
+list \texttt{import/txn} and timestamp \texttt{2018-05-03}.  It can
+now be used by other build scripts.
+
+An example data processing script may look like the following
+\begin{python}
+def main(urd):
+    urd.begin('process/test')
+        import_session = urd.latest('import/txn')
+        import_timestamp = import_session.timestamp
+        import_jobid = import_session.joblist.jobid
+        urd.build('process', datasets=dict(source=import_jobid))
+    urd.finish('process/test', import_timestamp)
+\end{python}
+This script fetches the \textsl{latest} import in
+the \texttt{import/txn} list, processes the corresponding dataset, and
+stores the session to the \texttt{process/test} list using
+the \textsl{same} timestamp as the imported file.  This makes a lot of
+sense, and is very good for tracking purposes.
+
+xxx
+
+xxx
+
+xxx
+
+
 
 A job may have dependencies, such as other jobs or datasets.  These
 dependencies are input to the job using the corresponding arguments to
@@ -195,7 +207,7 @@ data files.  Information about the import jobs is stored in the
 \texttt{import} Urd list.
 \begin{python}
 def main(urd):
-    now = '20180403'
+    now = '2018-04-03'
     urd.begin('import', now)
     jid_prev = urd.latest('import')
     urd.build('csvimport',
@@ -218,7 +230,7 @@ def main(urd):
     urd.begin('test')
     latest_import = urd.latest('import').joblist.jobid
     urd.build('computesomething', datasets=dict(source=latest_import))
-    urd.finish('test', '20180403')
+    urd.finish('test', '2018-04-03')
 \end{python}
 Two things have happened here.  First, urd has provided a jobid link
 to the latest available \texttt{import} dataset.  Second, the
@@ -232,18 +244,18 @@ immediately available from urd.
 The more general form is \texttt{get}, which is shown below together
 with its derived convenience-functions
 \begin{python}
-  urd.get('test', '20161001')
-  urd.latest('test')
-  urd.first('test')
+    urd.get('test', '2016-10-01')
+    urd.latest('test')
+    urd.first('test')
 \end{python}
 And here is an example of running \texttt{computesomething} on \texttt{import} data
 from previous month
 \begin{python}
 def main(urd):
-  urd.begin('test')
-  import = urd.get('import', '20160925').joblist.jobid
-  urd.build('computesomething', datasets=dict(import=import))
-  urd.finish('test', '20161025')
+    urd.begin('test')
+    import = urd.get('import', '2016-09-25').joblist.jobid
+    urd.build('computesomething', datasets=dict(import=import))
+    urd.finish('test', '2016-10-25')
 \end{python}
 
 
@@ -255,9 +267,9 @@ the point is to just have a look at the database to see what is in
 there, it can be done using the peek functions, \texttt{peek} and
 \texttt{peek\_latest}, like this:
 \begin{python}
-urd.peek('test', '20161025')
-urd.peek_latest('test')
-urd.peek_first('test')
+    urd.peek('test', '2016-10-25')
+    urd.peek_latest('test')
+    urd.peek_first('test')
 \end{python}
 Note that this is in general not recommended.  These functions will
 look up Urd lists with jobids that may be used to build new jobs, but
@@ -267,35 +279,72 @@ causing a loss of continuity and visibility.
 
 
 \section{More on Finding Items in Urd}
-There is a \texttt{list} function that returns what lists are recorded
-in the database:
+\texttt{get}, \texttt{first}, and \texttt{latest} all return an urd item.
+
+
+\subsection{get}
+
+
+
+\subsection{latest}
+The \texttt{latest()} will return the item with most recent timestamp.
+It can only be called in a running session, since it is logging the
+result so it can be appended to the next built job.  Example
 \begin{python}
-  print(urd.list())
-  # ['ab/test', 'ab/live']
+print(urd.latest('ab/test')
 \end{python}
-And there is also a \texttt{since} function that returns a list of all
-timestamps after the input argument
+will return a complete item like this
+\begin{shell}
+{'automata': 'test', 'caption': '', 'user': 'ab', 'deps': {}, \
+ 'joblist': JobList([('example', 'TEST-34')]), 'timestamp': '2018-05-06'}
+\end{shell}
+
+
+\subsection{first}
+The \texttt{first()} function works similarly to \texttt{latest}, and
+will return the item with the oldest timestamp.
+
+
+\subsection{list}
+The \texttt{list()} function will return a list of all lists recorded in
+the database:
 \begin{python}
-  print(urd.since('20161005'))
-  # ["20161006", "20161007", "20161008", "20161009"]
+print(urd.list())
 \end{python}
+may show something like
+\begin{shell}
+['ab/test', 'ab/live']
+\end{shell}
+
+
+\subsection{since}
+The \texttt{since()} function is used to extract lists of timestamps
+corresponding to urd entries.  In its most basic form, it is called
+with a timestamp like this
+\begin{python}
+print(urd.since('2016-10-05'))
+\end{python}
+which returns a list with all existing timestamps more recent than the
+one provided
+\begin{shell}
+['2016-10-06', '2016-10-07', '2016-10-08', '2016-10-09', '2016-10-09T20']
+\end{shell}
 The \texttt{since} is rather relaxed with respect to the resolution of
 the input.  The input timestamp may be truncated from the right down
-to only one digits.  An input of zero is also valid.
+to only one digits.  An input of zero is also valid.  For example,
+these are all valid
 \begin{python}
-  print(urd.since('0'))
-  # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
-  print(urd.since('2016'))
-  # ["20160101", "20161004", "20161005", "20161006", "20161007", "20161008"]
-  print(urd.since('20161'))
-  # ["20161004", "20161005", "20161006", "20161007", "20161008"]
-
-  print(urd.since('2016105'))
-  # ["20161006", "20161007", "20161008"]
-  ...
-  print(urd.since('2016105 000000'))
-  # ["20161006", "20161007", "20161008"]
+print(urd.since('0'))
+print(urd.since('2016'))
+print(urd.since('2016-1'))
+print(urd.since('2016-10-05'))
+print(urd.since('2016-10-05T20'))
+print(urd.since('2016-10-05T20:00:00'))
 \end{python}
+
+
+
+
 
 
 

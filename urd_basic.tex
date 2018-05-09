@@ -1,15 +1,15 @@
 \label{chap:urd_basic}
 
 Build scripts are used to instruct the Accelerator about which jobs to
-build.  The Accelerator will consult its internal database to see if
-such a job already exists, before attempting to build it.  This
-chapter describes the basics of job building.  More advanced features,
-using the \texttt{urd} server, is presented in chapter~\ref{chap:urd}.
+build.  This chapter describes the basics of job building.  More
+advanced features, using the \texttt{urd} server, is presented in
+chapter~\ref{chap:urd}.
 
 
 \section{Build Scripts}
 Build scripts are executed by the \texttt{runner} server.  A build
-script must contain the function \texttt{main} as shown below
+script must contain the function \texttt{main} as shown below, because
+this function is called by the runner.
 \begin{python}
 def main(urd):
     ...
@@ -17,24 +17,32 @@ def main(urd):
 At run time, the \texttt{runner} inserts an object of the \texttt{Urd}
 class as argument to the \texttt{main} function.  This object has a
 number of member functions and attributes useful for job building.  It
-also records all jobs that are build, together with their input
-parameters and some more meta information described in the next
-sections.
+also records all jobs that are built, together with their input
+parameters and some more meta information, that will be described in
+the next sections.  This chapter will only cover the basic
+possibilities provided by Urd.  A more comprehensive view will be
+provided in the next chapter.
 
 \subsection{Building a Job}
 The \texttt{build} function is typically used to build a job from a
 method.  Here is an example of how to build the method
-\texttt{method1}.
+\texttt{method1}:
 \begin{python}
-jobid = urd.build('method1', options={}, datasets={}, jobids={}, name='', caption='')
+def main(urd):
+    urd.build('method1')
 \end{python}
-All options are optional, and \texttt{options}, \texttt{datasets}, and
-\texttt{jobids} depend on the method to be executed.  The
-\texttt{name} will override the default name, which is equal to the
-name of the method, when the job is recorded by Urd.  This is useful
-if several jobs are build based on the same method.  Naming them
-uniquely makes it easier to tell them apart later.  In addition, it is
-also possible to assign a caption to a job.
+The full syntax for the \texttt{build} function is as follows
+\begin{python}
+jobid = urd.build(method, options={}, datasets={}, jobids={}, name='', caption='')
+\end{python}
+All paramters are optional, and
+the \texttt{options}, \texttt{datasets}, and \texttt{jobids}
+parameters depend on the method to be executed.  The \texttt{name}
+will override the default name, which is equal to the name of the
+method, when the job is recorded by Urd.  This is useful if several
+jobs are build based on the same method.  Naming them uniquely makes
+it easier to tell them apart later.  In addition, it is also possible
+to assign a caption to a job.
 
 When the job is successfully built, the \texttt{build} function will
 return a reference, a \textsl{jobid} to the job.  Similarly, if the
@@ -45,12 +53,12 @@ without executing anything.
 
 In addition, a name and a caption may be specified too
 \begin{python}
-  jobid = urd.build('method1', name='myjob', caption='looking for something')
+jobid = urd.build('method1', name='myjob', caption='looking for something')
 \end{python}
-The name will override the default name (which is the name of the method) in the Urd list.  In this case,
-this job will now be referred to as \texttt{myjob} (instead of default
-\texttt{method1}).  A jobid to the finished job is returned upon
-successful completion.
+The name will override the default name (which is the name of the
+method) in the Urd list.  In this case, this job will now be referred
+to as \texttt{myjob} (instead of default \texttt{method1}).  A jobid
+to the finished job is returned upon successful completion.
 
 
 
@@ -58,8 +66,8 @@ successful completion.
 Using the output jobid from the \texttt{build} function, it is
 straightforward to connect jobs in series.  For example
 \begin{python}
-  jid_filter = urd.build('filter_data', datasets=dict(source=<some input>))
-  jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
+jid_filter = urd.build('filter_data', datasets=dict(source=<some_input>))
+jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
 \end{python}
 In the example above, the first job, \texttt{filter\_data} creates a
 new dataset from its input.  This is then forwarded to the second job,
@@ -78,6 +86,66 @@ It is also possible to build chained jobs implicitly using the
   jobid = urd.build_chained('method1', name='myjob')
 \end{python}
 which takes the same options as the standard \texttt{build} method,
-with the exception that name is mandatory, since it is used to find
-the previous job of matching type.
+with the exception that name is mandatory.  The method to be chained
+must have a ``\texttt{previous}'' key in its \texttt{datasets}
+parameter.  The latest job with the same name is looked up by the
+runner, and the corresponding jobid is assigned to the
+method's \texttt{datasets.previous}.
 
+
+
+\subsection{Replaying Build Scripts}
+Executing an unmodified build script again will not cause any new jobs
+to be executed.  Instead, the Accelerator will fill in the jobids of
+the existing jobs so that processing can continue immediately.  A
+successful ``replay'' of a build script ensures the integrity and
+dependencies of the calculations.  If nothing has changed, the same
+result remains.  If, however, some of the code has been modified, the
+Accelerator will compute new jobs, the result may be different, and
+the user is notified.
+
+
+
+
+\section{Joblists}
+It has already been metioned that Urd keeps track of all built jobs.
+This information is stored in the \texttt{urd.joblist} variable.  This
+variable is of type \texttt{JobList}, which is basically
+a \texttt{list} with some additional features.  The \texttt{joblist}
+is an ordered list of jobs and it can be pretty-printed like this
+\begin{python}
+def main(urd):
+    jid1 = urd.build('first')
+    jid2 = urd.build('second', jobids=dict(first=jid1))
+    print(urd.joblist.pretty)
+\end{python}
+which results in
+\begin{shell}
+JobList(
+   [  0]  first : TEST-38
+   [  1] second : TEST-39
+)
+\end{shell}
+Any job in the list can be accessed by its name, so for example the
+jobid to the \texttt{first} job could be retrieved by
+\begin{python}
+  jid1 = urd.joblist['first'].jobid
+\end{python}
+The ``\texttt{.jobid}'' is a bit clumsy, but currently required to get
+the actual jobid for the job.  Note that if there are several jobs
+created by the same method, they will have the same key in the
+joblist.  This situation could be resolved using unique names to
+the \texttt{name=} option to the \texttt{build()}-function as
+mentioned earlier.  Using the joblist, we can modify our example to
+\begin{python}
+def main(urd):
+    urd.build('first')
+    urd.build('second', jobids=dict(first=urd.joblist['first'].jobid))
+\end{python}
+An important special case is that the \textsl{latest} job is always
+accessible using \texttt{urd.joblist.jobid}, so the code example could also be written
+\begin{python}
+def main(urd):
+    urd.build('first')
+    urd.build('second', jobids=dict(first=urd.joblist.jobid))
+\end{python}

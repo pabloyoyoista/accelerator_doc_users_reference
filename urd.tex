@@ -35,7 +35,9 @@ Urd is the processing flow controller in the framework.  It is the
 primary job dispatcher as well as the bookkeeper of all jobs executed.
 It provides a way to look up existing jobs and datasets, and provides
 separation in that it eliminates the need to replay build scripts to
-find old jobids and datasets.
+find old jobids and datasets.  (It is also an interesting
+log-file-based database, that will be further discussed in
+section~\ref{xx}.)
 
 Events in urd are separated into what is called \textsl{sessions}.
 The core of Urd is a transaction log database storing these sessions
@@ -150,12 +152,19 @@ The \texttt{name} is used to override the default name (which is the name of the
 
 
 
+\section{The Urd Item}
+
+
+
 \section{Urd Sessions with Dependencies}
 
 Perhaps it is easiest to explain this using an example.  In order to
 keep things separate in a project, data import and data processing is
-separated into different build scripts.  Here is a very simple example
-import script
+separated into different build scripts.
+
+The next section provides a simple example import script
+
+\subsection{Example}
 \begin{python}
 def main(urd):
     urd.begin('import/txn', '2018-05-03')
@@ -184,6 +193,58 @@ the \texttt{import/txn} list, processes the corresponding dataset, and
 stores the session to the \texttt{process/test} list using
 the \textsl{same} timestamp as the imported file.  This makes a lot of
 sense, and is very good for tracking purposes.
+
+
+
+
+\subsection{Finding Items in Urd}
+
+\subsubsection{get}
+The \texttt{get()} function will return an item corresponding to a
+(relaxed) timestamp.  (More about the relaxed part below.)
+\begin{python}
+urd.get("ab/test", "2018-01-01T23")
+\end{python}
+The timestamp must match exactly for an item to be returned.  This
+strict behaviour can be relaxed by starting the timestamp with
+``\texttt{<}'', ``\texttt{<=}'', ``\texttt{>}'', or ``\texttt{>=}'',
+for example
+\begin{python}
+urd.get("ab/test", ">2018-01-01T01")
+\end{python}
+may return an item recorded as \texttt{2018-01-01T02}.
+
+The timestamp may be relaxed in the sense that it is used for
+comparison ``from the left'', so it is okay to do
+\begin{python}
+urd.get("ab/test", ">20")
+\end{python}
+to get the fist recorded item recorded in a year starting with ``20''.
+Note that
+\begin{python}
+urd.get("ab/test", "<=2018-05")
+\end{python}
+will match all ``\texttt{2018-05-xx}''-timestamps.
+
+
+\subsubsection{latest}
+The \texttt{latest()} will return the item with most recent timestamp.
+It can only be called in a running session, since it is logging the
+result so it can be appended to the next built job.  Example
+\begin{python}
+print(urd.latest('ab/test')
+\end{python}
+will return a complete item like this
+\begin{shell}
+{'automata': 'test', 'caption': '', 'user': 'ab', 'deps': {}, \
+ 'joblist': JobList([('example', 'TEST-34')]), 'timestamp': '2018-05-06'}
+\end{shell}
+
+
+\subsubsection{first}
+The \texttt{first()} function works similarly to \texttt{latest}, and
+will return the item with the oldest timestamp.
+
 
 xxx
 

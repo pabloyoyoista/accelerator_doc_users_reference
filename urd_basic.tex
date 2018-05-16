@@ -83,7 +83,7 @@ which in turn will trig execution of the \texttt{reduce} job.
 It is also possible to build chained jobs implicitly using the
 \texttt{build\_chained} function
 \begin{python}
-  jobid = urd.build_chained('method1', name='myjob')
+jobid = urd.build_chained('method1', name='myjob')
 \end{python}
 which takes the same options as the standard \texttt{build} method,
 with the exception that name is mandatory.  The method to be chained
@@ -107,7 +107,7 @@ the user is notified.
 
 
 
-\section{Joblists}
+\section{The Joblist Type}
 It has already been metioned that Urd keeps track of all built jobs.
 This information is stored in the \texttt{urd.joblist} variable.  This
 variable is of type \texttt{JobList}, which is basically
@@ -129,23 +129,55 @@ JobList(
 Any job in the list can be accessed by its name, so for example the
 jobid to the \texttt{first} job could be retrieved by
 \begin{python}
-  jid1 = urd.joblist['first'].jobid
+urd.joblist['first'].jobid
 \end{python}
-The ``\texttt{.jobid}'' is a bit clumsy, but currently required to get
-the actual jobid for the job.  Note that if there are several jobs
-created by the same method, they will have the same key in the
-joblist.  This situation could be resolved using unique names to
-the \texttt{name=} option to the \texttt{build()}-function as
-mentioned earlier.  Using the joblist, we can modify our example to
+Using the joblist, we can modify our example to
 \begin{python}
 def main(urd):
     urd.build('first')
     urd.build('second', jobids=dict(first=urd.joblist['first'].jobid))
 \end{python}
-An important special case is that the \textsl{latest} job is always
-accessible using \texttt{urd.joblist.jobid}, so the code example could also be written
+The ``\texttt{.jobid}'' is a bit clumsy, but currently required to get
+the actual jobid for the job.  It is required because each item in
+the \texttt{joblist} has a \texttt{.jobid} and a \texttt{.method}.
+Note that if there are several jobs created by the same method, they
+will have the same key in the joblist.  This situation could be
+resolved using unique names to the \texttt{name=} option to
+the \texttt{build()}-function as mentioned earlier.
+
+An important special case is that the \textsl{latest} jobid is always
+accessible using \texttt{urd.joblist.jobid}, so the code example could
+also be written
 \begin{python}
 def main(urd):
     urd.build('first')
     urd.build('second', jobids=dict(first=urd.joblist.jobid))
 \end{python}
+
+It is also possible to look up jobs by name in the \texttt{joblist}.
+This is done using the \texttt{find} function
+\begin{python}
+urd.joblist.find('csvimport')
+\end{python}
+If there is more than one job matching, the last one will be returned.
+
+Finally, it may be worth noting that the \texttt{Joblist} is actually
+a \texttt{list}, so it is possible to access individual items like
+this
+\begin{python}
+jl[3]
+\end{python}
+and slicing works, too
+\begin{python}
+jl[-2:]
+\end{python}
+
+
+\section{Summary}
+The \texttt{urd} object has functionality for building and retreiveing
+jobs.  A job is built using \texttt{urd.build()}, and references to
+all built jobs will be stored in \texttt{urd.joblist}.  These
+references could be fed as input parameters to new jobs so that the
+output from one job could be used by another.
+The \texttt{urd.joblist} variable is basically of type \texttt{list},
+but with extra functionality to find previous jobs and their jobids.

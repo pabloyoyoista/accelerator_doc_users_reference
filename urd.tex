@@ -282,33 +282,36 @@ will return the item with the oldest timestamp.
 Since the Urd database is designed using log files, it will always
 keep a consistent history of all events taken place.  It is not
 possible to erase or modify old entries, but it is okay to update the
-latest or set a marker in the log indicating that the list is starting
-over from a certain date and everything before this marker should not
-be considered anymore.
+latest item, or set a marker in the log indicating that the list is
+starting over from a certain date and everything before this marker
+should not be considered anymore.
 
 \subsection{Updating the last item}
-To update a list, use the \texttt{update} argument
+To update the last item in a list, set the \texttt{update} argument
+to \pyTrue
 \begin{python}
 urd.begin('test', '2016-10-25', update=True)
 \end{python}
-If update is True, the entry in the test list at '2016-10-25' will be
-updated, unless there has been no change.
+If update is \pyTrue, the entry in the test list at '2016-10-25' will
+be updated, unless the new information is equivalent.
 
 \subsection{Truncating a list}
-in order to set a marker in the database indicating that everything
-before a certain date in time should be discarded, do like this
+In order to set a marker in the database indicating that everything
+before a certain timestamp should be discarded, use
+the \texttt{truncate()} function like this
 \begin{python}
-urd.truncate('test', '2016-09-30')
+urd.truncate(ab/'test', '2016-09-30')
 \end{python}
-This will rollback everything that has happened in the \texttt{test}
-list back to '2016-09-30'.  There is also a special case,
+This will rollback everything that has happened in
+the \texttt{ab/test} list back to '2016-09-30'.  There is also a
+special case,
 \begin{python}
 urd.truncate('ab/test', 0)
 \end{python}
-that will reset t
-
-Remember, internally Urd stores the complete
-history in a log file in plain text.
+that will erase all items from memory and cause the list to start over
+again.  Remember, internally Urd stores the complete history in a log
+file in plain text.  Files can only be appended to, nothing is ever
+removed.
 
 
 

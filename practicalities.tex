@@ -194,12 +194,77 @@ authorisation is like this
 
 
 
+
+
 \clearpage
+
 \section{Urd}
 
-\subsection{database}
+Urd is a log-file-based transaction-log database keeping record of
+jobs built by the Accelerator.  Any user can read the information
+stored in Urd, but writing requires authentication.
 
-The \texttt{passwd} file.
+
+
+\subsection{The Urd Files}
+
+Urd is included in the \texttt{accelerator} repository, in the
+subdirectory \texttt{accelerator/urd}.
+
+
+
+\subsection{Dependencies}
+Urd reqires the \texttt{bottle} library to run.  It is bundled with
+Debian-like systems, and can be installed by
+\begin{shell}
+sudo apt-get install python-bottle
+\end{shell}
+It can also be downloaded from the project's home page
+\begin{verbatim}
+https://bottlepy.org/docs/dev/
+\end{verbatim}
+as a single python file, \texttt{bottle.py}.  This file should be put
+in the \texttt{accelerator/urd} directory.
+
+
+\subsection{The Urd Database}
+The Urd database has the following structure
+\begin{verbatim}
+database_root/
+    passwd
+    database/
+        user1/
+            list1
+            list2
+        user2/
+            list3
+\end{verbatim}
+A new database is created by making a new directory and adding
+a \texttt{passwd} file to it.  Urd takes care of the rest.  In practice,
+\begin{shell}
+mkdir database_root
+vi database_root/passwd
+\end{shell}
+where \texttt{vi} is just an editor picked by random.
+
+\subsubsection{The \texttt{passwd} file}
+The \texttt{passwd} file stores write access authentication.  The file
+format is straightforward, each line is a user--password pair as follows
+\begin{verbatim}
+user:password
+\end{verbatim}
+For example, if the file contains the following line
+\begin{verbatim}
+ab:secret
+\end{verbatim}
+A build script issued like this
+\begin{shell}
+URD_AUTH=ab:secret ./automatarunner test
+\end{shell}
+will have write access to all lists belonging to the user \texttt{ab},
+such as for example the \texttt{ab/test} and \texttt{ab/import} lists.
+But it can not write to lists belonging to other users, such
+as \texttt{cd/import}.  It can read all lists, though.
 
 
 \subsection{Invocation}

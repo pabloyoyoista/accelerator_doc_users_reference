@@ -57,21 +57,47 @@ together with the resulting output.
 
 
 
-\section{Urd Sessions}
+\section{Overview}
 
 Urd sessions exists between the \texttt{urd.begin()}
-and \texttt{urd.finish()} functions, like in this minimal example
+and \texttt{urd.finish()} functions, like in this short example that
+imports a file.
+
 \begin{python}
 def main(urd):
-    urd.begin('user/test', '2018-05-09')
-    ...
-    urd.finish('user/test')
+    urd.begin('import/txn', '2018-05-03')
+    urd.build('csvimport', options=dict(filename='txn1.txt'))
+    urd.finish('import/txn')
 \end{python}
+
 All jobs dispatched between \texttt{begin} and \texttt{finish} will be
-appended to the \texttt{user/test} \textsl{Urd list} with
-timestamp \texttt{2018-05-09}.  This also includes meta information,
+appended to the \texttt{import/txn} \textsl{Urd list} with
+timestamp \texttt{2018-05-03}.  This also includes meta information,
 such as all lookups of jobs done by Urd in the session that will be
 appended as dependencies.
+
+The urd-list just created could then be used by other job builds.  For
+example, here is a job that does some processing on the imported file
+\begin{python}
+def main(urd):
+    urd.begin(process/test)
+        import_session = urd.latest(import/txn')
+        import_timestamp = import_session.timestamp
+        import_jobid = import_session.joblist.jobid
+        urd.build('process', datasets=dict(source=import_jobid))
+    urd.finish('process/test', import_timestamp)
+\end{python}
+Here, the recently created urd session, \texttt{import/txn}, is
+retrieved.  Two things are extracted from this data.  First, the
+timestamp of the import session.  The timestamp is used as key for
+the \texttt{process/test} session as well, indicating that it is based
+on data from the same time instance.  Furthermore, the jobid to
+the \texttt{csvimport} job is extracted and fed to
+the \texttt{process} job as an input dataset parameter.
+
+
+
+\section{Urd Sessions}
 
 There are a number of options associated with a session, as shown
 here,
@@ -108,7 +134,7 @@ development work.
 
 
 
-\subsection{Timestamp Resolution}
+\section{Timestamp Resolution}
 
 Timestamps may be specified in various resolution depending on the
 application.  The time format is
@@ -126,7 +152,7 @@ all possible cases.
 
 
 
-\subsection{Aborting an Urd Session}
+\section{Aborting an Urd Session}
 
 When an Urd session is initiated, a new session cannot be started
 until the current session has finished.  A session may be aborted,
@@ -154,52 +180,56 @@ The \texttt{name} is used to override the default name (which is the name of the
 
 \section{The Urd Item}
 
+\begin{leftbar}
+\begin{verbatim}
+{
+    "user": "ab"
+    "automata": "BAR",
+    "timestamp": "2018-01-04T2",
+    "caption": "",
+    "joblist": [
+        [
+            "example",
+            "TEST-37"
+        ]
+    ],
+    "deps": {
+        "ab/FOO": {
+            "timestamp": "2018-01-04T02"
+            "caption": "",
+            "joblist": [
+                [
+                    "example",
+                    "TEST-34"
+                ]
+            ],
+        }
+    },
+}
+\end{verbatim}
+\end{leftbar}
+
+The Urd item is what is stored when a session completes.  It is
+addressed by a key which is a timestamp, and the data is a dictionary.
+The most imporant dictionary items are
+\starttabletwo
+\RPtwo timestamp & Timestamp of session\\[1ex]
+\RPtwo caption & A caption\\[1ex]
+\RPtwo user/automata & Location of urd-list\\[1ex]
+\RPtwo joblist & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
+\RPtwo deps & A dictionary of dependencies from \texttt{user/automata} to urd sessions, like this \mintinline{python}@{user/automata: session}@.\\[1ex]
+\stoptabletwo
 
 
-\section{Urd Sessions with Dependencies}
-
-Perhaps it is easiest to explain this using an example.  In order to
-keep things separate in a project, data import and data processing is
-separated into different build scripts.
-
-The next section provides a simple example import script
-
-\subsection{Example}
-\begin{python}
-def main(urd):
-    urd.begin('import/txn', '2018-05-03')
-    urd.build('csvimport', options=dict(filename='txn1.txt'))
-    urd.finish('import/txn')
-\end{python}
-(Larger, more realtime, projects, may create one Urd session per hour
-or day, depending on how often new data is added to the system.)
-
-The import script has stored the session's joblist to Urd in the
-list \texttt{import/txn} and timestamp \texttt{2018-05-03}.  It can
-now be used by other build scripts.
-
-An example data processing script may look like the following
-\begin{python}
-def main(urd):
-    urd.begin('process/test')
-        import_session = urd.latest('import/txn')
-        import_timestamp = import_session.timestamp
-        import_jobid = import_session.joblist.jobid
-        urd.build('process', datasets=dict(source=import_jobid))
-    urd.finish('process/test', import_timestamp)
-\end{python}
-This script fetches the \textsl{latest} import in
-the \texttt{import/txn} list, processes the corresponding dataset, and
-stores the session to the \texttt{process/test} list using
-the \textsl{same} timestamp as the imported file.  This makes a lot of
-sense, and is very good for tracking purposes.
 
 
 
 
-\subsection{Finding Items in Urd}
 
-\subsubsection{get}
+
+\section{Finding Items in Urd}
+
+\subsection{Finding an Exact or Closest Match:  \texttt{get()}}
 The \texttt{get()} function will return an item corresponding to a
 (relaxed) timestamp.  (More about the relaxed part below.)
 \begin{python}
@@ -227,7 +257,7 @@ urd.get("ab/test", "<=2018-05")
 will match all ``\texttt{2018-05-xx}''-timestamps.
 
 
-\subsubsection{latest}
+\subsection{Finding the latest item:  \texttt{latest()}}
 The \texttt{latest()} will return the item with most recent timestamp.
 It can only be called in a running session, since it is logging the
 result so it can be appended to the next built job.  Example
@@ -241,9 +271,170 @@ will return a complete item like this
 \end{shell}
 
 
-\subsubsection{first}
+\subsection{Finding the first item:  \texttt{first()}}
 The \texttt{first()} function works similarly to \texttt{latest}, and
 will return the item with the oldest timestamp.
+
+
+
+\section{Truncating and Updating}
+\label{sec:trunc-update}
+Since the Urd database is designed using log files, it will always
+keep a consistent history of all events taken place.  It is not
+possible to erase or modify old entries, but it is okay to update the
+latest or set a marker in the log indicating that the list is starting
+over from a certain date and everything before this marker should not
+be considered anymore.
+
+\subsection{Updating the last item}
+To update a list, use the \texttt{update} argument
+\begin{python}
+urd.begin('test', '20161025', update=True)
+\end{python}
+If update is True, the entry in the test list at '20161025' will be
+updated, unless there has been no change.
+
+\subsection{Truncating a list}
+in order to set a marker in the database indicating that everything
+before a certain date in time should be discarded, do like this
+\begin{python}
+urd.truncate('test', '20160930')
+\end{python}
+This will rollback everything that has happened in the \texttt{test}
+list back to '20160930'.  There is also a special case,
+\begin{python}
+urd.truncate('ab/test', 0)
+\end{python}
+that will reset t
+
+Remember, internally Urd stores the complete
+history in a log file in plain text.
+
+
+
+
+\section{Avoiding Recording Dependency}
+Dependency-recording will be activated on use of the \texttt{get},
+\texttt{latest}, and \texttt{first} functions.  If, for some reason,
+the point is to just have a look at the database to see what is in
+there, it can be done using the peek functions, \texttt{peek} and
+\texttt{peek\_latest}, like this:
+\begin{python}
+    urd.peek('test', '2016-10-25')
+    urd.peek_latest('test')
+    urd.peek_first('test')
+\end{python}
+Note that this is in general not recommended.  These functions will
+look up Urd lists with jobids that may be used to build new jobs, but
+these dependencies will not be stored in the current Urd session,
+causing a loss of continuity and visibility.
+
+
+
+\section{Other Convenience Functions}
+\subsection{Listing all urd lists:  \texttt{list()}}
+The \texttt{list()} function will return a list of all lists recorded in
+the database:
+\begin{python}
+print(urd.list())
+\end{python}
+may show something like
+\begin{shell}
+['ab/test', 'ab/live']
+\end{shell}
+
+
+\subsection{Listing all Items After a Specific Timestamp:  \texttt{since()}}
+The \texttt{since()} function is used to extract lists of timestamps
+corresponding to urd entries.  In its most basic form, it is called
+with a timestamp like this
+\begin{python}
+print(urd.since('2016-10-05'))
+\end{python}
+which returns a list with all existing timestamps more recent than the
+one provided
+\begin{shell}
+['2016-10-06', '2016-10-07', '2016-10-08', '2016-10-09', '2016-10-09T20']
+\end{shell}
+The \texttt{since} is rather relaxed with respect to the resolution of
+the input.  The input timestamp may be truncated from the right down
+to only one digits.  An input of zero is also valid.  For example,
+these are all valid
+\begin{python}
+print(urd.since('0'))
+print(urd.since('2016'))
+print(urd.since('2016-1'))
+print(urd.since('2016-10-05'))
+print(urd.since('2016-10-05T20'))
+print(urd.since('2016-10-05T20:00:00'))
+\end{python}
+
+
+\section{Talking directly to Urd:  The Urd HTTP-API}
+
+Urd can be accessed directly without using the Accelerator by calling
+its HTTP API.  In the following the standard tool \texttt{curl} is
+used, and it is assumed that there is an Urd server running
+on \texttt{localhost}, port \texttt{8833}.
+
+
+\subsection{The \texttt{list} endpoint}
+To show all stored lists issue
+\begin{shell}
+% curl http://localhost:8833/list
+["ab/test"]
+\end{shell}
+All available lists are returned in a json list.
+
+
+\subsection{The \texttt{since} endpoint}
+The \texttt{since} endpoint is used to get a list of all entries more recent than a timestamp.
+Fr example, to see what is more recent than \texttt{2016-10-24} do
+\begin{shell}
+% curl http://localhost:8833/ab/test/since/2016-10-24
+["2016-10-25"]
+\end{shell}
+\begin{shell}
+% curl http://localhost:8833/ab/test/since/2016-10-26
+[]
+\end{shell}
+Results are in json list format.
+
+
+\subsection{The \texttt{first} and \texttt{latest} endpoints}
+Looking up the latest stored job in the \texttt{ab/test} list
+\begin{shell}
+% curl http://localhost:8833/ab/test/latest
+{"caption": "", "automata": "test", "user": "ab", "deps": {},
+  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
+\end{shell}
+And see the first stored job in the test list
+\begin{shell}
+% curl http://localhost:8833/ab/test/first
+\end{shell}
+works similarly.  The returned data is an Urd item, described in
+section~\ref{xx}, in json format.
+
+
+
+\subsection{The \texttt{get} endpoint}
+Actually, there is no explicit \texttt{get} endpoint.  Instead, the
+API is just called by the name of the list and a timestamp.  For
+example, to see what is inside the test list stored
+at \texttt{2016-10-25}
+\begin{shell}
+% curl http://localhost:8833/ab/test/2016-10-25
+{"caption": "", "automata": "test", "user": "ab", "deps": {},
+  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
+\end{shell}
+The timestamp may be truncated to the right, and prefixed
+by \texttt{>}, \texttt{>=}, \texttt{<}, and texttt{<=}, just as
+described in section~\ref{xx}.
+
+
+\clearpage
 
 
 xxx
@@ -321,270 +512,3 @@ def main(urd):
 
 
 
-\section{Avoiding Recording Dependency}
-Dependency-recording will be activated on use of the \texttt{get},
-\texttt{latest}, and \texttt{first} functions.  If, for some reason,
-the point is to just have a look at the database to see what is in
-there, it can be done using the peek functions, \texttt{peek} and
-\texttt{peek\_latest}, like this:
-\begin{python}
-    urd.peek('test', '2016-10-25')
-    urd.peek_latest('test')
-    urd.peek_first('test')
-\end{python}
-Note that this is in general not recommended.  These functions will
-look up Urd lists with jobids that may be used to build new jobs, but
-these dependencies will not be stored in the current Urd session,
-causing a loss of continuity and visibility.
-
-
-
-\section{More on Finding Items in Urd}
-\texttt{get}, \texttt{first}, and \texttt{latest} all return an urd item.
-
-
-\subsection{get}
-
-
-
-\subsection{latest}
-The \texttt{latest()} will return the item with most recent timestamp.
-It can only be called in a running session, since it is logging the
-result so it can be appended to the next built job.  Example
-\begin{python}
-print(urd.latest('ab/test')
-\end{python}
-will return a complete item like this
-\begin{shell}
-{'automata': 'test', 'caption': '', 'user': 'ab', 'deps': {}, \
- 'joblist': JobList([('example', 'TEST-34')]), 'timestamp': '2018-05-06'}
-\end{shell}
-
-
-\subsection{first}
-The \texttt{first()} function works similarly to \texttt{latest}, and
-will return the item with the oldest timestamp.
-
-
-\subsection{list}
-The \texttt{list()} function will return a list of all lists recorded in
-the database:
-\begin{python}
-print(urd.list())
-\end{python}
-may show something like
-\begin{shell}
-['ab/test', 'ab/live']
-\end{shell}
-
-
-\subsection{since}
-The \texttt{since()} function is used to extract lists of timestamps
-corresponding to urd entries.  In its most basic form, it is called
-with a timestamp like this
-\begin{python}
-print(urd.since('2016-10-05'))
-\end{python}
-which returns a list with all existing timestamps more recent than the
-one provided
-\begin{shell}
-['2016-10-06', '2016-10-07', '2016-10-08', '2016-10-09', '2016-10-09T20']
-\end{shell}
-The \texttt{since} is rather relaxed with respect to the resolution of
-the input.  The input timestamp may be truncated from the right down
-to only one digits.  An input of zero is also valid.  For example,
-these are all valid
-\begin{python}
-print(urd.since('0'))
-print(urd.since('2016'))
-print(urd.since('2016-1'))
-print(urd.since('2016-10-05'))
-print(urd.since('2016-10-05T20'))
-print(urd.since('2016-10-05T20:00:00'))
-\end{python}
-
-
-
-
-
-
-
-\section{Truncating and Updating}
-\label{sec:trunc-update}
-Since the Urd database is designed using log files, it will always
-keep a consistent history of all events taken place.  It is not
-possible to erase or modify old entries, but it is okay to update the
-latest or set a marker in the log indicating that the list is starting
-over from a certain date and everything before this marker should not
-be considered anymore.
-
-To update a list, use the \texttt{update} argument
-\begin{python}
-urd.begin('test', '20161025', update=True)
-\end{python}
-If update is True, the entry in the test list at '20161025' will be
-updated, unless there has been no change.  and in order to set a
-marker in the database indicating that everything before a certain
-date in time should be discarded, do like this
-\begin{python}
-urd.truncate('test', '20160930')
-\end{python}
-This will rollback everything that has happened in the \texttt{test}
-list back to '20160930'.  Remember, internally Urd stores the complete
-history in a log file in plain text.
-
-
-\section{More on Joblist and Jobtuple}
-
-Urd is using the type joblist to keep track of successfully executed
-jobs.  Each item in the joblist is of type jobtuple.  This section
-will start by describing jobtuple first and then joblist.
-
-\subsubsection{Jobtuple}
-
-The \jobtuple type is used to group method names and corresponding
-jobids.  It is basically a tuple with some extra properties, such as a
-conversion of a jobtuple to \texttt{str}, which happens for example
-when printing it, returns the jobid as a string.
-
-\begin{python}
->>> jt = JobTuple('imprt', 'jid-0')
-
->>> jt
-('imprt', 'jid-0')
-\end{python}
-as expected, and
-
-\begin{python}
->>> jt.method
-'imprt'
-
->>> jt.jobid
-'jid-0'
-\end{python}
-but note that
-
-\begin{python}
->>> print(jt)  # str and encode return jobid only
-jid-0
-\end{python}
-
-
-
-\subsubsection{JobList}
-
-\label{sec:joblist}
-The \joblist is a list with add-ons for bookkeeping and finding jobs.
-It stores instances of \jobtuple.  Here is an example.  First, define
-a \jobtuple
-
-\begin{python}
->>> jt = JobTuple('imprt', 'jid-0')
-\end{python}
-then define a joblist initiated with the same tuple.  Then append some
-more jobs directly using the \texttt{append} method.
-
-\begin{python}
->>> jl = JobList(jt)
->>> jl.append('learn', 'lrn-0')
->>> jl.append('imprt', 'imp-1')
-\end{python}
-Let's see how and what is stored in the \joblist.  The \texttt{pretty}
-method is quite useful, but note that just printing the object will
-show the last jobid only.
-
-\begin{python}
->>> print(jl.pretty)
-JobList(
-   [  0]  imprt : jid-0
-   [  1]  learn : lrn-0
-   [  2]  imprt : imp-1
-)
-
->>>  print(jl)  # jobid of latest appended JobTuple
-imp-1
-\end{python}
-
-It is easy to retrieve the last job with a particular \texttt{method}
-name, either by lookup or by using \texttt{find}.
-
-\begin{python}
->>> jl['imprt']         # latest jobid with name 'imprt'
-('imprt', 'imp-1')
-
->>> print(jl['imprt'])   # jl['imprt'] is JobTuple
-imp-1
-\end{python}
-The Find method returns a \joblist.  Slicing also returns {\joblist}s
-
-\begin{python}
->>> jl.find('imprt')
-JobList([('imprt', 'jid-0'), ('imprt', 'imp-1')])
-
->>> jl[:2]
-JobList([('imprt', 'jid-0'), ('learn', 'lrn-0')])
-\end{python}
-Looking up by index returns \jobtuple.
-
-\begin{python}
->>> jl[0]
-('imprt', 'jid-0')
-\end{python}
-These conveniences are also supported
-
-\begin{python}
->>> jl.all              # list of all jobids
-'jid-0,lrn-0,imp-1'
-
->>> jl.method           # last method
-'import'
-
->>> jl.jobid            # last jobid
-'imp-1'
-\end{python}
-
-
-
-\newpage
-\section{Talking directly to Urd:  The Urd HTTP-API}
-
-In some situations it is convenient to make calls to urd directly
-without using the framework.  Urd will react to HTTP requests, so a
-tool like \texttt{curl} suffice.
-
-\noindent Show all stored lists like this
-\begin{shell}
-% curl http://localhost:8833/list
-["ab/test"]
-\end{shell}
-
-Looking up the latest stored job in the test list
-\begin{shell}
-% curl http://localhost:8833/ab/test/latest
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "20161025", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-And see the first stored job in the test list
-\begin{shell}
-% curl http://localhost:8833/ab/test/first
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "20161025", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-See what is inside the test list stored at \texttt{20161025}
-\begin{shell}
-% curl http://localhost:8833/ab/test/20161025
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "20161025", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-And what is avaible in the test list that is more recent than \texttt{20161024}
-\begin{shell}
-% curl http://localhost:8833/ab/test/since/20161024
-["20161025"]
-\end{shell}
-\begin{shell}
-% curl http://localhost:8833/ab/test/since/20161026
-[]
-\end{shell}

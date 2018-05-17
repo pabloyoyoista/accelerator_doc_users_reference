@@ -93,7 +93,7 @@
 % table with three columns - macros
 \def\starttable{%
   \begin{snugshade}
-    \begin{tabular}{p{3.2cm}p{1.8cm}p{9cm}}\hline\\[-1ex]
+    \noindent\begin{tabular}{@{}p{3.2cm}p{1.8cm}p{8cm}}\hline\\[-1ex]
       \textbf{name} & \textbf{default} & \textbf{description}\\[1ex]
       \hline\\[1ex]}
 \def\stoptable{\\[1ex]\hline\end{tabular}\end{snugshade}}
@@ -101,7 +101,7 @@
 
 \def\starttabletwo{%
   \begin{snugshade}
-    \begin{tabular}{p{5.0cm}p{9cm}}\hline\\[-1ex]
+    \noindent\begin{tabular}{@{}p{5.0cm}p{8cm}}\hline\\[-1ex]
       \textbf{name} & \textbf{description}\\[1ex]
       \hline\\[1ex]}
 \def\stoptabletwo{\\[1ex]\hline\end{tabular}\end{snugshade}}

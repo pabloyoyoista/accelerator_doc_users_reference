@@ -205,15 +205,17 @@ jobs built by the Accelerator.  Any user can read the information
 stored in Urd, but writing requires authentication.
 
 
+\subsection{Setting up Urd}
 
-\subsection{The Urd Files}
+
+\subsubsection{The Urd Files}
 
 Urd is included in the \texttt{accelerator} repository, in the
 subdirectory \texttt{accelerator/urd}.
 
 
 
-\subsection{Dependencies}
+\subsubsection{Dependencies}
 Urd reqires the \texttt{bottle} library to run.  It is bundled with
 Debian-like systems, and can be installed by
 \begin{shell}
@@ -227,6 +229,27 @@ as a single python file, \texttt{bottle.py}.  This file should be put
 in the \texttt{accelerator/urd} directory.
 
 
+
+\subsubsection{Creating a Database}
+A new database is created by making a new directory and adding
+a \texttt{passwd} file to it.  Urd takes care of the rest.  In
+practice,
+\begin{shell}
+mkdir database_root
+vi database_root/passwd
+\end{shell}
+where \texttt{vi} is just an editor picked by random.
+
+
+\subsubsection{Starting Urd}
+Urd is running as a daemon.  It is started like this (make sure
+to \texttt{cd} into the \texttt{accelerator/urd}-directory.
+\begin{shell}
+./urd.py --path=<database_root> --port=<port>
+\end{shell}
+Where \texttt{<database\_root>} is a path to an Urd database,
+and \texttt{<port>} is a port number, for example \texttt{8888}.
+
 \subsection{The Urd Database}
 The Urd database has the following structure
 \begin{verbatim}
@@ -239,13 +262,6 @@ database_root/
         user2/
             list3
 \end{verbatim}
-A new database is created by making a new directory and adding
-a \texttt{passwd} file to it.  Urd takes care of the rest.  In practice,
-\begin{shell}
-mkdir database_root
-vi database_root/passwd
-\end{shell}
-where \texttt{vi} is just an editor picked by random.
 
 \subsubsection{The \texttt{passwd} file}
 The \texttt{passwd} file stores write access authentication.  The file
@@ -285,6 +301,8 @@ urd.py [-h] [--port PORT] [--path PATH]
 
 
 
+\clearpage
+
 \section{Workdirs}
 Workdirs is where jobs are stored.  The Accelerator must have one
 target workdir, and may optionally have several source workdirs.
@@ -321,6 +339,9 @@ information to the configuration file, make it
 the \textsl{default\_workdir}, and start the \texttt{daemon} again.
 
 
+
+\clearpage
+
 \section{Progress Indication}
 
 During job building, it is possible to press \texttt{C-t},
@@ -336,6 +357,8 @@ Note that \texttt{C-t} could be pressed either in the \texttt{daemon}
 or \texttt{runner} shells.
 
 
+
+\clearpage
 
 \section{Typical Installation}
 Traditionally, the Accelerator is installed as a \texttt{git

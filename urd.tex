@@ -65,9 +65,9 @@ imports a file.
 
 \begin{python}
 def main(urd):
-    urd.begin('import/txn', '2018-05-03')
+    |\colorbox{hl}{urd.begin}|('import/txn', '2018-05-03')
     urd.build('csvimport', options=dict(filename='txn1.txt'))
-    urd.finish('import/txn')
+    |\colorbox{hl}{urd.finish}|('import/txn')
 \end{python}
 
 All jobs dispatched between \texttt{begin} and \texttt{finish} will be
@@ -81,7 +81,7 @@ example, here is a job that does some processing on the imported file
 \begin{python}
 def main(urd):
     urd.begin(process/test)
-        import_session = urd.latest(import/txn')
+        import_session = |\colorbox{hl}{urd.latest}|('import/txn')
         import_timestamp = import_session.timestamp
         import_jobid = import_session.joblist.jobid
         urd.build('process', datasets=dict(source=import_jobid))
@@ -213,11 +213,11 @@ The Urd item is what is stored when a session completes.  It is
 addressed by a key which is a timestamp, and the data is a dictionary.
 The most imporant dictionary items are
 \starttabletwo
-\RPtwo timestamp & Timestamp of session\\[1ex]
-\RPtwo caption & A caption\\[1ex]
-\RPtwo user/automata & Location of urd-list\\[1ex]
-\RPtwo joblist & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
-\RPtwo deps & A dictionary of dependencies from \texttt{user/automata} to urd sessions, like this \mintinline{python}@{user/automata: session}@.\\[1ex]
+\RPtwo \texttt{timestamp} & Timestamp of session\\[1ex]
+\RPtwo \texttt{caption} & A caption\\[1ex]
+\RPtwo \texttt{user/automata} & Location of urd-list\\[1ex]
+\RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
+\RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions, like this \mintinline{python}@{user/automata: session}@.\\[1ex]
 \stoptabletwo
 
 
@@ -262,7 +262,7 @@ The \texttt{latest()} will return the item with most recent timestamp.
 It can only be called in a running session, since it is logging the
 result so it can be appended to the next built job.  Example
 \begin{python}
-print(urd.latest('ab/test')
+urd.latest('ab/test')
 \end{python}
 will return a complete item like this
 \begin{shell}
@@ -289,19 +289,19 @@ be considered anymore.
 \subsection{Updating the last item}
 To update a list, use the \texttt{update} argument
 \begin{python}
-urd.begin('test', '20161025', update=True)
+urd.begin('test', '2016-10-25', update=True)
 \end{python}
-If update is True, the entry in the test list at '20161025' will be
+If update is True, the entry in the test list at '2016-10-25' will be
 updated, unless there has been no change.
 
 \subsection{Truncating a list}
 in order to set a marker in the database indicating that everything
 before a certain date in time should be discarded, do like this
 \begin{python}
-urd.truncate('test', '20160930')
+urd.truncate('test', '2016-09-30')
 \end{python}
 This will rollback everything that has happened in the \texttt{test}
-list back to '20160930'.  There is also a special case,
+list back to '2016-09-30'.  There is also a special case,
 \begin{python}
 urd.truncate('ab/test', 0)
 \end{python}
@@ -320,9 +320,9 @@ the point is to just have a look at the database to see what is in
 there, it can be done using the peek functions, \texttt{peek} and
 \texttt{peek\_latest}, like this:
 \begin{python}
-    urd.peek('test', '2016-10-25')
-    urd.peek_latest('test')
-    urd.peek_first('test')
+urd.peek('test', '2016-10-25')
+urd.peek_latest('test')
+urd.peek_first('test')
 \end{python}
 Note that this is in general not recommended.  These functions will
 look up Urd lists with jobids that may be used to build new jobs, but
@@ -349,7 +349,7 @@ The \texttt{since()} function is used to extract lists of timestamps
 corresponding to urd entries.  In its most basic form, it is called
 with a timestamp like this
 \begin{python}
-print(urd.since('2016-10-05'))
+urd.since('2016-10-05')
 \end{python}
 which returns a list with all existing timestamps more recent than the
 one provided
@@ -361,12 +361,12 @@ the input.  The input timestamp may be truncated from the right down
 to only one digits.  An input of zero is also valid.  For example,
 these are all valid
 \begin{python}
-print(urd.since('0'))
-print(urd.since('2016'))
-print(urd.since('2016-1'))
-print(urd.since('2016-10-05'))
-print(urd.since('2016-10-05T20'))
-print(urd.since('2016-10-05T20:00:00'))
+urd.since('0')
+urd.since('2016')
+urd.since('2016-1')
+urd.since('2016-10-05')
+urd.since('2016-10-05T20')
+urd.since('2016-10-05T20:00:00')
 \end{python}
 
 
@@ -488,7 +488,7 @@ Two things have happened here.  First, urd has provided a jobid link
 to the latest available \texttt{import} dataset.  Second, the
 dependency of exactly this version of \texttt{import} to
 \texttt{computesomething} is recorded in the urd list \texttt{test}
-for timestamp \texttt{20180403}.  So, if there is a question in the
+for timestamp \texttt{2018-04-03}.  So, if there is a question in the
 future which version of the \texttt{import} database that was used on
 that date for the \texttt{computesomething} function, it is
 immediately available from urd.

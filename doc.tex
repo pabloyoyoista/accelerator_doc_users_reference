@@ -25,34 +25,31 @@
 \documentclass[a4paper]{book}
 \usepackage{graphicx}
 \usepackage{color}
-%% Replace serif font with (postscript) helvetica
-%\usepackage[scaled]{helvet}
-%\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \usepackage[T1]{fontenc}
+
 \setlength{\textwidth}{140mm}
 \setlength{\oddsidemargin}{0mm}
 \setlength{\evensidemargin}{0mm}
 \setlength{\textheight}{250mm}
 \setlength{\voffset}{-20mm}
 %\usepackage{showframe}
-\usepackage{xspace}
 
+\usepackage{xspace}
 \usepackage{fancybox}
 \usepackage{framed}
 
+% watermark
 \usepackage{draftwatermark}
 \SetWatermarkText{DRAFT}
 \SetWatermarkScale{4}
 \SetWatermarkLightness{0.95}
 
-
+% comment macro
 \definecolor{readercomment}{rgb}{1.0,0.0,0.0}
 \newcommand{\comment}[1]{\emph{\textcolor{readercomment}{\fbox{#1}}}}
 
 %%%  Various reserved words  %%%
-%\newcommand{\urd}{\texttt{urd}\xspace}
 \newcommand{\joblist}{\texttt{JobList}\xspace}
-\newcommand{\jobtuple}{\texttt{JobTuple}\xspace}
 \newcommand{\jobids}{\texttt{jobids}\xspace}
 \newcommand{\datasets}{\texttt{datasets}\xspace}
 \newcommand{\options}{\texttt{options}\xspace}
@@ -62,12 +59,8 @@
 \newcommand{\analysisres}{\texttt{analysis\_res}\xspace}
 \newcommand{\prepareres}{\texttt{prepare\_res}\xspace}
 \newcommand{\params}{\texttt{params}\xspace}
-\newcommand{\jobparams}{\texttt{job\_params}\xspace}
-\newcommand{\sliceno}{\texttt{sliceno}\xspace}
 
-
-%%%  A pretty minted-environment for Python  %%%
-% minted
+% minted Python
 \usepackage{minted, xcolor}
 \usemintedstyle{lovelace}
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
@@ -75,23 +68,26 @@
 \definecolor{hl}{rgb}{1.00,1.00,0.80}
 \newminted[python]{python}{bgcolor=bg, escapeinside=||}
 
-\newminted[shell]{bash}{}
-
-
-\newcommand\inputfile[1]{%
-    \InputIfFileExists{#1}{}{\typeout{No file #1.}}%
-}
-
-%\newcommand{\exempel}[1]{\noindent\textbf{Example: #1}\\}
-
+% Common Python tokens
 \newcommand{\pyNone}{\mintinline{python}/None/\xspace}
 \newcommand{\pyTrue}{\mintinline{python}/True/\xspace}
 \newcommand{\pyFalse}{\mintinline{python}/False/\xspace}
 
+% minted Shell
+\newminted[shell]{bash}{}
 
-% for snugshade
+
+
+\newlength{\onechartt}
+\settowidth{\onechartt}{\texttt{0}}
+\newcommand\inputfile[1]{% could be prettier, indeed!
+    \InputIfFileExists{#1}{}{\typeout{No file #1.}}\hspace{-\onechartt}%
+}
+
+
+% Table macros
 \definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
-% table with three columns - macros
+% table with three columns
 \def\starttable{%
   \begin{snugshade}
     \noindent\begin{tabular}{@{}p{3.2cm}p{1.8cm}p{8cm}}\hline\\[-1ex]
@@ -100,6 +96,7 @@
 \def\stoptable{\\[1ex]\hline\end{tabular}\end{snugshade}}
 \def\RP #1&#2&#3{ #1&#2&#3}
 
+% table with two columns
 \def\starttabletwo{%
   \begin{snugshade}
     \noindent\begin{tabular}{@{}p{5.0cm}p{8cm}}\hline\\[-1ex]
@@ -107,9 +104,6 @@
       \hline\\[1ex]}
 \def\stoptabletwo{\\[1ex]\hline\end{tabular}\end{snugshade}}
 \def\RPtwo #1&#2{ #1&#2}
-
-\usepackage{multirow}
-
 
 
 %\includeonly{urd}
@@ -140,43 +134,12 @@
 \begin{tabular}{rp{8cm}}
 version & description\\[0.75ex]
    --, \texttt{772990f4} & First open version.\\
-  0.9, \texttt{xxxxxxxx} & \\
+  0.9, \texttt{\inputfile{gitrevision}} & \\
 \end{tabular}
+
 
 \newpage
 \tableofcontents
-
-
-% \newpage
-% Here is a list of some of the background ideas that coloured the work
-% on the Accelerator.
-% \begin{itemize}
-
-% \item{parallel processing}
-  
-% \item \textbf{Data, recipies (code), and computation} - Data and code
-%   is more important than computation.  If data integrity is
-%   maintained, and code version controlled, computation is repeatable
-%   and can be replicated.
-
-% \item \textbf{Never delete or change input data} - What is saved by
-%   freed storage is nothing compared to the cost of loss of history:
-%   replication becomes impossible, as well as certain analyses.
-
-% \item \textbf{Live and dev environment is equivalent}
-% \item \textbf{ blah - analysis and production same blah@@@}
-  
-% \item \textbf{Bookkeep intermediate results.  Use it --- don't recompute!}
-
-% \item \textbf{Moore's law and bottlenecks} CPU, memory size, and disk
-%   storage increase exponentionally over time for constant price.
-%   Interconnection speed does not.  Avoid bottlenecks!
-
-% \item \textbf{Avoid clusters} Are clusters for speed or redundancy?
-%   How many machines does a cluster need to have to par a single
-%   machine with data and code stored locally?
-% \end{itemize}
-
 
 \chapter{Introduction}
 \include{introduction}
@@ -212,9 +175,12 @@ These are found in the method directory \texttt{./standard\_methods}.
 \chapter{Practicalities}
 \include{practicalities}
 
-%\chapter{habitatiii}
-%\include{habitatiii}
+% chapter habitatiii?
+
+% chapter installation?
+
+% chapter examples?
+
+% references
 
 \end{document}
-
-

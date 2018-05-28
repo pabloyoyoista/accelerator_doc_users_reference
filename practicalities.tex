@@ -136,6 +136,7 @@ or changed methods.  Thereafter, the Accelerator will proceed and scan
 all source workdirs to see if any new jobs have been created (by
 another Accelerator daemon).  Thereafter, it will execute the build
 script.
+
 \begin{snugshade}
 \begin{tabular}{p{4cm}p{9cm}}
   \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
@@ -182,6 +183,20 @@ script.
   not visible in \texttt{urd.latest}.\\[4ex]
 \end{tabular}
 \end{snugshade}
+To run a build script \texttt{automata\_myscript}, do
+\begin{python}
+./automatarunner myscript
+\end{python}
+This works as long as the name of the build script is unique, that is,
+it exists in only one method directory.  If not, the method directory
+can be specified using the \texttt{-P} option.
+
+A build script named \texttt{automata.py} in a method
+directory \texttt{dev} can be launched by
+\begin{python}
+./automatarunner -P dev
+\end{python}
+
 
 
 \subsection{Authorization to Urd}

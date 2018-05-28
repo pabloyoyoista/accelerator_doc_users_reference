@@ -373,6 +373,17 @@ urd.since('2016-10-05T20:00:00')
 \end{python}
 
 
+
+\section{Truncation Consequences:  Ghosts}
+When a list is truncated, all items after a specified timestamp are
+made invisible.  Assuming that another list has stored a dependency of
+an item that is truncated, the jobs in this list are now without
+depencencies that can be looked up.  We call them ``ghosts''.  Ghosts
+cannot be looked up in Urd, but they are still in the database, marked
+as ghosts.
+
+
+
 \clearpage
 \section{Talking directly to Urd:  The Urd HTTP-API}
 
@@ -439,4 +450,17 @@ described in section~\ref{xx}.
 
 
 
+\clearpage
+\section{Urd Internals}
+Urd can be accessed by a large number of clients.  Each client may add
+to or truncate any list at any time.  In order to avoid race
+conditions and make the database deterministic, all \texttt{add}-
+and \texttt{truncate}-requests appears in a sequential manner to the
+Urd server.  Each request is assigned with an uniqe timestamp, and
+stored in the requested list.
 
+When Urd is restarted, it reads all the database files, and sorts all
+rows in order of the receive timestamp.  Thereafter, each row is
+applied in increasing time order to the internal, RAM-based database.
+Due to the unique timestamping, the result is a deterministic replica
+of the previous run.

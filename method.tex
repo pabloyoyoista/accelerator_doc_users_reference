@@ -771,7 +771,7 @@ If there are datasets built in a subjob,
 these will not be explicitly available to Urd.  A workaround is to
 copy the dataset to the building method like this
 \begin{python}
-from Dataset import dataset
+from dataset import Dataset
 
 def synthesis():
     jid = subjobs.build('create_dataset')

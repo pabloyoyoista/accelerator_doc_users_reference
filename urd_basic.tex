@@ -173,6 +173,20 @@ jl[-2:]
 \end{python}
 
 
+\section{Configuration Information from the Daemon}
+The dictionary \texttt{urd.info} contains configuration information
+from the Accelerator daemon.  In particular, it contains these fields
+\starttabletwo
+\RPtwo \texttt{slices} & Configured number of slices.\\[1ex]
+\RPtwo \texttt{urd} & An URL to the Urd server, if configured,
+  \pyNone otherwise.\\[1ex]
+\RPtwo \texttt{result\_directory} & see section~\ref{}.\\[1ex]
+\RPtwo \texttt{common\_directory} & see section~\ref{}.\\[1ex]
+\RPtwo \texttt{source\_directory} & see section~\ref{}.\\[1ex]
+\stoptabletwo
+
+
+
 \section{Summary}
 The \texttt{urd} object has functionality for building and retreiveing
 jobs.  A job is built using \texttt{urd.build()}, and references to

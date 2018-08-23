@@ -28,3 +28,13 @@ The argument can be one or more jobids or dataset ids.  If the
 argument is a jobid, it is assumed that the dataset name is
 \texttt{default}.  If there are more than one dataset in the job, a
 list of dataset names will be returned.
+
+
+\section{\texttt{dsgrep} -- Find Data in Dataset}
+
+\subsection{Abuse dsgrep to show datasets}
+The data in a dataset may be printed to \texttt{stdout} by
+\texttt{grep}ing using a regexp that always matches, like this
+\begin{shell}
+./dsgrep.py . test-0
+\end{shell}

@@ -113,7 +113,7 @@ def synthesis(RESULT_DIRECTORY):
 It has been used sparsely by the Accelerator team since it voids the
 possibility to see where a file comes from.  Nevertheless, in some
 projects it is valuable to have a common place where methods store
-results.\\[1ex]
+results, see section~\ref{}\\[1ex]
 
 \RPtwo \texttt{source\_directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if source
@@ -485,3 +485,19 @@ options = dict(filename=Optionstring)
 def synthesis(SOURCE_DIRECTORY):
     filename = os.path.join(SOURCE_DIRECTORY, options.filename)
 \end{python}
+
+
+\clearpage
+\subsection{The RESULT\_DIRECTORY}
+It is possible to define a shared directory
+named \texttt{result\_directory} in the Accelerator's configuration
+file.  In a method, this variable may be accessed like in this example
+\begin{python}
+def synthesis(RESULT_DIRECTORY):
+    print(RESULT_DIRECTORY)
+\end{python}
+Methods could use this for storing for example plots and reports for a
+project in one easy accessible common location.  Note however, that
+tracking these files is not possible, there is no information linking
+back from the result directory to a specific job.  This may be
+overcome using for example soft file links, however.

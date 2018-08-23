@@ -137,6 +137,39 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 
 \clearpage
+\subsection{Understanding Workdirs}
+When the \texttt{Daemon} is starting, it will read
+all \texttt{workdir}-definitions in the configuration file.  It will
+check that all workdirs specified by \texttt{target\_workdir}
+and \texttt{source\_workdirs} are defined.  All other defined workdirs
+are ignored.  The daemon will also check that all workdirs have the
+same number of slices as specified in the configuration file, and that
+all workdirs to be used together have the same number of slices.
+
+The \texttt{target\_workdir} is the default location where new jobs
+will be stored.  However, a build script may write jobs to any of the
+\texttt{source\_workdirs} as well.  Furthermore, the \texttt{target\_workdir}
+may always be read from, and may therefore be omitted from
+the \texttt{source\_workdirs} list.
+
+\subsection{How to Create New Workdirs}
+If a workdir defined in the configuration file does not exist on disk
+at the stated location, the Daemon will exit and print an error
+stating that a directory is missing.  The first time the Daemon
+encounters a new directory it will initialise it in accordance with
+the configuration file.  This is true both for source and target
+workspaces.  So, new workdirs are created by adding them to the
+configuration file \textsl{and} creating the corresponding
+directories.  The Accelerator will then initiate these directories on
+the next startup.
+
+
+
+
+
+
+
+\clearpage
 \section{Runner}
 
 \subsection{Invocation}

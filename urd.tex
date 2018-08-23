@@ -80,7 +80,7 @@ The urd-list just created could then be used by other job builds.  For
 example, here is a job that does some processing on the imported file
 \begin{python}
 def main(urd):
-    urd.begin(process/test)
+    urd.begin('process/test')
         import_session = |\colorbox{hl}{urd.latest}|('import/txn')
         import_timestamp = import_session.timestamp
         import_jobid = import_session.joblist.jobid

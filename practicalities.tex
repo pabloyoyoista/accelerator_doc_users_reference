@@ -39,13 +39,18 @@ make communication happen over that port instead.
 
 The Accelerator is shipped with a configuration file template with
 comments to each line.  It is a good idea to copy and modify this when
-a new configuration file is needed.  Below is an example configuration
-file that defines two workdirs, called \texttt{import} and
-\texttt{processing}.  Both are available for reading, but only the
-latter may be written to.  Methods available for use are the
-\texttt{standard\_methods} bundled with the Accelerator, and methods
-defined in the directory \texttt{dev} (if they are defined in
-\texttt{dev/methods.conf}).
+a new configuration file is needed.
+
+Below is an example configuration file that defines two workdirs,
+called \texttt{import} and
+\texttt{processing}.  The workdirs are specified relative to the user's
+home directory.  The workdir \texttt{processing} is the default workdir
+for writing, but a build script could explicitly request to write to
+the \texttt{import} workdir as well.
+
+Methods available for use are the \texttt{standard\_methods} bundled
+with the Accelerator, and methods defined in the
+directory \texttt{dev} (if they are defined in \texttt{dev/methods.conf}).
 \begin{leftbar}
 \begin{shell}
 workdir=import:${HOME}/accelerator/workdirs/import:16
@@ -72,19 +77,32 @@ py3=/usr/bin/python3.5
 
 \RPtwo \texttt{workdir} & A \textsl{workdir}, defined as
 \texttt{name:path:slices}.  At least one workdir needs to be defined.
-All workdirs used together must have the same number of slices.\\[1ex]
+All workdirs used together must have the same number of slices.  Shell
+variables are available too, such as \texttt{\$\{HOME\}}, please see
+text.\\[1ex]
 
-\RPtwo \texttt{target\_workdir} & \textsl{workdir} used to
-write jobs to.  There can only be one target workdir.\\[1ex]
+\RPtwo \texttt{target\_workdir} & Default \textsl{workdir}
+that new jobs get written to.  There can only be one target workdir.
+Please see \texttt{source\_workdirs} below for more
+information.\\[1ex]
 
-\RPtwo \texttt{source\_workdirs} & a comma separated list of workdirs
-available for reading.  These will be the only workdirs that the
-Accelerator can ``see''.  \texttt{standard\_methods} is bundled with
-the Accelerator and is commonly used.\\[1ex]
+\RPtwo \texttt{source\_workdirs} & A comma separated list of workdirs
+available for reading.  Workdirs specified by \texttt{workdir=...}
+but not listed as \texttt{target\_workdir}
+or \texttt{source\_workdirs} will be ignored.  Note:
+\begin{itemize}
+  \item[1.] The \texttt{target\_workdir} is automatically included in
+    the \texttt{source\_workdirs}, and does not need to be
+    explicitly.
+  \item[2.] The \texttt{target\_workdir} is the default
+    workdir for writing new jobs, \textsl{but} a build script may write
+    to \textsl{any} of the specified \texttt{source\_workdirs}.
+\end{itemize}\\[1ex]
 
-\RPtwo \texttt{method\_directories} & a comma separated list of
+\RPtwo \texttt{method\_directories} & A comma separated list of
 directories containing methods.  These will be the only directories
-where the Accelerator can ``see'' methods.\\[1ex]
+where the Accelerator can ``see'' methods.  \texttt{standard\_methods}
+is bundled with the Accelerator and is commonly used.\\[1ex]
 
 \RPtwo \texttt{result\_directory} & A common path that is available to all
 jobs.  It can be accessed in a method like this
@@ -92,15 +110,17 @@ jobs.  It can be accessed in a method like this
 def synthesis(RESULT_DIRECTORY):
     ...
 \end{python}
-It has been used very sparsely by the Accelerator team since it voids
-the possibility to see where a file comes from.\\[1ex]
+It has been used sparsely by the Accelerator team since it voids the
+possibility to see where a file comes from.  Nevertheless, in some
+projects it is valuable to have a common place where methods store
+results.\\[1ex]
 
 \RPtwo \texttt{source\_directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if source
 files are moved to another directory.  (This typically happens when
-seting up a similar system on another physical machine.)\\[1ex]
+setting up a similar system on another physical machine.)\\[1ex]
 
-\RPtwo \texttt{logfilename} & location of the Accelerator's log.\\[1ex]
+\RPtwo \texttt{logfilename} & Location of the Accelerator's log.\\[1ex]
 
 \RPtwo \texttt{py2} and \texttt{py3} & path to Python executables.
 Current versions of the methods in the \texttt{standard\_methods}

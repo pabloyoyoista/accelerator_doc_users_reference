@@ -416,3 +416,35 @@ controlled using \texttt{git}.  The \texttt{accelerator} directory is
 a \texttt{submodule}, which means that the project repository is
 storing the repository location \textsl{and} the commit of the
 Accelerator.
+
+
+\clearpage
+
+\section{Working with Relative Paths}
+
+The \texttt{csvimport} method can both take absolute and relative path
+names as input.
+
+
+In some situations, like importing data from files, it is convenient
+to use relative path names and keep the absolute part of the path as a
+configuration parameter.  This has two advantages.
+\begin{itemize}
+\item[] First, it makes it possible to move source files around without
+forcing a re-build of the import jobs, and
+\item[] second, absolute paths will not be stored in the source code.
+\end{itemize}
+In order to make use of relative paths, store the ``system dependent''
+left part of the path in the Accelerator's configuration file with the
+variable name \texttt{source\_directory}, see section~\ref{}.
+For \texttt{csvimport}, this is sufficient, since it will read this
+value and concatenate to its input filename.  The same can be done for
+any method using the \texttt{SOURCE\_DIRECTORY} variable as shown in
+this example
+\begin{python}
+import os
+options = dict(filename=Optionstring)
+
+def synthesis(SOURCE_DIRECTORY):
+    filename = os.path.join(SOURCE_DIRECTORY, options.filename)
+\end{python}

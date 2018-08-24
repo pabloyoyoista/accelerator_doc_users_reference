@@ -450,6 +450,34 @@ described in section~\ref{xx}.
 
 
 
+\section{Profiling a Build Script}
+There is a helper function in the urd object that can be used to print
+profiling information.  The following example is self-explanatory
+\begin{python}
+def main(urd):
+    ...
+    urd.print_profile()
+\end{python}
+This will print execution times for all jobs in the session
+to \texttt{stdout}.  It may for example look like this
+\begin{verbatim}
+Time per method:
+   color2        23.7 seconds  (25%)
+   csvexport     17.5 seconds  (18%)
+   lowpass2      15.6 seconds  (17%)
+   newcol        14.4 seconds  (15%)
+   black         5.7 seconds  (6%)
+   colimage      5.4 seconds  (6%)
+   sync          4.7 seconds  (5%)
+   clamp         3.8 seconds  (4%)
+   dataset_type  2.7 seconds  (3%)
+   csvimport     1.4 seconds  (1%)
+Total time 94.8 seconds
+\end{verbatim}
+The methods are sorted by execution time, longest execution first.
+
+
+
 \clearpage
 \section{Urd Internals}
 Urd can be accessed by a large number of clients.  Each client may add

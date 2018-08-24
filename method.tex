@@ -800,6 +800,25 @@ Furthermore, there is a limit to the recursion depth of subjobs, to
 avoid creating unlimited number of jobs by accident.
 
 
+\clearpage
+\section{Other Useful Functions}
+
+\subsection{Find the Full Path of a File in Another Job}
+Accessing files in other jobs is simple, the only thing needed is the
+full path to the file.  This functionality is implemented
+in \texttt{resolve\_jobid\_filename()}.  The function takes two
+arguments, a jobid and a filename.  See the example below
+\begin{python}
+from jobid import resolve_jobid_filename
+
+jobids = ('oldjob',)
+
+def synthesis():
+    filename = resolve_jobid_filename(jobids.oldjob, 'oldname')
+\end{python}
+Note that this function works in a build script as well.
+
+
 
 \clearpage
 \section{Summary}

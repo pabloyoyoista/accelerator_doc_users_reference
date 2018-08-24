@@ -477,6 +477,19 @@ Total time 94.8 seconds
 The methods are sorted by execution time, longest execution first.
 
 
+\section{Passing Flags from the Command Line}
+It is possible to add a comma separated list of flags to the runner
+like this
+\begin{python}
+./automatarunner.py --flags=verbose,skiptest
+\end{python}
+The flags will appear in the \texttt{urd}-object like this
+\begin{python}
+def main(urd):
+    if 'verbose' in urd.flags:
+       print('verbosity')
+\end{python}
+
 
 \clearpage
 \section{Urd Internals}

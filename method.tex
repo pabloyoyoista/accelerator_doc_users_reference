@@ -786,7 +786,15 @@ def synthesis():
 with the effect that the building job will act like a Dataset, even
 though the dataset is actually created in the subjob.  The
 \texttt{name} argument is optional, the name \texttt{default} is used
-if left empty, corresponding to the default dataset.
+if left empty, corresponding to the default dataset.  It is possible
+to override the dataset's previous using
+the \texttt{override\_previous} option, which takes a jobid
+(or \pyNone) to be the new \texttt{previous}.
+\index{\texttt{override\_previous}}
+\begin{python}
+Dataset(jid).link_to_here(name='thename', override_previous=xxx)
+\end{python}
+
 
 \item
 Currently there is no dependency checking on subjobs, so if a subjob

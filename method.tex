@@ -349,7 +349,9 @@ options = dict(
 \item \mintinline{python}/None/ is always a valid input unless
   \begin{itemize}
   \item RequiredOptions() and not none\_ok set
+    \index{input options!\texttt{RequiredOptions}}
   \item OptionEnum() and not none\_ok set
+    \index{input options!\texttt{OptionEnum}}
   \end{itemize}
   This means that for example something typed to \texttt{int} can be
   overridden by the builder by assigning it to
@@ -415,6 +417,7 @@ A default value may be specified as follows
 options = dict(name='foo')   # requires string or None, provides default value
 \end{python}
 And a string required to be specified and none-empty as
+\index{input options!\texttt{OptionString}}
 \begin{python}
 from extras import OptionString
 options = dict(name=OptionString)       # requires non-empty string
@@ -747,6 +750,7 @@ def analysis(sliceno):
 
 \clearpage
 \section{Subjobs}
+\index{subjobs}
 
 Jobs may launch subjobs, i.e.\ methods may build other methods in a
 recursive manner.  As always, if the jobs have been built already,
@@ -770,7 +774,8 @@ There are two catches, tough.
   \item
 If there are datasets built in a subjob,
 these will not be explicitly available to Urd.  A workaround is to
-copy the dataset to the building method like this
+link the dataset to the building method like this
+\index{\texttt{link\_to\_here}}
 \begin{python}
 from dataset import Dataset
 

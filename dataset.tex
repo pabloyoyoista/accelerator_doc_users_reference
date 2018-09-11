@@ -164,6 +164,21 @@ d = Dataset(('foo-0', 'bar'))
 \end{python}
 
 
+\section{Change to Another Dataset in a Job}
+If a job contains more than one dataset, it is possible to switch from
+one to another easily.  Assume for example that the input dataset in
+the following example is stored in a job that has two datasets
+named \texttt{first} and \texttt{second}.
+\begin{python}
+from dataset import Dataset
+
+datasets=('source',)
+
+def synthesis():
+    first = datasets.source, 'first')
+    second = datasets.source, 'second')
+\end{python}
+
 
                       
 

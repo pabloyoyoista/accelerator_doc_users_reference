@@ -31,10 +31,31 @@ list of dataset names will be returned.
 
 
 \section{\texttt{dsgrep} -- Find Data in Dataset}
+The \texttt{dsgrep} command line tool is used to look at datasets or
+dataset chains.
+\subsection{Invocation}
+\begin{shell}
+dsgrep.py [options] pattern ds [ds [...]] [column [column [...]]
+\end{shell}
+The \texttt{pattern} is a regular expression and \texttt{ds} are datasets.  For example
+\begin{shell}
+dsgrep.py Alice test-0 test-1/special name
+\end{shell}
+Will look for the string \texttt{Alice} in the \texttt{name} column of
+the two datasets \texttt{text-0} and \texttt{test-1/special}.
+Optional arguments are
+\begin{snugshade}
+  \begin{tabular}{p{4cm}p{9cm}}
+      \texttt{-h}\hspace{3cm}\texttt{--help} & show help message and exit\\[4ex]
+      \texttt{-c}\hspace{3cm}\texttt{--chain} & follow dataset chains\\[4ex]
+      \texttt{-i}\hspace{3cm}\texttt{--ignore-case} & Case insensitive pattern\\[4ex]
+  \end{tabular}
+\end{snugshade}
+Strings and columns with special characters have to be quoted.
 
 \subsection{Abuse dsgrep to show datasets}
 The data in a dataset may be printed to \texttt{stdout} by
 \texttt{grep}ing using a regexp that always matches, like this
 \begin{shell}
-./dsgrep.py . test-0
+./dsgrep.py . test-0 | less
 \end{shell}

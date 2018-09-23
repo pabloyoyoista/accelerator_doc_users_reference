@@ -524,6 +524,8 @@ containers.  Otherwise, the specified values are the default contents.
 
 
 \subsubsection*{A File From Another Job:  \texttt{JobWithFile}}
+
+\index{input options!\texttt{JobWithFile}}
 Any file residing in a jobdir may be input to a method like this
 \begin{python}
 from extras import JobWithFile
@@ -558,6 +560,7 @@ usefile.extras
 
 \section{Accessing Another Job's Parameters}
 
+\index{\texttt{job\_params}|textbf}
 The previous sections show that the the \params data structure
 contains all input parameters and initialization data for a job.
 Sometimes it is useful to access another job's \params.  There is a

@@ -7,9 +7,11 @@ chapter~\ref{chap:urd}.
 
 
 \section{Build Scripts}
-Build scripts are executed by the \texttt{runner} server.  A build
+\index{build scripts}
+Build scripts are executed by the \texttt{automatarunner} server.  A build
 script must contain the function \texttt{main} as shown below, because
 this function is called by the runner.
+\index{build script!\texttt{main} function}
 \begin{python}
 def main(urd):
     ...
@@ -32,6 +34,7 @@ def main(urd):
     urd.build('method1')
 \end{python}
 The full syntax for the \texttt{build} function is as follows
+\index{\texttt{urd.build}}
 \begin{python}
 jobid = urd.build(method, options={}, datasets={}, jobids={}, name='', caption='')
 \end{python}

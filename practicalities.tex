@@ -461,35 +461,41 @@ Accelerator.
 
 \section{Working with Relative Paths}
 
-The \texttt{csvimport} method can both take absolute and relative path
-names as input.
-
-
 In some situations, like importing data from files, it is convenient
-to use relative path names and keep the absolute part of the path as a
-configuration parameter.  This has two advantages.
+to store the absolute path of the files as a configuration parameter
+and then work only with relative paths in the source code.  This has
+two advantages.
 \begin{itemize}
 \item[] First, it makes it possible to move source files around without
 forcing a re-build of the import jobs, and
 \item[] second, absolute paths will not be stored in the source code.
 \end{itemize}
 In order to make use of relative paths, store the ``system dependent''
-left part of the path in the Accelerator's configuration file with the
-variable name \texttt{source\_directory}, see section~\ref{}.
-For \texttt{csvimport}, this is sufficient, since it will read this
-value and concatenate to its input filename.  The same can be done for
-any method using the \texttt{SOURCE\_DIRECTORY} variable as shown in
-this example
+left part of the path in the Accelerator's configuration file.  There
+are two variables in the configuration file that can be used for this,
+and they have different purposes.  The \texttt{source\_directory}
+variable is intended for reading source files, and
+the \texttt{result\_directory} is intended for writing output.  See
+the following subsections for details.
+
+
+\subsection{The SOURCE\_DIRECTORY}
+The \texttt{SOURCE\_DIRECTORY} variable is used by
+the \texttt{csvimport} method, but could be used by any method reading
+input files, like in this example
 \begin{python}
 import os
 options = dict(filename=Optionstring)
 
 def synthesis(SOURCE_DIRECTORY):
-    filename = os.path.join(SOURCE_DIRECTORY, options.filename)
+    fname = os.path.join(SOURCE_DIRECTORY, options.filename)
 \end{python}
+here, the \texttt{fname} is a concatenation of
+the \texttt{SOURCE\_DIRECTORY} specified in the Accelerator's
+configuration file (see section ~\ref{xx}) and the input
+option \texttt{filename}.
 
 
-\clearpage
 \subsection{The RESULT\_DIRECTORY}
 It is possible to define a shared directory
 named \texttt{result\_directory} in the Accelerator's configuration
@@ -502,4 +508,17 @@ Methods could use this for storing for example plots and reports for a
 project in one easy accessible common location.  Note however, that
 tracking these files is not possible, there is no information linking
 back from the result directory to a specific job.  This may be
-overcome using for example soft file links, however.
+overcome using for example soft file links, however.  For example like
+this
+\begin{python}
+from extras import symlink
+
+def synthesis(RESULT_DIRECTORY):
+    ...
+    with open(filename, 'wb') as fh:
+         fh.write(...)
+    symlink(filename, RESULT_DIRECTORY)
+\end{python}
+The \texttt{extras.symlink} function will write a soft link
+to \texttt{filename} in \texttt{RESULT\_DIRECTORY}, overwriting it if
+it already exists.

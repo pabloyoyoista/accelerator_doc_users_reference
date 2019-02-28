@@ -169,13 +169,46 @@ Aborted sessions are not stored in the Urd transaction log.
 \section{Building Jobs}
 
 Jobs are dispatched in Urd sessions using the \texttt{build} function.
-The syntax is just the same as in the previous chapter that did not
-use sessions, but will be repeated here for convenience.\\[-3ex]
+Here is the complete call with all possible parameters.\\[-3ex]
 \begin{python}
-jobid = urd.build(method, options={}, datasets={}, jobids={}, name='', caption='')
+jobid = urd.build(
+    method,
+    options={},
+    datasets={},
+    jobids={},
+    workdir=None,
+    name='',
+    caption=''
+)
 \end{python}
-The \texttt{name} is used to override the default name (which is the name of the method) in the Urd joblist.
+Explanation of \texttt{build} parameters:
+\begin{snugshade}
+  \begin{tabular}{p{4cm}p{9cm}}
+    \texttt{method} & Name of method to build.  Enter \texttt{test}
+    here if the method filename is \texttt{a\_test.py}.\\[2ex]
+    
+    \texttt{options=\{\}} & a \texttt{dict} of options to the method.
+    This overrides options defined in the method itself, but no new
+    options not present in the method is allowed.\\[2ex]
 
+    \texttt{jobids=\{\}} & a \texttt{dict} of jobids to the method.
+    Note that a list of jobids may be specified like this\begin{python}
+...jobids=dict{alljobs=[jobid1, jobid2,...]}
+\end{python}
+\\[2ex]
+    \texttt{datasets=\{\}} & a \texttt{dict} of datasets to the method.
+    Datasets may be lists too, just like \texttt{jobids} above.\\[2ex]
+
+    \texttt{workdir=None} & If specified, the job will be built in
+    this workdir, assuming the workdir is in either the source or target
+    workdirs in the configuration file.\\[2ex]
+
+    \texttt{name} & A string associated with the job.  It may be used
+    to distinguish several jobs created from the same method.\\[2ex]
+    \texttt{caption} & A caption string.  For decoration purposes
+    only, this has no practical use.
+  \end{tabular}
+\end{snugshade}
 
 
 \section{The Urd Item}

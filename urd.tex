@@ -211,6 +211,26 @@ Explanation of \texttt{build} parameters:
 \end{snugshade}
 
 
+\section{Switching workdir}
+The target workdir specified in the configuration file is the only
+workdir that is written to by default.  Any other workdir is only
+being read.  This behaviour can be changed either
+\begin{itemize}
+\item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{}, or
+\item[] using \texttt{urd.set\_workdir()}.
+\end{itemize}
+The latter,
+\begin{python}
+def main(urd):
+    urd.set_workdir(<workdir>)}
+\end{python}
+will set the workdir for all coming build calls in the current build script.  It can
+still be overrided using the \texttt{workdir=...} option
+to \texttt{urd.build}.
+
+
+
+
 \section{The Urd Item}
 
 \begin{leftbar}

@@ -382,6 +382,11 @@ target workdir, and may optionally have several source workdirs.
 Target and source workdirs are specified in the daemon configuration
 file.
 
+By default, only the target workdir is written to, while the source
+workdirs are for reading only.  It is possible to override this,
+however, by setting the \texttt{workdir}-option in
+the \texttt{urd.build()} call, see section~\ref{}.
+
 Any directory empty directory can be a workdir, and by adding it as
 target workdir, it will be initiated at daemon startup.  The
 initiation process creates a file named
@@ -408,8 +413,8 @@ always point to the most recent one.
 
 \subsection{Creating a Workdir}
 To create a new workdir, stop the \texttt{daemon}, add the workdir
-information to the configuration file, make it
-the \textsl{default\_workdir}, and start the \texttt{daemon} again.
+information to the configuration file (see section~\ref{}), make it
+the \textsl{target\_workdir}, and start the \texttt{daemon} again.
 
 
 

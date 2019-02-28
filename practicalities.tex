@@ -105,20 +105,19 @@ where the Accelerator can ``see'' methods.  \texttt{standard\_methods}
 is bundled with the Accelerator and is commonly used.\\[1ex]
 
 \RPtwo \texttt{result\_directory} & A common path that is available to all
-jobs.  It can be accessed in a method like this
-\begin{python}
-def synthesis(RESULT_DIRECTORY):
-    ...
-\end{python}
-It has been used sparsely by the Accelerator team since it voids the
-possibility to see where a file comes from.  Nevertheless, in some
-projects it is valuable to have a common place where methods store
-results, see section~\ref{}\\[1ex]
+jobs.  It has been used sparsely by the Accelerator team since it
+voids the possibility to see where a file comes from.  Nevertheless,
+in some projects it is valuable to have a common place where methods
+store results, see section~\ref{}.  A way to keep traceability is to
+store the file in the job directory as usual, and then create a soft
+link to it in \texttt{result\_directory}.\\[1ex]
 
 \RPtwo \texttt{source\_directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if source
 files are moved to another directory.  (This typically happens when
-setting up a similar system on another physical machine.)\\[1ex]
+setting up a similar system on another physical machine.)  See
+section~\ref{} on how to get access to \texttt{source\_directory} from
+any method.\\[1ex]
 
 \RPtwo \texttt{urd} & If present, an URL to the Urd server.\\[1ex]
 

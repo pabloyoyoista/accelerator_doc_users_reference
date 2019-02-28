@@ -400,10 +400,10 @@ test/
     test-2/
     test-LATEST -> test-2
 \end{shell}
-The link \texttt{<workdir>-latest} is always pointing to the last
+The link \texttt{<workdir>-LATEST} is always pointing to the last
 jobdir created.  This is useful for example when iteratively testing a
-method, since the output of the method is available without knowing
-the exact jobdir name.
+method.  Each new test will have a new jobid, but this link will
+always point to the most recent one.
 
 
 \subsection{Creating a Workdir}

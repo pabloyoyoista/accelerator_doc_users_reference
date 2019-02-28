@@ -388,10 +388,10 @@ however, by setting the \texttt{workdir}-option in
 the \texttt{urd.build()} call, see section~\ref{}.
 
 Any directory empty directory can be a workdir, and by adding it as
-target workdir, it will be initiated at daemon startup.  The
-initiation process creates a file named
-\texttt{<workdir>-slices.conf}, that will contain the number
-of slices that is used for the workdir.
+either source or target workdir in the configuration file, it will be
+initiated at daemon startup.  The initiation process creates a file
+named \texttt{<workdir>-slices.conf}, that will contain the number of
+slices that is used for the workdir.
 
 Jobdirs are stored in the workdir by the daemon, and jobdirs will
 inherit the workdir name and add a suffix that is an incremental job
@@ -412,9 +412,11 @@ always point to the most recent one.
 
 
 \subsection{Creating a Workdir}
-To create a new workdir, stop the \texttt{daemon}, add the workdir
-information to the configuration file (see section~\ref{}), make it
-the \textsl{target\_workdir}, and start the \texttt{daemon} again.
+To create a new workdir, create the directory and add it in the
+configuration file either as source or target workdir.  Stop and
+restart the \texttt{daemon}.  Upon startup, any uninitialised source
+or target workdir in the configuration file will be initialised.
+
 
 
 

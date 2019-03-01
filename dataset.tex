@@ -309,43 +309,34 @@ follow in the next sections.
 
 
 
-\begin{snugshade}
-%\begin{table}[h!]
- \begin{tabular}{p{3cm} p{8cm}}
-\\
-   \textbf{typename}   & \textbf{explanation} \\[2ex]\hline\\
-   \texttt{number}     &  float or int\\
-   \texttt{number:int} &  int\\[1ex]
+\starttabletwo
+\RPtwo   \texttt{number}     &  float or int\\
+\RPtwo   \texttt{number:int} &  int\\[1ex]
    
-   \texttt{float64}   &  64 bit (double) float\\
-   \texttt{float32}   &  32 bit float\\
-   \texttt{int64}     &  64 bit signed integer\\
-   \texttt{int32}     &  32 bit integer\\[1ex]
+\RPtwo   \texttt{float64}   &  64 bit (double) float\\
+\RPtwo   \texttt{float32}   &  32 bit float\\
+\RPtwo   \texttt{int64}     &  64 bit signed integer\\
+\RPtwo   \texttt{int32}     &  32 bit integer\\[1ex]
    
-   \texttt{bool}      &  True or False\\[1ex]
+\RPtwo   \texttt{bool}      &  True or False\\[1ex]
    
-   \texttt{date}      &  date\\
-   \texttt{time}      &  time\\
-   \texttt{datetime}  &  complete date and time object\\[1ex]
+\RPtwo   \texttt{date}      &  date\\
+\RPtwo   \texttt{time}      &  time\\
+\RPtwo   \texttt{datetime}  &  complete date and time object\\[1ex]
    
-   \texttt{bytes}     &  raw input, avoid \\
-   \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
-   \texttt{unicode}   &  use for strings\\[1ex]
+\RPtwo   \texttt{bytes}     &  raw input, avoid \\
+\RPtwo   \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
+\RPtwo   \texttt{unicode}   &  use for strings\\[1ex]
    
-   \texttt{json}            &  a datastructure that is jsonable\\[1ex]
+\RPtwo   \texttt{json}            &  a datastructure that is jsonable\\[1ex]
    
-   \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
-   \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
-   \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
-   \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
-   \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\
-   \texttt{parsed:json}     &  string containing parseable json\\[1ex]
-   
- \end{tabular}
-% \caption{Available dataset column types.}
-% \label{tab:types}
-%\end{table}
-\end{snugshade}
+\RPtwo   \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
+\RPtwo   \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
+\RPtwo   \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
+\RPtwo   \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
+\RPtwo   \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\
+\RPtwo   \texttt{parsed:json}     &  string containing parseable json\\[1ex]
+\stoptabletwo
 
 \subsection{Arbitrary precision numbers:  \texttt{number}}
 The type \texttt{number} is integer when possible and float otherwise.
@@ -415,20 +406,14 @@ and store all required meta-information, such as min/max values, for
 the created dataset(s) automatically.
 
 The most common arguments to \texttt{DatasetWriter} are
-\begin{snugshade}
-  \begin{tabular}{p{3cm} p{8cm}}
-    \\
-    \textbf{argument} & \textbf{description}\\[1ex]\hline\\[1ex]
-    \texttt{filename}  & if there is a filename associated, store it here\\
-    \texttt{caption}   & additional caption\\
-    \texttt{hashlabel} & name of column specifying hash for slicing\\
-    \texttt{previous}  & previous Dataset, for chaining\\
-    \texttt{name}      & default set to \texttt{default}\\
-    \texttt{parent}    & parent Dataset when adding columns\\
-  \end{tabular}
-\end{snugshade}
-%\noindent See section~\ref{} for a complete list of arguments and
-%advanced dataset use.
+\starttabletwo
+\RPtwo    \texttt{filename}  & if there is a filename associated, store it here\\
+\RPtwo    \texttt{caption}   & additional caption\\
+\RPtwo    \texttt{hashlabel} & name of column specifying hash for slicing\\
+\RPtwo    \texttt{previous}  & previous Dataset, for chaining\\
+\RPtwo    \texttt{name}      & default set to \texttt{default}\\
+\RPtwo    \texttt{parent}    & parent Dataset when adding columns\\
+\stoptabletwo
 
 
 

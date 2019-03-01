@@ -514,7 +514,34 @@ Methods could use this for storing for example plots and reports for a
 project in one easy accessible common location.  Note however, that
 tracking these files is not possible, there is no information linking
 back from the result directory to a specific job.  This may be
-overcome using for example soft file links, however.  For example like
+overcome using for example soft file links, however, see section~\ref{}.
+
+
+\clearpage
+\section{Other Useful Functions}
+The \texttt{extras} module contains a set of useful functions
+
+
+\subsection{Find the Full Path of a File in Another Job}
+Accessing a file stored in another job from within a method or build
+script is simple, and the functionality is implemented
+in \texttt{resolve\_jobid\_filename()}.  The function takes two
+arguments, a \textsl{jobid} and a \textsl{filename}.  See the example
+below
+\begin{python}
+from jobid import resolve_jobid_filename
+
+jobids = ('oldjob',)
+
+def synthesis():
+    filename = resolve_jobid_filename(jobids.oldjob, 'nameoffile')
+\end{python}
+Note that this function works in a build script as well.
+
+
+\subsection{Symlinking}
+Creating a symlink, for example from the \texttt{result\_directory} to
+current workdir, may be implemented in a very simple and safe way like
 this
 \begin{python}
 from extras import symlink
@@ -528,3 +555,20 @@ def synthesis(RESULT_DIRECTORY):
 The \texttt{extras.symlink} function will write a soft link
 to \texttt{filename} in \texttt{RESULT\_DIRECTORY}, overwriting it if
 it already exists.
+
+\subsection{job\_params}
+
+\subsection{job\_post}
+
+\subsection{json\_encode}
+
+\subsection{json\_decode}
+
+\subsection{json\_save}
+
+\subsection{json\_load}
+
+\subsection{blob\_load}
+
+\subsection{blob\_save}
+

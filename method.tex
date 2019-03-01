@@ -213,26 +213,24 @@ And here is the corresponding output.
 \end{minted}
 \end{leftbar}
 and a description of its keys
-\begin{snugshade}
-\begin{tabular}{ll}
-  \textsl{key} & \textsl{description}\\[2ex]\hline\\[1ex]
-  \texttt{package} & method directory for this method\\
-  \texttt{method} & name of this method\\
-  \texttt{jobid} & jobid of this job\\[1ex]
+\starttabletwo
+\RPtwo   \texttt{package} & method directory for this method\\
+\RPtwo   \texttt{method} & name of this method\\
+\RPtwo   \texttt{jobid} & jobid of this job\\[1ex]
 
-  \texttt{starttime}& start time in epoch format\\
-  \texttt{caption} & a caption\\
-  \texttt{slices} & number of slices of current Accelerator configuration \\
-  \texttt{seed} & a random seed available for use$^1$\\
-  \texttt{hash} & current source code hash value\\[1ex]
+\RPtwo   \texttt{starttime}& start time in epoch format\\
+\RPtwo   \texttt{caption} & a caption\\
+\RPtwo   \texttt{slices} & number of slices of current Accelerator configuration \\
+\RPtwo   \texttt{seed} & a random seed available for use\footnote{dcdf}\\
+\RPtwo   \texttt{hash} & current source code hash value\\[1ex]
 
-  \texttt{options} & input parameter\\
-  \texttt{dataset} & input parameter\\
-  \texttt{jobids} &  input parameter\\[1ex] \hline
-\end{tabular}\\
-\small{$^1$ The Accelerator team recommends \emph{not} using
-  \texttt{seed}, since it voids determinism.}
-\end{snugshade}
+\RPtwo   \texttt{options} & input parameter\\
+\RPtwo   \texttt{dataset} & input parameter\\
+\RPtwo   \texttt{jobids} &  input parameter\\[1ex] \hline
+
+\multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
+  \texttt{seed}, since it voids determinism.}}
+\stoptabletwo
 
 
 \section{Input Parameters}

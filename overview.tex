@@ -1,5 +1,8 @@
 This chapter presents an overview of the Accelerator's features in a
-rather non-formal way.
+rather non-formal way.  It is based on an article published on the
+eBay Tech Blog website.
+
+
 
 \section{High Level View}
 
@@ -28,35 +31,39 @@ finding collections, or lists, of related previously executed jobs.
 
 
 \section{Jobs:  Executing Code}
-The basic operation of the Accelerator is to execute small programs
-called \textsl{methods}.  In a method, some reserved function names
-are used to execute code sequentially or in parallel and to pass
+The basic operation of the Accelerator is to execute small Python
+programs called \textsl{methods}.  In a method, some reserved function
+names are used to execute code sequentially or in parallel and to pass
 parameters and results.  A method that has completed execution is
 called a \textsl{job}.
 
 The Accelerator keeps a record of all jobs that have been run.  It
-turns out this is very useful for avoiding unnecessary re-computing
-and instead rely on previosly computed results.  This does not only
-speed up processing and encourage incremental design, but also makes
-it transparent which code and which data was used for any particular
-result, thus reducing uncertainty.
+turns out that this is very useful for avoiding unnecessary
+re-computing and instead rely on reusing previosly computed results.
+This does not only speed up processing and encourage incremental
+design, but also makes it transparent which code and which data was
+used for any particular result, thus reducing uncertainty.
 
-In this section, we'll look at basic job running, result sharing, and
-parameters.
+In this section, we'll look at basic job running and result sharing.
+%, and parameters.
+
 
 
 \subsection{Basic Job Running:  ``Hello, World''}
 
 Let's begin with a simple ``hello world'' program.  We create a method
-with the following contents
+that we call \texttt{hello\_world} with the following contents
 \begin{python}
 def synthesis():
     return "hello world"
 \end{python}
 This program does not take any input parameters.  It just returns a
-string and exits.  Running methods on the Accelerator is further
-explained in section~\ref{chap:urd_basic}.
-
+string and exits.  Slightly simplified for clarity, we run the method
+like this. (Running methods on the Accelerator is further explained in
+section~\ref{chap:urd_basic}.)
+\begin{python}
+jobid = build('hello_world')
+\end{python}
 When execution of the method is completed, a single link, called a
 \texttt{jobid} is the only thing that is returned to the user.  The
 jobid points to a directory where the result from the execution is
@@ -64,8 +71,8 @@ stored, together with all information that was needed to run the job
 plus some profiling information.
 
 If we try to run the job again it will not execute, simply because the
-Accelerator remembers the job has been run in the past.  Instead of
-running the job again, it immediately returns the jobid pointing to
+Accelerator remembers that the job has been run in the past.  Instead
+of running the job again, it immediately returns the jobid pointing to
 the previous run.  This means that from a user's perspective, there is
 no difference between job running and job result recalling!  In order
 to have the job executing again, we have to change either the source
@@ -75,10 +82,11 @@ Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
 \texttt{hello\_world} method.  The created jobid is called
 \texttt{test-0}, and corresponding directory information is shown in
 green.  The job directory contains several files, of which the most
-important ones right now are
+important to mention right now are
 \begin{itemize}
-\item[] \texttt{setup.json}, which contains job information; and
-\item[] \texttt{result.pickle}, that contains the returned data.
+\item[] \texttt{setup.json}, containing job information;
+\item[] \texttt{result.pickle}, containing the returned data; and
+\item[] \texttt{method.tar.gz}, containing the method's source code.
 \end{itemize}
 
 \begin{figure}[h!]
@@ -92,9 +100,6 @@ important ones right now are
 
 
 
-
-
-
 \subsection{Linking Jobs}
 Assume that the job that we just run was computationally expensive,
 and that it returned a result that we'd like to use as input to further
@@ -102,9 +107,8 @@ processing.
 
 To keep things simple, we demonstrate the principle by creating a
 method that just reads and prints the result from the previous job to
-\texttt{stdout}.  We create a new method \texttt{print\_result}, that
+\texttt{stdout}.  We create a new method \texttt{print\_result}, and it
 goes like this
-
 \begin{python}
 import blob
 
@@ -114,16 +118,21 @@ def synthesis():
     x = blob.load(jobid=jobids.hello_world_job)
     print(x)
 \end{python}
-
 This method expects the \texttt{hello\_world\_job} input parameter to
-be provided at execution time, and we will see in section~\ref{sec:jobparams}
-how to do this.  The method then reads the result from the provided
-jobid and assigns it to the variable \texttt{x}, which is then printed
-to \texttt{stdout}.  Note that this method does not return anything.
-Figure~\ref{fig:execflow-print-result} illustrates the situation.
-Note the direction of the arrow - The second job, \texttt{test-1} had
-\texttt{test-0} as input parameter, but \texttt{test-0} does not know
-of any jobs run in the future.
+be provided at execution time, and this is accomplished by the
+following \textsl{simplified} build script
+\begin{python}
+jobid1 = build('hello_world')
+jobid2 = build('print_result', hello_world_job=jobid1)
+\end{python}
+The \texttt{print\_result} method then reads the result from the
+provided jobid and assigns it to the variable \texttt{x}, which is
+then printed to \texttt{stdout}.  Note that this method does not
+return anything.  Figure~\ref{fig:execflow-print-result} illustrates
+the situation.  (Note the direction of the arrow: the second job,
+\texttt{test-1} had \texttt{test-0} as input parameter, but
+\texttt{test-0} does not know of any jobs run in the future.  Hence,
+arrows point to previous jobs.)
 
 \begin{figure}[h!]
   \begin{center}
@@ -134,138 +143,8 @@ of any jobs run in the future.
   \end{center}
 \end{figure}
 
-\subsection{Job Execution Flow and Result Passing}
-
-There are three functions in a method that are called from the
-Accelerator when a method is running, and they are \texttt{prepare()},
-\texttt{analysis()}, and \texttt{synthesis()}.  All three may exist in
-the same method, and at least one is required.  When the method
-executes, they are called one after the other.
-\begin{itemize}
-\item[] \texttt{prepare()} is executed first.  The returned value is
-  available in the variable \texttt{prepare\_res}.
-\item[] \texttt{analysis()} is run in parallel processes, one for each
-  slice.  It is called after completion of \texttt{prepare()}.  Common
-  input paramerers are \texttt{sliceno}, holding the number of the
-  current process instance, and \texttt{prepare\_res}.  The return
-  value for each process becomes available in the
-  \texttt{analysis\_res} variable.
-\item[] \texttt{synthesis()} is called after the last
-  \texttt{analysis()}-process is completed.  It is typically used to
-  aggregate parallel results created by \texttt{analysis()} and takes
-  both \texttt{prepare\_res} and \texttt{analysis\_res} as optional
-  parameters.  The latter is an iterator of the results from the
-  parallel processes.
-\end{itemize}
-Figure~\ref{fig:prepanasyn} shows the execution order from top to
-bottom, and the data passed between functions in coloured branches.
-\texttt{prepare()} is executed first, and its return value is
-available to both the \texttt{analysis()} and \texttt{synthesis()}
-functions.  There are \texttt{slices} (a configurable parameter)
-number of parallel \texttt{analysis()} processes, and their output is
-available to the \texttt{synthesis()} function, which is executed
-last.
-
-Return values from any of the three functions may be stored in the
-job's directory making them available to other jobs.
 
 
-\begin{figure}[h!]
-  \begin{center}
-    \input{figures/prepanasyn.pdftex_t}
-    \caption{Execution flow and result propagation in a method.}
-    \label{fig:prepanasyn}
-  \end{center}
-\end{figure}
-
-
-
-\subsection{Job Parameters}
-\label{sec:jobparams}
-We've seen how jobids from completed jobs can be used as input to new
-jobs.  Jobid parameters is one of three kinds of input parameters that
-a job can take.  Here the input parameters are summarised:
-\begin{itemize}
-\item[] \texttt{jobids}, a set of identifiers to previously executed jobs;
-\item[] \texttt{options}, a dictionary of options; and
-\item[] \texttt{datasets}, a set of input \textsl{datasets}, explained later.
-\end{itemize}
-See Figure~\ref{fig:execflow}.  Parameters are entered as global
-variables early in the method's source.
-
-
-
-\subsubsection*{The Params Variable}
-A job's parameters are always available in the \texttt{params}
-variable.  The \texttt{params} variable is make available by adding it
-as input to \texttt{prepare()}, \texttt{analysis()}, or
-\texttt{synthesis()}, like this
-\begin{python}
-def synthesis(params):
-    print(params)
-\end{python}
-Accessing the \texttt{params} variable for \textsl{another} job is
-done like this
-\begin{python}
-jobids = {'thejob',}
-
-def synthesis():
-    print(jobids.thejob.params)
-\end{python}
-it turns out it can be very useful to know for example which datasets
-another job has been processing, and so on.
-
-Apart from the input parameters, the \texttt{params} variable also
-gives access to more information about the job and the current
-Accelerator setup, such as the total number of slices, the random
-seed, the hash of the source code, and method execution start time.
-
-
-\begin{figure}[h!]
-  \begin{center}
-    \input{figures/execflow.pdftex_t}
-    \caption{Execution flow of a method.  The method takes optionally
-      three kinds of parameters: \texttt{options}, \texttt{jobids},
-      and \texttt{datasets}.}
-    \label{fig:execflow}
-  \end{center}
-\end{figure}
-
-
-\subsubsection*{Input parameter \texttt{jobids}}
-The \texttt{jobids} parameter is a set containing any number of input
-jobids.  For example
-\begin{python}
-jobid = {'sales_stats', 'overhead_stats',}
-\end{python}
-When a method is to be executed, actual links to jobs, i.e.\ jobids,
-are passed using these parameters.
-
-
-\subsubsection*{Input parameter \texttt{options}}
-Options are supplied as a dictionary and is very flexible in typing.  For example
-\begin{python}
-options = dict(
-    name = 'alice',
-    defaultnames = set('alice', 'bob'),
-    param1 = 1,
-    param2 = float,
-)
-\end{python}
-Here, values are defaults, so \texttt{param1} is default set to 1,
-while a floating point value must be supplied to \texttt{param2}.
-
-\subsubsection*{Input parameter \texttt{datasets}}
-Datasets will be described in more details later, and the
-\texttt{datasets} parameter is similar to the \texttt{jobids}
-parameter.
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\clearpage
 \section{Datasets: Storing Data}
 
 The \texttt{dataset} is the Accelerator's default storage type for
@@ -276,12 +155,16 @@ and high performance.  Datasets are built on top of jobs, so
 
 Internally, data in a dataset is stored in a row-column format, and is
 typically \emph{sliced} into a fixed number of slices to allow
-efficient parallell access.  Columns are accessed independently.
+efficient parallell access.  Columns are accessed independently, so
+there is no overhead in reading a set of or even a single column.
+
 Furthermore, datasets may be \textsl{hashed}, so that slicing is based
-on the hash value of a given column.  In many practical applications,
-hashing makes parallel processes independent, minimising the need for
-complicated merging operations.  This is explained further in
-chapter~\ref{chap:datasets}.
+on the hash value of a given column.  Slicing on, for example, a
+column containing some ID string will partition all rows such that
+rows corresponding to any particular ID is stored in a single slice
+only.  In many practical applications, hashing makes parallel
+processes independent, minimising the need for complicated merging
+operations.  This is explained further in chapter~\ref{chap:datasets}.
 
 
 
@@ -299,18 +182,17 @@ figure~\ref{fig:dataset_csvimport}.
   \end{center}
 \end{figure}
 
-\noindent The standard method \texttt{csvimport}, is designed to parse
-a pletoria of ``comma separated values''-file formats and store the
-data as a dataset.  The method takes several input options, where the
-file name is mandatory.  The created dataset is stored in the
-resulting job, and the name of the dataset will by default be the
-jobid plus the string \texttt{default}.  For example, if the
-\texttt{csvimport} jobid is \texttt{imp-0}, the dataset will be
-referenced by \texttt{imp-0/default}.  In this case, and always when
-there is no ambiguity, the jobid alone (\texttt{imp-0}) could be used
-too.
-
-
+\noindent The bundled standard method \texttt{csvimport} is designed
+to parse a pletoria of ``comma separated values''-file formats and
+store the data as a dataset.  The method takes several input options,
+where the file name is mandatory.  When executed, the created dataset
+will be stored in the resulting job, and the name of the dataset will
+by default be the jobid plus the string \texttt{default}.  For
+example, if the \texttt{csvimport} jobid is \texttt{imp-0}, the
+dataset will be referenced by \texttt{imp-0/default}.  In this case,
+and always when there is no ambiguity, the jobid alone
+(\texttt{imp-0}) could be used too.  The reason for this is that a
+single job can contain any number of datasets, as we will see shortly.
 
 
 
@@ -323,7 +205,6 @@ into \texttt{imp-0/default} and that there is more data like it stored
 in \texttt{file1.txt}.  We can import the latter file and supply a
 link to the previous dataset, see
 figure~\ref{fig:dataset_csvimport_chain}.
-
 \begin{figure}[h!]
   \begin{center}
     \input{figures/import_file0file1.pdftex_t}
@@ -332,9 +213,8 @@ figure~\ref{fig:dataset_csvimport_chain}.
     \label{fig:dataset_csvimport_chain}
   \end{center}
 \end{figure}
-
-\noindent The \texttt{imp-1} (or \texttt{imp-1/default}) dataset
-reference can now be used to access all data imported from both files!
+The \texttt{imp-1} (or \texttt{imp-1/default}) dataset reference can
+now be used to access all data imported from \textsl{both} files!
 
 Linking datasets containing related content is called \emph{chaining},
 and this is particularly convenient when dealing with data that grows
@@ -624,4 +504,137 @@ This will iterate over the \texttt{NUM\_LEGS} column, and map numbers
 to strings according to the \texttt{mapper} dict.
 
 Filters work similarly.
+
+
+
+\subsection{Job Execution Flow and Result Passing}
+
+There are three functions in a method that are called from the
+Accelerator when a method is running, and they are \texttt{prepare()},
+\texttt{analysis()}, and \texttt{synthesis()}.  All three may exist in
+the same method, and at least one is required.  When the method
+executes, they are called one after the other.
+\begin{itemize}
+\item[] \texttt{prepare()} is executed first.  The returned value is
+  available in the variable \texttt{prepare\_res}.
+\item[] \texttt{analysis()} is run in parallel processes, one for each
+  slice.  It is called after completion of \texttt{prepare()}.  Common
+  input paramerers are \texttt{sliceno}, holding the number of the
+  current process instance, and \texttt{prepare\_res}.  The return
+  value for each process becomes available in the
+  \texttt{analysis\_res} variable.
+\item[] \texttt{synthesis()} is called after the last
+  \texttt{analysis()}-process is completed.  It is typically used to
+  aggregate parallel results created by \texttt{analysis()} and takes
+  both \texttt{prepare\_res} and \texttt{analysis\_res} as optional
+  parameters.  The latter is an iterator of the results from the
+  parallel processes.
+\end{itemize}
+Figure~\ref{fig:prepanasyn} shows the execution order from top to
+bottom, and the data passed between functions in coloured branches.
+\texttt{prepare()} is executed first, and its return value is
+available to both the \texttt{analysis()} and \texttt{synthesis()}
+functions.  There are \texttt{slices} (a configurable parameter)
+number of parallel \texttt{analysis()} processes, and their output is
+available to the \texttt{synthesis()} function, which is executed
+last.
+
+Return values from any of the three functions may be stored in the
+job's directory making them available to other jobs.
+
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/prepanasyn.pdftex_t}
+    \caption{Execution flow and result propagation in a method.}
+    \label{fig:prepanasyn}
+  \end{center}
+\end{figure}
+
+
+
+\subsection{Job Parameters}
+\label{sec:jobparams}
+We've seen how jobids from completed jobs can be used as input to new
+jobs.  Jobid parameters is one of three kinds of input parameters that
+a job can take.  Here the input parameters are summarised:
+\begin{itemize}
+\item[] \texttt{jobids}, a set of identifiers to previously executed jobs;
+\item[] \texttt{options}, a dictionary of options; and
+\item[] \texttt{datasets}, a set of input \textsl{datasets}, explained later.
+\end{itemize}
+See Figure~\ref{fig:execflow}.  Parameters are entered as global
+variables early in the method's source.
+
+
+
+\subsubsection*{The Params Variable}
+A job's parameters are always available in the \texttt{params}
+variable.  The \texttt{params} variable is make available by adding it
+as input to \texttt{prepare()}, \texttt{analysis()}, or
+\texttt{synthesis()}, like this
+\begin{python}
+def synthesis(params):
+    print(params)
+\end{python}
+Accessing the \texttt{params} variable for \textsl{another} job is
+done like this
+\begin{python}
+jobids = {'thejob',}
+
+def synthesis():
+    print(jobids.thejob.params)
+\end{python}
+it turns out it can be very useful to know for example which datasets
+another job has been processing, and so on.
+
+Apart from the input parameters, the \texttt{params} variable also
+gives access to more information about the job and the current
+Accelerator setup, such as the total number of slices, the random
+seed, the hash of the source code, and method execution start time.
+
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/execflow.pdftex_t}
+    \caption{Execution flow of a method.  The method takes optionally
+      three kinds of parameters: \texttt{options}, \texttt{jobids},
+      and \texttt{datasets}.}
+    \label{fig:execflow}
+  \end{center}
+\end{figure}
+
+
+\subsubsection*{Input parameter \texttt{jobids}}
+The \texttt{jobids} parameter is a set containing any number of input
+jobids.  For example
+\begin{python}
+jobid = {'sales_stats', 'overhead_stats',}
+\end{python}
+When a method is to be executed, actual links to jobs, i.e.\ jobids,
+are passed using these parameters.
+
+
+\subsubsection*{Input parameter \texttt{options}}
+Options are supplied as a dictionary and is very flexible in typing.  For example
+\begin{python}
+options = dict(
+    name = 'alice',
+    defaultnames = set('alice', 'bob'),
+    param1 = 1,
+    param2 = float,
+)
+\end{python}
+Here, values are defaults, so \texttt{param1} is default set to 1,
+while a floating point value must be supplied to \texttt{param2}.
+
+\subsubsection*{Input parameter \texttt{datasets}}
+Datasets will be described in more details later, and the
+\texttt{datasets} parameter is similar to the \texttt{jobids}
+parameter.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -536,8 +536,10 @@ Filters work similarly.
 
 \subsection{Job Execution Flow and Result Passing}
 
-There are three functions in a method that are called from the
-Accelerator when a method is running, and they are \texttt{prepare()},
+Execution of code in a method is either parallel or serial depending
+on which function is used to encapsulate it.  There are three
+functions in a method that are called from the Accelerator when a
+method is running, and they are \texttt{prepare()},
 \texttt{analysis()}, and \texttt{synthesis()}.  All three may exist in
 the same method, and at least one is required.  When the method
 executes, they are called one after the other.
@@ -588,16 +590,17 @@ a job can take.  Here the input parameters are summarised:
 \begin{itemize}
 \item[] \texttt{jobids}, a set of identifiers to previously executed jobs;
 \item[] \texttt{options}, a dictionary of options; and
-\item[] \texttt{datasets}, a set of input \textsl{datasets}, explained later.
+\item[] \texttt{datasets}, a set of input \textsl{datasets}.
 \end{itemize}
-See Figure~\ref{fig:execflow}.  Parameters are entered as global
-variables early in the method's source.
+See Figure~\ref{fig:execflow}.  These will all be explained later in
+this chapter.  Parameters are entered as global variables early in the
+method's source.
 
 
 
 \subsubsection*{The Params Variable}
 A job's parameters are always available in the \texttt{params}
-variable.  The \texttt{params} variable is make available by adding it
+variable.  The \texttt{params} variable is made available by adding it
 as input to \texttt{prepare()}, \texttt{analysis()}, or
 \texttt{synthesis()}, like this
 \begin{python}
@@ -612,8 +615,8 @@ jobids = {'thejob',}
 def synthesis():
     print(jobids.thejob.params)
 \end{python}
-it turns out it can be very useful to know for example which datasets
-another job has been processing, and so on.
+It turns out that it can be very useful to know for example which
+datasets another job has been processing, and so on.
 
 Apart from the input parameters, the \texttt{params} variable also
 gives access to more information about the job and the current
@@ -656,9 +659,9 @@ Here, values are defaults, so \texttt{param1} is default set to 1,
 while a floating point value must be supplied to \texttt{param2}.
 
 \subsubsection*{Input parameter \texttt{datasets}}
-Datasets will be described in more details later, and the
-\texttt{datasets} parameter is similar to the \texttt{jobids}
-parameter.
+The \texttt{datasets} parameter is similar to the \texttt{jobids}
+parameter, each entry in the \texttt{datasets} parameter will be
+passed a value when the method is executed.
 
 
 

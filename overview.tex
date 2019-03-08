@@ -219,56 +219,62 @@ now be used to access all data imported from \textsl{both} files!
 Linking datasets containing related content is called \emph{chaining},
 and this is particularly convenient when dealing with data that grows
 over time.  Good example are all kind of \emph{log} data, such as logs
-of transactions, user interactions, etc.
-
-Using chaining, we can extend datasets with more rows just by linking,
-which is a very lightweight operation.
+of transactions, user interactions, etc.  Using chaining, we can
+extend datasets with more rows just by linking, which is a very
+lightweight constant time operation.
 
 
 
 \subsection{Adding New Columns to a Dataset}
 We have seen how easy it is to add more lines to data to a dataset
-using chaining.  The only thing that needs to be done is to set a
-link, so the overhead is minimal.
-
-Now we'll see that is it equally simple to add new columns to an
-existing dataset.  Adding columns is also a common operation and the
-Accelerator handles it efficiently using links.
+using chaining.  A dataset chain is created simply by linking one
+dataset to the other, so the overhead is minimal.  Now we'll see that
+is it equally simple to add new columns to existing datasets.  Adding
+columns is a common operation and the Accelerator handles this
+situation efficiently using links.
 
 The idea is very simple.  Assume that we have a ``source'' dataset to
-which we want to add a new column.  We create a new dataset containing
-\textsl{only} the new column, and while creating it we instruct the
-Accelerator to link the source dataset to the new column.
+which we want to add one or more new columns.  We create a new dataset
+containing \textsl{only} the new column(s), and while creating it we
+instruct the Accelerator to link all the source dataset's columns to
+the new dataset such that the new dataset appears to contain all
+columns from both datasets.  (Note that this linking is similar to but
+different from chaining.)
 
-Accessing the new one-column dataset will transparently access all the
-data in the source dataset too, making it indistinguishable from a
-single dataset.  See Figure~\ref{fig:dep_dataset_append_column}.
+Accessing the new dataset will transparently access all the columns in
+both the new and the source dataset in parallel, making it
+indistinguishable from a single dataset.  See
+Figure~\ref{fig:dep_dataset_append_column}.
 
 \begin{figure}[h!]
   \begin{center}
     \input{figures/dataset_append_column.pdftex_t}
-    \caption{caption here}
+    \caption{Adding one new column to the source dataset.}
     \label{fig:dep_dataset_append_column}
   \end{center}
 \end{figure}
 
-
+A common case is to compute new columns based on existing ones.  In
+this case, we iterate over the rows in the source dataset, and for
+each iteration we write a new row of values to the new columns.  This
+will be shown later in section~\ref{}
 
 
 
 \subsection{Multiple Datasets in a Job}
 
-We've seen that datasets are created by methods and stored in job
-directories.  Typically, a method creates a single dataset in the job
-directory, but there is no limit on how many datasets that could be
-created and stored in a single job directory.  This leads to some
-interesting applications.
+Typically, a method creates a single dataset in the job directory, but
+there is no limit to how many datasets that could be created and
+stored in a single job directory.  This leads to some interesting
+applications.
 
-One application where it is convenient to create multiple datasets in
-a job is when splitting data into subsets based on some condition.
-For example, assume that we want to separate a dataset into two
-disjoint datasets based on a column storing a boolean value.  See
-Figure~\ref{fig:dep_dataset_csvimport_chain}.
+One application for keeping multiple datasets in a job is when data is
+split into subsets based on some condition.  This could, for example,
+be when a dataset is split into a training set and a test set.  One
+way to achieve this using the Accelerator is by creating a boolean
+column that tells if the current row is train or test data, followed
+by a job that splits the dataset in two based on the value on that
+column.  See Figure~\ref{fig:dep_dataset_csvimport_chain}.
 
 \begin{figure}[h!]
   \hspace{1cm}
@@ -279,34 +285,27 @@ Figure~\ref{fig:dep_dataset_csvimport_chain}.
   \label{fig:dep_dataset_csvimport_chain}
 \end{figure}
 
-The figure shows how \texttt{job-1} has created two datasets,
-\texttt{job-1/train} and \texttt{job-1/test}, based on the input
-dataset \texttt{job-0/default}.  A third job, \texttt{job-2} is then
-accessing the \texttt{job-1/train} dataset.  (Note that \texttt{job-1}
-does not have a \texttt{default} dataset.)
+%% The figure shows how \texttt{job-1} has created two datasets,
+%% \texttt{job-1/train} and \texttt{job-1/test}, based on the input
+%% dataset \texttt{job-0/default}.  A third job, \texttt{job-2} is then
+%% accessing the \texttt{job-1/train} dataset.  (Note that \texttt{job-1}
+%% does not have a \texttt{default} dataset.)
 
+In the setup of figure~\ref{fig:dep_dataset_csvimport_chain} we have
+full tracking from either \texttt{train} or \texttt{test} datasets.
+If we want to know the source of one of these sets, we just follow the
+links back to the previous jobs until we reach the source job.  In the
+figure, \texttt{job-0} may for example be a \texttt{csvimport} job,
+and will therefore contain the name of the input file in its
+parameters.  Thus, it is straightforward to link any data to its
+source.
 
+Splitting a dataset into parts creates ``physical'' isolation while
+still keeping all the data at the same place.  No data is lost in the
+process, and this is good for transparency reasons.  For example, a
+following method may iterate over \textsl{both} datasets in
+\texttt{job-1} and by that read the complete dataset.
 
-%% Short repetition on the direction of the arrow.  \texttt{job\_1}
-%% filtered the \texttt{dataset} from \texttt{job\_0}.  So if we take a
-%% look at \texttt{job\_1} and wonder where the input data is, we just
-%% follow the link back to \texttt{job\_0}.  If this job is an import, it
-%% will hold the name of the file that was imported.  If not, it will
-%% link back to another job, and so on, all the way down to the source of
-%% the dataset.  So there is full tracking and easy observability of
-%% everything that relates to job execution in the Accelerator.
-
-\emph{
-  Let us look at an example of when such dataset splitting
-  makes sense, and how it relates to the design methodology that the
-  Accelerator is based upon.  Assume that we have a (perhaps large)
-  dataset that we want to split into, say, a training set and a
-  validation set.  Even if one set is small, it makes sense to split the
-  dataset into two disjoint sets.  This way, we ``physically'' separate
-  the data into two sets, while keeping all the data in the same place.
-  This is good for transparency reasons, and any method following the
-  split may iterate over both subsets to read the complete data.
-}
 
 
 \subsection{Parallel Dataset Access and Hashing}
@@ -316,6 +315,8 @@ multiple files, allowing for fast parallel reads.  The parameter
 should be partitioned into.  This parameter also sets the number of
 parallel \texttt{analysis}-processes, so that each \texttt{analysis}
 process operates on a unique slice of the dataset.
+
+\comment{REWRITE THIS AND PERHAPS ADD FIGURE}
 
 Datasets can be partitioned, sliced, in different ways.  One obvious
 way is to use round robin, where each consecutive data row is written
@@ -333,9 +334,10 @@ for some parallel processing tasks.
 \label{sec:dataset-typing}
 There are a number of useful types available for dataset columns.
 They include floating and integer point numbers, booleans, timestamps,
-several string types, and json types.  Several of these types are
-designed to make importing data from text files straightforward,
-without parse errors, overflows etc.
+several string types, and json types.  Most of these types come with
+advanced parsers, making importing data from text files
+straightforward with deterministic handling of errors, overflows, and
+so on.
 
 
 
@@ -347,8 +349,9 @@ An attribute is accessed like this
 datasets = ('source',)
 def synthesis():
     print(datasets.source.shape)
+    print(datasets.source.columns)
 \end{python}
-
+and so on.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

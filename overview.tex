@@ -155,8 +155,21 @@ and high performance.  Datasets are built on top of jobs, so
 
 Internally, data in a dataset is stored in a row-column format, and is
 typically \emph{sliced} into a fixed number of slices to allow
-efficient parallell access.  Columns are accessed independently, so
-there is no overhead in reading a set of or even a single column.
+efficient parallell access, see figure~\ref{fig:dataset}. Columns are
+accessed independently, so there is no overhead in reading a set of or
+even a single column.
+
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/dataset_files.pdftex_t}
+    \caption{A dataset containing three columns, $A$, $B$, and $C$
+      stored using two slices.  Each dotted box corresponds to a file,
+      so there are two files for each column, allowing for parallel
+      read of the data using two processes.}
+    \label{fig:dataset}
+  \end{center}
+\end{figure}
 
 Furthermore, datasets may be \textsl{hashed}, so that slicing is based
 on the hash value of a given column.  Slicing on, for example, a
@@ -309,24 +322,24 @@ following method may iterate over \textsl{both} datasets in
 
 
 \subsection{Parallel Dataset Access and Hashing}
-As shown in detail in section~\ref{chap:datasets}, data in datasets are stored in
-multiple files, allowing for fast parallel reads.  The parameter
-\texttt{slices}  determines how many slices that the dataset
-should be partitioned into.  This parameter also sets the number of
-parallel \texttt{analysis}-processes, so that each \texttt{analysis}
-process operates on a unique slice of the dataset.
-
-\comment{REWRITE THIS AND PERHAPS ADD FIGURE}
+As shown earlier in this chapter, data in datasets is stored in
+multiple files for two reasons.  One reason is that we can read only
+the columns that we need, without overhead, and the other is to allow
+fast parallel reads.  The parameter \texttt{slices} determines how
+many slices that the dataset should be partitioned into, and it also
+sets the number of parallell process that may be used for processing
+the dataset.  There is always one process for each slice of the
+dataset, and each process operates on a unique part of the dataset.
 
 Datasets can be partitioned, sliced, in different ways.  One obvious
 way is to use round robin, where each consecutive data row is written
-to the next slice, modulo the number of slices.  This leads to
-datasets with approximately equal number of rows per slice.  Another
-alternative to slicing is to slice based on the hash value of a
-particular column's values.  Using this method, all rows with the same
-value in the hash column end up in the same slice.  This is efficient
-for some parallel processing tasks.
-
+to the next slice, modulo the number of slices.  This leads to ``well
+balanced'' datasets with approximately equal number of rows per slice.
+Another alternative to slicing is to slice based on the hash value of
+a particular column's values.  Using this method, all rows with the
+same value in the hash column end up in the same slice.  This is
+efficient for many parallel processing tasks, and we'll talk more
+about it later on.
 
 
 

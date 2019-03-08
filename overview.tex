@@ -369,11 +369,15 @@ and so on.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \section{Iterators: Working with Data}
 
 Data in a dataset is typically accessed using an \emph{iterator} that
-reads and streams one dataset slice at a time to a CPU core.  In this
+reads and streams one dataset slice at a time to a CPU core.  The
+parallel processing capabilities of the Accelerator will dispatch a
+set of parallel iterators, one for each slice, in order to have
+efficient parallel processing of the dataset.
+
+In this
 section, we'll have a look at iterators for reading data, how to take
 advantage of slicing to have parallel processing, and how to
 efficiently create datasets.
@@ -393,11 +397,11 @@ def synthesis():
 \end{python}
 This will print the ten most common movie titles and their
 corresponding counts in the \texttt{source} dataset.  The code will
-run on a single CPU core, because of the \texttt{synthesis} function,
-which is called only once.  The \texttt{iterate} (class-)method
-therefore has to read through all slices, one at a time, in a serial
-fashion, and this is reflected by the first argument to the iterator
-being \texttt{None}.
+run on a single CPU core, because we use the single-process
+\texttt{synthesis} function, which is called and executed only once.
+The \texttt{iterate} (class-)method therefore has to read through all
+slices, one at a time, in a serial fashion, and this is reflected by
+the first argument to the iterator being \texttt{None}.
 
 
 \subsection{Parallel Execution}
@@ -422,7 +426,9 @@ results explicitly, but the iterator comes with a rather magic method
 \texttt{merge\_auto()}, which merges the results from all slices into
 one based on the data type.  It can for example merge
 \texttt{Counter}s, \texttt{set}s, and composed types like
-\texttt{set}s of \texttt{Counter}s, and so on.
+\texttt{set}s of \texttt{Counter}s, and so on.  For larger datasets,
+this version will run much faster.
+
 
 
 \subsection{Iterating over Several Columns}
@@ -443,6 +449,10 @@ def analysis(sliceno):
     return user2movieset
 \end{python}
 This example creates a lookup dictionary from users to sets of movies.
+Note that in this case, we would like to have the dataset hashed on
+the \texttt{user} column, so that each user appears in exactly one slice.
+This will make later merging (if necessary) much easier.
+
 It is also possible to iterate over all columns by specifying an empty
 list of columns or by using the value \texttt{None}.
 \begin{python}
@@ -478,9 +488,12 @@ datasets.  This function takes a number of arguments, such as
 \end{itemize}
 The \texttt{range} options is based on the max/min values stored for
 each column in the dataset.  Assuming that the chain is sorted, one
-can for example set \mintinline{python}{range={timestamp, ('2016-01-01', '2016-01-31')}}
-in order to get rows within the specified range only.  The %
-\texttt{range} is quite costly, since it requires each row in the
+can for example set
+\begin{python}
+  range={timestamp, ('2016-01-01', '2016-01-31')}
+\end{python}
+in order to get rows within the specified range only.  Using
+\texttt{range=} is quite costly, since it requires each row in the
 dataset chain with dates within the range to be checked against the
 range criterion.  Therefore, there is a \texttt{sloppy} version that
 iterates over complete datasets in the chain that contains at least
@@ -496,10 +509,8 @@ certain column.  To make sure this is the case, there is an optional
 failure if the supplied column name does not correspond to the
 dataset's hashlabel.
 
-
-
-It is also possible to have the iterate re-hash on-the-fly.  In
-general this is not recommended, since there is a
+On the other hand it is also possible to have the iterator re-hash
+on-the-fly.  In general this is not recommended, since there is a
 \texttt{dataset\_rehash} method that does the same and stores the
 result for immediate re-use.  Using \texttt{dataset\_rehash} will be
 much more efficient.

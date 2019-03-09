@@ -27,7 +27,7 @@ provided in the next chapter.
 
 
 
-\subsection{Building a Job}
+\subsection{Building a Job: \texttt{urd.build()}}
 The \texttt{build} function is used to build a job from a method
 (i.e.\ source file).  Here is an example of how to build the method
 \texttt{method1}:
@@ -70,46 +70,60 @@ In the example above, the first job, \texttt{filter}, creates a new
 dataset from its input dataset.  This is then forwarded to the second
 job, \texttt{reduce}, using the jobid reference \texttt{jid\_filter}.
 
-If the first method or its input data is changed, the job will run
-again.  This will cause the jobid \texttt{jid\_filter} to change too,
-which in turn will trig execution of the \texttt{reduce} job.
+What happens if the same build script is run a second time?  If there
+has been no changes since the last run, the Accelerator will very
+quickly find the jobids to the existing jobs and exit, thus both
+finding the jobs as well as confirming the links and dependencies
+between them.  On the other hand, if something has been modified, such
+as a method's source code or any input parameters, the affected job(s)
+will be re-executed.  For example, assume that the input to
+the \texttt{filter} job is modified.  This will cause this method to
+be executed again, leading to a new job with a new jobid.  This jobid
+is input to the \texttt{reduce} job, causing it too to be re-executed.
+Modifying the input to a sequence of jobs will cause all jobs to be
+re-executed.  Modifying the parameters to, say, only the last job will
+cause just that job to be re-executed.
 
 
 
-\subsection{Building Chained Jobs}
-It is also possible to build chained jobs implicitly using the
-\texttt{build\_chained} function
+\subsection{Building Chained Jobs: \texttt{urd.build\_chained()}}
+There is a special version of \texttt{build()} that can be used for
+linking a set of dataset-creating jobs.  This function was created for
+the purpose of having build scripts that imported a large set of files
+in a \texttt{for}-loop.  The call looks like this
 \begin{python}
 jobid = urd.build_chained('method1', name='myjob')
 \end{python}
-which takes the same options as the standard \texttt{build} method,
-with the exception that name is mandatory.  The method to be chained
-must have a ``\texttt{previous}'' key in its \texttt{datasets}
-parameter.  The latest job with the same name is looked up by the
-runner, and the corresponding jobid is assigned to the
-method's \texttt{datasets.previous}.
+and it takes the same options as the standard \texttt{build} method,
+with the exception that name is mandatory.  The method must also have
+a ``\texttt{previous}'' key in its \texttt{datasets} parameter.  The
+way it works is that the Accelerator will look up the latest job
+having the same name and the new job to be built will have a link to
+this job inserted in the \texttt{dataset.previous} parameter.
 
 
 
 \subsection{Replaying Build Scripts}
-Executing an unmodified build script again will not cause any new jobs
-to be executed.  Instead, the Accelerator will fill in the jobids of
-the existing jobs so that processing can continue immediately.  A
+This was mentioned in the previous section, but it is so fundamental
+that it will be repeated here.  Executing a build script a second time
+will not cause any new jobs to be executed, assuming nothing has been
+changed.  Instead, the Accelerator will fill in the jobids of the
+existing jobs so that processing can continue immediately.  A
 successful ``replay'' of a build script ensures the integrity and
 dependencies of the calculations.  If nothing has changed, the same
 result remains.  If, however, some of the code has been modified, the
-Accelerator will compute new jobs, the result may be different, and
-the user is notified.
+Accelerator will compute new jobs to reflect the new situation.  The
+result may be different, and the user is notified.
 
 
 
 
-\section{The Joblist Type}
-It has already been metioned that Urd keeps track of all built jobs.
-This information is stored in the \texttt{urd.joblist} variable.  This
-variable is of type \texttt{JobList}, which is basically
-a \texttt{list} with some additional features.  The \texttt{joblist}
-is an ordered list of jobs and it can be pretty-printed like this
+\section{Inspecting Build History:  \texttt{urd.joblist}}
+Information about previously executed jobs is stored in
+the \texttt{urd.joblist} variable.  This variable is of
+type \texttt{JobList}, which is basically a standard
+ordered Python \texttt{list} with some additional features,
+such as pretty-printing:
 \begin{python}
 def main(urd):
     jid1 = urd.build('first')
@@ -135,8 +149,9 @@ def main(urd):
     urd.build('second', jobids=dict(first=urd.joblist['first'].jobid))
 \end{python}
 The ``\texttt{.jobid}'' is a bit clumsy, but currently required to get
-the actual jobid for the job.  It is required because each item in
-the \texttt{joblist} has a \texttt{.jobid} and a \texttt{.method}.
+the actual jobid for the job.  There is also a \texttt{.method} that
+will return the name of the last method in the joblist.
+
 Note that if there are several jobs created by the same method, they
 will have the same key in the joblist.  This situation could be
 resolved using unique names to the \texttt{name=} option to
@@ -151,26 +166,35 @@ def main(urd):
     urd.build('second', jobids=dict(first=urd.joblist.jobid))
 \end{python}
 
+\comment{.find() vs joblist[blah]}
 It is also possible to look up jobs by name in the \texttt{joblist}.
 This is done using the \texttt{find} function
 \begin{python}
 urd.joblist.find('csvimport')
 \end{python}
 If there is more than one job matching, the last one will be returned.
+There is also a \texttt{.all} method that will return the joblist as a
+comma separated list of jobids
+\begin{python}
+print(urd.joblist.all)
+\end{python}
+\begin{shell}
+TEST-38,TEST-39
+\end{shell}
 
-Finally, it may be worth noting that the \texttt{Joblist} is actually
-a \texttt{list}, so it is possible to access individual items like
-this
+Finally, it may be worth noting that
+the \texttt{Joblist} is actually a \texttt{list}, so it is possible to
+access individual items and slices like this
 \begin{python}
 jl[3]
 \end{python}
-and slicing works, too
+and linke this
 \begin{python}
 jl[-2:]
 \end{python}
 
 
-\section{Configuration Information from the Daemon}
+\section{Configuration Information:  \texttt{urd.info}}
 The dictionary \texttt{urd.info} contains configuration information
 from the Accelerator daemon.  In particular, it contains these fields
 \starttabletwo
@@ -189,6 +213,6 @@ The \texttt{urd} object has functionality for building and retreiveing
 jobs.  A job is built using \texttt{urd.build()}, and references to
 all built jobs will be stored in \texttt{urd.joblist}.  These
 references could be fed as input parameters to new jobs so that the
-output from one job could be used by another.
+output from one job could be used as input by another.
 The \texttt{urd.joblist} variable is basically of type \texttt{list},
 but with extra functionality to find previous jobs and their jobids.

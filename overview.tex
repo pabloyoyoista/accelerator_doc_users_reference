@@ -107,8 +107,11 @@ the workdir level.  A running Accelerator could have any number of
 workdirs associated, but only one at a time for writing.
 
 \subsection{Linking Jobs}
-Assume that the job that we just run was computationally expensive,
-and that it returned a result that we'd like to use as input to further
+\comment{The Accelerator makes it easy to split complex tasks into several
+smaller operations.  Several jobs may be connected so that the next
+job will depend on the result of a previous job or jobs.}  Assume that
+the job that we just run was computationally expensive, and that it
+returned a result that we'd like to use as input to further
 processing.
 
 To keep things simple, we demonstrate the principle by creating a
@@ -149,7 +152,14 @@ arrows point to previous jobs.)
   \end{center}
 \end{figure}
 
-
+\comment{
+A complex task is split into several jobs, each reading intermediate
+results from previous jobs.  The Accelerator will keep track of all
+job dependencies, so there is no doubt which jobs that are run when
+and on which data.  Furthermore, since the Accelerator remembers if a
+job has been executed before, it will link and ``recycle'' previous
+jobs, which brings a great execution speed advantage.
+}
 
 \section{Datasets: Storing Data}
 

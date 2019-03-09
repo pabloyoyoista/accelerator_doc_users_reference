@@ -98,7 +98,11 @@ important to mention right now are
   \end{center}
 \end{figure}
 
-
+Jobids are named by their corresponding \textsl{workdir} plus an
+integer counter value.  Workdirs are used to separate jobs into
+different physical locations, and jobs may be shared between users on
+the workdir level.  A running Accelerator could have any number of
+workdirs associated, but only one at a time for writing.
 
 \subsection{Linking Jobs}
 Assume that the job that we just run was computationally expensive,

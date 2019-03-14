@@ -25,49 +25,65 @@ joblists before proceeding.
 
 \section{Introduction to Urd}
 
-Build scripts, as presented in chapter~\ref{chap:urd_basic}, provides
-a powerful way to build and link jobs.  In may cases, however, this is
-not enough.  For example, when a project matures, there is a need for
-separation, and if a project uses lots of input files, something is
-needed to keep track of them.
+Urd is the processing flow controller in the Accelerator framework,
+that provides a convenient way to organise, store, and retrieve all
+jobs in a project.  Using Urd, a project could be separated into
+functionally independent parts, with Urd acting as glue, passing
+information around.  More formally, Urd provides two things:
+\begin{itemize}
+\item[1.] Separation between build scripts
+        and a way to share information about built jobs between scripts.
+\item[2.] A searchable transaction log database of all jobs built together with their dependencies.
+\end{itemize}
+To give a taste of what it looks like, consider this basic example of
+job retreival
+\begin{python}
+def main(urd):
+    latest_ratings_joblist = urd.latest('import/ratings')
+    print(latest_ratings_joblist.pretty)
+\end{python}
+This method will print information about the latest list of jobs
+stored by the \texttt{import/ratings} key.  Note that this is just
+job \textsl{retreival}, no jobs could be built in this process, so in
+that sense Urd provides a layer of isolation.  Urd is also an
+interesting example of a log-file-based database.  This, and many
+other aspects of Urd, will be explained in the rest of this chapter.
 
-Urd is the processing flow controller in the framework.  It is the
-primary job dispatcher as well as the bookkeeper of all jobs executed.
-It provides a way to look up existing jobs and datasets, and provides
-separation in that it eliminates the need to replay build scripts to
-find old jobids and datasets.  (It is also an interesting
-log-file-based database, that will be further discussed in
-section~\ref{xx}.)
+\section{Urd Concepts}
 
-Events in urd are separated into what is called \textsl{sessions}.
-The core of Urd is a transaction log database storing these sessions
-together with meta information.  The result is a server providing
-lookups for all jobs executed together with their context.
+\textsl{Build scripts}, as presented in chapter~\ref{chap:urd_basic},
+provide a powerful way to build and link jobs.  A larger project may
+separate importing of source files into one job list, and data
+processing in another.
+
+A running build script will automatically record information about all
+built jobs in a \textsl{joblist} variable.  A \textsl{session} is what
+happens between the first and last addition of information to this
+variable.
 
 The Urd database is partitioned into what is called \textsl{lists}.
-Lists record sessions and key them using a timestamp.  Lists are
-globally readable, but writing requires authentication, so that, for
-example, only the production user may publish a model to go live.
+Each element in such a list is a joblist that represents a session.
+Lists are associated by keys in the format \texttt{<user>/<name>}, and
+individual elements (sessions) in the lists are associated with a
+timestamp.  Lists are globally readable, but writing requires
+authentication, so that, for example, only the production user may
+publish a model to go live.
 
-With the exception of experimental work and the build script basics
-presented in the previous chapter, all work initiated by Urd is run in
-closed sessions, with well defined starting and ending points.  The
-input parameters to these sessions are recorded as dependencies,
-together with the resulting output.
-
+\comment{det behovs en bild har!}
 
 
-\section{Overview}
 
-Urd sessions exists between the \texttt{urd.begin()}
+\section{A First Example}
+
+Urd sessions are defined between the \texttt{urd.begin()}
 and \texttt{urd.finish()} functions, like in this short example that
 imports a file.
 
 \begin{python}
 def main(urd):
-    |\colorbox{hl}{urd.begin}|('import/txn', '2018-05-03')
+    urd.begin('import/txn', '2018-05-03')
     urd.build('csvimport', options=dict(filename='txn1.txt'))
-    |\colorbox{hl}{urd.finish}|('import/txn')
+    urd.finish('import/txn')
 \end{python}
 
 All jobs dispatched between \texttt{begin} and \texttt{finish} will be
@@ -76,28 +92,29 @@ timestamp \texttt{2018-05-03}.  This also includes meta information,
 such as all lookups of jobs done by Urd in the session that will be
 appended as dependencies.
 
-The urd-list just created could then be used by other job builds.  For
-example, here is a job that does some processing on the imported file
+The urd-list just created could then be used by other build scripts.
+For example, here is a job that does some processing on the imported
+file
 \begin{python}
 def main(urd):
     urd.begin('process/test')
-        import_session = |\colorbox{hl}{urd.latest}|('import/txn')
+        import_session = urd.latest('import/txn')
         import_timestamp = import_session.timestamp
         import_jobid = import_session.joblist.jobid
         urd.build('process', datasets=dict(source=import_jobid))
     urd.finish('process/test', import_timestamp)
 \end{python}
 Here, the recently created urd session, \texttt{import/txn}, is
-retrieved.  Two things are extracted from this data.  First, the
-timestamp of the import session.  The timestamp is used as key for
-the \texttt{process/test} session as well, indicating that it is based
-on data from the same time instance.  Furthermore, the jobid to
-the \texttt{csvimport} job is extracted and fed to
+retrieved, and two things are extracted from this data.  First, the
+timestamp of the import session.  This timestamp will be used as key
+for the ongoing \texttt{process/test} session as well, indicating that
+it is based on data from the same time instance.  Furthermore, the
+jobid to the \texttt{csvimport} job is extracted and fed to
 the \texttt{process} job as an input dataset parameter.
 
 
 
-\section{Urd Sessions}
+\section{Urd Sessions:  \texttt{begin()} and \texttt{finish()}}
 
 There are a number of options associated with a session, as shown
 here,
@@ -139,12 +156,14 @@ development work.
 \section{Timestamp Resolution}
 
 Timestamps may be specified in various resolution depending on the
-application.  The time format is
-\begin{python}
+application.  The time format is (See Python's \texttt{datetime}
+module for explanation.)
+\begin{shell}
 "%Y-%m-%dT%H:%M:%S"
-\end{python}
-and it can be truncated as shown in the following examples covering
-all possible cases.
+\end{shell}
+A specific timestamp could be shorter than the above specification in
+order to cover wider time ranges.  The following examples cover all
+possible cases.
 \begin{python}
 '2016-10-25'               day resolution
 '2016-10-25T15'            hour resolution
@@ -154,7 +173,7 @@ all possible cases.
 
 
 
-\section{Aborting an Urd Session}
+\section{Aborting an Urd Session:  \texttt{abort()}}
 
 When an Urd session is initiated, a new session cannot be started
 until the current session has finished.  A session may be aborted,
@@ -163,15 +182,16 @@ however, using the \texttt{abort()} function, like this
 urd.begin('test')
 urd.abort()
 \end{python}
-Aborted sessions are not stored in the Urd transaction log.
+Similar to unfinished sessions, aborted sessions will not be stored in
+the Urd transaction log.
 
 
 
 
-\section{Building Jobs}
+\section{Building Jobs: \texttt{build()}}
 
 Jobs are dispatched in Urd sessions using the \texttt{build} function.
-Here is the complete call with all possible parameters.\\[-3ex]
+Here is the complete call with all possible parameters.
 \begin{python}
 jobid = urd.build(
     method,
@@ -202,8 +222,8 @@ Explanation of \texttt{build} parameters:
     Datasets may be lists too, just like \texttt{jobids} above.\\[2ex]
 
 \RPtwo \texttt{workdir=None} & If specified, the job will be built in
-    this workdir, assuming the workdir is in either the source or target
-    workdirs in the configuration file.\\[2ex]
+    this workdir, assuming the workdir is specified in the
+    configuration file as either source or target.\\[2ex]
 
 \RPtwo \texttt{name} & A string associated with the job.  It may be used
     to distinguish several jobs created from the same method.\\[2ex]
@@ -212,10 +232,10 @@ Explanation of \texttt{build} parameters:
 \stoptabletwo
 
 
-\section{Switching workdir}
+\section{Changing workdir:  \texttt{set\_workdir()}}
 The target workdir specified in the configuration file is the only
-workdir that is written to by default.  Any other workdir is only
-being read.  This behaviour can be changed either
+workdir that is written to by default.  Any other workdir is read only
+This behaviour can be overrided, either
 \begin{itemize}
 \item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{}, or
 \item[] using \texttt{urd.set\_workdir()}.
@@ -225,9 +245,9 @@ The latter,
 def main(urd):
     urd.set_workdir(<workdir>)}
 \end{python}
-will set the workdir for all coming build calls in the current build script.  It can
-still be overrided using the \texttt{workdir=...} option
-to \texttt{urd.build}.
+will set the workdir for all coming \texttt{build} calls in the
+current build script.  It can still be overrided using
+the \texttt{workdir=} option to \texttt{urd.build}.
 
 
 
@@ -504,7 +524,7 @@ described in section~\ref{xx}.
 
 
 
-\section{Profiling a Build Script}
+\section{Profiling a Build Script:  \texttt{print\_profile()}}
 There is a helper function in the urd object that can be used to print
 profiling information.  The following example is self-explanatory
 \begin{python}

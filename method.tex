@@ -17,23 +17,87 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-The Accelerator is producing \emph{jobs}.  A job is a storage of all
-information associated with a computation, including source code,
-input parameters, outputs (results), and profiling information.  Jobs
-are static, and cannot be altered or removed by the Accelerator.
-
-The source files that are executed are called \emph{methods}.  When
-the Accelerator executes, or \emph{builds}, a method, the result is
-a \emph{job}.  Jobs are dispatched either by build scripts,
-see~\ref{chap:urd_basic}, or from methods, using \emph{subjobs}, that will be
-explained in this chapter.  At build time, the job is typically
-assigned some \emph{input parameters}.
-
 This chapter covers most aspects of jobs and methods.  It describes
 what methods are and how they are stored.  When they are built and
 when not.  What input parameters look like in full detail.  How to
-access another job's parameters.  Parallel processing.  Return values
+xsaccess another job's parameters.  Parallel processing.  Return values
 and result merging.  Storing and retreiving data.  Building subjobs.
+
+\section{Definitions}
+
+\subsection{Methods and jobs}
+
+In general, doing a computation on a computer follows the following equation
+\[
+  \text{source code} \quad+\quad \text{input parameters} \quad+\quad \text{execution time} \quad\rightarrow\quad \text{result}
+\]
+In the Accelerator context, the equation becomes
+\[
+  \text{method} \quad+\quad \text{input parameters} \quad+\quad \text{execution time} \quad\rightarrow\quad \text{job}
+\]
+where the \textbf{method} is the source code, and the \textbf{job} is
+a directory containing
+\begin{itemize}
+\item[--] job meta information files,  as well as
+\item[--] any number of output files created by the running method.
+\end{itemize}
+The exact contents of the job directory will be discussed in section~\ref{}.
+
+Computing a job is denoted job \textsl{building}.
+Jobs are \textbf{built} from methods.  When a job has been built, it
+is \textsl{static}, and cannot be altered or removed by the
+Accelerator.  Jobs are built either by
+\begin{itemize}
+\item[--] a \textsl{build script}, see chapter~\ref{}, or
+\item[--] by a method, using \textsl{subjobs}.
+\end{itemize}
+subjobs will be the topic of section~\ref{}.  The following figure
+illustrates how a job \texttt{example-0} is built from the
+method \texttt{a\_method.py}
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/method.pdftex_t}
+    \label{fig:method}
+  \end{center}
+\end{figure}
+
+\noindent The name is always unique so that it
+can be used as a reference to the job, and the reasons for the actual
+name (in this case \texttt{example-0}) will be apparent later in this
+chapter.
+
+
+\subsection{Jobids}
+A \textbf{jobid} is a reference to a job.  Since all job directories
+have unique names, the name of the job is used as the jobid.  In the
+example above, the job is uniquely identified by the
+string \texttt{example-0}.
+
+
+
+
+\subsection{Python Packages}
+Methods are stored in standard Python packages, i.e.\ in a directory that is
+\begin{itemize}
+\item[--] reachable by the Python interpreter, and
+\item[--] contains the (empty) file \texttt{\_\_init\_\_.py}.
+\end{itemize}
+
+\subsection*{method and work directories}
+Consider the following figure:
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/method2.pdftex_t}
+    \label{fig:method}
+  \end{center}
+\end{figure}
+
+\noindent The figure shows a method and a job that was built from that
+particular method.  For isolation purposes, methods are stored
+in \textsl{method directories}, and jobs (job directories) are stored
+in \textsl{work directories}.  There could be any number of method and
+work directories, but they all have to be specified explicitly in the
+Accelerator's configuration file in order to be taken into account.
 
 
 \section{Method Directories}

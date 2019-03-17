@@ -181,75 +181,6 @@ Python2 and Python3 respectively.  Another method \texttt{bogusmethod}
 is commented out and trying to build this will issue an error.
 
 
-\comment{BEGIN old stuff}
-\subsection*{method and work directories}
-Consider the following figure:
-\begin{figure}[h!]
-  \begin{center}
-    \input{figures/method2.pdftex_t}
-    \label{fig:method}
-  \end{center}
-\end{figure}
-
-
-\noindent The figure shows a method and a job that was built from that
-particular method.  For isolation purposes, methods are stored
-in \textsl{method directories}, and jobs (job directories) are stored
-in \textsl{work directories}.  There could be any number of method and
-work directories, but they all have to be specified explicitly in the
-Accelerator's configuration file in order to be taken into account.
-
-
-\section{Method Directories}
-
-Methods are stored in and grouped into method directories,
-corresponding to file system directories.  The recommended location of
-method directories is one level above the Accelerator's home
-directory.  This is set up automatically if the Accelerator is
-installed using the Project Skeleton repository~\ref{SKELETON_INSTALLATION_CHAPTER}.
-
-Method directories are just like any directories, with the addition of
-two specific files, \texttt{\_\_init\_\_.py} and \texttt{methods.conf}.
-The first file is required for Python to see it as a library, and the
-latter is there to limit execution to permitted files only.  If a
-method is not listed in the method directory's \texttt{methods.conf},
-it can not be executed by the Accelerator.  The Accelerator has a
-history of use in live production environments, and in such scenarios
-it is important to keep track of which code that is allowed to
-execute.
-
-Here is a typical setup
-\begin{verbatim}
-project_directory/
-    accelerator                     # accelerator home
-    accelerator/standard_methods    # method directory for bundled methods
-    dev                             # a method directory, here be methods
-    my_dev                          # another method directory
-\end{verbatim}
-For a method directory to be visible by the Accelerator, two things are needed
-\begin{enumerate}
-\item it must be specified in the Accelerator's configuration file,
-  see section~\ref{sec:configfile};
-\item the method directory must contain an empty file named
-  \texttt{\_\_init\_\_.py}; and
-\item the method directory must have a \texttt{methods.conf} file.
-\end{enumerate}
-
-\subsection*{Creating a New Method Directory}
-Make sure the current directory is either one step above the
-Accelerator directory (preferred), or is the Accelerator directory.
-\begin{enumerate}
-\item Create and populate the directory, here called \texttt{<dirname>}:
-  \begin{shell}
-% mkdir <dirname>
-% touch <dirname>/__init__.py
-% touch <dirname>/methods.conf
-  \end{shell}
-\item Add the method directory \texttt{<dirname>} to the Accelerator's
-  configuration file, see~\ref{sec:configfile}.
-\item Restart the Accelerator
-\end{enumerate}
-\comment{END old stuff}
 
 
 
@@ -273,6 +204,10 @@ The hash value is combined with the input arguments and compared to
 all jobs already built.  Only if the hash and input parameter
 combination is unique will the method be executed.
 
+
+
+\section{Depend on More Files:  \texttt{depend\_extra}}
+
 A method may import code located in other files, and these other files
 can be included in the hash calculation as well.  This will ensure
 that a change to an imported file will indeed force a re-execution of
@@ -287,7 +222,7 @@ objects or filenames relative to the method's location.
 
 
 
-\section{Avoiding Rebuild}
+\section{Avoiding Rebuild: \texttt{equivalent\_hashes}}
 
 A change to a method's source code will cause a new job to be built
 upon running \mintinline{python}{build()}, but sometimes it is
@@ -326,6 +261,108 @@ methods like \texttt{csvimport} are good examples of this.
 
 
 
+\section{Method Calling Functions}
+
+Methods are not executed from top to bottom.  Instead, there are three
+functions that are called by the method dispatcher that controls the
+execution flow.  These functions are
+\begin{itemize}
+\item [] \texttt{prepare()},
+\item [] \texttt{analysis()}, and
+\item [] \texttt{synthesis()}.
+\end{itemize}
+
+
+
+\subsection{Execution Flow}
+
+The three functions \prepare, \analysis, and \synthesis are called one
+at a time in that order.  \prepare and \synthesis executes as single
+processes, while \analysis provides parallel execution.  None of them
+is mandatory, but at least one must be present for the method to
+execute.
+
+\subsection{Function Arguments}
+There are a few constants that can be passed into the executing
+functions at run time.  Here is a complete list
+\starttabletwo
+\RPtwo \texttt{params} & A dictionary containing all parameters input
+       from both the calling function and the Accelerator.  This will be
+       explained in detail in section~\ref{}.\\[2mm]
+\RPtwo \texttt{sliceno} & (For \analysis only.)  A unique identifier for each parallell \analysis process.\\[2mm]
+\RPtwo \texttt{SOURCE\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{}.\\[2mm]
+\RPtwo \texttt{RESULT\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{}.\\
+%\RPtwo \texttt{jobids}, \texttt{options}, \texttt{datasets} & Defined globally in the method, but may be 
+\stoptabletwo
+
+\noindent The input parameters \options, \jobids, and \datasets are
+global, so they do not need to be explicit in a function call.  The
+\analysis function is special and takes a required argument
+\texttt{sliceno}, which is an integer between zero and the total
+number of slices minus one.  This is the unique identifier for each
+\analysis process, and is described in the next section.
+
+
+\subsection{Parallel Processing:  The \analysis function, Slices, and Datasets}
+
+The number of analysis processes is always equal to the number of
+dataset slices that the Accelerator has in its configuration file.
+The idea is that each slice in a dataset should have exactly one
+corresponding \analysis process, so that all slices in a dataset can
+be processed in parallel.  The input parameter \texttt{sliceno} to
+the \analysis function is in the range from zero to the number of
+slices minus one.  The number of slices is defined in the
+Accelerator's configuration file.
+
+
+
+\subsection{Return Values}
+Return values may be passed from one function to another.  What is
+returned from prepare is called \prepareres, and may be used as input
+argument to \analysis and \synthesis.  The return values from
+\analysis is available as \analysisres in \synthesis.  The
+\analysisres variable is an iterator, yielding the results from each
+slice in turn.  Finally, the return value from \synthesis is stored
+permanently in the job directory.  Here is an example of return value
+passing
+\begin{python}
+# return a set of all users in the source dataset
+options = dict(length=4)
+datasets = (source',)
+
+def prepare(options):
+    return options.length * 2
+
+def analysis(sliceno, prepare_res):
+    return set(u for u in datasets.source.iterate(sliceno, 'user'))
+
+def synthesis(analysis_res, prepare_res):
+     return analyses_res.merge_auto()
+\end{python}
+In the current implementation, all return values are stored as Python
+\texttt{pickle} files.
+
+Note that when a job completes, it is not possible to retrieve the
+results from \prepare or \analysis anymore.  Only results from
+\synthesis are kept.
+
+\subsection{Merging Results from \analysis}
+In the example above, each analysis process returns a \texttt{set}
+that is constructed from a single slice.  In order to create a set of
+all users in the \texttt{source} dataset, all these sets have to be
+merged.  Merging could be done using a \texttt{for}-loop, but merging
+is dependent of the actual type, and writing merging functions is
+error prone.  Therefore, \analysisres has a function called
+\texttt{merge\_auto()}, that is used for merging.  This function can
+merge most data types, and even merge container variables in a
+recursive fashion.  For example,
+\begin{python}
+h = defaultdict(lambda: defaultdict(set))
+\end{python}
+is straightforward to merge using \texttt{merge\_auto}.
+
+
+
 
 
 \clearpage
@@ -345,7 +382,7 @@ import json
 
 jobids = ('jid',)
 datasets = ('source', 'parent',)
-options = dict(x='testing', length=3)
+options = dict(mode='testing', length=3)
 
 def synthesis(params):
     print(json.dumps(params, indent=4))
@@ -744,77 +781,6 @@ def synthesis():
 
 
 \newpage
-\section{Execution Flow:  \prepare, \analysis, and \synthesis}
-
-There are three pre-defined functions in a method that are called by
-the Accelerator at build time.  These are \prepare, \analysis, and
-\synthesis, and they are always run in that order.  \prepare and
-\synthesis executes as single processes, while \analysis provides
-parallel execution.  None of them is mandatory, but at least one must
-be present for the method to execute.
-
-All the three functions take the \params variable as optional
-argument.  The input parameters \options, \jobids, and \datasets are
-global, so they do not need to be explicit in a function call.  The
-\analysis function is special and takes a required argument
-\texttt{sliceno}, which is an integer between zero and the total
-number of slices minus one.  This is the unique identifier for each
-\analysis process, and is described in the next section.
-
-
-\subsection{Parallel Processing:  The \analysis function, Slices, and Datasets}
-The number of analysis processes is always equal to the number of
-dataset slices that the Accelerator has in its configuration file.
-The idea is that each slice in a dataset should have exactly one
-corresponding \analysis process, so that all slices in a dataset can be
-processed in parallel.
-
-
-
-\subsection{Return Values}
-Return values may be passed from one function to another.  What is
-returned from prepare is called \prepareres, and may be used as input
-argument to \analysis and \synthesis.  The return values from
-\analysis is available as \analysisres in \synthesis.  The
-\analysisres variable is an iterator, yielding the results from each
-slice in turn.  Finally, the return value from \synthesis is stored
-permanently in the job directory.  Here is an example of return value
-passing
-\begin{python}
-# return a set of all users in the source dataset
-options = dict(length=4)
-datasets = (source',)
-
-def prepare(options):
-    return options.length * 2
-
-def analysis(sliceno, prepare_res):
-    return set(u for u in datasets.source.iterate(sliceno, 'user'))
-
-def synthesis(analysis_res, prepare_res):
-     return analyses_res.merge_auto()
-\end{python}
-In the current implementation, all return values are stored as Python
-\texttt{pickle} files.
-
-Note that when a job completes, it is not possible to retrieve the
-results from \prepare or \analysis anymore.  Only results from
-\synthesis are kept.
-
-\subsection{Merging Results from \analysis}
-In the example above, each analysis process returns a \texttt{set}
-that is constructed from a single slice.  In order to create a set of
-all users in the \texttt{source} dataset, all these sets have to be
-merged.  Merging could be done using a \texttt{for}-loop, but merging
-is dependent of the actual type, and writing merging functions is
-error prone.  Therefore, \analysisres has a function called
-\texttt{merge\_auto()}, that is used for merging.  This function can
-merge most data types, and even merge container variables in a
-recursive fashion.  For example,
-\begin{python}
-h = defaultdict(lambda: defaultdict(set))
-\end{python}
-is straightforward to merge using \texttt{merge\_auto}.
 
 
 \section{Job Directories}

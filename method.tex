@@ -365,17 +365,24 @@ is straightforward to merge using \texttt{merge\_auto}.
 
 
 
-\clearpage
-\section{Method Parameters}
 
-A jobs parameters are available in the \texttt{params} variable.  It
-contains both input parameters that are assigned from the caller, and
-parameters that are created when the job starts building.  Input
-parameters will be described thoroughly in section~\ref{sec:input_params}.  Consider
-the following example method that pretty-prints the \texttt{params}
-variable.  Note that the method explicitly expects input parameters to
-be assigned by the caller in the \jobids, \datasets, and \options
-variables.
+\section{Method Parameters:  \texttt{params}}
+
+There are two sources of parameters to a running method,
+\begin{itemize}
+\item [] parameters from the caller, i.e.\ the \texttt{build()}-call, and
+\item [] parameters assigned by the Accelerator when the job starts building.
+\end{itemize}
+All parameters are available in the \texttt{params} dictionary.  Build
+parameters will be described thoroughly in
+section~\ref{sec:input_params}, and parameters from the Accelerator
+will be brought up at the end of this section.
+
+Consider the following example method that pretty-prints
+the \texttt{params} variable.  Note that the method explicitly expects
+input parameters to be assigned by the caller in the \jobids
+and \datasets constants, while \options keeps the default value unless
+assigned in the build call.
 
 \begin{python}
 import json
@@ -387,7 +394,7 @@ options = dict(mode='testing', length=3)
 def synthesis(params):
     print(json.dumps(params, indent=4))
 \end{python}
-And here is the corresponding output.
+Here is the corresponding output.
 \begin{leftbar}
 \begin{minted}{json}
 {
@@ -413,49 +420,58 @@ And here is the corresponding output.
 }
 \end{minted}
 \end{leftbar}
-and a description of its keys
+\noindent and a description of its keys
 \starttabletwo
-\RPtwo   \texttt{package} & method directory for this method\\
+\RPtwo   \texttt{package} & Python package for this method\\
 \RPtwo   \texttt{method} & name of this method\\
 \RPtwo   \texttt{jobid} & jobid of this job\\[1ex]
 
 \RPtwo   \texttt{starttime}& start time in epoch format\\
 \RPtwo   \texttt{caption} & a caption\\
 \RPtwo   \texttt{slices} & number of slices of current Accelerator configuration \\
-\RPtwo   \texttt{seed} & a random seed available for use\footnote{dcdf}\\
-\RPtwo   \texttt{hash} & current source code hash value\\[1ex]
+\RPtwo   \texttt{seed} & a random seed available for use$^1$\\
+\RPtwo   \texttt{hash} & source code hash value\\[1ex]
 
 \RPtwo   \texttt{options} & input parameter\\
 \RPtwo   \texttt{dataset} & input parameter\\
-\RPtwo   \texttt{jobids} &  input parameter\\[1ex] \hline
+\RPtwo   \texttt{jobids} &  input parameter\\[1ex] \hline\\[-2mm]
 
 \multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
-  \texttt{seed}, since it voids determinism.}}
+  \texttt{seed}, unless non-determinism is actually a goal.}}
 \stoptabletwo
 
 
-\section{Input Parameters}
+\section{Method Input Parameters}
 \label{sec:input_params}
 
-A method is typically provided with input parameters at build time.
-There are three kinds of method input parameters: \jobids, \datasets,
-and \options.  These parameters are specified early in the method
-source code, such as for example
+There are three kinds of method input parameters assign by
+the \texttt{build} call: \jobids, \datasets, and \options.  These
+parameters are stated early in the method source code, such as for
+example
 \begin{python}
 jobids = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
-The input parameters are then populated by the builder~\ref{chap:urd}.
+The input parameters will then populated by the
+builder~\ref{chap:urd}.
 
 The \texttt{jobids} parameter list is used to input links, or jobids,
 to other jobs, while the \datasets parameter list is used to input
-links to datasets. The \options dictionary is used to input any other
-type of parameters to be used by the method at run time.  Note that
-\jobids and \datasets are tuples (and a single entry has to be
-followed by a comma as in the example above), while \options is a
-dictionary.  Individual elements of the input parameters may be
-accessed with dot notation like this
+links to datasets.  These parameters must be populated by the build
+call.
+
+The \options dictionary, on the other hand, is used to input any other
+type of parameters to be used by the method at run time.  Options must
+not be populated by the build call, and this can be used for ``global
+constants'' in the method.  An option assigned by the build call will
+override this, however.
+
+Note that \jobids and \datasets are \texttt{tuple}s (or \texttt{list}s
+or \texttt{set}s); and a single entry has to be followed by a comma as
+in the example above; while \options is a dictionary.  Individual
+elements of the input parameters may be accessed with dot notation
+like this
 \begin{python}
 jobids.accumulated_cost
 datasets.transaction_log
@@ -471,7 +487,9 @@ sections.
 The \jobids parameter is a tuple of jobids linking this job to other
 jobs.  Inside the running method, each item in the \jobids tuple is of
 type \texttt{str} and may be used as a reference to the corresponding
-job.
+job.  All items in the \jobids tuple must be assigned by the builder to
+avoid run time errors.
+
 
 
 
@@ -479,9 +497,9 @@ job.
 \subsection*{Input Datasets}
 The \datasets parameter is a tuple of links to Datasets.  In the
 running method, each item in the \datasets variable is a tuple of
-objects from the dataset class.  The dataset class is described in a
-dedicated chapter~\ref{chap:datasets}.
-
+objects from the \texttt{Dataset} class that works like
+a \texttt{list} with some add-on functionality.  The \texttt{Dataset}
+class is described in a dedicated chapter~\ref{chap:datasets}.
 All items in the \datasets tuple must be assigned by the builder to
 avoid run time errors.
 
@@ -493,7 +511,9 @@ avoid run time errors.
 The \options parameter is of type \texttt{dict} and used to pass
 various information from the builder to a job.  This information could
 be integers, strings, enumerations, sets, lists, and dictionaries in a
-recursive fashion, with or without default values.
+recursive fashion, with or without default values.  Assigning options
+from the build call is not necessary, but an assignment will override
+the ``default'' that is specified in the method.
 
 Options are straightforward to use, but actually quite advanced, and
 the following sections introduce how to use them both from a formal
@@ -757,7 +777,7 @@ usefile.extras
 
 
 
-\section{Accessing Another Job's Parameters}
+\section{Accessing Another Job's Parameters:  \texttt{job\_params}}
 
 \index{\texttt{job\_params}|textbf}
 The previous sections show that the the \params data structure
@@ -780,7 +800,6 @@ def synthesis():
 
 
 
-\newpage
 
 
 \section{Job Directories}
@@ -813,7 +832,6 @@ directory.
 
 
 
-\clearpage
 \section{Share Data Between Jobs:  the \texttt{blob} Module}
 
 The simplest way to share reasonable amounts of data between jobs is
@@ -879,7 +897,6 @@ def analysis(sliceno):
 \end{python}
 
 
-\clearpage
 \section{Subjobs}
 \index{subjobs}
 
@@ -946,7 +963,6 @@ avoid creating unlimited number of jobs by accident.
 
 
 
-\clearpage
 \section{Summary}
 A recap and bit more flesh on the bones regarding jobs
 \begin{itemize}
@@ -1001,5 +1017,7 @@ workdir name, so a job \texttt{dev-42} may access data in
 It is perfectly fine for a job to dispatch any number of new jobs, and
 these jobs are called \textsl{subjobs}.  A maximum allowed recursion
 depth is defined to avoid infinite recursion.
+
+
 
 

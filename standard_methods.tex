@@ -211,6 +211,10 @@ The \emph{number} type is int or float.
   \texttt{number:int} && \texttt{int}, converts floats to int.\\
 \end{tabular}
 \end{leftbar}
+Integers are enforced using \texttt{number:int}, and the type accepts
+trailing decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This
+is useful when typing datafiles where numbers actually are integers
+but have trailing zero decimals.
 
 
 \subsubsection{Floating Point Numbers}

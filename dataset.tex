@@ -34,13 +34,15 @@ practical situations.  For example, a filtering job may split the
 input Dataset into two or more output Datasets that can be accessed
 independently.
 
-For performance reasons, datasets are typically split into several
-slices, where each data row exists in exactly one of the slices.  The
-actual slicing may be carried out in different ways, like round robin,
-or even random, but an interesting approach is to slice according to
-the hash value of a certain column.  Slicing according to a hashed
-column ensures that all rows with a certain column value always ends
-up in the same slice.
+For performance reasons, datasets are split into several slices, where
+each data row exists in exactly one of the slices.  The actual slicing
+may be carried out in different ways, like round robin, or randomly,
+but an interesting approach is to slice according to the hash value of
+a certain column.  Slicing according to a hashed column ensures that
+all rows with a certain column value always ends up in the same slice.
+Hash-based slicing often makes completely parallel processing of the
+dataset possible, since related data is not spread over different
+slices.
 
 
 
@@ -65,8 +67,9 @@ columns may open and read from the relevant files only.
 
 A technical note: If the number of slices is large and files are
 small, there will be a signinficant overhead from disk \texttt{seek()}
-if using rotating disks.  The Accelerator mitigates this by using
-single files with offset-indexing when appropriate.
+if using rotating disks.  The Accelerator mitigates this by changing
+the storage model to using single files with offset-indexing when
+appropriate.
 
 \begin{figure}[b!]
   \begin{center}
@@ -88,7 +91,14 @@ log file, and each dataset chains to the previous.  Reading the full
 chain will access all log rows.  This has effect on the dataset
 \emph{iterators} (see chapter~\ref{chap:iterators}), which may continue iterating
 over the next dataset in the chain when the current dataset is
-exhausted.
+exhausted.  Here is a an example of how \texttt{csvimport} jobs can be
+chained
+\begin{python}
+jid1 = urd.build('csvimport', options=dict(filename='file1.txt'))
+jid2 = urd.build('csvimport', options=dict(filename='file2.txt'),
+                              datasets=dict(previous=jid1))
+\end{python}
+
 
 
 \section{Slicing and Hashing}
@@ -98,17 +108,18 @@ Datasets are by default sliced into a number of slices specified by
 the Accelerator's configuration file~\ref{sec:configfile}.  Slicing means that the
 rows of data in the dataset are distributed into different sets,
 called slices.  Typically, there is one file on disk for each slice
-and column.  The main reason for doing this is performance.  All files
-could be read in parallel.
+\textsl{and} column.  The main reason for doing this is performance.  All files
+could be read in parallel, and only files relevant to the task at hand
+are read.
 
 Datasets can be sliced in a number of different ways.  A simple method
 is to use round-robin, which cycles through the slices when writing.
 Round-robin will balance the number of rows per slice as equal as
 possible, which is a good thing in many scenarios.  In mathematical
 terms, round robin would be
-\begin{equation}
+\begin{equation*}
   \textrm{row}~n \longrightarrow \textrm{slice}(n~\textrm{mod}~N)
-\end{equation}
+\end{equation*}
 
 Another way is to slice by looking at the values of a fixed single
 column and put all rows with equal values in the same column.  This
@@ -116,17 +127,20 @@ way, data will be sliced ``by content'', and the number of rows per
 slice may vary significantly.  In the context of the Accelerator, this
 is called \emph{hashing}, and a dataset can be hashed on any single
 column.  Written as an equation, it will look like this
-\begin{equation}
+\begin{equation*}
 \textrm{row}~n \longrightarrow \textrm{slice}(\textrm{hash}(\textrm{word})~\textrm{mod}~N)
-\end{equation}
+\end{equation*}
 
 The advantage of this method is that data in each slice becomes
 independent in many application, which is ideal for parallel
+\comment{skriv om!}
 processing of the dataset.  The hash function used by the Accelerator
 is a well-known function called \texttt{siphash24} that is available
 from the \texttt{gzutil} library
 \begin{python}
 from gzutil import siphash24
+
+y = siphash24(x)
 \end{python}
 
 
@@ -156,7 +170,8 @@ d = Dataset('foo-0')
 \end{python}
 In this case, \texttt{d} will be an object based on the default
 dataset residing at jobid \texttt{foo-0}.  If the dataset is stored by
-a different name, it may be accessed like this
+a different name, i.e.\ different from \texttt{default}, it may be
+accessed like this
 \begin{python}
 d = Dataset('foo-0/bar')
 # or
@@ -310,8 +325,7 @@ follow in the next sections.
 
 
 \starttabletwo
-\RPtwo   \texttt{number}     &  float or int\\
-\RPtwo   \texttt{number:int} &  int\\[1ex]
+\RPtwo   \texttt{number}     &  float or int\\[1ex]
    
 \RPtwo   \texttt{float64}   &  64 bit (double) float\\
 \RPtwo   \texttt{float32}   &  32 bit float\\
@@ -340,15 +354,11 @@ follow in the next sections.
 
 \subsection{Arbitrary precision numbers:  \texttt{number}}
 The type \texttt{number} is integer when possible and float otherwise.
-it can handle very large numbers, up to $\pm (2^{1007}-1)$.  Integers
-are enforced using \texttt{number:int}, and it accepts trailing
-decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This is useful
-when typing datafiles where numbers actually are integers but have
-trailing zero decimals.
-
+it can handle very large numbers, up to $\pm (2^{1007}-1)$.
 The \texttt{number} type occupies a minimum of nine bytes on disk,
 where eight is for the number itself and the additional byte is a
 marker.
+
 
 
 \subsection{Standard Fixed Size Numbers}

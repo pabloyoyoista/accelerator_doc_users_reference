@@ -18,90 +18,99 @@
 
 \label{chap:iterators}
 
-Iterators are members of the \texttt{dataset} class.  They are
-available in methods for streaming dataset data one row at a time into
-a program.
+The basic idea of the Accelerator's datasets is to make it really easy
+to create parallel programs that can read or write data at a very high
+speed.  Accessing dataset data is done using \textsl{iterators}, which
+technically are members of the \texttt{Dataset} class.
 
-The iterator iterates over one or more specified data columns.  Each
-output is a tuple corresponding to the specified columns for one data
-row.  In case of iterating over a single column, the output may
+The iterators may iterate over one or more specified data columns.
+Each output is a tuple corresponding to the specified columns for one
+data row.  In case of iterating over a single column, the output may
 optionally be a scalar for more efficient computing.  Iterators can be
 parallel, in \analysis, or sequential, in \prepare or \synthesis.
-There are three iterators available,
+There are three iterators available:
 \begin{itemize}
 \item [] \texttt{iterate()}, for single dataset iteration,
-\item [] \texttt{iterate\_list()} for iterating over a list of datasets, and
-\item [] \texttt{iterate\_chain()} for iterating over dataset chains.
+\item [] \texttt{iterate\_chain()} for iterating over dataset chains, and
+\item [] \texttt{iterate\_list()} for iterating over a list of datasets.
 \end{itemize}
 Many common iterator usecases require only two
 options, \texttt{sliceno} (mandatory) and \texttt{columns}, so a typical call may look like this
 \begin{python}
-for x in dataset.source.iterate(sliceno, ('movie', 'user',)):
+for m, u in dataset.source.iterate(sliceno, ('movie', 'user',)):
+    # do_something_with m and u here...
 \end{python}
 
 All iterators share these arguments
 \starttable
   \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
   over, or \mintinline{python}/None/ to iterate over all slices
-  sequentially. \\
+  sequentially. \\[1ex]
 
   \RP \texttt{columns} & \pyNone & Tuple of column labels or a single name if
-  iterating over one column.\\
+  iterating over one column.  \pyNone selects all columns in alphabetic order.\\[1ex]
 
   \RP \texttt{hashlabel} & \pyNone & Name of hash column.  If the code relies
   on a dataset being hashed on a particular column, set this to make
-  the iterator verify that it is the case.  Execution will terminate
-  if the hashlabel is incorrect.\\
+  the iterator verify that this is actually the case.  Execution will terminate
+  if the hashlabel is incorrect.\\[1ex]
 
-  \RP \texttt{rehash} & \pyFalse & Setting this to \mintinline{python}/True/
-  will rehash the dataset on the fly based on the \texttt{hashlabel}
-  column.  Ideally, rehashing should be made using the
-  \texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}.\\
+  \RP \texttt{rehash} & \pyFalse & Setting this
+  to \mintinline{python}/True/ will rehash the dataset on-the-fly
+  based on the \texttt{hashlabel} column.  (Rehashing on-the-fly is
+  slower, so ideally datasets should be rehashed using
+  the \texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}.)\\[1ex]
   
   \RP \texttt{filters} & \pyNone & Filters decide which rows to include.
-  Explained in section~\ref{sec:filters}\\
+  Explained in section~\ref{sec:filters}\\[1ex]
 
   \RP \texttt{translators} & \pyNone & Translators transform data values.
-  Explained in section~\ref{sec:translators}\\
+  Explained in section~\ref{sec:translators}\\[1ex]
   
   \RP \texttt{status\_reporting} & \pyTrue & Give status when pressing
   \texttt{C-t}.  Unless manually \texttt{zip}ing iterators, this
   should be set to default \mintinline{python}/True/.  See
-  \texttt{dataset.py} for full information.\\
+  \texttt{dataset.py} source code for full information.\\
 \stoptable
 
-In addition, \texttt{iterate\_chain} takes these arguments too
+\noindent In addition, \texttt{iterate\_chain} takes these arguments too
 \starttable
   \RP \texttt{length}&$-1$& Number of datasets in a chain to iterate over.
-  Default is $-1$, which corresponds to all datasets in a chain.\\
+  Default is $-1$, which corresponds to all datasets in a chain.\\[1ex]
   
   \RP \texttt{range}& \pyNone& Filter rows based on a column's value being
-  within a range.\\
+  within a range, see section~\ref{}\\[1ex]
 
   \RP \texttt{sloppy\_range}& \pyFalse & Used with \texttt{range}, but will
   iterate over full datasets for those datasets that have values
-  within range.  This might be faster.\\
+  within range, see section~\ref{}.\\[1ex]
   
   \RP \texttt{reverse}& \pyFalse & Iterate chain
   backwards.  Default is to iterate forward, i.e.\ from oldest to
-  newest dataset.\\
+  newest dataset.\\[1ex]
 
-  \RP \texttt{stop\_ds}& \pyNone & Iterate back to this dataset.\\
+  \RP \texttt{stop\_ds}& \pyNone & Iterate back to this dataset.  Actually, setting
+  this will iterate from \texttt{stop\_ds} to the newest dataset in the chain.\\[1ex]
 
   \RP \texttt{pre\_callback}& \pyNone & A function that will be called before
-  iterating each dataset.\\
+  iterating each dataset.\\[1ex]
 
   \RP \texttt{post\_callback}& \pyNone & A function that will be called after
   iterating each dataset.\\
 \stoptable
-while \texttt{iterate\_list} takes a \texttt{datasets} parameter
+
+\noindent while \texttt{iterate\_list} takes a \texttt{datasets} parameter
 \starttable
   \RP \texttt{datasets} &\pyNone& List of datasets to iterate over.
 \stoptable
 
+
+
 \section{Basic Iteration}
 Basic use include iterating in parallel or serial over one dataset or
 a chain of datasets.
+
+
 
 \subsection*{Parallel Iterator Invocation}
 For parallel iteration in \analysis, the iterator needs to know the
@@ -113,14 +122,17 @@ datasets = ('source',)
 
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in datasets.source.iterate(sliceno, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(sliceno,
+                                              columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 The program creates dictionaries mapping \texttt{user}s to sets of
-\texttt{item}s for the \texttt{source} dataset.  (If we assume that
-the dataset is hashed~\ref{sec:slicing_and_hashing}, this operation is entirely parallel
+\texttt{item}s for the \texttt{source} dataset.  (Assuming that
+the dataset is hashed (see ~\ref{sec:slicing_and_hashing}), this operation is entirely parallel
 and there is no need to merge all the results from the analysis
 processes later.
+
+
 
 \subsection*{Sequential Iterator Invocation}
 By specifying the \texttt{sliceno} parameter to
@@ -129,24 +141,28 @@ the dataset, one at a time, like in this example
 \begin{python}
 def synthesis():
     h = defaultdict(set)
-    for user, item in datasets.source.iterate(None, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(None,
+                                              columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 Slices will be iterated one at at time in increasing order.
 
+
+
 \subsection*{Iterate Over Chains}
 To iterate over several datasets in a chain, use
 \texttt{iterate\_chain}.  The following example will iterate over the
-last three datasets in the chain.
+last three datasets in the chain, oldest dataset first.
 \begin{python}
 datasets = ('source',)
 
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in datasets.source.iterate_chain(sliceno, columns=('user', 'item',), length=3):
+    for user, item in datasets.source.iterate_chain(
+                      sliceno, columns=('user', 'item',), length=3):
         h[user].add(item)
 \end{python}
-using \texttt{iterate\_chain} without explicitly specifying
+Using \texttt{iterate\_chain} without explicitly specifying
 \texttt{length} will default to a \texttt{length} of $-1$, which
 corresponds to all datasets in the chain.
 
@@ -167,6 +183,7 @@ def analysis(sliceno):
 Assuming that \texttt{previous} is a jobid to the previous invocation
 of the method, \texttt{jobids.params.source} will be the
 input \texttt{source} dataset to that job.
+\comment{insert figure here}
 
 
 
@@ -180,9 +197,10 @@ for items in dataset.source.iterate(sliceno, None):
 The iterator will output a tuples populated with all column values for
 each row.  The columns will be in sorted column name order.
 
-Iterators output tuples, but in the case of iterating over a single
-column it is more efficient to output scalars instead.  Here are the
-two different ways to iterate over a single column
+If iterating over a single column, it makes little sense to keep the
+output values in a one-dimensional tuple.  Then, it is probably more
+efficient to output scalars instead.  Here are the two different ways
+to iterate over a single column
 \begin{python}
 # alternative 1, use lists/tuples
 for user in datasets.source.iterate(sliceno, ('USER',)):
@@ -190,7 +208,7 @@ for user in datasets.source.iterate(sliceno, ('USER',)):
 
 # alternative 2, specify column as string, not list
 for user in datasets.source.iterate(sliceno, 'USER',):
-    userset.add(user)
+    userset.add(user)     # user is a scalar!
 \end{python}
 Both styles are supported by filters and translators introduced later
 i this chapter.
@@ -217,17 +235,19 @@ datasets.  Note that a length of $-1$ is default and will iterate
 without bounds.
 
 
-\subsection*{Halting Using \texttt{stop\_id}}
+\subsection*{Halting Using \texttt{stop\_ds}}
 Similar to using \texttt{length}, but will stop when reaching a
 certain dataset.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
     sliceno, ('user', 'item',),
-    stop_jobid = datasets.stopjob):
+    stop_ds = 'foo-3'):
 \end{python}
+Stopping at a constant dataset has limited value.  Next section shows
+how to stop iterating based on previous jobs.
 
-A more advanced, but very useful, method is to stop at a dataset that
-is input to another job
+
+
 \subsection*{Halting Using Another Job's Input Parameters}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
@@ -235,7 +255,7 @@ for user, item in datasets.source.iterate_chain(
     stop_id = {jobids.previous: 'source',}):
 \end{python}
 This will iterate until reaching end or the dataset
-\texttt{job\_params(jobids.preprocess).datasets.source}.
+\texttt{job\_params(jobids.preprocess).datasets.source}, see figure~\ref{fig:}.
 
 
 
@@ -251,9 +271,19 @@ for user, item in datasets.source.iterate_chain(
 \end{python}
 This example will limit the iterator to exactly the range of lines
 that fulfill the range condition.  It is relatively costly to filter
-each line, and there is a speed advantage by specifying
+each line, and there is a speed advantage by instead specifying
 \texttt{sloppy\_range}, which will iterate over all datasets that
-contain part of the range.
+contain part of the range:
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+    sliceno, ('user', 'item',),
+    sloppy_range={timestamp, ('2016-01-01', '2016-01-31'),}):
+\end{python}
+Here, all datasets that \textsl{contain} any line containing values
+within the range will be included in the iteration.  Still, if the
+datasets are sorted, and there are many datasets, there will be a
+limited side-effect caused by reading too many lines, and in many
+cases this could be remedied with little effort.
 
 
 
@@ -261,7 +291,7 @@ contain part of the range.
 By default, iterating over a chain of dataset starts at the oldest
 dataset and ends at the latest dataset.  This behavior can be
 reversed by specifying \mintinline{python}/reverse=True/.  But note
-that row iteration is always in the forward direction within each
+that row iteration is still in the forward direction within each
 dataset!
 \begin{python}
 for user, item in datasets.source.iterate_chain(
@@ -271,24 +301,27 @@ for user, item in datasets.source.iterate_chain(
 
 
 
-\section{Hashed Datasets and Hashing Datasets}
-Hashing a dataset on a particular columns, see~\ref{sec:slicing_and_hashing} may simplify
-the code in methods using the dataset.  This code will not work
-properly if it turns out that it is being fed with unhashed datasets.
-Therefore, it is a good idea to \emph{assert} the hashlabel by
-entering it into the iterator function, like this
+\section{Hashed Datasets and on-the-fly Rehash}
+Hashing a dataset on a particular columns, see
+section~\ref{sec:slicing_and_hashing}, may really simplify the
+parallel programming of methods using the dataset.  however, such
+parallel code will not work properly if it turns out that the input
+data is not hashed in the expected way.  For that reasson, it is a
+good idea to \emph{assert} the hashlabel by entering it into the
+iterator function, like this
 \begin{python}
-s = {user: item for user, item datasets.source.iterate_chain( \
+s = {user: item for user, item datasets.source.iterate_chain(
      sliceno, ('user', 'item',), hashlabel='user')}
 \end{python}
-Execution will terminate if the hashlabel is not correct.
+and execution will terminate if the hashlabel is not correct.
 
-It is possible to rehash the dataset on-the-fly.  This is done by
-setting the \texttt{rehash} argument to the iterator to
+But it is possible to rehash the dataset on-the-fly as well.  This is
+done by setting the \texttt{rehash} argument to the iterator to
 \mintinline{python}/True/.  The preferred way to rehash is to use the
 \texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}, since it will store the
 rehashed dataset for later use, which in most scenarios will be more
 efficient.
+
 
 
 \section{Translators}

@@ -324,6 +324,73 @@ efficient.
 
 
 
+
+
+
+\section{Callbacks}
+\label{sec:callback}
+The iterator may be assigned callback functions that are called before
+starting iterating a new dataset, and after the current dataset is
+exhausted.  There are two independent callbacks for these two cases,
+called \texttt{pre\_callback} and \texttt{post\_callback}.
+If \mintinline{python}/sliceno=None/, i.e.\ iteration runs over all
+slices of all datasets, it is even possible to have callback between
+slice changes.
+
+The example below will print the dataset identifier for each dataset
+prior to iterating over it.
+\begin{python}
+# pre_callback once per dataset
+def prefun(id):
+    print(id)
+
+for user, item in datasets.source.iterate(sliceno, ('user', 'item',),
+                                       pre_callback=prefun):
+    ...
+\end{python}
+Next is an example of an iterator running over all slices.  The
+callback function is executed before each new slice is iterated.  Note
+the difference between this example and the previous.  The callback
+function in this example takes \emph{two} arguments, while the
+previous takes only one.
+\begin{python}
+# callback once per slice
+def prefun(jobid, sliceno):
+    print(sliceno, jobid)
+
+for user, item in datasets.source.iterate(None, ('user', 'item',),
+                                       pre_callback=prefun):
+    ...
+\end{python}
+The \texttt{post\_callback} function is defined similarly.
+
+
+
+\subsection*{Skipping Datasets and Slices from Callbacks}
+It is possible to skip dataset iterations by raising exceptions, as
+follows.  To have the iterator skip a slice, do
+\begin{python}
+# Raise this in pre_callback to skip iterating the coming slice
+# (if your callback doesn't want sliceno, this is the same as SkipJob)
+raise SkipSlice
+\end{python}
+To skip the next dataset do
+\begin{python}
+# Raise this in pre_callback to skip iterating the coing job
+raise SkipJob
+\end{python}
+And to abort iterating completely
+\begin{python}
+# Raise this to quit iterating, but with the side effect that
+# post_callback will not run.
+raise StopIteration
+\end{python}
+
+
+
+
+
+
 \section{Translators}
 \label{sec:translators}
 
@@ -476,61 +543,3 @@ the \texttt{has\_trunk} column exists, and the value is
 
 
 
-\section{Callback}
-\label{sec:callback}
-The iterator may be assigned callback functions that are called before
-starting iterating a new dataset, and after the current dataset is
-exhausted.  There are two independent callbacks for these two cases,
-called \texttt{pre\_callback} and \texttt{post\_callback}.
-If \mintinline{python}/sliceno=None/, i.e.\ iteration runs over all
-slices of all datasets, it is even possible to have callback between
-slice changes.
-
-The example below will print the dataset identifier for each dataset
-prior to iterating over it.
-\begin{python}
-# pre_callback once per dataset
-def prefun(id):
-    print(id)
-
-for user, item in datasets.source.iterate(sliceno, ('user', 'item',),
-                                       pre_callback=prefun):
-    ...
-\end{python}
-Next is an example of an iterator running over all slices.  The
-callback function is executed before each new slice is iterated.  Note
-the difference between this example and the previous.  The callback
-function in this example takes \emph{two} arguments, while the
-previous takes only one.
-\begin{python}
-# callback once per slice
-def prefun(jobid, sliceno):
-    print(sliceno, jobid)
-
-for user, item in datasets.source.iterate(None, ('user', 'item',),
-                                       pre_callback=prefun):
-    ...
-\end{python}
-The \texttt{post\_callback} function is defined similarly.
-
-
-
-\subsection*{Skipping Datasets and Slices from Callbacks}
-It is possible to skip dataset iterations by raising exceptions, as
-follows.  To have the iterator skip a slice, do
-\begin{python}
-# Raise this in pre_callback to skip iterating the coming slice
-# (if your callback doesn't want sliceno, this is the same as SkipJob)
-raise SkipSlice
-\end{python}
-To skip the next dataset do
-\begin{python}
-# Raise this in pre_callback to skip iterating the coing job
-raise SkipJob
-\end{python}
-And to abort iterating completely
-\begin{python}
-# Raise this to quit iterating, but with the side effect that
-# post_callback will not run.
-raise StopIteration
-\end{python}

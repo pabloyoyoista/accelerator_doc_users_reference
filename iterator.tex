@@ -315,12 +315,20 @@ s = {user: item for user, item datasets.source.iterate_chain(
 \end{python}
 and execution will terminate if the hashlabel is not correct.
 
-But it is possible to rehash the dataset on-the-fly as well.  This is
-done by setting the \texttt{rehash} argument to the iterator to
-\mintinline{python}/True/.  The preferred way to rehash is to use the
-\texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}, since it will store the
-rehashed dataset for later use, which in most scenarios will be more
-efficient.
+It is possible to rehash the dataset on-the-fly.  This is done by
+setting the \texttt{rehash} argument to the iterator to
+\mintinline{python}/True/, like this
+\begin{python}
+for user, item in datasets.source.iterate_chain(
+        sliceno, ('user', 'item',),
+        rehash='item'):
+    # only lines with items such that
+    # has(item) % slices == sliceno here
+\end{python}
+While this works, the preferred way to rehash is to use the
+\texttt{dataset\_rehash} method~\ref{sec:dataset_rehash},
+since it will store the rehashed dataset for later use, which in most
+scenarios will be more efficient.
 
 
 
@@ -331,35 +339,40 @@ efficient.
 \label{sec:callback}
 The iterator may be assigned callback functions that are called before
 starting iterating a new dataset, and after the current dataset is
-exhausted.  There are two independent callbacks for these two cases,
+exhausted.  Callbacks are useful for example to aggregate data by
+dataset when iterating over a dataset chain.
+
+There are two independent callbacks for these two cases,
 called \texttt{pre\_callback} and \texttt{post\_callback}.
 If \mintinline{python}/sliceno=None/, i.e.\ iteration runs over all
-slices of all datasets, it is even possible to have callback between
-slice changes.
+slices of all datasets in one process, it is even possible to have
+callback between slice changes.
 
 The example below will print the dataset identifier for each dataset
 prior to iterating over it.
 \begin{python}
 # pre_callback once per dataset
-def prefun(id):
-    print(id)
+def prefun(dataset_id):
+    print(dataset_id)
 
 for user, item in datasets.source.iterate(sliceno, ('user', 'item',),
-                                       pre_callback=prefun):
+                                          pre_callback=prefun):
     ...
 \end{python}
+The argument to the callback is the dataset id to the dataset to be
+iterated next.
+
 Next is an example of an iterator running over all slices.  The
-callback function is executed before each new slice is iterated.  Note
-the difference between this example and the previous.  The callback
-function in this example takes \emph{two} arguments, while the
-previous takes only one.
+callback function is executed before each new slice is iterated.  The
+callback takes two arguments in this scenario, first, the dataset id
+as per the example above, and second the number of the slice.
 \begin{python}
 # callback once per slice
-def prefun(jobid, sliceno):
-    print(sliceno, jobid)
+def prefun(dataset_id, sliceno):
+    print(dataset_id, sliceno)
 
 for user, item in datasets.source.iterate(None, ('user', 'item',),
-                                       pre_callback=prefun):
+                                          pre_callback=prefun):
     ...
 \end{python}
 The \texttt{post\_callback} function is defined similarly.
@@ -368,23 +381,25 @@ The \texttt{post\_callback} function is defined similarly.
 
 \subsection*{Skipping Datasets and Slices from Callbacks}
 It is possible to skip dataset iterations by raising exceptions, as
-follows.  To have the iterator skip a slice, do
+follows.
+\begin{itemize}
+\item [--] To skip the next dataset do
 \begin{python}
-# Raise this in pre_callback to skip iterating the coming slice
-# (if your callback doesn't want sliceno, this is the same as SkipJob)
-raise SkipSlice
-\end{python}
-To skip the next dataset do
-\begin{python}
-# Raise this in pre_callback to skip iterating the coing job
 raise SkipJob
 \end{python}
-And to abort iterating completely
+
+\item [--]  To have the iterator skip a slice, do a
 \begin{python}
-# Raise this to quit iterating, but with the side effect that
-# post_callback will not run.
+raise SkipSlice
+\end{python}
+
+\item [--] And to abort iterating completely
+\begin{python}
 raise StopIteration
 \end{python}
+In this case, a \texttt{post\_callback} will never be run.
+\end{itemize}
+
 
 
 
@@ -396,15 +411,15 @@ raise StopIteration
 
 Translators transform iterator output data values on-the-fly.  A
 translator is either a callable or a \texttt{dict}.  Translators are
-similar to \texttt{filters} (explained later), and always
+similar to \textsl{filters} (explained later), and always
 executed \emph{before} filtering.  The idea behind translators and
-filters is that they provide a way to modify code behavior by
-supplying functions as iterator options.  Using translators and
-filters, it is possible to write re-useable functions that can have
-different behaviour depending on context.
+filters is to provide a way to modify code behavior by supplying
+functions as options to iterators.  Using translators and filters,
+it is possible to write re-useable functions that can have different
+behaviour depending on context.
 
 
-\subsection*{Callable Translator}
+\subsection*{Callable Translator, translating \texttt{tuple}s}
 
 A translator function is a function from an input \texttt{tuple} (of
 column values) to an output \texttt{tuple} of the same length.
@@ -414,8 +429,9 @@ iterator output.  Here is an example
 \begin{python}
 def merger(user, item):
     return ("%s:%s" % (user, item), None)
+
 for merge, _ in datasets.source.iterate_chain(None, ('user', 'item',),
-                                     translator=merger):
+                                              translator=merger):
     ...
 \end{python}
 The purpose of this translator is to convert each
@@ -427,7 +443,7 @@ set arbitrarily to \pyNone.
 
 
 
-\subsection*{Translator \texttt{dict}}
+\subsection*{Translator \texttt{dict}, translating columns independently}
 
 One or more columns may be translated independently using a translator
 dictionary.  Such a dictionary is specified
@@ -442,7 +458,7 @@ for animal in datasets.source.iterate(None, 'NUM_LEGS',
                                       translator={'NUM_LEGS': mapper,}):
     ...
 \end{python}
-This translator will substitute the integers 2,4, and 5 into strings.
+This translator will substitute the integers 2, 4, and 5 into strings.
 Items missing in a translation-\texttt{dict} yield \pyNone.  The next
 example illustrates a callable inside a translator \texttt{dict}.  In
 this example, each \texttt{user} string is output from the iterator
@@ -469,27 +485,27 @@ As for translators, filter are either a callables or a \texttt{dict}s.
 
 
 
-\subsection*{Callable Filter}
+\subsection*{Callable Filter, filtering \texttt{tuple}s}
 
 Callable filters receive the iterator \texttt{tuple} as input.  The
 output of a filter must be \pyTrue for the \texttt{tuple} to be output
-from the iterator, otherwise the iterator skips and continues by
-reading the next row.  The following two examples will iterate over
-all animals that have at least two legs and a trunk.  The first
-example is without filter, using an \texttt{if}-statement, and the
-second example uses iterator \texttt{filters}.
+from the iterator, otherwise the iterator skips and continues to the
+next row.  The following two examples will iterate over all animals
+that have at least two legs and a trunk.  The first example is without
+filter, using an \texttt{if}-statement, and the second example uses
+iterator \texttt{filters}.
 \begin{python}
 # Ex. 1. Using if-statement
 for animal, nlegs, wtrunk in datasets.source.iterate(None,
-    ('animal', num_legs', 'has_trunk'), filters=filter):
-    if nlegs>=2 and wtrunk:
-        ...
+        ('animal', 'num_legs', 'has_trunk'), filters=filter):
+        if nlegs>=2 and wtrunk:
+    ...
 
 # Ex. 2.  Using iterator filters
 filter = lambda line: line[1]>=2 and line[2]
 
 for animal, nlegs, wtrunk in datasets.source.iterate(None,
-    ('animal', num_legs', 'has_trunk'), filters=filter):
+        ('animal', 'num_legs', 'has_trunk'), filters=filter):
     ...
 \end{python}
 Note the indexing in the \texttt{lambda} function.  Index zero
@@ -498,7 +514,7 @@ the filtering expression.
 
 
 
-\subsection*{Filter Dict}
+\subsection*{Filter Dict, filtering independent columns}
 
 It is possible to filter on one or more columns independently using a
 \texttt{dict}.  If there is more than one filter, all filters must be
@@ -511,29 +527,30 @@ validusers={'user1', 'user2', 'user3'}
 filters={'user': validusers.__contains__}
 \end{python}
 The second example will only keep rows with valid users and movie
-items.  The fact that book is \pyFalse is actually redundant, since
-missing keys will never evaluate to \pyTrue and tgus result in
-discarded lines.
+items.
 \begin{python}
 # keep valid users with movie items
 validusers={'user1', 'user2', 'user3'}
 validitems={'movie': True, 'book': False}
 filters={'user': validusers.__contains__, 'item': validitems.get}
 \end{python}
+The fact that book is \pyFalse is actually redundant, since
+missing keys will never evaluate to \pyTrue and thus result in
+discarded lines.
 
 
 
 
 \subsection*{Filter by Column Values}
 
-
-Column values could also be used directly, i.e.\ the values get
-evaluated by Python.  For example, assume there is a column
-\texttt{has\_trunk} with values being boolean integers, i.e.\ \texttt{1}
-or \texttt{0}.  Animals with trunks may be iterated using
+Filtering could also be by column value directly.  For example, assume
+there is a column \texttt{has\_trunk} with values being boolean
+integers, i.e.\ \texttt{1} or \texttt{0}.  Animals with trunks may be
+iterated using
 \begin{python}
-for animal, wtrunk in datasets.source.iterate_chain(None, ('animal', 'has_trunk',),
-                                       filters={'has_trunk': None}):
+for animal, wtrunk in datasets.source.iterate_chain(None,
+                      ('animal', 'has_trunk',),
+                      filters={'has_trunk': None}):
     trunked.add(animal)
 \end{python}
 This may seem strange at first, but it works because the key for

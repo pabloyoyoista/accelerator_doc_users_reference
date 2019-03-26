@@ -481,11 +481,25 @@ before writing data into that slice.  The other is to use one of
 the \texttt{split\_write} functions
 \begin{python}
 dw.get_split_write_dict()({column: value})
+
 dw.get_split_write_list()([value, value, ...])
+
 dw.get_split_write()(value, value, ...)
 \end{python}
 These writers will write round-robin if the dataset is not hashed, and
 to the ``right'' slice if the dataset is hashed.
+
+
+
+\subsection{Stop Writing to a Dataset}
+Normally, there is no need to tell the \texttt{DatasetWriter} that the
+last line of data is written.  This is handled automatically when the
+method exists.  In some situations it makes sense to tell the writer
+to finish, however.  This is done by calling \texttt{finish} as shown
+below
+\begin{python}
+dw.finish()
+\end{python}
 
 
 

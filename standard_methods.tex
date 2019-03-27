@@ -205,12 +205,10 @@ This section describes all typing options in detail.
 
 \subsubsection{Numbers}
 The \emph{number} type is int or float.
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{9cm}}
-  \texttt{number}     && \texttt{int} or \texttt{float} \\
-  \texttt{number:int} && \texttt{int}, converts floats to int.\\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle   \texttt{number}    && \texttt{int} or \texttt{float} \\
+\RPnotitle  \texttt{number:int} && \texttt{int}, converts floats to int.\\
+\stoptablenotitle
 Integers are enforced using \texttt{number:int}, and the type accepts
 trailing decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This
 is useful when typing datafiles where numbers actually are integers
@@ -225,34 +223,33 @@ number.  Then there are \emph{exact} that causes error if the number
 does not fit, and \emph{saturate} that silently saturates a
 non-fitting number.  These can also be used in combination, see table
 below for all alternatives
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{9cm}}
-\texttt{float32} & \texttt{float64} & \emph{default}\\
-\texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
-\texttt{float32e} & \texttt{float64e} & \emph{exact}, error if parsed number does not fit in type \\
-\texttt{float32s} & \texttt{float64s} & \emph{saturate}, saturate to min/max if number does not fit in type \\
-\texttt{float32ei} & \texttt{float64ei} & \emph{exact} + \emph{ignore} \\
-\texttt{float32si} & \texttt{float64si} & \emph{saturate} + \emph{ignore} \\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle \texttt{float32} & \texttt{float64} & \emph{default}\\
+\RPnotitle \texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
+\RPnotitle \texttt{float32e} & \texttt{float64e} & \emph{exact}, error if parsed number does not fit in type \\
+\RPnotitle \texttt{float32s} & \texttt{float64s} & \emph{saturate}, saturate to min/max if number does not fit in type \\
+\RPnotitle \texttt{float32ei} & \texttt{float64ei} & \emph{exact} + \emph{ignore} \\
+\RPnotitle \texttt{float32si} & \texttt{float64si} & \emph{saturate} + \emph{ignore} \\
+\stoptablenotitle
+
+
 
 \subsubsection{Integers}
 Integers are stored as either 32 or 64 bits.  Parsing takes base into
 account, so in addition to decimal numbers, it is also straightforward
 to parse octal and hexadecimal numbers.  The \emph{ignore} option
 causes parsing to ignore trailing garbage characters.
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{9cm}}
-  \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
-  \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
-  \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
-  \texttt{int32\_8i}  & \texttt{int64\_8i}  & \emph{octal}, ignore trailing garbage \\
-  \texttt{int32\_10}  & \texttt{int64\_10}  & \emph{decimal} \\
-  \texttt{int32\_10i} & \texttt{int64\_10i} & \emph{decimal}, ignore trailing garbage \\
-  \texttt{int32\_16}  & \texttt{int64\_16}  & \emph{hexadecimal} \\
-  \texttt{int32\_16i} & \texttt{int64\_16i} & \emph{hexadecimal}, ignore trailing garbage \\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
+\RPnotitle   \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
+\RPnotitle   \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
+\RPnotitle   \texttt{int32\_8i}  & \texttt{int64\_8i}  & \emph{octal}, ignore trailing garbage \\
+\RPnotitle   \texttt{int32\_10}  & \texttt{int64\_10}  & \emph{decimal} \\
+\RPnotitle   \texttt{int32\_10i} & \texttt{int64\_10i} & \emph{decimal}, ignore trailing garbage \\
+\RPnotitle   \texttt{int32\_16}  & \texttt{int64\_16}  & \emph{hexadecimal} \\
+\RPnotitle   \texttt{int32\_16i} & \texttt{int64\_16i} & \emph{hexadecimal}, ignore trailing garbage \\
+\stoptablenotitle
+
 
 
 
@@ -262,14 +259,12 @@ a floating point format in the source data.  This is useful if integer
 data is stored with decimals, such as \texttt{5.0}.  In pseudocode,
 the parsing basically runs \texttt{int(float(value))} for each such
 value.
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{9cm}}
-  \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
-  \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
-  \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
-  \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
+\RPnotitle   \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
+\RPnotitle   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
+\RPnotitle   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
+\stoptablenotitle
 
 
 
@@ -277,19 +272,17 @@ value.
 It is common that a column holds values that are to be interpreted as
 either \texttt{False} or \texttt{True}.  The following types handles
 strings and floats.
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{8cm}}
-  \texttt{strbool} && \mintinline{python}{False} if value in
+\starttablenotitle
+\RPnotitle  \texttt{strbool} && \mintinline{python}{False} if value in
   (\pyFalse, \texttt{0}, \texttt{f}, \texttt{no}, \texttt{off},
-  \texttt{nil}, \texttt{null}, ````)\\ && \mintinline{python}{True}
-  otherwise\\
+  \texttt{nil},\\
+\RPnotitle && \texttt{null}, ````)\\ && \mintinline{python}{True} otherwise\\
 
-  \texttt{floatbool} && \mintinline{python}{True} when float has
+\RPnotitle  \texttt{floatbool} && \mintinline{python}{True} when float has
   bits set. Is \mintinline{python}{False} otherwise.\\
 
-  \texttt{floatbooli} && same + \emph{ignore}\\
-\end{tabular}
-\end{leftbar}
+\RPnotitle  \texttt{floatbooli} && same + \emph{ignore}\\
+\stoptablenotitle
 
 
 
@@ -298,16 +291,14 @@ There are three types relating to time available, \texttt{date},
 \texttt{time}, and \texttt{datetime}.  Each of these has a
 corresponding version that ignores trailing garbage characters.
 All time types require a format specification as described below\\
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{8cm}}
-  \texttt{date:*}      && a date with format specifier\\
-  \texttt{datei:*}     && same + \emph{ignore}\\
-  \texttt{time:*}      && a time with format specifier\\
-  \texttt{timei:*}     && same + \emph{ignore}\\
-  \texttt{datetime:*}  && a date + time with format specifier\\
-  \texttt{datetimei:*} && same + \emph{ignore}\\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle  \texttt{date:*}      && a date with format specifier\\
+\RPnotitle    \texttt{datei:*}     && same + \emph{ignore}\\
+\RPnotitle    \texttt{time:*}      && a time with format specifier\\
+\RPnotitle    \texttt{timei:*}     && same + \emph{ignore}\\
+\RPnotitle    \texttt{datetime:*}  && a date + time with format specifier\\
+\RPnotitle    \texttt{datetimei:*} && same + \emph{ignore}\\
+\stoptablenotitle
 \noindent The format is standard Python time formats, like shown in these examples
 \begin{python}
 # will match for example '2017-03-22'
@@ -324,24 +315,20 @@ There are a number of ways to read string and byte data, depending on
 how the raw input data is to be interpreted.  The basic types are
 shown first, and the more advanced variations and options will be
 described below.
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{8cm}}
-  \texttt{bytes}      && list of bytes\\
-  \texttt{bytesstrip} && list of bytes, strip characters 8-13,32 from start and end\\
-  \texttt{ascii}      && list of ascii characters\\
-  \texttt{asciistrip} && list of ascii characters, strip characters 8-13,32 from start and end\\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle  \texttt{bytes}      && list of bytes\\
+\RPnotitle    \texttt{bytesstrip} && list of bytes, strip characters 8-13, 32 from start and end\\
+\RPnotitle    \texttt{ascii}      && list of ascii characters\\
+\RPnotitle    \texttt{asciistrip} && list of ascii characters, strip characters 8-13, 32 from start and end\\
+\stoptablenotitle
 
 When typing to unicode and ascii, there are several ways to handle
 individual unparsable characters.  For unicode, there are two types,
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{8cm}}
-  \texttt{unicode:*}  && list of unicode characters\\
-  \texttt{unicodestrip:*} && list of unicode characters, strip
-  characters 8-13,32 from start and end\\
-\end{tabular}
-\end{leftbar}
+\starttablenotitle
+\RPnotitle  \texttt{unicode:*}  && list of unicode characters\\
+\RPnotitle    \texttt{unicodestrip:*} && list of unicode characters, strip
+  characters 8-13, 32 from start and end\\
+\stoptablenotitle
 The asterisk represents options that take the form
 \begin{python}
 "codec" #or
@@ -358,15 +345,15 @@ documentation
   \texttt{https://docs.python.org/2/library/codecs.html\#standard-encodings}
 \end{center}
 for more information.  The \texttt{errors} part is optional, and
-can be one of
-\begin{snugshade}
+can be one of\\[1ex]
+
 \begin{tabular}{p{2cm}p{10cm}}
   \texttt{strict} &The default, an error marks this row as bad\\[1ex]
   \texttt{ignore} & All unparsable bytes are discarded.\\[1ex]
   \texttt{replace} & All unparsable bytes are replaced by the unicode
   replacement character ("\texttt{\textbackslash ufffd}").\\[1ex]
-\end{tabular}
-\end{snugshade}
+\end{tabular}\\[1ex]
+
 \noindent Using \texttt{strict} will cause errors if unparsable.  For
 example, typing the string "\texttt{ab\textbackslash xffc}" will give
 an error (\texttt{strict}), "\texttt{abc}" (ignore), or
@@ -375,14 +362,13 @@ an error (\texttt{strict}), "\texttt{abc}" (ignore), or
 
 
 Ascii is similar, there are two types
-\begin{leftbar}
-\begin{tabular}{p{2cm}p{2cm}p{8cm}}
-  \texttt{ascii:*}      && list of ascii characters\\
-  \texttt{asciistrip:*} && list of ascii characters, strip characters 8-13,32 from start and end\\
-\end{tabular}
-\end{leftbar}
-where the argument is one of
-\begin{snugshade}
+\starttablenotitle
+\RPnotitle \texttt{ascii:*}      && list of ascii characters\\
+\RPnotitle \texttt{asciistrip:*} && list of ascii characters, strip characters 8-13,32 from start and end\\
+\stoptablenotitle
+
+\noindent where the argument is one of\\[1ex]
+
 \begin{tabular}{p{2cm}p{10cm}}
   \texttt{strict} & The default, an error marks this row as bad\\[1ex]
   \texttt{ignore} & All unparsable bytes are discarded\\[1ex]
@@ -390,8 +376,7 @@ where the argument is one of
   escapes "\texttt{\textbackslash ooo}"\\[1ex]
   \texttt{encode} & Like replace except "\texttt{\textbackslash}" is also replaced by
   "\texttt{\textbackslash 134}" (for full reversability).\\[1ex]
-\end{tabular}
-\end{snugshade}
+\end{tabular}\\[1ex]
 \noindent Using \texttt{strict} will cause errors if unparsable.
 
 

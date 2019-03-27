@@ -109,6 +109,12 @@
 \def\stoptabletwo{\\[1ex]\hline\end{tabular}\end{snugshade}}
 \def\RPtwo #1&#2{ #1&#2}
 
+\def\starttablenotitle{%
+  \begin{snugshade}
+    \noindent\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{7.8cm}}}
+\def\stoptablenotitle{\end{tabular}\end{snugshade}}
+\def\RPnotitle #1&#2&#3{\hspace*{2ex}#1&#2&#3}
+
 
 %\includeonly{urd}
 

@@ -415,9 +415,9 @@ The most common arguments to \texttt{DatasetWriter} are
 \starttabletwo
 \RPtwo    \texttt{filename}  & if there is a filename associated, store it here\\
 \RPtwo    \texttt{caption}   & additional caption\\
-\RPtwo    \texttt{hashlabel} & name of column specifying hash for slicing\\
+\RPtwo    \texttt{hashlabel} & name of column to hash by when slicing\\
 \RPtwo    \texttt{previous}  & previous Dataset, for chaining\\
-\RPtwo    \texttt{name}      & default set to \texttt{default}\\
+\RPtwo    \texttt{name}      & dataset name, default set to \texttt{default}\\
 \RPtwo    \texttt{parent}    & parent Dataset when adding columns\\
 \stoptabletwo
 
@@ -461,7 +461,9 @@ as the order of the add calls in prepare.  There are a few alternative
 ways of writing data, as shown here
 \begin{python}
 dw.write_dict({column: value})
+
 dw.write_list([value, value, ...])
+
 dw.write(value, value, ...)
 \end{python}
 Several Datasets can be created simultaneously using multiple writers
@@ -491,12 +493,13 @@ to the ``right'' slice if the dataset is hashed.
 
 
 
-\subsection{Stop Writing to a Dataset}
+\subsection{Completing Dataset Creation}
 Normally, there is no need to tell the \texttt{DatasetWriter} that the
 last line of data is written.  This is handled automatically when the
-method exists.  In some situations it makes sense to tell the writer
-to finish, however.  This is done by calling \texttt{finish} as shown
-below
+method exists.  In some situations, such as when a dataset is to be
+used by a \texttt{subjob} launched from the creating method, it is
+necessary to manually tell the writer that the dataset is complete.
+This is done by calling \texttt{finish} as shown below
 \begin{python}
 dw.finish()
 \end{python}

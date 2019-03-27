@@ -27,8 +27,6 @@ customise importing to specific cases.
 
 \subsection{Options}
 
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 \starttable
   \RP \texttt{filename} & \emph{mandatory} & Name of file to import.  The
   filename is mandatory and the file may either be a plain text file
@@ -81,18 +79,14 @@ customise importing to specific cases.
   format errors in the input data.  Setting it to \mintinline{python}{True} makes
   importing silently ignoring any format errors.  It is recommended to
   check the resulting dataset if this option is enabled.\\
-%\end{tabular}
 \stoptable
 
 \subsection{Datasets}
 
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 \starttable
   \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a
   chain.\\
 \stoptable
-  %\end{tabular}
 
 \subsection{Output}
 The result of the \texttt{csvimport} is a dataset named
@@ -139,16 +133,11 @@ only rows with typeable data.
 
 \subsection{Datasets}
 \starttable
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
   \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\
   \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a chain.\\
-%\end{tabular}
 \stoptable
 
 \subsection{Options}
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 \starttable
   \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
 
@@ -176,7 +165,6 @@ only rows with typeable data.
   \RP \texttt{numeric\_comma} & \mintinline{python}{False}& If
   \mintinline{python}{True}, write decimal number as ``\texttt{3,14}'' instead of
   default ``\texttt{3.14}''.\\[1ex]
-%\end{tabular}
 \stoptable
   
 
@@ -393,8 +381,6 @@ for full details.
 
 \subsection*{Options}
 \starttable
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 
   \RP \texttt{filename} & \textsl{mandatory} & Name of output file.
   File will by default be stored in the job's job directory.  The
@@ -421,26 +407,19 @@ for full details.
   exported in a separate file when \mintinline{python}/True/.  If so,
   use \mintinline{python}/"%02d"/ or similar in filename as
   placeholder for the slice number.\\[1ex]
-%\end{tabular}
 \stoptable
 
 \subsection*{Datasets}
 \starttable
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
   \RP \mintinline{python}{[source,]} & \textsl{mandatory} & A single
   dataset or a \textsl{list} of datasets.\\[1ex]
 \stoptable
-%\end{tabular}
 
 
 \subsection*{Jobids}
 \starttable
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
   \texttt{previous} & \mintinline{python}/None/ & Jobid to
   previous \texttt{csvexport} if chained.\\[1ex]
-%\end{tabular}
 \stoptable
 
 
@@ -467,10 +446,6 @@ dataset.  The new dataset will be hashed on a column specified in the
 options.
 
 \subsection*{Options}
-%\begin{snugshade}
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
-%\\
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
 \starttable
   \RP \texttt{hashlabel} & \textsl{mandatory} & column for hashing,
   required.  Note that columns typed as \texttt{list}, \texttt{set},
@@ -486,21 +461,14 @@ options.
 
   \texttt{as\_chain} & \pyFalse & True generates one dataset per slice, False
   generates one dataset.  Default \texttt{False}.\\
-%\\\end{tabular}
-%\end{snugshade}
 \stoptable
 
 
 \subsection*{Datasets}
 
 \starttable
-%\begin{snugshade}
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{8.5cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]\hline\\[1ex]
   \RP \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\[1ex]
   \RP \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\[1ex]
-%\end{tabular}
-%\end{snugshade}
 \stoptable
 
 
@@ -588,12 +556,9 @@ copied.  So execution is typically significantly below a second and no
 redundant data is written to disk.
 
 \subsection*{Options}
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}\hline
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
 \starttable
   \RP \texttt{columns} & \mintinline{python}/[]/ & A list of columns to
   keep.\\[1ex]
-%\end{tabular}
 \stoptable
 
 
@@ -608,10 +573,6 @@ will sort one column at a time.
 
 \subsection*{Options}
 
-%\fbox{
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-%  \hline\\[1ex]
 \starttable
 \RP \texttt{sort\_columns} & \textsl{mandatory} & A column or a list of
   columns.  If a list is specified, sorting will be carried out left
@@ -623,22 +584,14 @@ will sort one column at a time.
   \RP \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
   \mintinline{python}/False/, only sort within slices.  Otherwise sort
   across slices.\\[1ex]
-%\end{tabular}
-%}
 \stoptable
 
 
 \subsection*{Datasets}
-%\fbox{
-%\begin{tabular}{ p{3.2cm} p{1.8cm} p{10cm}}
-%  \textsl{name} & \textsl{default} & \textsl{description}\\[2ex]
-%  \hline\\[1ex]
 \starttable
 \RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
 \RP \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
 \stoptable
-%\end{tabular}
-%}
 
 \subsection{A Practical Limitation}
 Internally, the method works by reading the columns to sort by, and

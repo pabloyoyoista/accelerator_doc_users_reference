@@ -214,7 +214,8 @@ that a change to an imported file will indeed force a re-execution of
 the method if a build is requested.  Additional files are specified in
 the method using the \texttt{depend\_extra} list, as for example:
 \begin{python}
-import my_python_module
+from . import my_python_module
+
 depend_extra = (my_python_module, 'mystuff.data',)
 \end{python}
 As seen in the example, it is possible to specify either Python module

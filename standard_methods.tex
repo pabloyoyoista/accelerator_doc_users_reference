@@ -464,6 +464,22 @@ for full details.
 
 
 
+\subsection{Example Invocation}
+An example invocation is the following
+
+\begin{python}
+urd.build(csvexport',
+    datasets=dict(
+        source='test-3/foo',
+    ),
+    options=dict(
+        filename='output.txt.gz',
+        separator=' ',
+        quote_fields="\'",
+        ),
+    )
+)
+\end{python}
 
 
 
@@ -480,9 +496,9 @@ for full details.
 \section{\texttt{dataset\_rehash} -- Hash Partition a Dataset}
 \label{sec:dataset_rehash}
 
-Dataset rehash will create a new dataset based on its \texttt{source}
-dataset.  The new dataset will be hashed on a column specified in the
-options.
+The \texttt{dataset\_rehash} method will create a new dataset based on
+its \texttt{source} dataset.  The new dataset will be hashed on a
+column specified in the options.
 
 \subsection*{Options}
 \starttable
@@ -513,17 +529,14 @@ options.
 
 
 
-%% \subsection{Example Invocation}
-%% \begin{python}
-%% urd.build('dataset_rehash',
-%%   datasets=dict(
-%%     source=jid,
-%%   ), 
-%%   options=dict(
-%%     hashlabel = 'start_date',
-%%   )
-%% )
-%% \end{python}
+\subsection{Example Invocation}
+An example invocation is the following
+
+\begin{python}
+urd.build('dataset_rehash',
+          datasets=dict(source=jid,), 
+          options=dict(hashlabel='start_date',))
+\end{python}
 
 
 
@@ -536,6 +549,7 @@ a certain column (the \texttt{hashlabel}) of that row.  In code, the
 operation is similar to
 \begin{python}
 from gzutil import siphash
+
 target_sliceno = siphash(cols[hashlabel]) % params.slices
 \end{python}
 
@@ -548,9 +562,9 @@ target_sliceno = siphash(cols[hashlabel]) % params.slices
 
   \item[2.]  Internally, \texttt{dataset\_rehash} always generates one
     dataset per slice in a chain.  This is also what is returned if
-    \mintinline{python}/as\_chain == True/.  Otherwise, all datasets
+    \mintinline{python}/as_chain == True/.  Otherwise, all datasets
     will be concatenated into one.  Thus, there is a choice of either
-    having the output as a chain of datasets or as a single dataset.
+    having the output as a chain of datasets -- or as a single dataset.
     The chain will execute faster, since the concatenation step is
     omitted.
 \end{enumerate}
@@ -583,15 +597,16 @@ target_sliceno = siphash(cols[hashlabel]) % params.slices
 \clearpage
 \section{\texttt{dataset\_filter\_columns} -- Removing Columns from a Dataset}
 
-This method removes columns from a dataset.  It is typically run
-before applying methods that operate on all columns of a dataset when
-only a subset of the columns are required.  A typical example is
-\texttt{dataset\_rehash} that operates on all columns of a dataset.
-If not all columns are needed, time can be saved by removing columns
-using this method prior to applying \texttt{dataset\_rehash}.
+The \texttt{dataset\_rehash} method removes columns from a dataset.
+It is typically run before applying methods that operate on all
+columns of a dataset and only a subset of the columns are required.  A
+typical example is \texttt{dataset\_rehash} that operates on all
+columns of a dataset.  If not all columns are needed, time and storage
+can be saved by removing columns using this method prior to applying
+\texttt{dataset\_rehash}.
 
 Note that this method only updates soft links, and no data is actually
-copied.  So execution is typically significantly below a second and no
+copied.  So execution time is typically a fraction of a second and no
 redundant data is written to disk.
 
 \subsection*{Options}
@@ -608,13 +623,14 @@ redundant data is written to disk.
 \section{\texttt{dataset\_sort} -- Sorting a Dataset}
 The method \texttt{dataset\_sort} is used to sort relatively large
 datasets.  One or more columns may be selected for sorting, and it
-will sort one column at a time.
+will sort one column at a time.  The sorting algorithm is stable.
+\comment{right?}
 
 \subsection*{Options}
 
 \starttable
 \RP \texttt{sort\_columns} & \textsl{mandatory} & A column or a list of
-  columns.  If a list is specified, sorting will be carried out left
+  columns.  If a list is specified, sorting will be carried out from left
   to right.\\[1ex]
 
   \RP \texttt{sort\_order} & \texttt{ascending} & Could be reversed by
@@ -638,9 +654,10 @@ create an indexing column that stipulates the sorting order.  Each
 column is then read in turn and sorted according to the sorting
 column.
 
-Thus, the method has limited sorting capability.  Internally, it sorts
-one column at a time, and it needs to hold that complete column plus
-an indexing column in memory simultaneously.
+Therefore, the method has limited sorting capability.  Internally, it
+sorts one column at a time, and it needs to hold that complete column
+plus an indexing column in memory simultaneously.  Still, a standard
+computer can sort very large datasets without trouble.
 
 
 

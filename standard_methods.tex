@@ -18,11 +18,18 @@
 
 \section{\texttt{csvimport} -- Importing Data Files}
 
-This method is used to import a text file in tabular format (CSV,
-Comma Separated Values) into a dataset.  A wide range of data formats
-is supported, and the method reads plain text files as well as
-\texttt{gzip} compressed files.  A number of options are available to
-customise importing to specific cases.
+The \texttt{csvimport} method is used to import a text files into a
+dataset.  The method can be chained, so any number of text files can
+be connected in a dataset chain.  Input data is assumed to be in a
+tabular format, i.e.\ it is composed of a number of rows, each having
+the same number of columns separated by a separator token.  A common
+format of this type is the Comma Separated Values (CSV) format, but
+\texttt{csvimport} is much more flexible, as seen in the table of
+options below.  For example, \texttt{csvimport} can handle any
+separator character, skip or parse labels on the first line, and
+supports advanced quote support.  It also deals with ``broken'' input
+data in a predicted and user controlled way.
+
 
 
 \subsection{Options}
@@ -81,6 +88,9 @@ customise importing to specific cases.
   check the resulting dataset if this option is enabled.\\
 \stoptable
 
+\comment{info om allow\_bad och var man skall titta!}
+
+
 \subsection{Datasets}
 
 \starttable
@@ -88,15 +98,38 @@ customise importing to specific cases.
   chain.\\
 \stoptable
 
+
+
 \subsection{Output}
 The result of the \texttt{csvimport} is a dataset named
-\texttt{default}.  All columns will be of type \mintinline{python}{bytes}.
+\texttt{default}.  All columns will be of type
+\mintinline{python}{bytes}.  Typically, the dataset from
+\texttt{csvimport} is fed to a \texttt{dataset\_type} job for column
+typing.
 
-%% \subsection{Extra}
-%% The method will create a file \texttt{report.txt}, containing
-%% information about number of rows read and slice distribution, in the
-%% job directory.  In addition, there is a \texttt{default/dataset.txt}
-%% info file about columns as well.
+
+
+\subsection{Example Invocation}
+An example invocation is the following
+
+\begin{python}
+urd.build(csvimport',
+    options=dict(
+        filename='inputfile.txt',
+        separator='\0',
+    )
+)
+\end{python}
+this will import the file \texttt{inputfile.txt} assuming that there
+are labels on the first line and the column separator is a null
+character (\texttt{0x00}, \mintinline{python}|'\0'|).
+
+
+%\subsection{Additional Information}
+%The \texttt{csvimport} method will create a file \texttt{report.txt}
+%in the job directory.  This report file contains information about
+%number of rows read and the slice distribution.  In addition, there is
+%a \texttt{default/dataset.txt} info file about columns as well.
 
 
 
@@ -105,9 +138,9 @@ The result of the \texttt{csvimport} is a dataset named
 
 \clearpage
 \section{\texttt{dataset\_type} -- Typing Datasets}
-This method will read a source dataset and create a new dataset that
-is typed.  This is useful for typing datasets created by
-\texttt{csvimport}.
+The \texttt{dataset\_type} method will read a source dataset and
+create a new dataset that is typed.  This is primarily used for typing
+datasets created by \texttt{csvimport}.
 
 Default behaviour is to append new columns with typed data.  These
 columns will have the same name as the untyped version of the data,
@@ -115,14 +148,17 @@ making the untyped data ``inaccessible'', even if it is still in the
 dataset.  Using the \texttt{rename} options, typed columns could be
 assigned a name that differs from the original columns, so that both
 typed and untyped data is available simultaneously.  This brings
-transparency to the typing process.
+transparency to the typing process.  (But even if the untyped data is
+``inaccessible'' in the typed dataset, it is still available from the
+input dataset.)
 
-Some datasets may have contain data that is incorrect in the sense
-that it causes parsing errors when typing.  Unparseable data could
-either be replaced by a default value or removed from the dataset.
-Removing rows from a dataset is not possible.  Instead, the
-\texttt{dataset\_type} method will create a new dataset containing
-only rows with typeable data.
+In order to type the data, it is subject to parsing.  Some datasets
+may have contain data that is incorrect in the sense that it causes
+parsing errors when typing.  Unparseable data could either be replaced
+by a default value or removed from the dataset.  Since the dataset
+type does not permit removal of rows, \texttt{dataset\_type} will
+create a new dataset containing only the rows containing typeable
+data.  \comment{vad hander med den skuggade indatan då?}
 
 
 
@@ -133,14 +169,12 @@ only rows with typeable data.
 
 \subsection{Datasets}
 \starttable
-  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\
+  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
   \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a chain.\\
 \stoptable
 
 \subsection{Options}
 \starttable
-  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
-
   \RP \texttt{column2type} & \mintinline{python}/{}/ & A dictionary from column
   label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\[1ex]
 
@@ -156,7 +190,7 @@ only rows with typeable data.
   and the column with the new name will contain the typed
   data. \\[1ex]
 
-  \RP \texttt{caption} & \textsl{empty string} & A caption.\\[1ex]
+  \RP \texttt{caption} & \textsl{empty string} & A caption.\\[4ex]
 
   \RP \texttt{discard\_untyped} & \mintinline{python}{None}& Force creation of new dataset.\\[1ex]
 
@@ -175,29 +209,34 @@ only rows with typeable data.
 An example invocation is the following
 
 \begin{python}
-urd.build('dataset_type', ...,
-  options=dict(
-    column2type=dict(
-      auct_start_dt='datetime:%Y-%m-%d',
-      brand='json',
-      item_id='number',
-      comp='unicode:utf-8',
+urd.build('dataset_type',
+    datasets=dict(
+        source=...,
+        previous=...,
     ),
-  )
+    options=dict(
+        column2type=dict(
+            auct_start_dt='datetime:%Y-%m-%d',
+            brand='json',
+            item_id='number',
+            comp='unicode:utf-8',
+        ),
+    )
+)
 \end{python}
 
 
 
 \subsection{Typing}
-This section describes all typing options in detail.
+This section describes all typing possibilities in detail.
 
 \subsubsection{Numbers}
-The \emph{number} type is int or float.
+The \texttt{number} type is integer or floating point.
 \starttablenotitle
 \RPnotitle   \texttt{number}    && \texttt{int} or \texttt{float} \\
-\RPnotitle  \texttt{number:int} && \texttt{int}, converts floats to int.\\
+\RPnotitle  \texttt{number:int} && \texttt{int}, will convert floats to ints.\\
 \stoptablenotitle
-Integers are enforced using \texttt{number:int}, and the type accepts
+\noindent Integers are enforced using \texttt{number:int}, and the type accepts
 trailing decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This
 is useful when typing datafiles where numbers actually are integers
 but have trailing zero decimals.
@@ -310,14 +349,14 @@ described below.
 \RPnotitle    \texttt{asciistrip} && list of ascii characters, strip characters 8-13, 32 from start and end\\
 \stoptablenotitle
 
-When typing to unicode and ascii, there are several ways to handle
+\noindent When typing to unicode and ascii, there are several ways to handle
 individual unparsable characters.  For unicode, there are two types,
 \starttablenotitle
 \RPnotitle  \texttt{unicode:*}  && list of unicode characters\\
 \RPnotitle    \texttt{unicodestrip:*} && list of unicode characters, strip
   characters 8-13, 32 from start and end\\
 \stoptablenotitle
-The asterisk represents options that take the form
+\noindent The asterisk represents options that take the form
 \begin{python}
 "codec" #or
 "codec/errors"

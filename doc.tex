@@ -90,9 +90,9 @@
 
 
 % Table macros
-\definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
 % table with three columns
 \def\starttable{%
+  \definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
   \begin{snugshade}
     \noindent\begin{tabular}{@{}p{3.2cm}p{1.8cm}p{8cm}}\hline\\[-1ex]
       \textbf{name} & \textbf{default} & \textbf{description}\\[1ex]
@@ -102,6 +102,7 @@
 
 % table with two columns
 \def\starttabletwo{%
+  \definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
   \begin{snugshade}
     \noindent\begin{tabular}{@{}p{5.0cm}p{8cm}}\hline\\[-1ex]
       \textbf{name} & \textbf{description}\\[1ex]
@@ -110,6 +111,7 @@
 \def\RPtwo #1&#2{ #1&#2}
 
 \def\starttablenotitle{%
+  \definecolor{shadecolor}{rgb}{0.93,0.96,0.99}
   \begin{snugshade}
     \noindent\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{7.8cm}}}
 \def\stoptablenotitle{\end{tabular}\end{snugshade}}

@@ -963,10 +963,14 @@ def analysis(sliceno):
 
 
 
-\section{Summary}
-A recap and bit more flesh on the bones regarding jobs
+
+\section{Jobs - a Summary}
+The concepts relating to Accelerator jobs are fundamental, and this
+section provides a shorter summary about the basic concepts.
+
 \begin{itemize}
-\item[1.]  Data and metadata relating to a job is stored in a job directory.
+\item[1.]  Data and metadata relating to a job is stored in a
+job directory.
 \item[2.]  Jobids are pointers to such job directories.
 \end{itemize}
 The files stored in the job directory at dispatch are complete in the
@@ -975,9 +979,10 @@ the Accelerator job dispatcher actually just creates processes and
 points them to the job directory.  New processes have to go and figure
 out their purpose by themselves by looking in this directory.
 
-A running job has its \textsl{current working directory} pointing into
-the job directory, so any files created by the job (including return
-values) will by default be stored in the job's directory.
+A running job has the process' \textsl{current working directory
+(CWD)} pointing into the job directory, so any files created by the
+job (including return values) will by default be stored in the job's
+directory.
 
 When a job completes, the meta data files are updated with profiling
 infomation, such as execution time spent in single and parallel

@@ -364,84 +364,6 @@ is straightforward to merge using \texttt{merge\_auto}.
 
 
 
-
-
-
-\section{Method Parameters:  \texttt{params}}
-
-There are two sources of parameters to a running method,
-\begin{itemize}
-\item [] parameters from the caller, i.e.\ the \texttt{build()}-call, and
-\item [] parameters assigned by the Accelerator when the job starts building.
-\end{itemize}
-All parameters are available in the \texttt{params} dictionary.  Build
-parameters will be described thoroughly in
-section~\ref{sec:input_params}, and parameters from the Accelerator
-will be brought up at the end of this section.
-
-Consider the following example method that pretty-prints
-the \texttt{params} variable.  Note that the method explicitly expects
-input parameters to be assigned by the caller in the \jobids
-and \datasets constants, while \options keeps the default value unless
-assigned in the build call.
-
-\begin{python}
-import json
-
-jobids = ('jid',)
-datasets = ('source', 'parent',)
-options = dict(mode='testing', length=3)
-
-def synthesis(params):
-    print(json.dumps(params, indent=4))
-\end{python}
-Here is the corresponding output.
-\begin{leftbar}
-\begin{minted}{json}
-{
-    "package": "dev",
-    "method": "my_example_method",
-    "jobid": "EXAMPLE-12",
-    "starttime": 1520652213.4547446,
-    "slices": 16,
-    "options": {
-        "mode": "testing",
-        "length": 3
-    },
-    "datasets": {
-        "source": "EXAMPLE-3",
-        "parent": "EXAMPLE-2"
-    },
-    "caption": "fsm_my_example_method",
-    "seed": 53231916470152325,
-    "jobids": {
-        "jid": "EXAMPLE-0"
-    },
-    "hash": "42af401251840b3798e9e78da5b5c5b4ef525ecc"
-}
-\end{minted}
-\end{leftbar}
-\noindent and a description of its keys
-\starttabletwo
-\RPtwo   \texttt{package} & Python package for this method\\
-\RPtwo   \texttt{method} & name of this method\\
-\RPtwo   \texttt{jobid} & jobid of this job\\[1ex]
-
-\RPtwo   \texttt{starttime}& start time in epoch format\\
-\RPtwo   \texttt{caption} & a caption\\
-\RPtwo   \texttt{slices} & number of slices of current Accelerator configuration \\
-\RPtwo   \texttt{seed} & a random seed available for use$^1$\\
-\RPtwo   \texttt{hash} & source code hash value\\[1ex]
-
-\RPtwo   \texttt{options} & input parameter\\
-\RPtwo   \texttt{dataset} & input parameter\\
-\RPtwo   \texttt{jobids} &  input parameter\\[1ex] \hline\\[-2mm]
-
-\multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
-  \texttt{seed}, unless non-determinism is actually a goal.}}
-\stoptabletwo
-
-
 \section{Method Input Parameters}
 \label{sec:input_params}
 
@@ -775,6 +697,82 @@ usefile.extras
 %% empty as in the example above, and should hold the filename extension.
 %% \comment{Will be changed?!}
 %% \comment{Example of how to use jobwithfile in analysis and prepare/synthesis.  how does slice work?  How does extras work?}
+
+
+
+\section{Reading all Method Parameters:  \texttt{params}}
+
+There are two sources of parameters to a running method,
+\begin{itemize}
+\item [] parameters from the caller, i.e.\ the \texttt{build()}-call, and
+\item [] parameters assigned by the Accelerator when the job starts building.
+\end{itemize}
+All parameters are available in the \texttt{params} dictionary.  Build
+parameters will be described thoroughly in
+section~\ref{sec:input_params}, and parameters from the Accelerator
+will be brought up at the end of this section.
+
+Consider the following example method that pretty-prints
+the \texttt{params} variable.  Note that the method explicitly expects
+input parameters to be assigned by the caller in the \jobids
+and \datasets constants, while \options keeps the default value unless
+assigned in the build call.
+
+\begin{python}
+import json
+
+jobids = ('jid',)
+datasets = ('source', 'parent',)
+options = dict(mode='testing', length=3)
+
+def synthesis(params):
+    print(json.dumps(params, indent=4))
+\end{python}
+Here is the corresponding output.
+\begin{leftbar}
+\begin{minted}{json}
+{
+    "package": "dev",
+    "method": "my_example_method",
+    "jobid": "EXAMPLE-12",
+    "starttime": 1520652213.4547446,
+    "slices": 16,
+    "options": {
+        "mode": "testing",
+        "length": 3
+    },
+    "datasets": {
+        "source": "EXAMPLE-3",
+        "parent": "EXAMPLE-2"
+    },
+    "caption": "fsm_my_example_method",
+    "seed": 53231916470152325,
+    "jobids": {
+        "jid": "EXAMPLE-0"
+    },
+    "hash": "42af401251840b3798e9e78da5b5c5b4ef525ecc"
+}
+\end{minted}
+\end{leftbar}
+\noindent and a description of its keys
+\starttabletwo
+\RPtwo   \texttt{package} & Python package for this method\\
+\RPtwo   \texttt{method} & name of this method\\
+\RPtwo   \texttt{jobid} & jobid of this job\\[1ex]
+
+\RPtwo   \texttt{starttime}& start time in epoch format\\
+\RPtwo   \texttt{caption} & a caption\\
+\RPtwo   \texttt{slices} & number of slices of current Accelerator configuration \\
+\RPtwo   \texttt{seed} & a random seed available for use$^1$\\
+\RPtwo   \texttt{hash} & source code hash value\\[1ex]
+
+\RPtwo   \texttt{options} & input parameter\\
+\RPtwo   \texttt{dataset} & input parameter\\
+\RPtwo   \texttt{jobids} &  input parameter\\[1ex] \hline\\[-2mm]
+
+\multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
+  \texttt{seed}, unless non-determinism is actually a goal.}}
+\stoptabletwo
 
 
 

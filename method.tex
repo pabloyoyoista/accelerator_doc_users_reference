@@ -262,7 +262,7 @@ methods like \texttt{csvimport} are good examples of this.
 
 
 
-\section{Method Calling Functions}
+\section{Method Execution}
 
 Methods are not executed from top to bottom.  Instead, there are three
 functions that are called by the method dispatcher that controls the
@@ -524,6 +524,8 @@ options = dict(
 
 The following sections will describe typing in more detail.
 
+
+
 \subsubsection{Unspecifieds}
 An option with no typing may be specified by assigning \texttt{None}.
 \begin{python}
@@ -569,7 +571,6 @@ In some situations, an example string is convenient
 from extras import OptionString
 options = dict(name=OptionString('bar') # Requires non-empty string,
                                         # provides example (NOT default value)
-
 \end{python}
 Note that ``\texttt{bar}'' is not default, it just gives the
 programmer a way to express what is expected.
@@ -623,6 +624,7 @@ options=dict(foo={int})
 \end{python}
 Here too, both \mintinline{python}/None/ or the empty \texttt{set} is
 accepted, and \mintinline{python}/None/ is a valid set member.
+
 
 
 \subsubsection*{Date and Time}
@@ -840,7 +842,7 @@ inside a method is as follows, assuming we build the jobs in \prepare
 import subjobs
 
 def prepare():
-  subjobs.build('count_items', options=dict(length=3))
+    subjobs.build('count_items', options=dict(length=3))
 \end{python}
 It is possible to build subjobs in \prepare and \synthesis, but not in
 \analysis.    The \texttt{subjobs.build} call uses the
@@ -887,7 +889,7 @@ import subjobs
 depend_extra = ('a_childjob.py',)
 
 def prepare():
-  subjobs.build('childjob')
+    subjobs.build('childjob')
 \end{python}
 \end{enumerate}
 Furthermore, there is a limit to the recursion depth of subjobs, to

@@ -16,14 +16,14 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Accelerator is a tool for fast data processing, capable of working
+The Accelerator is a tool for fast reproducible data processing, capable of working
 at high speed with terabytes of data with billions of rows on a single
 computer.  Typical applications include data analysis work as well as
 live production systems for various data processing tasks, such as
 recommendation systems, and more.  It has a small footprint and runs
 on laptops as well as rack servers.
 
-It was first used in 2012, and has been continuously developed and
+The Accelerator was first used in 2012, and has been continuously developed and
 improved since.  It has been in use in projects for companies like
 Safeway, Starbucks, eBay, Ericsson, and Vodafone.  Most project have
 been related to data analysis, some to optimisation, and some projects
@@ -63,6 +63,10 @@ goals are
 
 \item[] Data rates should be as fast as possible.  It should be
   possible to process large datasets, even on commodity hardware.
+
+\item[] Any processing step should be \textsl{reproducible}.
+The Accelerator maps any output to its corresponding input data and
+processing.
 
 \item[] Never recompute old results, always recycle jobs, when
   possible.  Also, sharing results between multiple users should be

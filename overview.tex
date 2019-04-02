@@ -1,4 +1,3 @@
-\comment{Mention urd and its features - or at least make clear it is not covered here!}
 
 This chapter presents an overview of the Accelerator's features in a
 rather non-formal way.  It is based on an article published on the
@@ -25,11 +24,14 @@ important features are as follows.  On the left side there is a
 scripts, called \texttt{build scripts}, that execute jobs on the
 \texttt{daemon} server.  This server will load and store information
 and results for all jobs executed using the \textsl{workdirs} file
-system based database.  In parallel, all jobs covered by a build
-script will be stored by the \texttt{urd} server into the \textsl{job
-  logs} file system database.  \texttt{urd} is also responsible for
-finding collections, or lists, of related previously executed jobs.
+system based database.
 
+In parallel, all jobs covered by a build script may be stored by
+the \texttt{urd} server into the \textsl{job logs} file system
+database.  \texttt{urd} is also responsible for finding collections,
+or lists, of related previously executed jobs.  The \texttt{urd}
+server is very capable and helps ensuring reproducability and
+transparency, and its details are not covered in this chapter.
 
 
 \section{Jobs:  Executing Code}
@@ -106,16 +108,19 @@ different physical locations, and jobs may be shared between users on
 the workdir level.  A running Accelerator could have any number of
 workdirs associated, but only one at a time for writing.
 
-\subsection{Linking Jobs}
-\comment{The Accelerator makes it easy to split complex tasks into several
-smaller operations.  Several jobs may be connected so that the next
-job will depend on the result of a previous job or jobs.}  Assume that
-the job that we just run was computationally expensive, and that it
-returned a result that we'd like to use as input to further
-processing.
 
-To keep things simple, we demonstrate the principle by creating a
-method that just reads and prints the result from the previous job to
+
+\subsection{Linking Jobs}
+
+The Accelerator makes it easy to split complex tasks into several
+smaller operations.  Several jobs may be connected so that the next
+job will depend on the result of a previous job or set of jobs.
+
+Assume that the job that we just run was computationally expensive,
+and that it returned a result that we'd like to use as input to
+further processing.  To keep things simple, we demonstrate the
+principle by creating a method that just reads and prints the result
+from the previous job to
 \texttt{stdout}.  We create a new method \texttt{print\_result}, and it
 goes like this
 \begin{python}
@@ -152,14 +157,14 @@ arrows point to previous jobs.)
   \end{center}
 \end{figure}
 
-\comment{
 A complex task is split into several jobs, each reading intermediate
 results from previous jobs.  The Accelerator will keep track of all
 job dependencies, so there is no doubt which jobs that are run when
 and on which data.  Furthermore, since the Accelerator remembers if a
 job has been executed before, it will link and ``recycle'' previous
-jobs, which brings a great execution speed advantage.
-}
+jobs, which brings a great execution speed advantage.  A recycled job
+is the proof of that the code, input- and output data is connected.
+
 
 \section{Datasets: Storing Data}
 

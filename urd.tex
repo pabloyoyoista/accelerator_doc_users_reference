@@ -98,10 +98,14 @@ file
 \begin{python}
 def main(urd):
     urd.begin('process/test')
-        import_session = urd.latest('import/txn')
-        import_timestamp = import_session.timestamp
-        import_jobid = import_session.joblist.jobid
-        urd.build('process', datasets=dict(source=import_jobid))
+
+    import_session = urd.latest('import/txn')
+
+    import_timestamp = import_session.timestamp
+    import_jobid     = import_session.joblist.jobid
+
+    urd.build('process', datasets=dict(source=import_jobid))
+
     urd.finish('process/test', import_timestamp)
 \end{python}
 Here, the recently created urd session, \texttt{import/txn}, is

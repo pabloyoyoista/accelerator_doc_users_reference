@@ -85,10 +85,9 @@ data in a predicted and user controlled way.
   is the default, \texttt{csvimport} will assert an error if there are
   format errors in the input data.  Setting it to \mintinline{python}{True} makes
   importing silently ignoring any format errors.  It is recommended to
-  check the resulting dataset if this option is enabled.\\
+  check the resulting dataset if enabling this option!\\
 \stoptable
 
-\comment{info om allow\_bad och var man skall titta!}
 
 
 \subsection{Datasets}
@@ -158,7 +157,7 @@ parsing errors when typing.  Unparseable data could either be replaced
 by a default value or removed from the dataset.  Since the dataset
 type does not permit removal of rows, \texttt{dataset\_type} will
 create a new dataset containing only the rows containing typeable
-data.  \comment{vad hander med den skuggade indatan då?}
+data.
 
 
 
@@ -623,8 +622,13 @@ redundant data is written to disk.
 \section{\texttt{dataset\_sort} -- Sorting a Dataset}
 The method \texttt{dataset\_sort} is used to sort relatively large
 datasets.  One or more columns may be selected for sorting, and it
-will sort one column at a time.  The sorting algorithm is stable.
-\comment{right?}
+will sort one column at a time.  The sorting algorithm is stable,
+meaning that things with equal sorting keys will keep their order.
+
+A note on sorting using Python3:  Neither of \pyNone nor
+\mintinline{python}|Nan| are valid inputs values for sorting!
+
+
 
 \subsection*{Options}
 

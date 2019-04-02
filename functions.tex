@@ -1,0 +1,144 @@
+%\section{Other Useful Functions}
+%The \texttt{extras} module contains a set of useful functions
+
+\section{Share Data Between Jobs:  the \texttt{blob} Module}
+
+The simplest way to share reasonable amounts of data between jobs is
+by using the \texttt{blob} module.  Note that the Accelerator will set
+the ``current work directory'' to the current job directory when
+building a method, so all files created by a job will be stored in the
+current job directory, unless the filename contains a path pointing
+elsewhere.
+
+\subsection*{Storing a  Single File}
+Data is saved in this way
+\begin{python}
+import blob
+def synthesis():
+    data = ...  # some data created here
+    blob.save(data, filename)
+\end{python}
+The data is loaded like this
+\begin{python}
+import blob
+def synthesis()
+    blob.load(filename)
+\end{python}
+
+
+
+\subsection{Storing a Sliced File}
+It is also possible to use the \texttt{blob} module in \analysis.
+From a user's perspective it will look like a single file is being
+handled, but there is actually one file per slice.  This is how to do
+it
+\begin{python}
+def analysis(sliceno):
+    # save data in slices like this
+    blob.save(data, filename, sliceno=sliceno)
+    # load like this
+    data = blob.load(filename, sliceno=sliceno)
+\end{python}
+
+
+
+\subsection{Save Files for Debugging}
+There is one more argument, \texttt{temp}, which controls persistence
+of the files.  It is by default set to \mintinline{python}/False/,
+which implies that the stored file is not temporary.  But setting it
+to \mintinline{python}/True/, like in the following
+\begin{python}
+    blob.save(data, filename, temp=True)
+\end{python}
+will cause the stored file to be deleted upon job completion.  The
+argument takes two additional values, \texttt{DEBUG} and
+\texttt{DEBUGTEMP}, working like this
+\begin{itemize}
+\item[] \texttt{DEBUG} -- file will be stored \emph{only} in debug
+  mode
+\item[] \texttt{DEBUGTEMP} -- file will always be stored, but
+  \emph{removed} upon job completion only in debug mode.
+\end{itemize}
+Example
+\begin{python}
+from extras import Temp
+def analysis(sliceno):
+  # save only if --debug
+  blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
+  # save always, but remove unless --debug
+  blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
+\end{python}
+
+
+
+\section{Find the Full Path of a File in Another Job}
+Accessing a file stored in another job from within a method or build
+script is simple, and the functionality is implemented
+in \texttt{resolve\_jobid\_filename()}.  The function takes two
+arguments, a \textsl{jobid} and a \textsl{filename}.  See the example
+below
+\begin{python}
+from jobid import resolve_jobid_filename
+
+jobids = ('oldjob',)
+
+def synthesis():
+    filename = resolve_jobid_filename(jobids.oldjob, 'nameoffile')
+\end{python}
+Note that this function works in a build script as well.
+
+
+
+\section{Symlinking}
+Creating a symlink, for example from the \texttt{result\_directory} to
+current workdir, may be implemented in a very simple and safe way like
+this
+\begin{python}
+from extras import symlink
+
+def synthesis(RESULT_DIRECTORY):
+    ...
+    with open(filename, 'wb') as fh:
+         fh.write(...)
+    symlink(filename, RESULT_DIRECTORY)
+\end{python}
+The \texttt{extras.symlink} function will write a soft link
+to \texttt{filename} in \texttt{RESULT\_DIRECTORY}, overwriting it if
+it already exists.
+
+\subsection{job\_params}
+
+\subsection{job\_post}
+
+\subsection{json\_encode}
+
+\subsection{json\_decode}
+
+\subsection{json\_save}
+
+\subsection{json\_load}
+
+
+
+\subsection{blob\_load}
+tar option \texttt{default=} som returneras ifall filen inte finns,
+se koden.  Verkar som att det bombar om filen inte finns och default är None.
+(Så defaultvärdet kan inte vara None alltså.)
+
+
+\subsection{blob\_save}
+
+\subsection{DotDict}
+
+\subsection{OptionEnum}
+
+\subsection{OptionString}
+
+\subsection{RequiredOption}
+
+\subsection{OptionDefault}
+
+\subsection{gzutil}
+\begin{python}
+with gzutil.GzUnicodeLines(filename, strip_bom=True) as fh:
+\end{python}

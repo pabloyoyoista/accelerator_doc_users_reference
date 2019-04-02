@@ -1,40 +1,9 @@
-There are three main components in the Accelerator framework, the
-\texttt{daemon}, the \texttt{runner}, and \texttt{urd}.  How to
-configure and run these components is the topic of this chapter.
+%There are three main components in the Accelerator framework, the
+%\texttt{daemon}, the \texttt{runner}, and \texttt{urd}.  How to
+%configure and run these components is the topic of this chapter.
 
 
-\section{Daemon}
-
-\subsection{Invocation}
-
-\begin{verbatim}
-daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
-\end{verbatim}
-
-Optional arguments
-\begin{snugshade}
-\begin{tabular}{p{4cm}p{9cm}}
-  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
-  exit.\\[4ex]
-
-  \texttt{---debug} & Start in debug mode.  See section~\ref{MORE_INFO_ABOUT_DEBUG_FLAG}\\[2ex]
-  
-  \texttt{---config CONFIG\_FILE} & configuration file, default
-  \texttt{../conf/framework.conf}\\[4ex]
-
-  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
-
-  \texttt{---socket SOCKET} & listen on unix socket, default
-  \texttt{socket.dir/default}\\[4ex]
-\end{tabular}
-\end{snugshade}
-The Accelerator and Runner will connect using a unix socket by
-default.  There is no need to configure anything.  Setting a port will
-make communication happen over that port instead.
-
-
-
-\subsection{Configuration File}
+\section{Daemon Configuration File}
 \label{sec:configfile}
 
 The Accelerator is shipped with a configuration file template with
@@ -51,7 +20,7 @@ the \texttt{import} workdir as well.
 Methods available for use are the \texttt{standard\_methods} bundled
 with the Accelerator, and methods defined in the
 directory \texttt{dev} (if they are defined in \texttt{dev/methods.conf}).
-\begin{leftbar}
+%\begin{leftbar}
 \begin{shell}
 workdir=import:${HOME}/accelerator/workdirs/import:16
 workdir=processing:${HOME}/accelerator/workdirs/processing:16
@@ -71,7 +40,7 @@ logfilename=${HOME}/accelerator/daemon.log
 py2=/usr/bin/python2.7
 py3=/usr/bin/python3.5
 \end{shell}
-\end{leftbar}
+%\end{leftbar}
 \noindent and here are explanations to all keywords
 \starttabletwo
 
@@ -138,6 +107,222 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 
 \clearpage
+
+\section{Setting up Urd}
+\subsubsection{The Urd Source Files}
+
+Urd is included in the \texttt{accelerator} repository, in the
+subdirectory \texttt{accelerator/urd}.
+\comment{but we add this as executable in the package!}
+
+
+\subsubsection{Dependencies}
+Urd requires the \texttt{bottle} library to run.  It is bundled with
+Debian-like systems, and can be installed by
+\begin{shell}
+sudo apt-get install python-bottle
+\end{shell}
+It can also be downloaded from the project's home page
+\begin{verbatim}
+https://bottlepy.org/docs/dev/
+\end{verbatim}
+as a single python file, \texttt{bottle.py}.  This file should be put
+in the \texttt{accelerator/urd} directory.
+
+
+
+\subsubsection{Creating a Database}
+A new database is created by making a new directory and adding
+a \texttt{passwd} file to it.  Urd takes care of the rest.  In
+practice,
+\begin{shell}
+mkdir database_root
+vi database_root/passwd
+\end{shell}
+where \texttt{vi} is just an editor picked by random.
+
+
+\subsubsection{Starting Urd}
+Urd is running as a daemon.  It is started like this (make sure
+to \texttt{cd} into the \texttt{accelerator/urd}-directory.
+\begin{shell}
+./urd.py --path=<database_root> --port=<port>
+\end{shell}
+Where \texttt{<database\_root>} is a path to an Urd database,
+and \texttt{<port>} is a port number, for example \texttt{6502}.
+
+\subsection{The Urd Database}
+The Urd database has the following structure
+\begin{verbatim}
+database_root/
+    passwd
+    database/
+        user1/
+            list1
+            list2
+        user2/
+            list3
+\end{verbatim}
+
+\subsubsection{The \texttt{passwd} file}
+The \texttt{passwd} file stores write access authentication.  The file
+format is straightforward, each line is a user--password pair as follows
+\begin{verbatim}
+user:password
+\end{verbatim}
+For example, if the file contains the following line
+\begin{verbatim}
+ab:secret
+\end{verbatim}
+A build script issued like this
+\begin{shell}
+URD_AUTH=ab:secret ./automatarunner test
+\end{shell}
+will have write access to all lists belonging to the user \texttt{ab},
+such as for example the \texttt{ab/test} and \texttt{ab/import} lists.
+But it can not write to lists belonging to other users, such
+as \texttt{cd/import}.  It can read all lists, though.
+
+
+\subsection{Authorization the \texttt{runner} to Urd}
+As mentioned also elsewhere\comment{cleanup}...
+Authorisation to Urd could be set in the \texttt{URD\_AUTH}
+environment variable.  A common way to invoke the runner with Urd
+authorisation is like this
+\begin{shell}
+% URD_AUTH=user:passwd ./runner [script]
+\end{shell}
+Note that the purpose of the authentication is
+actually \textsl{identification}.  It is used to get write access to
+certain Urd lists.  Nothing more.
+
+
+\clearpage
+\section{workdirs}
+\comment{cleanup}
+Workdirs is where jobs are stored.  The Accelerator must have one
+target workdir, and may optionally have several source workdirs.
+Target and source workdirs are specified in the daemon configuration
+file.
+
+By default, only the target workdir is written to, while the source
+workdirs are for reading only.  It is possible to override this,
+however, by setting the \texttt{workdir}-option in
+the \texttt{urd.build()} call, see section~\ref{}.
+
+Any directory empty directory can be a workdir, and by adding it as
+either source or target workdir in the configuration file, it will be
+initiated at daemon startup.  The initiation process creates a file
+named \texttt{<workdir>-slices.conf}, that will contain the number of
+slices that is used for the workdir.
+
+Jobdirs are stored in the workdir by the daemon, and jobdirs will
+inherit the workdir name and add a suffix that is an incremental job
+counter.  Here is an example of a workdir named \texttt{test}, that
+contains three jobdirs.
+\begin{shell}
+test/
+    test-slices.conf
+    test-0/
+    test-1/
+    test-2/
+    test-LATEST -> test-2
+\end{shell}
+The link \texttt{<workdir>-LATEST} is always pointing to the last
+jobdir created.  This is useful for example when iteratively testing a
+method.  Each new test will have a new jobid, but this link will
+always point to the most recent one.
+
+
+\subsection{Creating a Workdir}
+\comment{elsewhere, too}
+To create a new workdir, create the directory and add it in the
+configuration file either as source or target workdir.  Stop and
+restart the \texttt{daemon}.  Upon startup, any uninitialised source
+or target workdir in the configuration file will be initialised.
+
+
+
+
+
+
+\section{Progress Indication}
+\comment{cleanup}
+During job building, it is possible to press \texttt{C-t},
+i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, to get status
+information.  The status will cover the processing state, if it is
+in \prepare, \analysis, or \synthesis.  If in \analysis, it will list
+all analysis processes that are active at the moment.  If iterating
+over a dataset, there will be information about that, including which
+dataset in a chain that is currently iterated by which \analysis
+process.
+
+Note that \texttt{C-t} could be pressed either in the \texttt{daemon}
+or \texttt{runner} shells.
+
+
+
+\section{Typical Installation
+\comment{need}
+Traditionally, the Accelerator is installed as a \texttt{git
+submodule} to the current project it is used in.  This makes it
+possible to update the Accelerator and project code independently,
+while linking a specific version of the Accelerator to the project.
+Thus, the project will always use a specific Accelerator commit,
+making the project independent of changes to the Accelerator.
+
+Here is a typical setup
+\begin{shell}
+project/
+    accelerator/
+    dev/
+    conf/
+\end{shell}
+Methods are stored in the \texttt{dev} directory, and Accelerator
+configuration files in \texttt{conf}.  These files are version
+controlled using \texttt{git}.  The \texttt{accelerator} directory is
+a \texttt{git submodule}, which means that the project repository is
+storing the repository location \textsl{and} the commit of the
+Accelerator.
+
+\section{Working with Relative Paths}
+
+
+
+
+
+
+\section{Daemon}
+
+\subsection{Invocation}
+
+\begin{verbatim}
+daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
+\end{verbatim}
+
+Optional arguments
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
+
+  \texttt{---debug} & Start in debug mode.  See section~\ref{MORE_INFO_ABOUT_DEBUG_FLAG}\\[2ex]
+  
+  \texttt{---config CONFIG\_FILE} & configuration file, default
+  \texttt{../conf/framework.conf}\\[4ex]
+
+  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
+
+  \texttt{---socket SOCKET} & listen on unix socket, default
+  \texttt{socket.dir/default}\\[4ex]
+\end{tabular}
+\end{snugshade}
+The Accelerator and Runner will connect using a unix socket by
+default.  There is no need to configure anything.  Setting a port will
+make communication happen over that port instead.
+
+
+
 \subsection{Understanding Workdirs}
 When the \texttt{Daemon} is starting, it will read
 all \texttt{workdir}-definitions in the configuration file.  It will
@@ -281,79 +466,6 @@ stored in Urd, but writing requires authentication.
 \subsection{Setting up Urd}
 
 
-\subsubsection{The Urd Files}
-
-Urd is included in the \texttt{accelerator} repository, in the
-subdirectory \texttt{accelerator/urd}.
-
-
-
-\subsubsection{Dependencies}
-Urd requires the \texttt{bottle} library to run.  It is bundled with
-Debian-like systems, and can be installed by
-\begin{shell}
-sudo apt-get install python-bottle
-\end{shell}
-It can also be downloaded from the project's home page
-\begin{verbatim}
-https://bottlepy.org/docs/dev/
-\end{verbatim}
-as a single python file, \texttt{bottle.py}.  This file should be put
-in the \texttt{accelerator/urd} directory.
-
-
-
-\subsubsection{Creating a Database}
-A new database is created by making a new directory and adding
-a \texttt{passwd} file to it.  Urd takes care of the rest.  In
-practice,
-\begin{shell}
-mkdir database_root
-vi database_root/passwd
-\end{shell}
-where \texttt{vi} is just an editor picked by random.
-
-
-\subsubsection{Starting Urd}
-Urd is running as a daemon.  It is started like this (make sure
-to \texttt{cd} into the \texttt{accelerator/urd}-directory.
-\begin{shell}
-./urd.py --path=<database_root> --port=<port>
-\end{shell}
-Where \texttt{<database\_root>} is a path to an Urd database,
-and \texttt{<port>} is a port number, for example \texttt{8888}.
-
-\subsection{The Urd Database}
-The Urd database has the following structure
-\begin{verbatim}
-database_root/
-    passwd
-    database/
-        user1/
-            list1
-            list2
-        user2/
-            list3
-\end{verbatim}
-
-\subsubsection{The \texttt{passwd} file}
-The \texttt{passwd} file stores write access authentication.  The file
-format is straightforward, each line is a user--password pair as follows
-\begin{verbatim}
-user:password
-\end{verbatim}
-For example, if the file contains the following line
-\begin{verbatim}
-ab:secret
-\end{verbatim}
-A build script issued like this
-\begin{shell}
-URD_AUTH=ab:secret ./automatarunner test
-\end{shell}
-will have write access to all lists belonging to the user \texttt{ab},
-such as for example the \texttt{ab/test} and \texttt{ab/import} lists.
-But it can not write to lists belonging to other users, such
-as \texttt{cd/import}.  It can read all lists, though.
 
 
 \subsection{Invocation}
@@ -377,45 +489,6 @@ urd.py [-h] [--port PORT] [--path PATH]
 \clearpage
 
 \section{Workdirs}
-Workdirs is where jobs are stored.  The Accelerator must have one
-target workdir, and may optionally have several source workdirs.
-Target and source workdirs are specified in the daemon configuration
-file.
-
-By default, only the target workdir is written to, while the source
-workdirs are for reading only.  It is possible to override this,
-however, by setting the \texttt{workdir}-option in
-the \texttt{urd.build()} call, see section~\ref{}.
-
-Any directory empty directory can be a workdir, and by adding it as
-either source or target workdir in the configuration file, it will be
-initiated at daemon startup.  The initiation process creates a file
-named \texttt{<workdir>-slices.conf}, that will contain the number of
-slices that is used for the workdir.
-
-Jobdirs are stored in the workdir by the daemon, and jobdirs will
-inherit the workdir name and add a suffix that is an incremental job
-counter.  Here is an example of a workdir named \texttt{test}, that
-contains three jobdirs.
-\begin{shell}
-test/
-    test-slices.conf
-    test-0/
-    test-1/
-    test-2/
-    test-LATEST -> test-2
-\end{shell}
-The link \texttt{<workdir>-LATEST} is always pointing to the last
-jobdir created.  This is useful for example when iteratively testing a
-method.  Each new test will have a new jobid, but this link will
-always point to the most recent one.
-
-
-\subsection{Creating a Workdir}
-To create a new workdir, create the directory and add it in the
-configuration file either as source or target workdir.  Stop and
-restart the \texttt{daemon}.  Upon startup, any uninitialised source
-or target workdir in the configuration file will be initialised.
 
 
 
@@ -424,44 +497,12 @@ or target workdir in the configuration file will be initialised.
 
 \section{Progress Indication}
 
-During job building, it is possible to press \texttt{C-t},
-i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, to get status
-information.  The status will cover the processing state, if it is
-in \prepare, \analysis, or \synthesis.  If in \analysis, it will list
-all analysis processes that are active at the moment.  If iterating
-over a dataset, there will be information about that, including which
-dataset in a chain that is currently iterated by which \analysis
-process.
-
-Note that \texttt{C-t} could be pressed either in the \texttt{daemon}
-or \texttt{runner} shells.
-
 
 
 \clearpage
 
 \section{Typical Installation}
-Traditionally, the Accelerator is installed as a \texttt{git
-submodule} to the current project it is used in.  This makes it
-possible to update the Accelerator and project code independently,
-while linking a specific version of the Accelerator to the project.
-Thus, the project will always use a specific Accelerator commit,
-making the project independent of changes to the Accelerator.
-
-Here is a typical setup
-\begin{shell}
-project/
-    accelerator/
-    dev/
-    conf/
-\end{shell}
-Methods are stored in the \texttt{dev} directory, and Accelerator
-configuration files in \texttt{conf}.  These files are version
-controlled using \texttt{git}.  The \texttt{accelerator} directory is
-a \texttt{submodule}, which means that the project repository is
-storing the repository location \textsl{and} the commit of the
-Accelerator.
-
+r
 
 \clearpage
 

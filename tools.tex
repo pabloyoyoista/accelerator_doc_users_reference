@@ -16,6 +16,166 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+\section{\texttt{daemon} Accelerator Server}
+
+The \texttt{daemon.py} is the main Accelerator daemon/server.  This
+program will run in the background and serve \texttt{runner} requests...
+
+\subsection{Invocation}
+
+\begin{verbatim}
+daemon.py [-h] [--debug] [--config CONFIG_FILE] [--port PORT | --socket SOCKET]
+\end{verbatim}
+
+Optional arguments
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
+
+  \texttt{---debug} & Start in debug mode.  See section~\ref{MORE_INFO_ABOUT_DEBUG_FLAG}\\[2ex]
+  
+  \texttt{---config CONFIG\_FILE} & configuration file, default
+  \texttt{../conf/framework.conf}\\[4ex]
+
+  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
+
+  \texttt{---socket SOCKET} & listen on unix socket, default
+  \texttt{socket.dir/default}\\[4ex]
+\end{tabular}
+\end{snugshade}
+The Accelerator and Runner will connect using a unix socket by
+default.  There is no need to configure anything.  Setting a port will
+make communication happen over that port instead.
+
+
+
+
+\vspace{2cm}
+\section{\texttt{urd}  Job Database Server}
+The urd...
+\subsection{Invocation}
+\begin{shell}
+urd.py [-h] [--port PORT] [--path PATH]
+\end{shell}
+
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
+
+  \texttt{---port PORT} & listen on TCP port\\[4ex]
+
+  \texttt{---path PATH} & path to database\\[4ex]
+\end{tabular}
+\end{snugshade}
+
+
+
+\clearpage
+\section{\texttt{runner} Build Script Runner}
+The \texttt{runner} is used to execute build scripts.
+
+\subsection{Invocation}
+Runner is invoked like this
+\begin{shell}
+automatarunner.py [options] [script]
+\end{shell}
+assuming the current work directory is the \texttt{Accelerator}
+directory.  The \texttt{script} is either a filename, or the suffix to
+a filename starting with \texttt{automata\_}.
+
+
+When the \texttt{runner} starts, it will first instruct the
+Accelerator to scan all method directories to see if there are any new
+or changed methods.  Thereafter, the Accelerator will proceed and scan
+all source workdirs to see if any new jobs have been created (by
+another Accelerator daemon).  Thereafter, it will execute the build
+script.
+
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
+  exit.\\[4ex]
+
+  \texttt{-p PORT }\hspace{3cm}\texttt{---port=PORT} & Accelerator
+  listening port\\[4ex]
+
+  \texttt{-H HOSTNAME}\hspace{3cm}\texttt{---hostname=HOSTNAME} &
+  framework hostname\\[4ex]
+  
+  \texttt{-S SOCKET}\hspace{3cm}\texttt{---socket=SOCKET} &
+  Accelerator unix socket (default
+  \texttt{./socket.dir/default})\\[4ex]
+
+  \texttt{-s SCRIPT}\hspace{1cm}\texttt{---script=SCRIPT} & build
+  script to run. \texttt{package/automata\_<SCRIPT>.py}.  Defaults to
+  ``\texttt{automata}''.  Can be bare arg too.\\[2ex]
+
+  \texttt{-A}\hspace{3cm}\texttt{---abort} & abort (fail) current
+  job(s).\\[4ex]
+
+  \texttt{-P PACKAGE}\hspace{3cm}\texttt{---package=PACKAGE} & Run
+  build script from this method directory.  Useful if the same script
+  name exists in several method directories, for example for testing
+  purposes.\\[2ex]
+
+  \texttt{-f FLAGS}\hspace{3cm}\texttt{---flags=FLAGS} & Comma
+  separated list of flags, exposed as the set \texttt{urd.flags} in
+  build script.\\[2ex]
+  
+  \texttt{-q}\hspace{3cm}\texttt{---quick} & skip method updates and
+  workdirs checking for new jobs.\\[4ex]
+
+  \texttt{-w}\hspace{3cm}\texttt{---just\_wait} & just wait for running
+  job, do not run a build script.\\[4ex]
+
+  \texttt{---verbose=VERBOSE} & verbosity level, one of \texttt{no},
+  \texttt{status}. \texttt{dots}, or \texttt{log}.\\[2ex]
+
+  \texttt{---quiet} & same as \texttt{---verbose=no}\\[2ex]
+
+  \texttt{---horizon=HORIZON} & Time horizon - dates after this are
+  not visible in \texttt{urd.latest}.\\[4ex]
+\end{tabular}
+\end{snugshade}
+To run a build script \texttt{automata\_myscript}, do
+\begin{python}
+./automatarunner myscript
+\end{python}
+This works as long as the name of the build script is unique, that is,
+it exists in only one method directory.  If not, the method directory
+can be specified using the \texttt{-P} option.
+
+A build script named \texttt{automata.py} in a method
+directory \texttt{dev} can be launched by
+\begin{python}
+./automatarunner -P dev
+\end{python}
+
+
+
+\subsection{Authorization to Urd}
+Authorisation to Urd could be set in the \texttt{URD\_AUTH}
+environment variable.  A common way to invoke the runner with Urd
+authorisation is like this
+\begin{shell}
+% URD_AUTH=user:passwd ./runner [script]
+\end{shell}
+Note that the purpose of the authentication is
+actually \textsl{identification}.  It is used to get write access to
+certain Urd lists.  Nothing more.
+
+
+
+
+
+
+
+
+
+\clearpage
 \section{\texttt{dsinfo} -- Dataset Information}
 The \texttt{dsinfo} command line tool gives a compact, but easy to
 read, overview of a dataset or a dataset chain.  The tool is located
@@ -30,6 +190,9 @@ argument is a jobid, it is assumed that the dataset name is
 list of dataset names will be returned.
 
 
+
+
+\vspace{2cm}
 \section{\texttt{dsgrep} -- Find Data in Dataset}
 The \texttt{dsgrep} command line tool is used to look at datasets or
 dataset chains.

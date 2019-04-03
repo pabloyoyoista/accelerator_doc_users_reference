@@ -254,8 +254,8 @@ for user, item in datasets.source.iterate_chain(
     sliceno, ('user', 'item',),
     stop_ds = {jobids.previous: 'source',}):
 \end{python}
-This will iterate until reaching end or the dataset
-\texttt{job\_params(jobids.preprocess).datasets.source}, see figure~\ref{fig:}.
+This will iterate until reaching the \texttt{source} dataset of
+the \texttt{jobids.previous} job, see figure~\ref{fig:}.
 
 
 

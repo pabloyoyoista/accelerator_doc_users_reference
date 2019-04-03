@@ -177,7 +177,7 @@ def analysis(sliceno):
     for user, item in datasets.source.iterate_chain(
             sliceno,
             columns=('user', 'item',),
-            stop_id=jobids.params.source):
+            stop_ds={jobids.previous: 'source',}):
         h[user].add(item)
 \end{python}
 Assuming that \texttt{previous} is a jobid to the previous invocation
@@ -252,7 +252,7 @@ how to stop iterating based on previous jobs.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
     sliceno, ('user', 'item',),
-    stop_id = {jobids.previous: 'source',}):
+    stop_ds = {jobids.previous: 'source',}):
 \end{python}
 This will iterate until reaching end or the dataset
 \texttt{job\_params(jobids.preprocess).datasets.source}, see figure~\ref{fig:}.

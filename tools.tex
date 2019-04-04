@@ -150,9 +150,9 @@ can be specified using the \texttt{-P} option.
 
 A build script named \texttt{automata.py} in a method
 directory \texttt{dev} can be launched by
-\begin{python}
-./automatarunner -P dev
-\end{python}
+\begin{shell}
+% ./automatarunner -P dev
+\end{shell}
 
 
 
@@ -180,7 +180,13 @@ certain Urd lists.  Nothing more.
 The \texttt{dsinfo} command line tool gives a compact, but easy to
 read, overview of a dataset or a dataset chain.  The tool is located
 in the \texttt{accelerator} home directory, and the full file name is
-\texttt{dsinfo.py}.  Example invocation
+\texttt{dsinfo.py}.
+
+\subsection{Invocation}
+\begin{shell}
+dsinfo.py [dataset [dataset [...]]
+\end{shell}
+Example invocation
 \begin{shell}
 % ./dsinfo.py test-20
 \end{shell}
@@ -201,7 +207,7 @@ dsgrep.py [options] pattern ds [ds [...]] [column [column [...]]
 \end{shell}
 The \texttt{pattern} is a regular expression and \texttt{ds} are datasets.  For example
 \begin{shell}
-dsgrep.py Alice test-0 test-1/special name
+% dsgrep.py Alice test-0 test-1/special name
 \end{shell}
 Will look for the string \texttt{Alice} in the \texttt{name} column of
 the two datasets \texttt{text-0} and \texttt{test-1/special}.
@@ -215,9 +221,11 @@ Optional arguments are
 \end{snugshade}
 Strings and columns with special characters have to be quoted.
 
+
+
 \subsection{Abuse dsgrep to show datasets}
 The data in a dataset may be printed to \texttt{stdout} by
 \texttt{grep}ing using a regexp that always matches, like this
 \begin{shell}
-./dsgrep.py . test-0 | less
+% ./dsgrep.py . test-0 | less
 \end{shell}

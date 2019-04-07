@@ -20,28 +20,41 @@
 
 The basic idea of the Accelerator's datasets is to make it really easy
 to create parallel programs that can read or write data at a very high
-speed.  Accessing dataset data is done using \textsl{iterators}, which
-technically are members of the \texttt{Dataset} class.
+speed.  Accessing dataset data is done using \textsl{iterators}.
 
-The iterators may iterate over one or more specified data columns.
-Each output is a tuple corresponding to the specified columns for one
-data row.  In case of iterating over a single column, the output may
-optionally be a scalar for more efficient computing.  Iterators can be
-parallel, in \analysis, or sequential, in \prepare or \synthesis.
-There are three iterators available:
+An iterator yields one \texttt{tuple} at a time containing elements
+from one or more specified data columns, one row at a time.  In case
+of iterating over a single column, the output may optionally be a
+scalar instead of \texttt{tuple} for cleaner code and more efficient
+computing.
+
+
+
+
+
+\section{The Three Iterators}
+Technically, iterators are members of the \texttt{Dataset} class.
+Iterators can be parallel, in \analysis, or sequential, in \prepare
+or \synthesis.  There are three iterators available:
 \begin{itemize}
 \item [] \texttt{iterate()}, for single dataset iteration,
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains, and
 \item [] \texttt{iterate\_list()} for iterating over a list of datasets.
 \end{itemize}
-Many common iterator usecases require only two
-options, \texttt{sliceno} (mandatory) and \texttt{columns}, so a typical call may look like this
+In many common usecases it is sufficient to provide only two arguments
+to the iterator: \texttt{sliceno} (mandatory) and \texttt{columns}.
+These, and all possible arguments are presented in detail shortly. A
+typical call may look like this
 \begin{python}
 for m, u in dataset.source.iterate(sliceno, ('movie', 'user',)):
     # do_something_with m and u here...
 \end{python}
+or, if the purpose is to compose a \texttt{dict},
+\begin{python}
+n2d = dict(dataset.source.iterate(sliceno, ('name', 'date',)))
+\end{python}
 
-All iterators share these arguments
+All three iterators share these arguments
 \starttable
   \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
   over, or \mintinline{python}/None/ to iterate over all slices
@@ -166,8 +179,9 @@ Using \texttt{iterate\_chain} without explicitly specifying
 \texttt{length} will default to a \texttt{length} of $-1$, which
 corresponds to all datasets in the chain.
 
-Here is an interesting example that will iterate over the datasets in
-the chain that are new since the last invocation of the method.
+Here is an interesting example of a method that will iterate over all
+chained \texttt{source} datasets that are new since the last
+invocation of the method.
 \begin{python}
 datasets = ('source',)
 jobids = ('previous',)
@@ -180,10 +194,6 @@ def analysis(sliceno):
             stop_ds={jobids.previous: 'source',}):
         h[user].add(item)
 \end{python}
-Assuming that \texttt{previous} is a jobid to the previous invocation
-of the method, \texttt{jobids.params.source} will be the
-input \texttt{source} dataset to that job.
-\comment{insert figure here}
 
 
 
@@ -194,8 +204,8 @@ an empty list of column names, like this
 for items in dataset.source.iterate(sliceno, None):
     print(items)  # is a tuple of all columns
 \end{python}
-The iterator will output a tuples populated with all column values for
-each row.  The columns will be in sorted column name order.
+The iterator will output a \texttt{tuple} populated with all column
+values for each row.  The columns will be in sorted column name order.
 
 If iterating over a single column, it makes little sense to keep the
 output values in a one-dimensional tuple.  Then, it is probably more
@@ -212,6 +222,70 @@ for user in datasets.source.iterate(sliceno, 'USER',):
 \end{python}
 Both styles are supported by filters and translators introduced later
 i this chapter.
+
+
+
+\subsection*{An Example}
+Consider the case where new files are added to a project in a
+continuous fashion.  These files are imported and chained, so that
+each new imported dataset links to the previously imported dataset,
+and so on.  This is illustrated in the left part of
+xsfigure~\ref{fig:dsprocchain}.
+
+Once in a while, but not necessarily at the same rate as new files are
+added, some processing of the data is performed.  A simple example of
+a processing job could be to count the number of lines added to the
+dataset chain since the last execution of the processing method.  A
+more interesting case could be to \textsl{update} a machine learning
+model with the newly added data imported since the last model update.
+
+In these cases, the processing job should iterate over a part of the
+the dataset chain only, from the first dataset after the last
+processing job up to the most recent imported dataset.  Again, see
+figure~\ref{fig:dsprocchain}.  The rigt part of the image illustrates
+two builds of the processing method.  The first operates on the
+dataset \texttt{imp-0}, and the last on \texttt{imp-1}
+and \texttt{imp-2}.  The input parameters to the first processing
+job, \texttt{proc-0}, are
+\begin{itemize}
+\item[] \mintinline{python}|jobids.previous = None|
+\item[] \mintinline{python}|datasets.source = 'imp-0'|
+\end{itemize}
+and the input parameters for the second processing
+job, \texttt{proc-1}, are
+\begin{itemize}
+\item[] \mintinline{python}|jobids.previous = 'proc-0'|
+\item[] \mintinline{python}|datasets.source = 'imp-2'|
+\end{itemize}
+
+The processing job should iterate on the \texttt{datasets.source}
+dataset, and set the \texttt{stop\_id=} parameter to
+the \texttt{previous} job's \texttt{source} dataset, and the code may
+look something like this
+\begin{python}
+datasets = ('source',)
+jobids = ('previous',)
+
+def analysis(sliceno):
+    for ... in datasets.source.iterate_chain(
+            ...
+            stop_ds={jobids.previous: 'source',}):
+    ...
+\end{python}
+
+
+
+
+\begin{figure}[h!]
+  \begin{center}
+    \input{figures/dsprocchain.pdftex_t}
+    \caption{}
+    \label{fig:dsprocchain}
+  \end{center}
+\end{figure}
+
+
+
 
 
 

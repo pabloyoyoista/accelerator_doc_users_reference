@@ -262,6 +262,8 @@ methods like \texttt{csvimport} are good examples of this.
 
 
 
+
+
 \section{Method Execution}
 
 Methods are not executed from top to bottom.  Instead, there are three
@@ -730,7 +732,7 @@ options = dict(mode='testing', length=3)
 def synthesis(params):
     print(json.dumps(params, indent=4))
 \end{python}
-Here is the corresponding output.
+The corresponding output may look something like this
 \begin{leftbar}
 \begin{minted}{json}
 {
@@ -956,7 +958,6 @@ workdir name, so a job \texttt{dev-42} may access data in
 It is perfectly fine for a job to dispatch any number of new jobs, and
 these jobs are called \textsl{subjobs}.  A maximum allowed recursion
 depth is defined to avoid infinite recursion.
-
 
 
 

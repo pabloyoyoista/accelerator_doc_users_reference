@@ -4,11 +4,13 @@
 \section{Share Data Between Jobs:  the \texttt{blob} Module}
 
 The simplest way to share reasonable amounts of data between jobs is
-by using the \texttt{blob} module.  Note that the Accelerator will set
-the ``current work directory'' to the current job directory when
-building a method, so all files created by a job will be stored in the
-current job directory, unless the filename contains a path pointing
-elsewhere.
+by using the \texttt{blob} module.  This module is a
+convenience-wrapper around the Python \texttt{pickle} module.
+
+Note that the Accelerator will set the ``current work directory'' to
+the current job directory when building a method, so all files created
+by a job will be stored in the current job directory, unless the
+filename contains a path pointing elsewhere.
 
 \subsection*{Storing a  Single File}
 Data is saved in this way
@@ -22,7 +24,7 @@ The data is loaded like this
 \begin{python}
 import blob
 def synthesis()
-    blob.load(filename)
+    data = blob.load(filename)
 \end{python}
 
 
@@ -40,26 +42,37 @@ def analysis(sliceno):
     data = blob.load(filename, sliceno=sliceno)
 \end{python}
 
+Data can be passed ``in parallel'' between different jobs using this
+feature.
+
 
 
 \subsection{Save Files for Debugging}
-There is one more argument, \texttt{temp}, which controls persistence
-of the files.  It is by default set to \mintinline{python}/False/,
-which implies that the stored file is not temporary.  But setting it
-to \mintinline{python}/True/, like in the following
+The \texttt{temp} argument controls persistence of the stored files.
+By default it is being set to \pyFalse, which implies that the stored
+file is \textsl{not} temporary.  But setting it to \pyTrue, like in
+the following
 \begin{python}
     blob.save(data, filename, temp=True)
 \end{python}
 will cause the stored file to be deleted upon job completion.  The
 argument takes two additional values, \texttt{DEBUG} and
 \texttt{DEBUGTEMP}, working like this
-\begin{itemize}
-\item[] \texttt{DEBUG} -- file will be stored \emph{only} in debug
-  mode
-\item[] \texttt{DEBUGTEMP} -- file will always be stored, but
-  \emph{removed} upon job completion only in debug mode.
-\end{itemize}
-Example
+\vspace{3ex}
+
+\begin{center}
+\begin{tabular}{l|ll}
+                     & ``normal'' mode     & debug mode  \\\hline
+  \pyFalse           & stored              & \\
+  \pyTrue            & stored and removed  & stored and removed\\
+  \texttt{DEBUG}     &                     & stored\\
+  \texttt{DEBUGTEMP} & stored and removed  & stored\\
+\end{tabular}
+\end{center}
+Debug mode is active if the Accelerator is started with the
+\texttt{--debug} flag.
+
+\noindent Example
 \begin{python}
 from extras import Temp
 def analysis(sliceno):

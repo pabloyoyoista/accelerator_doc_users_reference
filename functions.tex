@@ -117,20 +117,26 @@ Note that this function works in a build script as well.
 
 \section{Symlinking}
 Creating a symlink, for example from the \texttt{result\_directory} to
-current workdir, may be implemented in a very simple and safe way like
-this
+current workdir, may be implemented in a simple and safe way like this
 \begin{python}
 from extras import symlink
 
 def synthesis(RESULT_DIRECTORY):
+
+    # create file and write it to jobid
     ...
     with open(filename, 'wb') as fh:
-         fh.write(...)
+        fh.write(...)
+
+    # create a symlink to filename in RESULT_DIRECTORY
     symlink(filename, RESULT_DIRECTORY)
 \end{python}
 The \texttt{extras.symlink} function will write a soft link
 to \texttt{filename} in \texttt{RESULT\_DIRECTORY}, overwriting it if
 it already exists.
+
+
+
 
 \subsection{job\_params}
 

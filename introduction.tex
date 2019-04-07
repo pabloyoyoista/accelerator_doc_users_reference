@@ -27,7 +27,7 @@ The Accelerator was first used in 2012, and has been continuously developed and
 improved since.  It has been in use in projects for companies like
 Safeway, Starbucks, eBay, Ericsson, and Vodafone.  Most project have
 been related to data analysis, some to optimisation, and some projects
-have been live-running recommendation systems for years.  The
+have been recommendation systems running live for years.  The
 Accelerator has evolved from being the core of these projects.  In
 2016, it was aquired by Ebay, who contributed it to the open source
 community early 2018.
@@ -47,32 +47,31 @@ language.
 
 
 \section{Main Design Goals}
-The Accelerator is designed to process log-files in ``CSV''
-format\footnote{Comma Separated Values.  In fact, almost any separator
-may be used by the Accelerator.}.  Most data can be represented in
-terms of log files, a format that brings determinism (i.e.\
-repeatability) as well as transparency -- factors that are important,
-but hard to achieve in many projects.  The Accelerator is developed
-bottom up for high performance and simplicity, and the main design
-goals are
+The Accelerator is designed to process log-files in ``CSV''-like
+formats\footnote{CSV is short for Comma Separated Values, but any
+separator character can be used.  CSV files store data into rows and
+columns of text.}.  Log files bring determinism (i.e.\
+reproducibility) and transparency, and most data can be represented in
+this format.  The Accelerator is developed bottom up for high
+performance and simplicity, and the main design goals are:
 \begin{itemize}
 
-\item[] Parallel processing should be made simple.  Modern computers
+\item[] \textsl{Parallel processing} should be made simple.  Modern computers
   come with several cores, it should be straightforward to make use of
   them.
 
 \item[] Data rates should be as fast as possible.  It should be
-  possible to process large datasets, even on commodity hardware.
+  possible to process \textsl{large datasets}, even on commodity hardware.
 
 \item[] Any processing step should be \textsl{reproducible}.
 The Accelerator maps any output to its corresponding input data and
 processing.
 
-\item[] Never recompute old results, always recycle jobs, when
-  possible.  Also, sharing results between multiple users should be
+\item[] Never recompute old results, always ``recycle'' old jobs, when
+  possible.  Also, \textsl{sharing results} between multiple users should be
   effortless.
 
-\item[] Organise and keep track of all jobs, files, and results in
+\item[] \textsl{Organise} and keep track of all jobs, files, and results in
   order to work with projects having 100.000s of input files and lots
   of programs and scripts processing them.
   

@@ -796,10 +796,16 @@ jobids = ('anotherjob',)
 def synthesis():
     print(jobids.anotherjob)
     # will print something like 'jid-0_0'
-    print(job_params(jobids.anotherjob).options)
-    # will print the options of anotherjob, perhaps something like {length: 3}
+    if jobids.anotherjob is not None:
+        print(job_params(jobids.anotherjob).options)
+        # will print the options of anotherjob, perhaps something like {length: 3}
 \end{python}
-\comment{NEEDS FIX --- behaves strangely iff jobid is None}
+Note that if \texttt{jobids.anotherjob} is not defined, i.e.\ \pyNone,
+\texttt{job\_params} will return the parameters of the
+\textsl{current} job.  So in order to be safe, it makes sense to first
+check that the job exists.
+
+To access another job's \textsl{datasets}, please se section~\ref{}.
 
 
 
@@ -828,7 +834,7 @@ Finally, the return value from \texttt{synthesis} is stored as a
 Python pickle file with the name \texttt{result.json}.
 
 If the job contains datasets, these will be stored in directories,
-such as for example \texttt{default}, in the root of the job
+such as for example \texttt{default/}, in the root of the job
 directory.
 
 
@@ -894,8 +900,8 @@ def prepare():
     subjobs.build('childjob')
 \end{python}
 \end{enumerate}
-Furthermore, there is a limit to the recursion depth of subjobs, to
-avoid creating unlimited number of jobs by accident.
+There is a limit to the recursion depth of subjobs, to avoid creating
+unlimited number of jobs by accident.
 
 
 

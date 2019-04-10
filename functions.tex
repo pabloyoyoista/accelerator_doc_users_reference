@@ -72,13 +72,13 @@ argument takes two additional values, \texttt{DEBUG} and
 \vspace{3ex}
 
 \begin{center}
-\begin{tabular}{l|ll}
-                     & ``normal'' mode     & debug mode  \\\hline
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ll}
+  \texttt{temp=}  & ``normal'' mode     & debug mode  \\\hline
   \pyFalse           & stored              & \\
   \pyTrue            & stored and removed  & stored and removed\\
   \texttt{DEBUG}     &                     & stored\\
-  \texttt{DEBUGTEMP} & stored and removed  & stored\\
-\end{tabular}
+  \texttt{DEBUGTEMP}\hspace{4ex} & stored and removed  & stored\\
+\end{tabular*}
 \end{center}
 Debug mode is active if the Accelerator is started with the
 \texttt{--debug} flag.

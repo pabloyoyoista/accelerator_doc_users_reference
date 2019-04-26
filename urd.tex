@@ -83,52 +83,76 @@ and it is there to ensure transparency and reproducibility.
 
 
 
-\section{Urd Concepts}
+%% \section{Urd Concepts}
 
-\textsl{Build scripts}, as presented in chapter~\ref{chap:urd_basic},
-provide a powerful way to build and link jobs.  A larger project may
-separate importing of source files into one job list, and data
-processing in another.
+%% Before going into any details, here is a list with description of the
+%% main Urd concepts.
 
-A running build script will automatically record information about all
-built jobs in a \textsl{joblist} variable.  A \textsl{session} is what
-happens between the first and last addition of information to this
-variable.
+%% \begin{itemize}
+%% \item[]  \textsl{Build scripts}, as presented in chapter~\ref{chap:urd_basic},
+%% provide a powerful way to build and link jobs.  A larger project may
+%% use sevaral build scripts.
 
-The Urd database is partitioned into what is called \textsl{lists}.
-Each element in such a list is a joblist that represents a session.
-Lists are associated by keys in the format \texttt{<user>/<name>}, and
-individual elements (sessions) in the lists are associated with a
-timestamp.  Lists are globally readable, but writing requires
-authentication, so that, for example, only the production user may
-publish a model to go live.
-
-\comment{det behovs en bild har!}
+%% \item[] \textsl{joblist}s.  A running build script will automatically
+%% record information about all built jobs in the \texttt{urd.joblist}
+%% variable.
 
 
+%% \item[] A \textsl{session} is what happens between the first and last
+%% addition of information to this variable.
 
-\section{A First Example}
+%% \item[] \textsl{Urd lists}...
 
-Urd sessions are defined between the \texttt{urd.begin()}
-and \texttt{urd.finish()} functions, like in this short example that
-imports a file.
+%% \end{itemize}
+%% The Urd database is partitioned into what is called \textsl{lists}.
+%% Each element in such a list is a joblist that represents a session.
+%% Lists are associated by keys in the format \texttt{<user>/<name>}, and
+%% individual elements (sessions) in the lists are associated with a
+%% timestamp.  Lists are globally readable, but writing requires
+%% authentication, so that, for example, only the production user may
+%% publish a model to go live.
 
+%% \comment{det behovs en bild har!}
+
+
+
+\section{Urd Sessions and Lists}
+
+A simple file import script will be used as example in this section.
+Remember from chapter~\ref{} how to import a file in a build script:
+\begin{python}
+def main(urd):
+    urd.build('csvimport', options=dict(filename='txn1.txt'))
+\end{python}
+In order to use this import job in a future context,
+a \textsl{session} is created by wrapping the code by
+the \texttt{urd.begin()} and \texttt{urd.finish()} functions, like this
 \begin{python}
 def main(urd):
     urd.begin('import/txn', '2018-05-03')
     urd.build('csvimport', options=dict(filename='txn1.txt'))
     urd.finish('import/txn')
 \end{python}
+This session is, at completion time, stored premanently in an
+Urd \textsl{list} for future reference.  The name of this list is
+\begin{verbatim}
+    import/txn
+\end{verbatim}
+and the timestamp is
+\begin{verbatim}
+    2018-05-03
+\end{verbatim}
+As will be shown next, the session can be looked up using the name of
+the \textsl{list} and the \textsl{timestamp}.
 
-All jobs dispatched between \texttt{begin} and \texttt{finish} will be
-appended to the \texttt{import/txn} \textsl{Urd list} with
-timestamp \texttt{2018-05-03}.  This also includes meta information,
-such as all lookups of jobs done by Urd in the session that will be
-appended as dependencies.
 
-The urd-list just created could then be used by other build scripts.
-For example, here is a job that does some processing on the imported
-file
+
+
+\section{A First Urd Query}
+
+The list created in the previous section can now be used by other
+build scripts.  For example, here is a build script that does some
+processing on the previously imported file
 \begin{python}
 def main(urd):
     urd.begin('process/test')
@@ -142,13 +166,15 @@ def main(urd):
 
     urd.finish('process/test', import_timestamp)
 \end{python}
-Here, the recently created urd session, \texttt{import/txn}, is
-retrieved, and two things are extracted from this data.  First, the
-timestamp of the import session.  This timestamp will be used as key
-for the ongoing \texttt{process/test} session as well, indicating that
-it is based on data from the same time instance.  Furthermore, the
-jobid to the \texttt{csvimport} job is extracted and fed to
-the \texttt{process} job as an input dataset parameter.
+First, the recently created urd session stored in
+list \texttt{import/txn} is retrieved.  Two things are extracted from
+this data.  First, the timestamp of the import session.  This
+timestamp will be used as key for the ongoing \texttt{process/test}
+session as well, indicating that it is based on data from the same
+time instance.  Furthermore, the jobid to the \texttt{csvimport} job
+is extracted and fed to the \texttt{process} job as an input dataset
+parameter.  (The slightly clumsy syntax for this is explained in
+section~\ref{}.)
 
 
 
@@ -163,30 +189,30 @@ urd.finish(urdlist, timestamp, caption=None)
 and the following applies
 \starttabletwo
 \RPtwo \texttt{urdlist} & is the name of the Urd list, and the same
-  \texttt{urdlist} must be specified in both \texttt{begin}
-  and \texttt{finish}.
+  \texttt{urdlist} must be specified in both \texttt{begin()}
+  and \texttt{finish()}.
 
-  The \texttt{urdlist} is specified as
-  ``\texttt{user/list}'', where the ``\texttt{user/}'' part is
-  optional.  The \texttt{user} should correspond to the
+  The \texttt{urdlist} is specified as ``\texttt{user/list}'', where
+  the ``\texttt{user/}'' part is optional.  The \texttt{user} string
+  is also for authentication, and must correspond to the
   current \texttt{URD\_AUTH} settings, see section~\ref{xxx}.\\[2ex]
 
 \RPtwo \texttt{timestamp} & is \textsl{mandatory}, but could be set in either
-  \texttt{begin}, \texttt{finish}, or both.  \texttt{finish}
-  overrides \texttt{begin}.\\[2ex]
+  \texttt{begin()}, \texttt{finish()}, or both.  \texttt{finish()}
+  will override \texttt{begin()}.\\[2ex]
 
 \RPtwo \texttt{caption} & is \textsl{optional}, and can be set in either
-  \texttt{begin} or \texttt{finish}.  \texttt{finish}
-  overrides \texttt{begin}.\\[2ex]
+  \texttt{begin()} or \texttt{finish()}.  \texttt{finish()}
+  will override \texttt{begin()}.\\[2ex]
 
 \RPtwo \texttt{update} &  If set to \pyTrue, the last item in the list may be updated.
   This optiong will be discussed in section~\ref{sec:trunc-update}.\\[2ex]
 \stoptabletwo
 
-The Urd transaction database will be updated when the \texttt{finish}
-function is called.  Before calling \texttt{finish}, nothing is
-stored, and it is perfectly okay to omit \texttt{finish} during
-development work.
+The Urd transaction database will be written to only when
+the \texttt{finish()} function is called.  Before
+calling \texttt{finish()}, nothing is stored, and it is perfectly okay
+to omit \texttt{finish()} to avoid storage or during development work.
 
 
 

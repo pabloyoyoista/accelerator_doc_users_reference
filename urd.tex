@@ -220,19 +220,19 @@ to omit \texttt{finish()} to avoid storage or during development work.
 \section{Timestamp Resolution}
 
 Timestamps may be specified in various resolution depending on the
-application.  The time format is (See Python's \texttt{datetime}
+application.  The full time format is (See Python's \texttt{datetime}
 module for explanation.)
 \begin{shell}
-"%Y-%m-%dT%H:%M:%S"
+'%Y-%m-%dT%H:%M:%S'
 \end{shell}
 A specific timestamp could be shorter than the above specification in
 order to cover wider time ranges.  The following examples cover all
 possible cases.
 \begin{python}
-'2016-10-25'               day resolution
-'2016-10-25T15'            hour resolution
-'2016-10-25T15:25'         minute resolution
-'2016-10-25T15:25:00'      second resolution
+'2016-10-25'               # day resolution
+'2016-10-25T15'            # hour resolution
+'2016-10-25T15:25'         # minute resolution
+'2016-10-25T15:25:00'      # second resolution
 \end{python}
 
 
@@ -240,8 +240,8 @@ possible cases.
 \section{Aborting an Urd Session:  \texttt{abort()}}
 
 When an Urd session is initiated, a new session cannot be started
-until the current session has finished.  A session may be aborted,
-however, using the \texttt{abort()} function, like this
+until the current session has finished.  A session may therefore be
+aborted, and the \texttt{abort()} function is used for this, like so
 \begin{python}
 urd.begin('test')
 urd.abort()
@@ -259,12 +259,9 @@ Here is the complete call with all possible parameters.
 \begin{python}
 jobid = urd.build(
     method,
-    options={},
-    datasets={},
-    jobids={},
-    workdir=None,
-    name='',
-    caption=''
+    options={},    datasets={},    jobids={},
+    name='',       caption='',
+    workdir=None
 )
 \end{python}
 Explanation of \texttt{build} parameters:
@@ -273,14 +270,15 @@ Explanation of \texttt{build} parameters:
     here if the method filename is \texttt{a\_test.py}.\\[2ex]
     
 \RPtwo \texttt{options=\{\}} & a \texttt{dict} of options to the method.
-    This overrides options defined in the method itself, but no new
-    options not present in the method is allowed.\\[2ex]
+    This overrides options defined in the method itself, but adding
+    options not prototyped in the method is \textsl{not} allowed.\\[2ex]
 
 \RPtwo \texttt{jobids=\{\}} & a \texttt{dict} of jobids to the method.
-    Note that a list of jobids may be specified like this\begin{python}
-...jobids=dict{alljobs=[jobid1, jobid2,...]}
+    It is possible to specify a list of jobids like this
+\begin{python}
+jobids=dict{alljobs=[jobid1, jobid2,...]}
 \end{python}
-\\[2ex]
+\\[0ex]
 
 \RPtwo \texttt{datasets=\{\}} & a \texttt{dict} of datasets to the method.
     Datasets may be lists too, just like \texttt{jobids} above.\\[2ex]
@@ -289,17 +287,17 @@ Explanation of \texttt{build} parameters:
     this workdir, assuming the workdir is specified in the
     configuration file as either source or target.\\[2ex]
 
-\RPtwo \texttt{name} & A string associated with the job.  It may be used
+\RPtwo \texttt{name} & A string associated with the job.  Use it
     to distinguish several jobs created from the same method.\\[2ex]
-    \texttt{caption} & A caption string.  For decoration purposes
+    \texttt{caption} & A caption string.  For decorative purposes
     only, this has no practical use.
 \stoptabletwo
 
 
 \section{Changing workdir:  \texttt{set\_workdir()}}
 The target workdir specified in the configuration file is the only
-workdir that is written to by default.  Any other workdir is read only
-This behaviour can be overrided, either
+workdir that is written to by default.  Any other workdir is read
+only.  This behaviour can be overrided, either
 \begin{itemize}
 \item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{}, or
 \item[] using \texttt{urd.set\_workdir()}.

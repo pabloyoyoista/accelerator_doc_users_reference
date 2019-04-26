@@ -414,8 +414,12 @@ jobs.  Inside the running method, each item in the \jobids tuple is of
 type \texttt{str} and may be used as a reference to the corresponding
 job.  All items in the \jobids tuple must be assigned by the builder to
 avoid run time errors.
-
-
+It is also possible to specify lists of jobids, see this example
+\begin{python}
+jobids = ('source', ['alistofjobs'],)
+\end{python}
+where \texttt{source} is a single \texttt{jobid}, whereas
+\texttt{alistofjobs} is a list of \texttt{jobid}s.
 
 
 
@@ -427,6 +431,12 @@ a \texttt{list} with some add-on functionality.  The \texttt{Dataset}
 class is described in a dedicated chapter~\ref{chap:datasets}.
 All items in the \datasets tuple must be assigned by the builder to
 avoid run time errors.
+It is also possible to specify lists of jobids, see this example
+\begin{python}
+datasets = ('source', ['alistofdatasets'],)
+\end{python}
+where \texttt{source} is a single \texttt{dataset}, whereas
+\texttt{alistofdatasets} is a list of \texttt{dataset}s.
 
 
 

@@ -25,29 +25,63 @@ joblists before proceeding.
 
 \section{Introduction to Urd}
 
-Urd is the processing flow controller in the Accelerator framework,
-that provides a convenient way to organise, store, and retrieve all
-jobs in a project.  Using Urd, a project could be separated into
-functionally independent parts, with Urd acting as glue, passing
-information around.  More formally, Urd provides two things:
+Urd comes into play when simple build scripting is not enough.  A wide
+variety of advanced tasks can be handled without it, but the
+capabilities added by Urd in terms of job organisation, storage, and
+retreival makes it possible to handle much larger and more advanced
+projects while maintaining in full control.
+
+Using Urd, a project could be separated into functionally independent
+parts, and all dependencies between jobs inside as well as between
+these parts is logged.  It is possible to re-construct the state of
+any part the way it were at any instance in time.
+
+More formally, Urd provides two things:
 \begin{itemize}
-\item[1.] Separation between build scripts
-        and a way to share information about built jobs between scripts.
-\item[2.] A searchable transaction log database of all jobs built together with their dependencies.
+\item[1.] Separation between build scripts,
+        and a way to share information about built jobs between
+        different scripts (or the same script at different points in time).
+\item[2.] A searchable transaction log database of all jobs built
+together with their dependencies.
 \end{itemize}
-To give a taste of what it looks like, consider this basic example of
-job retreival
-\begin{python}
-def main(urd):
-    latest_ratings_joblist = urd.latest('import/ratings')
-    print(latest_ratings_joblist.pretty)
-\end{python}
-This method will print information about the latest list of jobs
-stored by the \texttt{import/ratings} key.  Note that this is just
-job \textsl{retreival}, no jobs could be built in this process, so in
-that sense Urd provides a layer of isolation.  Urd is also an
-interesting example of a log-file-based database.  This, and many
-other aspects of Urd, will be explained in the rest of this chapter.
+The interesting transaction log database and many other aspects of Urd
+will be explained in the rest of this chapter.
+
+
+
+
+\section{A Simple Usecase}
+
+Assume a project where, say, movie recommendation data is to be
+analysed.  Every hour, recommendations generated during the last hour
+will appear in the shape of a new log file.  The project is using two
+build scripts:
+\begin{itemize}
+\item[] The first build script is used to look for new files, and import and chain
+  them as they appear.  For each new file imported, the build script
+  will tell the Urd server the timestamp of the file as well as a list
+  of all created jobs associated with that file.
+
+\item[] The second build script is used for the data analysis work, and is perhaps run less regularly.
+  This script needs to know the jobid to the latest imported file, and
+  this is a straightforward thing to ask Urd.  All analysis jobs are
+  also stored in Urd together with a corresponding timestamp.
+\end{itemize}
+Here, Urd is used to forward information about executed jobs from
+first build script to the second.  In this senss, Urd
+provides \textsl{isolation} by message passing.
+
+Urd can also be used to tell which input data that was used for a
+particular data analysis job.  When quering Urd about a data analysis
+job, it will respond with information about those jobs \textsl{as well
+as} information about all Urd queries that was neccesary for the jobs
+to run.  This information is stored automatically in the build script
+and it is there to ensure transparency and reproducibility.
+
+
+
+
+
 
 \section{Urd Concepts}
 

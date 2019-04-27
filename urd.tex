@@ -395,31 +395,34 @@ the \texttt{workdir=} option to \texttt{urd.build}.
 
 \subsection{Finding an Exact or Closest Match:  \texttt{get()}}
 The \texttt{get()} function will return an item corresponding to a
-(relaxed) timestamp.  (More about the relaxed part below.)
+timestamp, like this
 \begin{python}
 urd.get("ab/test", "2018-01-01T23")
 \end{python}
 The timestamp must match exactly for an item to be returned.  This
 strict behaviour can be relaxed by starting the timestamp with
-``\texttt{<}'', ``\texttt{<=}'', ``\texttt{>}'', or ``\texttt{>=}'',
+one of
+\begin{itemize}
+\item[] ``\texttt{<}'', ``\texttt{<=}'', ``\texttt{>}'', or ``\texttt{>=}''.
+\end{itemize}
 for example
 \begin{python}
 urd.get("ab/test", ">2018-01-01T01")
 \end{python}
-may return an item recorded as \texttt{2018-01-01T02}.
-
-The timestamp may be relaxed in the sense that it is used for
-comparison ``from the left'', so it is okay to do
+may return an item recorded as \texttt{2018-01-01T02}.  Relaxed
+comparison is performed ``from left to right'', meaning that
 \begin{python}
 urd.get("ab/test", ">20")
 \end{python}
-to get the fist recorded item recorded in a year starting with ``20''.
-Note that
+will match the first recorded sesstion in a year starting with
+``\texttt{20}'', while
 \begin{python}
 urd.get("ab/test", "<=2018-05")
 \end{python}
-will match all ``\texttt{2018-05-xx}''-timestamps.
+will match the latest timestamp starting with ``\texttt{2018-05}'' or less,
+such as ``\texttt{2018-04-01}'' or ``\texttt{2018-05-31T23:59:59}''.
 
+\comment{get() ger en eller alla?  Måste skapa exempelkod!}
 
 \subsection{Finding the latest item:  \texttt{latest()}}
 The \texttt{latest()} will return the item with most recent timestamp.
@@ -449,6 +452,9 @@ possible to erase or modify old entries, but it is okay to update the
 latest item, or set a marker in the log indicating that the list is
 starting over from a certain date and everything before this marker
 should not be considered anymore.
+\comment{history rewriting while maintaining full history!}
+
+
 
 \subsection{Updating the last item}
 To update the last item in a list, set the \texttt{update} argument
@@ -509,6 +515,7 @@ may show something like
 \begin{shell}
 ['ab/test', 'ab/live']
 \end{shell}
+
 
 
 \subsection{Listing all Items After a Specific Timestamp:  \texttt{since()}}

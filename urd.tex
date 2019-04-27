@@ -216,6 +216,63 @@ to omit \texttt{finish()} to avoid storage or during development work.
 
 
 
+\section{What Urd Stores}
+
+Calling \texttt{urd.finish()} will update the Urd database with the
+contents of the current \textsl{session}.  Each session is addressable
+using a \textsl{list} name (in the format \texttt{user/automata}) and
+a \textsl{timestamp}.  The example presented earlier in this chapter
+may be retrieved using the
+\begin{verbatim}
+    processing/test
+\end{verbatim}
+list and timestamp
+\begin{verbatim}
+    2018-05-03
+\end{verbatim}
+Here is an example of what may have been recorded\begin{leftbar}
+\begin{verbatim}
+{
+    "user": "processing"
+    "automata": "test",
+    "timestamp": "2018-05-03",
+    "caption": "",
+    "joblist": [
+        [
+            "process",
+            "TEST-37"
+        ]
+    ],
+    "deps": {
+        "import/txn": {
+            "timestamp": "2018-05-03"
+            "caption": "",
+            "joblist": [
+                [
+                    "csvimport",
+                    "TEST-34"
+                ]
+            ],
+        }
+    },
+}
+\end{verbatim}
+\end{leftbar}
+\noindent This example states that at timestamp \texttt{2018-05-03} in list \texttt{processing/test},
+there exists a \texttt{process} job with jobid \texttt{TEST-34} that
+used a \texttt{csvimport} job with jobid \texttt{TEST-34}.
+
+The most imporant dictionary items are
+\starttabletwo
+\RPtwo \texttt{timestamp} & Timestamp of session\\[1ex]
+\RPtwo \texttt{caption} & A caption\\[1ex]
+\RPtwo \texttt{user/automata} & Name of Urd list\\[1ex]
+\RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
+\RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions: \mintinline{python}@{'user/automata': session}@.\\[1ex]
+\stoptabletwo
+
+
+
 
 \section{Timestamp Resolution}
 
@@ -293,6 +350,18 @@ jobids=dict{alljobs=[jobid1, jobid2,...]}
     only, this has no practical use.
 \stoptabletwo
 
+The \texttt{build()} function will only build a job when it has to,
+otherwise it will just return a link (jobid) to a matching existing
+job.  In order to match, an existing job must have
+\begin{itemize}
+\item[-] exactly the same source code, i.e.\ the \textsl{hash} of the source code must match,
+\item[-] exactly the same options, datasets, and jobids.
+\end{itemize}
+If the source code is changes, a job rebuild can be prevented using
+the \texttt{equivalent\_hashes} variable as explained in
+section~\ref{}.
+
+
 
 \section{Changing workdir:  \texttt{set\_workdir()}}
 The target workdir specified in the configuration file is the only
@@ -314,47 +383,6 @@ the \texttt{workdir=} option to \texttt{urd.build}.
 
 
 
-\section{The Urd Item}
-
-\begin{leftbar}
-\begin{verbatim}
-{
-    "user": "ab"
-    "automata": "BAR",
-    "timestamp": "2018-01-04T2",
-    "caption": "",
-    "joblist": [
-        [
-            "example",
-            "TEST-37"
-        ]
-    ],
-    "deps": {
-        "ab/FOO": {
-            "timestamp": "2018-01-04T02"
-            "caption": "",
-            "joblist": [
-                [
-                    "example",
-                    "TEST-34"
-                ]
-            ],
-        }
-    },
-}
-\end{verbatim}
-\end{leftbar}
-
-The Urd item is what is stored when a session completes.  It is
-addressed by a key which is a timestamp, and the data is a dictionary.
-The most imporant dictionary items are
-\starttabletwo
-\RPtwo \texttt{timestamp} & Timestamp of session\\[1ex]
-\RPtwo \texttt{caption} & A caption\\[1ex]
-\RPtwo \texttt{user/automata} & Location of urd-list\\[1ex]
-\RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
-\RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions, like this \mintinline{python}@{user/automata: session}@.\\[1ex]
-\stoptabletwo
 
 
 

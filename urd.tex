@@ -230,10 +230,10 @@ list and timestamp
 \begin{verbatim}
     2018-05-03
 \end{verbatim}
-Here is an example of what may have been recorded\begin{leftbar}
-\begin{verbatim}
+Here is an example of what may have been recorded
+\begin{json}
 {
-    "user": "processing"
+    "user": "processing",
     "automata": "test",
     "timestamp": "2018-05-03",
     "caption": "",
@@ -256,8 +256,8 @@ Here is an example of what may have been recorded\begin{leftbar}
         }
     },
 }
-\end{verbatim}
-\end{leftbar}
+\end{json}
+
 \noindent This example states that at timestamp \texttt{2018-05-03} in list \texttt{processing/test},
 there exists a \texttt{process} job with jobid \texttt{TEST-34} that
 used a \texttt{csvimport} job with jobid \texttt{TEST-34}.

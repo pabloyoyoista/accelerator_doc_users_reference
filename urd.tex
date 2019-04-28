@@ -178,45 +178,7 @@ section~\ref{}.)
 
 
 
-\section{Urd Sessions:  \texttt{begin()} and \texttt{finish()}}
-
-There are a number of options associated with a session, as shown
-here,
-\begin{python}
-urd.begin(urdlist, timestamp, caption=None, update=False)
-urd.finish(urdlist, timestamp, caption=None)
-\end{python}
-and the following applies
-\starttabletwo
-\RPtwo \texttt{urdlist} & is the name of the Urd list, and the same
-  \texttt{urdlist} must be specified in both \texttt{begin()}
-  and \texttt{finish()}.
-
-  The \texttt{urdlist} is specified as ``\texttt{user/list}'', where
-  the ``\texttt{user/}'' part is optional.  The \texttt{user} string
-  is also for authentication, and must correspond to the
-  current \texttt{URD\_AUTH} settings, see section~\ref{xxx}.\\[2ex]
-
-\RPtwo \texttt{timestamp} & is \textsl{mandatory}, but could be set in either
-  \texttt{begin()}, \texttt{finish()}, or both.  \texttt{finish()}
-  will override \texttt{begin()}.\\[2ex]
-
-\RPtwo \texttt{caption} & is \textsl{optional}, and can be set in either
-  \texttt{begin()} or \texttt{finish()}.  \texttt{finish()}
-  will override \texttt{begin()}.\\[2ex]
-
-\RPtwo \texttt{update} &  If set to \pyTrue, the last item in the list may be updated.
-  This optiong will be discussed in section~\ref{sec:trunc-update}.\\[2ex]
-\stoptabletwo
-
-The Urd transaction database will be written to only when
-the \texttt{finish()} function is called.  Before
-calling \texttt{finish()}, nothing is stored, and it is perfectly okay
-to omit \texttt{finish()} to avoid storage or during development work.
-
-
-
-\section{What Urd Stores}
+\section{The Contents of the Stored Session}
 
 Calling \texttt{urd.finish()} will update the Urd database with the
 contents of the current \textsl{session}.  Each session is addressable
@@ -270,6 +232,48 @@ The most imporant dictionary items are
 \RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
 \RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions: \mintinline{python}@{'user/automata': session}@.\\[1ex]
 \stoptabletwo
+
+
+
+
+\section{Urd Sessions:  \texttt{begin()} and \texttt{finish()}}
+
+There are a number of options associated with a session, as shown
+here,
+\begin{python}
+urd.begin(urdlist, timestamp, caption=None, update=False)
+urd.finish(urdlist, timestamp, caption=None)
+\end{python}
+and the following applies
+\starttabletwo
+\RPtwo \texttt{urdlist} & is the name of the Urd list, and the same
+  \texttt{urdlist} must be specified in both \texttt{begin()}
+  and \texttt{finish()}.
+
+  The \texttt{urdlist} is specified as ``\texttt{user/list}'', where
+  the ``\texttt{user/}'' part is optional.  The \texttt{user} string
+  is also for authentication, and must correspond to the
+  current \texttt{URD\_AUTH} settings, see section~\ref{xxx}.\\[2ex]
+
+\RPtwo \texttt{timestamp} & is \textsl{mandatory}, but could be set in either
+  \texttt{begin()}, \texttt{finish()}, or both.  \texttt{finish()}
+  will override \texttt{begin()}.\\[2ex]
+
+\RPtwo \texttt{caption} & is \textsl{optional}, and can be set in either
+  \texttt{begin()} or \texttt{finish()}.  \texttt{finish()}
+  will override \texttt{begin()}.\\[2ex]
+
+\RPtwo \texttt{update} &  If set to \pyTrue, the last item in the list may be updated.
+  This optiong will be discussed in section~\ref{sec:trunc-update}.\\[2ex]
+\stoptabletwo
+
+The Urd transaction database will be written to only when
+the \texttt{finish()} function is called.  Before
+calling \texttt{finish()}, nothing is stored, and it is perfectly okay
+to omit \texttt{finish()} to avoid storage or during development work.
+
+
+
 
 
 

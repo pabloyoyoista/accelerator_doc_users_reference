@@ -283,6 +283,20 @@ to omit \texttt{finish()} to avoid storage or during development work.
 
 
 \subsection{What if a Build Script is Run Again?}
+Running a build script for the first time will cause jobs to be built.
+The second time the same script is run, the Accelerator will look up
+already built jobs and immediately return jobids instead of building
+anything.  As long as there are no changes, re-defining Urd sessions
+that already exists is not a problem - they will be silently ignored.
+But if there are any discrepancies, such as a job being rebuilt, Urd
+will complain and refuse to store the differing session.
+
+Normally, a build script can be written in such a way that re-running
+it will be consistent will the Urd database and everything is fine.  A
+mismatch with Urd is then an indication of some error.  But there are
+cases when re-writing Urd history is the desired option, and this will
+be discussed in section~\ref{}.
+
 
 
 

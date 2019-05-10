@@ -118,8 +118,7 @@ and it is there to ensure transparency and reproducibility.
 
 \section{Urd Sessions and Lists}
 
-A simple file import script will be used as example in this section.
-Remember from chapter~\ref{} how to import a file in a build script:
+A simple file import script will be used as example in this section:
 \begin{python}
 def main(urd):
     urd.build('csvimport', options=dict(filename='txn1.txt'))
@@ -185,11 +184,12 @@ be used for this session as well, to indicate that processing is based
 on data with that particular timestamp.  The \textsl{jobid} to
 the \texttt{csvimport} job is then extracted from the joblist and fed
 to the \texttt{process} job as an input dataset parameter.  (The
-slightly clumsy syntax for this is explained in section~\ref{}.)
+slightly clumsy syntax for this is explained in section~\ref{sec:clumsy_dot_jobid}.)
 
 
 
 \section{The Contents of the Stored Session}
+\label{sec:urd_item}
 
 Calling \texttt{urd.finish()} will update the Urd database with the
 contents of the current \textsl{session}.  Each session is addressable
@@ -236,7 +236,7 @@ The most imporant keys are
 \RPtwo \texttt{timestamp} & Timestamp of session\\[1ex]
 \RPtwo \texttt{caption} & A caption\\[1ex]
 \RPtwo \texttt{user/automata} & Name of Urd list\\[1ex]
-\RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{xx}.\\[1ex]
+\RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{sec:joblist}.\\[1ex]
 \RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions: \mintinline{python}@{'user/automata': session}@.\\[1ex]
 \stoptabletwo
 
@@ -260,7 +260,7 @@ and the following applies
   The \texttt{urdlist} is specified as \texttt{<user>/<list>}, where
   the \texttt{<user/>} part is optional.  The \texttt{user} string
   is also for authentication, and must correspond to the
-  current \texttt{URD\_AUTH} settings, see section~\ref{xxx}.\\[2ex]
+  current \texttt{URD\_AUTH} settings, see section~\ref{sec:urd_setup}.\\[2ex]
 
 \RPtwo \texttt{timestamp} & is \textsl{mandatory}, but could be set in either
   \texttt{begin()}, \texttt{finish()}, or both.  \texttt{finish()}
@@ -295,7 +295,7 @@ Normally, a build script can be written in such a way that re-running
 it will be consistent will the Urd database and everything is fine.  A
 mismatch with Urd is then an indication of some error.  But there are
 cases when re-writing Urd history is the desired option, and this will
-be discussed in section~\ref{}.
+be discussed in section~\ref{sec:trunc-update}.
 
 
 
@@ -336,11 +336,13 @@ issued from \textsl{within} a session, i.e.\ after a \texttt{begin()}
 call.  Otherwise Urd would not be able to record all session
 dependencies.
 
-More ways to find sessions is described in section~\ref{}.
+More ways to find sessions is described in section~\ref{sec:more_urd_search}.
 
 
 
 \subsection{Finding an Exact or Closest Match:  \texttt{get()}}
+\label{sec:urd_get}
+
 The \texttt{get()} function will return the single session, if
 available, corresponding to a specified list and timestamp, like this
 \begin{python}
@@ -418,6 +420,7 @@ the Urd transaction log.
 
 
 \section{Building Jobs: \texttt{build()}}
+\label{sec:urd_build}
 
 Jobs are dispatched in Urd sessions using the \texttt{build} function.
 Here is the complete call with all possible parameters.
@@ -465,9 +468,9 @@ job.  In order to match, an existing job must have
 \item[-] exactly the same source code, i.e.\ the \textsl{hash} of the source code must match,
 \item[-] exactly the same options, datasets, and jobids.
 \end{itemize}
-If the source code is changes, a job rebuild can be prevented using
+If the source code is changed, a job rebuild can be prevented using
 the \texttt{equivalent\_hashes} variable as explained in
-section~\ref{}.
+section~\ref{sec:equivalent_hashes}.
 
 
 
@@ -476,7 +479,7 @@ The target workdir specified in the configuration file is the only
 workdir that is written to by default.  Any other workdir is read
 only.  This behaviour can be overrided, either
 \begin{itemize}
-\item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{}, or
+\item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{sec:urd_build}, or
 \item[] using \texttt{urd.set\_workdir()}.
 \end{itemize}
 The latter,
@@ -584,6 +587,8 @@ causing a loss of continuity and visibility.
 
 
 \section{More Search Functions}
+\label{sec:more_urd_search}
+
 There are two more functions for finding information in the Urd
 database: \texttt{list} and \texttt{since}.
 
@@ -686,7 +691,7 @@ And see the first stored job in the test list
 % curl http://localhost:8833/ab/test/first
 \end{shell}
 works similarly.  The returned data is an Urd item, described in
-section~\ref{xx}, in json format.
+section~\ref{sec:urd_item}, in json format.
 
 
 
@@ -703,7 +708,7 @@ at \texttt{2016-10-25}
 \end{shell}
 The timestamp may be truncated to the right, and prefixed
 by \texttt{>}, \texttt{>=}, \texttt{<}, and texttt{<=}, just as
-described in section~\ref{xx}.
+described in section~\ref{sec:urd_get}.
 \comment{but may need to do something about the shell...}
 
 

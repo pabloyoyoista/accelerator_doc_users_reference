@@ -74,12 +74,12 @@ All three iterators share these arguments
   slower, so ideally datasets should be rehashed using
   the \texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}.)\\[1ex]
   
-  \RP \texttt{filters} & \pyNone & Filters decide which rows to include.
-  Explained in section~\ref{sec:filters}\\[1ex]
-
   \RP \texttt{translators} & \pyNone & Translators transform data values.
   Explained in section~\ref{sec:translators}\\[1ex]
   
+  \RP \texttt{filters} & \pyNone & Filters decide which rows to include.
+  Explained in section~\ref{sec:filters}\\[1ex]
+
   \RP \texttt{status\_reporting} & \pyTrue & Give status when pressing
   \texttt{C-t}.  Unless manually \texttt{zip}ing iterators, this
   should be set to default \mintinline{python}/True/.  See
@@ -92,11 +92,11 @@ All three iterators share these arguments
   Default is $-1$, which corresponds to all datasets in a chain.\\[1ex]
   
   \RP \texttt{range}& \pyNone& Filter rows based on a column's value being
-  within a range, see section~\ref{}\\[1ex]
+  within a range, see section~\ref{sec:iterate_sloppy_range}\\[1ex]
 
   \RP \texttt{sloppy\_range}& \pyFalse & Used with \texttt{range}, but will
   iterate over full datasets for those datasets that have values
-  within range, see section~\ref{}.\\[1ex]
+  within range, see section~\ref{sec:iterate_sloppy_range}.\\[1ex]
   
   \RP \texttt{reverse}& \pyFalse & Iterate chain
   backwards.  Default is to iterate forward, i.e.\ from oldest to
@@ -329,7 +329,7 @@ for user, item in datasets.source.iterate_chain(
     stop_ds = {jobids.previous: 'source',}):
 \end{python}
 This will iterate until reaching the \texttt{source} dataset of
-the \texttt{jobids.previous} job, see figure~\ref{fig:}.
+the \texttt{jobids.previous} job, see figure~\ref{fig:dsprocchain}.
 
 
 

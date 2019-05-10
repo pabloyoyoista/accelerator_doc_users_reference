@@ -43,17 +43,17 @@ a directory containing
 \item[--] job meta information files,  as well as
 \item[--] any number of output files created by the running method.
 \end{itemize}
-The exact contents of the job directory will be discussed in section~\ref{}.
+The exact contents of the job directory will be discussed in section~\ref{sec:job_directories}.
 
 Computing a job is denoted job \textsl{building}.
 Jobs are \textbf{built} from methods.  When a job has been built, it
 is \textsl{static}, and cannot be altered or removed by the
 Accelerator.  Jobs are built either by
 \begin{itemize}
-\item[--] a \textsl{build script}, see chapter~\ref{}, or
+\item[--] a \textsl{build script}, see chapter~\ref{chap:urd}, or
 \item[--] by a method, using \textsl{subjobs}.
 \end{itemize}
-subjobs will be the topic of section~\ref{}.  The following figure
+subjobs will be the topic of section~\ref{sec:subjobs}.  The following figure
 illustrates how a job \texttt{example-0} is built from the
 method \texttt{a\_method.py}
 \begin{figure}[h!]
@@ -113,7 +113,7 @@ itself.  Instead, packages to be used need to be explicitly specified
 in the Accelerator's configuration file using the
 \mintinline{shell}{method_directories=}
 assignment.  Basically, the assignment should be a comma separated
-list of packages, see chapter~\ref{} for detailed information about
+list of packages, see chapter~\ref{sec:configfile} for detailed information about
 the configuration file.
 
 
@@ -186,7 +186,7 @@ is commented out and trying to build this will issue an error.
 
 \section{Job Already Built Check}
 
-From chapter~\ref{} it is known that a method is built using
+From chapter~\ref{chap:urd} it is known that a method is built using
 the \texttt{build()} function in a build script, like this
 \begin{python}
 def main(urd):
@@ -224,6 +224,7 @@ objects or filenames relative to the method's location.
 
 
 \section{Avoiding Rebuild: \texttt{equivalent\_hashes}}
+\label{sec:equivalent_hashes}
 
 A change to a method's source code will cause a new job to be built
 upon running \mintinline{python}{build()}, but sometimes it is
@@ -291,10 +292,10 @@ functions at run time.  Here is a complete list
 \starttabletwo
 \RPtwo \texttt{params} & A dictionary containing all parameters input
        from both the calling function and the Accelerator.  This will be
-       explained in detail in section~\ref{}.\\[2mm]
+       explained in detail in section~\ref{sec:params}.\\[2mm]
 \RPtwo \texttt{sliceno} & (For \analysis only.)  A unique identifier for each parallell \analysis process.\\[2mm]
-\RPtwo \texttt{SOURCE\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{}.\\[2mm]
-\RPtwo \texttt{RESULT\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{}.\\
+\RPtwo \texttt{SOURCE\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{sec:SOURCE_DIR}.\\[2mm]
+\RPtwo \texttt{RESULT\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{sec:RESULT_DIR}.\\
 %\RPtwo \texttt{jobids}, \texttt{options}, \texttt{datasets} & Defined globally in the method, but may be 
 \stoptabletwo
 
@@ -715,6 +716,7 @@ usefile.extras
 
 
 \section{Reading all Method Parameters:  \texttt{params}}
+\label{sec:params}
 
 There are two sources of parameters to a running method,
 \begin{itemize}
@@ -815,13 +817,15 @@ Note that if \texttt{jobids.anotherjob} is not defined, i.e.\ \pyNone,
 \textsl{current} job.  So in order to be safe, it makes sense to first
 check that the job exists.
 
-To access another job's \textsl{datasets}, please se section~\ref{}.
+To access another job's \textsl{datasets}, please se section~\ref{ANOTHER_JOBS_DATASETS}.
 
 
 
 
 
 \section{Job Directories}
+\label{sec:job_directories}
+
 A successfully build of a method results in a new job directory on
 disk.  The job directory will be stored in the current workdir and
 have a structure as follows, assuming the current workdir
@@ -850,6 +854,7 @@ directory.
 
 
 \section{Subjobs}
+\label{sec:subjobs}
 \index{subjobs}
 
 Jobs may launch subjobs, i.e.\ methods may build other methods in a

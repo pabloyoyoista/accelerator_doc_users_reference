@@ -10,7 +10,7 @@ chapter~\ref{chap:urd}.
 \section{Build Scripts}
 \index{build scripts}
 Build scripts are executed by the \texttt{automatarunner} executable.
-Example of its use is provided in this section~\ref{}.
+Example of its use is provided in this section~\ref{sec:exec_runner}.
 A build script must contain the function \texttt{main}, since this is
 called by the runner, like this
 \index{build script!\texttt{main} function}
@@ -121,6 +121,7 @@ result may be different, and the user is notified.
 
 
 \section{Working with Build History:  \texttt{urd.joblist}}
+\label{sec:joblist}
 
 Information about previously executed jobs is stored in
 the \texttt{urd.joblist} variable.  This variable is of
@@ -154,6 +155,7 @@ given explicitly by \texttt{name=} in \texttt{urd.build()}.
 
 
 \subsection{Finding jobs by name:  \texttt{urd.joblist[name]}}
+\label{sec:clumsy_dot_jobid}
 
 Any job in the list can be accessed by its name, so for example the
 jobid to the \texttt{first} job could be retrieved by
@@ -242,9 +244,9 @@ from the Accelerator daemon.  In particular, it contains these fields
 \RPtwo \texttt{slices} & Configured number of slices.\\[1ex]
 \RPtwo \texttt{urd} & An URL to the Urd server, if configured,
   \pyNone otherwise.\\[1ex]
-\RPtwo \texttt{result\_directory} & see section~\ref{}.\\[1ex]
-\RPtwo \texttt{common\_directory} & see section~\ref{}.\\[1ex]
-\RPtwo \texttt{source\_directory} & see section~\ref{}.\\[1ex]
+\RPtwo \texttt{result\_directory} & see section~\ref{sec:configfile}.\\[1ex]
+\RPtwo \texttt{common\_directory} & see section~\ref{sec:configfile}.\\[1ex]
+\RPtwo \texttt{source\_directory} & see section~\ref{sec:configfile}.\\[1ex]
 \stoptabletwo
 
 

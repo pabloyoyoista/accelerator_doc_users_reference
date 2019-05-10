@@ -64,7 +64,7 @@ def synthesis():
 This program does not take any input parameters.  It just returns a
 string and exits.  Slightly simplified for clarity, we run the method
 like this. (Running methods on the Accelerator is further explained in
-section~\ref{chap:urd_basic}.)
+chapter~\ref{chap:urd_basic}.)
 \begin{python}
 jobid = build('hello_world')
 \end{python}
@@ -198,7 +198,7 @@ column containing some ID string will partition all rows such that
 rows corresponding to any particular ID is stored in a single slice
 only.  In many practical applications, hashing makes parallel
 processes independent, minimising the need for complicated merging
-operations.  This is explained further in chapter~\ref{chap:datasets}.
+operations.  This is explained further in chapter~\ref{sec:why_hashing}.
 
 
 
@@ -291,7 +291,7 @@ Figure~\ref{fig:dep_dataset_append_column}.
 A common case is to compute new columns based on existing ones.  In
 this case, we iterate over the rows in the source dataset, and for
 each iteration we write a new row of values to the new columns.  This
-will be shown later in section~\ref{}
+will be shown later in section~\ref{sec:appending_new_columns}
 
 
 

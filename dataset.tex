@@ -52,7 +52,7 @@ On a high level, the dataset stores a \textsl{matrix} of rows and
 columns.  Each column is represented by a column name,
 or \emph{label}, and all columns have the same number of rows.
 Columns are typed, and there is a wide range of types available.
-Typing will be introduced in section~\ref{sec:dataset-typing}.
+Typing will be introduced in section~\ref{sec:dataset_typing}.
 
 The dataset is further split into disjoint slices, where each slice
 holds a unique subset of the dataset's rows.  Slicing makes simple but
@@ -310,6 +310,8 @@ print(datasets.source.previous)
 
 
 \section{Column Typing}
+\label{sec:dataset_typing}
+
 The dataset columns are typed.  This means, for example, that if a
 column's type is \texttt{date}, each value read from the column will
 be in Python's \texttt{date} format, ready for processing.  The same
@@ -532,6 +534,7 @@ Currently out-of-scope of this manual.  Please see the file
 
 
 \section{Appending New Columns to an Existing Dataset}
+\label{sec:appending_new_columns}
 
 With minimal overhead, existing datasets could be extended with new
 columns.  Internally, this is implemented by storing the new column

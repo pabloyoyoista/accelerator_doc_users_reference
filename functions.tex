@@ -1,4 +1,8 @@
 
+This chapter is dedicated to the Accelerator's helper functions.
+Some, like the \texttt{blob} module, are very useful, while others are
+less likely to be included in a project.
+
 \section{Share Data Between Jobs:  the \texttt{blob} Module}
 
 The simplest way to share reasonable amounts of data between jobs is
@@ -95,7 +99,7 @@ def analysis(sliceno):
 
 
 
-\section{Find the Full Path of a File in Another Job}
+\section{Find the Full Path to a File in Another Job}
 Accessing a file stored in another job from within a method or build
 script is simple, and the functionality is implemented
 in \texttt{resolve\_jobid\_filename()}.  The function takes two
@@ -137,11 +141,11 @@ it already exists.
 
 
 
-\subsection{job\_params}
+\section{job\_params}
+\comment{missing!}
 
 
-
-\subsection{job\_post}
+\section{job\_post}
 The \texttt{job\_post} function returns a job's post execution
 information as a Python \texttt{dict}
 \begin{python}
@@ -152,7 +156,7 @@ The post data contains mainly profiling information.
 
 
 
-\subsection{json\_encode}
+\section{json\_encode}
 \begin{python}
 from extras import json_encode
 json_encode(variable, sort_keys=True, as_str=False)
@@ -170,7 +174,7 @@ otherwise.
 
 
 
-\subsection{json\_decode}
+\section{json\_decode}
 \begin{python}
 from extras import json_decode
 x = json_decode(s)
@@ -180,7 +184,7 @@ Return a datastructure defined by the string \texttt{s}.
 
 
 
-\subsection{json\_save}
+\section{json\_save}
 \begin{python}
 from extras import json_save
 json_save(variable,
@@ -196,7 +200,7 @@ json_save(variable,
 
 
 
-\subsection{json\_load}
+\section{json\_load}
 \begin{python}
 from extras import json_load
 x = json_load(
@@ -213,7 +217,7 @@ x = json_load(
 
 
 
-\subsection{DotDict}
+\section{DotDict}
 \begin{verbatim}
     """Like a dict, but with d.foo as well as d['foo'].
     d.foo returns '' for unset values by default, but you can specify
@@ -225,7 +229,7 @@ x = json_load(
 
 
 
-\subsection{OptionEnum}
+\section{OptionEnum}
 \begin{verbatim}
 A little like Enum in python34, but string-like.
 (For JSONable method option enums.)
@@ -260,7 +264,7 @@ these as foo['cde'] (for use in options{}).
 
 
 
-\subsection{OptionString}
+\section{OptionString}
 \begin{verbatim}
     """Marker value to specify in options{} for requiring a non-empty string.
     You can use plain OptionString, or you can use OptionString('example'),
@@ -269,7 +273,7 @@ these as foo['cde'] (for use in options{}).
 
 
 
-\subsection{RequiredOption}
+\section{RequiredOption}
 \begin{verbatim}
 Specify that this option is mandatory (that the caller must specify a value).
     None is accepted as a specified value if you pass none_ok=True.
@@ -277,7 +281,7 @@ Specify that this option is mandatory (that the caller must specify a value).
 
 
 
-\subsection{OptionDefault}
+\section{OptionDefault}
 \begin{verbatim}
 "''Default selection for complexly typed options.
 foo={'bar': OptionEnum(...)} is a mandatory option.
@@ -287,7 +291,12 @@ foo=OptionDefault({'bar': OptionEnum(...)}) isn't.
 
 
 
-\subsection{gzutil}
+\section{gzutil}
 \begin{python}
 with gzutil.GzUnicodeLines(filename, strip_bom=True) as fh:
 \end{python}
+
+
+
+\section{profile\_jobs}
+\comment{see redmine}

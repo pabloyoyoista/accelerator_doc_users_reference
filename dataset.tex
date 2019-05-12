@@ -120,7 +120,7 @@ terms, round robin would be
 \begin{equation*}
   \textrm{row}~n \longrightarrow \textrm{slice}(n~\textrm{mod}~N)
 \end{equation*}
-
+Meaning that inut data row $n$ is stored in slice $n~\textrm{mod}~N$.
 Another way is to slice by looking at the values of a fixed single
 column and put all rows with equal values in the same column.  This
 way, data will be sliced ``by content'', and the number of rows per
@@ -128,15 +128,17 @@ slice may vary significantly.  In the context of the Accelerator, this
 is called \emph{hashing}, and a dataset can be hashed on any single
 column.  Written as an equation, it will look like this
 \begin{equation*}
-\textrm{row}~n \longrightarrow \textrm{slice}(\textrm{hash}(\textrm{word})~\textrm{mod}~N)
+\textrm{row}~n \longrightarrow \textrm{slice}(\textrm{hash}(\textrm{column data})~\textrm{mod}~N)
 \end{equation*}
 
-The advantage of this method is that data in each slice becomes
-independent in many application, which is ideal for parallel
-\comment{skriv om!}
-processing of the dataset.  The hash function used by the Accelerator
-is a well-known function called \texttt{siphash24} that is available
-from the \texttt{gzutil} library
+In many practical applications, data may be sliced using a hashing
+function so that data in each slice is \textsl{independent}.
+Independent data means that processing of the dataset can be carried
+out in a completely parallel fashion.
+
+The hash function used by the Accelerator is a well-known function
+called \texttt{siphash24} that is available from the
+Accelerator's \texttt{gzutil} library
 \begin{python}
 from gzutil import siphash24
 
@@ -538,7 +540,8 @@ Currently out-of-scope of this manual.  Please see the file
 
 With minimal overhead, existing datasets could be extended with new
 columns.  Internally, this is implemented by storing the new column
-data together with a pointer to the ``parent'' dataset.
+data together with a pointer to the original, ``parent'', dataset.
+
 
 Appending new columns works the same way as when creating a dataset,
 with the exception that a link to a dataset that is to be appended to

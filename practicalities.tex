@@ -190,23 +190,17 @@ as \texttt{cd/import}.  It can read all lists, though.
 
 
 \clearpage
-\section{workdirs}
-\comment{cleanup}
-Workdirs is where jobs are stored.  The Accelerator must have one
+\section{Workdirs}
+
+Jobs are stored in \textsl{workdirs}.  The Accelerator must have one
 target workdir, and may optionally have several source workdirs.
 Target and source workdirs are specified in the daemon configuration
 file.
 
-By default, only the target workdir is written to, while the source
-workdirs are for reading only.  It is possible to override this,
-however, by setting the \texttt{workdir}-option in
+By default, the only workdir that is written to is the target workdir,
+while the source workdirs are for reading.  It is possible to override
+this, however, by setting the \mintinline{python}|workdir=| option in
 the \texttt{urd.build()} call, see section~\ref{sec:urd_build}.
-
-Any directory empty directory can be a workdir, and by adding it as
-either source or target workdir in the configuration file, it will be
-initiated at daemon startup.  The initiation process creates a file
-named \texttt{<workdir>-slices.conf}, that will contain the number of
-slices that is used for the workdir.
 
 Jobdirs are stored in the workdir by the daemon, and jobdirs will
 inherit the workdir name and add a suffix that is an incremental job
@@ -222,16 +216,23 @@ test/
 \end{shell}
 The link \texttt{<workdir>-LATEST} is always pointing to the last
 jobdir created.  This is useful for example when iteratively testing a
-method.  Each new test will have a new jobid, but this link will
-always point to the most recent one.
+method and accessing its data for example for plotting purposes.  Each
+new build of the (modified) method will create a new job and jobid,
+but the link will always point to the most recent version.
 
 
 \subsection{Creating a Workdir}
-\comment{elsewhere, too}
-To create a new workdir, create the directory and add it in the
-configuration file either as source or target workdir.  Stop and
-restart the \texttt{daemon}.  Upon startup, any uninitialised source
-or target workdir in the configuration file will be initialised.
+Any empty directory can be a workdir.  To create a new workdir, create
+the directory and add it in the configuration file either as source or
+target workdir.  Stop and restart the \texttt{daemon}.  Upon startup,
+any uninitialised source or target workdir in the configuration file
+will be initialised.
+
+The initiation process creates a file named
+\texttt{<workdir>-slices.conf} that indicates that the directory is
+now a workdir.  The file itself will contain the number of slices that
+is used for the workdir.
+
 
 
 
@@ -256,13 +257,16 @@ or \texttt{runner} shells.
 
 
 \section{Typical Installation}
-\comment{need}
+
+See the Accelerator Installation Manual for current installation
+guidelines.
+
 Traditionally, the Accelerator is installed as a \texttt{git
-submodule} to the current project it is used in.  This makes it
-possible to update the Accelerator and project code independently,
-while linking a specific version of the Accelerator to the project.
-Thus, the project will always use a specific Accelerator commit,
-making the project independent of changes to the Accelerator.
+submodule} as part of the project it is used in.  This makes it
+straightforward to update the Accelerator and project code
+independently, while linking a specific version of the Accelerator to
+the project.  Thus, the project will always use a specific Accelerator
+commit, making the project independent of changes to the Accelerator.
 
 Here is a typical setup
 \begin{shell}
@@ -272,11 +276,12 @@ project/
     conf/
 \end{shell}
 Methods are stored in the \texttt{dev} directory, and Accelerator
-configuration files in \texttt{conf}.  These files are version
-controlled using \texttt{git}.  The \texttt{accelerator} directory is
-a \texttt{git submodule}, which means that the project repository is
-storing the repository location \textsl{and} the commit of the
+configuration files in \texttt{conf}.  All files are version
+controlled using \texttt{git}, and the \texttt{accelerator} directory
+is a \texttt{git submodule}, which means that the project repository
+is storing the repository location \textsl{and} the commit of the
 Accelerator.
+
 
 
 

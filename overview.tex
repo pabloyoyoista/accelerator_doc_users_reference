@@ -205,7 +205,7 @@ operations.  This is explained further in chapter~\ref{sec:why_hashing}.
 \subsection{Importing Data}
 
 Let's have a look at the common operation of \textsl{importing},
-i.e.\ creating a dataset from a file.  See
+data, i.e.\ creating a dataset from a file.  See
 figure~\ref{fig:dataset_csvimport}.
 
 \begin{figure}[h!]
@@ -219,7 +219,13 @@ figure~\ref{fig:dataset_csvimport}.
 \noindent The bundled standard method \texttt{csvimport} is designed
 to parse a pletoria of ``comma separated values''-file formats and
 store the data as a dataset.  The method takes several input options,
-where the file name is mandatory.  When executed, the created dataset
+where the file name is mandatory.  Here is an example (non-simplified)
+invocation
+\begin{python}
+def main(urd):
+    jid = urd.build('csvimport', option=dict(filename='file0.txt'))  
+\end{python}
+When executed, the created dataset
 will be stored in the resulting job, and the name of the dataset will
 by default be the jobid plus the string \texttt{default}.  For
 example, if the \texttt{csvimport} jobid is \texttt{imp-0}, the
@@ -368,10 +374,10 @@ about it later on.
 \label{sec:dataset-typing}
 There are a number of useful types available for dataset columns.
 They include floating and integer point numbers, booleans, timestamps,
-several string types, and json types.  Most of these types come with
-advanced parsers, making importing data from text files
-straightforward with deterministic handling of errors, overflows, and
-so on.
+several string types, and json types for storing arbitrary data
+collections.  Most of these types come with advanced parsers, making
+importing data from text files straightforward with deterministic
+handling of errors, overflows, and so on.
 
 
 

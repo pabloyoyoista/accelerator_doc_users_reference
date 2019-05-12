@@ -117,7 +117,6 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 Urd is included in the \texttt{accelerator} repository, in the
 subdirectory \texttt{accelerator/urd}.
-\comment{but we add this as executable in the package!}
 
 
 \subsubsection{Dependencies}
@@ -188,17 +187,6 @@ But it can not write to lists belonging to other users, such
 as \texttt{cd/import}.  It can read all lists, though.
 
 
-\subsection{Authorization the \texttt{runner} to Urd}
-As mentioned also elsewhere\comment{cleanup}...
-Authorisation to Urd could be set in the \texttt{URD\_AUTH}
-environment variable.  A common way to invoke the runner with Urd
-authorisation is like this
-\begin{shell}
-% URD_AUTH=user:passwd ./runner [script]
-\end{shell}
-Note that the purpose of the authentication is
-actually \textsl{identification}.  It is used to get write access to
-certain Urd lists.  Nothing more.
 
 
 \clearpage

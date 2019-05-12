@@ -662,7 +662,7 @@ To show all stored lists issue
 \end{shell}
 All available lists are returned in a json list.
 
-\comment{NÅGONTING OM ATT DET ÄR OK ATT KÖRA EN AUTOMATA IGEN SÅ LÄNGE DEN EXAKT MOTSVARAR VAD SOM FINBNS I URD}
+
 
 \subsection{The \texttt{since} endpoint}
 The \texttt{since} endpoint is used to get a list of all entries more recent than a timestamp.
@@ -708,8 +708,9 @@ at \texttt{2016-10-25}
 \end{shell}
 The timestamp may be truncated to the right, and prefixed
 by \texttt{>}, \texttt{>=}, \texttt{<}, and texttt{<=}, just as
-described in section~\ref{sec:urd_get}.
-\comment{but may need to do something about the shell...}
+described in section~\ref{sec:urd_get}.  Make sure to quote the
+request if these characters are used in a call from the shell.
+
 
 
 \section{Profiling a Build Script:  \texttt{print\_profile()}}

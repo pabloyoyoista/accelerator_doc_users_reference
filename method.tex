@@ -31,17 +31,17 @@ and result merging.  Storing and retreiving data.  Building subjobs.
 
 In general, doing a computation on a computer follows the following equation
 \[
-  \text{source code} \quad+\quad \text{input parameters} \quad+\quad \text{execution time} \quad\rightarrow\quad \text{result}
+  \text{source code} \quad+\quad \text{input data and parameters} \quad+\quad \text{execution time} \quad\rightarrow\quad \text{result}
 \]
 In the Accelerator context, the equation becomes
 \[
-  \text{method} \quad+\quad \text{input parameters} \quad+\quad \text{execution time} \quad\rightarrow\quad \text{job}
+  \text{method} \quad+\quad \text{input data} \quad+\quad \text{input parameters} \quad+\quad \text{execution time} \quad\rightarrow\quad \text{job}
 \]
 where the \textbf{method} is the source code, and the \textbf{job} is
 a directory containing
 \begin{itemize}
-\item[--] job meta information files,  as well as
-\item[--] any number of output files created by the running method.
+\item[--] any number of output files created by the running method, as well as
+\item[--] a number of job meta information files.
 \end{itemize}
 The exact contents of the job directory will be discussed in section~\ref{sec:job_directories}.
 
@@ -379,8 +379,8 @@ jobids = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
-The input parameters will then populated by the
-builder~\ref{chap:urd}.
+The input parameters are populated by the
+builder, see~\ref{chap:urd}.
 
 The \texttt{jobids} parameter list is used to input links, or jobids,
 to other jobs, while the \datasets parameter list is used to input

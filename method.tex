@@ -567,7 +567,7 @@ check that the job exists.
 
 
 
-\subsection{Accessing Another job's Datasets}
+\section{Accessing Another job's Datasets}
 Accessing another job's dataset parameters is done using the
 \texttt{Dataset} constructor like this
 \begin{python}
@@ -576,7 +576,9 @@ from dataset import Dataset
 jobids = ('previous',)
 
 def synthesis():
+    # use the "default" dataset if unspecified
     ds_default = Dataset(jobids.previous)
+    # specify the "source" dataset
     ds_source = Dataset(jobids.previous, 'source')
 \end{python}
 assuming that \texttt{jobids.previous} has the datasets

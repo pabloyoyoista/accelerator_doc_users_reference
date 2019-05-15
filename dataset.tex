@@ -163,38 +163,43 @@ Dataset.
 
 
 \section{Datasets from Jobids}
-Although a not so common operation, a Dataset object can be
+A Dataset object can be
 instantiated from a jobid, like this
 \begin{python}
 from dataset import Dataset
 ...
-d = Dataset('foo-0')
+ds = Dataset('foo-0')
 \end{python}
-In this case, \texttt{d} will be an object based on the default
+In this case, \texttt{ds} will be an object based on the default
 dataset residing at jobid \texttt{foo-0}.  If the dataset is stored by
 a different name, i.e.\ different from \texttt{default}, it may be
 accessed like this
 \begin{python}
-d = Dataset('foo-0/bar')
+ds = Dataset('foo-0/bar')
 # or
-d = Dataset(('foo-0', 'bar'))
+ds = Dataset(('foo-0', 'bar'))
 \end{python}
-
-
-\section{Change to Another Dataset in a Job}
-If a job contains more than one dataset, it is possible to switch from
-one to another easily.  Assume for example that the input dataset in
-the following example is stored in a job that has two datasets
-named \texttt{first} and \texttt{second}.
+A common operation is to fetch a dataset from another jobid
 \begin{python}
-from dataset import Dataset
-
-datasets=('source',)
-
-def synthesis():
-    first = datasets.source, 'first')
-    second = datasets.source, 'second')
+ds = Dataset((jobids.previous, 'source'))
 \end{python}
+
+
+
+%% \section{Change to Another Dataset in a Job}
+%% If a job contains more than one dataset, it is possible to switch from
+%% one to another easily.  Assume for example that the input dataset in
+%% the following example is stored in a job that has two datasets
+%% named \texttt{first} and \texttt{second}.
+%% \begin{python}
+%% from dataset import Dataset
+
+%% datasets=('source',)
+
+%% def synthesis():
+%%     first = datasets.source, 'first')
+%%     second = datasets.source, 'second')
+%% \end{python}
 
 
                       

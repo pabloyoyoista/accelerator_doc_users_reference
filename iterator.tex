@@ -225,6 +225,16 @@ i this chapter.
 
 
 
+\begin{figure}[t!]
+  \begin{center}
+    \input{figures/dsprocchain.pdftex_t}
+    \caption{Example of import and processing jobs.  Blue text and arrows relate to the \textsl{current job}, \texttt{proc-1}.}
+    \label{fig:dsprocchain}
+  \end{center}
+\end{figure}
+
+
+
 \subsection*{An Example}
 Consider the case where new files are added to a project in a
 continuous fashion.  These files are imported and chained, so that
@@ -276,13 +286,6 @@ def analysis(sliceno):
 
 
 
-\begin{figure}[h!]
-  \begin{center}
-    \input{figures/dsprocchain.pdftex_t}
-    \caption{}
-    \label{fig:dsprocchain}
-  \end{center}
-\end{figure}
 
 
 
@@ -329,7 +332,7 @@ for user, item in datasets.source.iterate_chain(
     stop_ds = {jobids.previous: 'source',}):
 \end{python}
 This will iterate until reaching the \texttt{source} dataset of
-the \texttt{jobids.previous} job, see figure~\ref{fig:dsprocchain}.
+the \texttt{jobids.previous} job.
 
 
 

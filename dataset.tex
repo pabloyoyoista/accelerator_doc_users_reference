@@ -19,7 +19,7 @@
 \label{chap:datasets}
 
 The Dataset class provides fast and simple access to data.  It is the
-prefered way to store data using the Accelerator.  Datasets are
+preferred way to store data using the Accelerator.  Datasets are
 created by methods, and are therefore located inside job directories.
 There can be any number of Datasets in a job.  Datasets are
 lightweight -- adding new columns to a dataset, or appending datasets
@@ -57,7 +57,7 @@ Typing will be introduced in section~\ref{sec:dataset_typing}.
 The dataset is further split into disjoint slices, where each slice
 holds a unique subset of the dataset's rows.  Slicing makes simple but
 efficient parallel processing possible.  See Figure~\ref{fig:slices}.
-The number of slices is set initally by the user, and all workdirs
+The number of slices is set initially by the user, and all workdirs
 that are used together in a project must use the same number of
 slices.
 
@@ -66,7 +66,7 @@ column.  A job that needs to read only a subset of the total number of
 columns may open and read from the relevant files only.
 
 A technical note: If the number of slices is large and files are
-small, there will be a signinficant overhead from disk \texttt{seek()}
+small, there will be a significant overhead from disk \texttt{seek()}
 if using rotating disks.  The Accelerator mitigates this by changing
 the storage model to using single files with offset-indexing when
 appropriate.
@@ -120,7 +120,7 @@ terms, round robin would be
 \begin{equation*}
   \textrm{row}~n \longrightarrow \textrm{slice}(n~\textrm{mod}~N)
 \end{equation*}
-Meaning that inut data row $n$ is stored in slice $n~\textrm{mod}~N$.
+Meaning that input data row $n$ is stored in slice $n~\textrm{mod}~N$.
 Another way is to slice by looking at the values of a fixed single
 column and put all rows with equal values in the same column.  This
 way, data will be sliced ``by content'', and the number of rows per
@@ -211,7 +211,7 @@ described in the next sections.
 
 
 \subsection*{Column Names}
-All columns in a dataset may be aquired using the \texttt{columns}
+All columns in a dataset may be acquired using the \texttt{columns}
 property, like this
 \begin{python}
 datasets = ('source',)
@@ -289,7 +289,7 @@ print(datasets.source.hashlabel)
 \subsection*{Filename and Caption}
 The dataset may have a filename associated to it.  This makes sense in
 situations for example where the dataset is created from an input data
-file using \texttt{csvimport} or similar.  The filename is accessable
+file using \texttt{csvimport} or similar.  The filename is accessible
 using the \texttt{filename} attribute:
 \begin{python}
 print(datasets.source.filename)
@@ -393,7 +393,7 @@ for ts in datasets.source.iterate(sliceno, 'timestamp'):
 There are three string types, \texttt{bytes}, \texttt{ascii}, and
 \texttt{unicode}.  The \texttt{bytes} type is what is assigned to
 columns by \texttt{csvimport}.  For columns with text,
-\texttt{unicode} is the prefered choice, and it executes faster in
+\texttt{unicode} is the preferred choice, and it executes faster in
 Python~3.
 
 
@@ -563,7 +563,7 @@ def prepare():
     dw = DatasetWriter(
         parent=datasets.source,
         previous=datasets.previous,
-        caption='with the new colum'
+        caption='with the new column'
     )
     dw.add('newcolname', 'unicode')
     return dw

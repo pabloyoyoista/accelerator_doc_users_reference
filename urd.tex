@@ -18,7 +18,7 @@
 
 \label{chap:urd}
 
-This chapted is the continuation of chapter~\ref{chap:urd_basic},
+This chapter is the continuation of chapter~\ref{chap:urd_basic},
 ``Basic Build Scripting''.  Please read about build script and
 joblists before proceeding.
 
@@ -28,7 +28,7 @@ joblists before proceeding.
 Urd comes into play when simple build scripting is not enough.  A wide
 variety of advanced tasks can be handled without it, but the
 capabilities added by Urd in terms of job organisation, storage, and
-retreival makes it possible to handle much larger and more advanced
+retrieval makes it possible to handle much larger and more advanced
 projects while maintaining in full control.
 
 Using Urd, a project could be separated into functionally independent
@@ -50,7 +50,7 @@ will be explained in the rest of this chapter.
 
 
 
-\section{A Simple Usecase}
+\section{A Simple Use case}
 
 Assume a project where, say, movie recommendation data is to be
 analysed.  Every hour, recommendations generated during the last hour
@@ -68,13 +68,13 @@ build scripts:
   also stored in Urd together with a corresponding timestamp.
 \end{itemize}
 Here, Urd is used to forward information about executed jobs from
-first build script to the second.  In this senss, Urd
+first build script to the second.  In this sense, Urd
 provides \textsl{isolation} by message passing.
 
 Urd can also be used to tell which input data that was used for a
-particular data analysis job.  When quering Urd about a data analysis
+particular data analysis job.  When querying Urd about a data analysis
 job, it will respond with information about those jobs \textsl{as well
-as} information about all Urd queries that was neccesary for the jobs
+as} information about all Urd queries that was necessary for the jobs
 to run.  This information is stored automatically in the build script
 and it is there to ensure transparency and reproducibility.
 
@@ -134,7 +134,7 @@ def main(urd):
 \end{python}
 Everything that happens between \texttt{begin()} and \texttt{finish()}
 makes up the session.  The \texttt{finish()} function makes sure that
-the session is stored premanently to disk for future reference.  In
+the session is stored permanently to disk for future reference.  In
 this case, the session can be retrieved knowing its \textsl{list} name
 \begin{verbatim}
     import/txn
@@ -177,7 +177,7 @@ session named \texttt{process/text}.  At \texttt{begin()}, the
 timestamp is still unknown, it is to be set to the same timestamp as
 the import job has.
 
-The script is then retrieveing the recently created urd session stored
+The script is then retrieving the recently created urd session stored
 in list \texttt{import/txn}.  Two things are extracted from this data,
 the \textsl{timestamp} and the \textsl{joblist}.  The timestamp will
 be used for this session as well, to indicate that processing is based
@@ -231,7 +231,7 @@ used a \texttt{csvimport} job with jobid \texttt{TEST-34}.  This job
 also exists in the urd list \texttt{import/txn} at
 timestamp \texttt{2018-05-03}.)
 
-The most imporant keys are
+The most important keys are
 \starttabletwo
 \RPtwo \texttt{timestamp} & Timestamp of session\\[1ex]
 \RPtwo \texttt{caption} & A caption\\[1ex]
@@ -271,7 +271,7 @@ and the following applies
   will override \texttt{begin()}.\\[2ex]
 
 \RPtwo \texttt{update} &  If set to \pyTrue, the last item in the list may be updated.
-  This optiong will be discussed in section~\ref{sec:trunc-update}.\\[2ex]
+  This option will be discussed in section~\ref{sec:trunc-update}.\\[2ex]
 \stoptabletwo
 
 The Urd transaction database will be written to only when
@@ -363,7 +363,7 @@ comparison is performed ``from left to right'', meaning that
 \begin{python}
 urd.get("ab/test", ">20")
 \end{python}
-will match the first recorded sesstion in a year starting with
+will match the first recorded session in a year starting with
 ``\texttt{20}'', while
 \begin{python}
 urd.get("ab/test", "<=2018-05")
@@ -477,7 +477,7 @@ section~\ref{sec:equivalent_hashes}.
 \section{Changing workdir:  \texttt{set\_workdir()}}
 The target workdir specified in the configuration file is the only
 workdir that is written to by default.  Any other workdir is read
-only.  This behaviour can be overrided, either
+only.  This behaviour can be overridden, either
 \begin{itemize}
 \item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{sec:urd_build}, or
 \item[] using \texttt{urd.set\_workdir()}.
@@ -488,7 +488,7 @@ def main(urd):
     urd.set_workdir(<workdir>)}
 \end{python}
 will set the workdir for all coming \texttt{build} calls in the
-current build script.  It can still be overrided using
+current build script.  It can still be overridden using
 the \texttt{workdir=} option to \texttt{urd.build}.
 
 
@@ -558,7 +558,7 @@ processing state.
 When a list is truncated, all items after a specified timestamp are
 made invisible.  Assuming that another list has stored a dependency of
 an item that is truncated, the jobs in this list are now without
-depencencies that can be looked up.  We call them ``ghosts''.  Ghosts
+dependencies that can be looked up.  We call them ``ghosts''.  Ghosts
 cannot be looked up in Urd, but they are still in the database, marked
 as ghosts.
 
@@ -641,7 +641,7 @@ urd.since('2016-10-05T20:00:00')
 Urd can be accessed directly without using the Accelerator by calling
 its HTTP API.  These calls are easy to use and improve transparency
 since the database contents can be peeked without writing a program.
-Here is a list of all API enpoints
+Here is a list of all API endpoints
 \begin{verbatim}
   /list
   /<user>/<list>/first
@@ -707,7 +707,7 @@ at \texttt{2016-10-25}
   ["method2", "test-59"], ["method3", "test-60"]]}
 \end{shell}
 The timestamp may be truncated to the right, and prefixed
-by \texttt{>}, \texttt{>=}, \texttt{<}, and texttt{<=}, just as
+by \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=}, just as
 described in section~\ref{sec:urd_get}.  Make sure to quote the
 request if these characters are used in a call from the shell.
 
@@ -760,7 +760,7 @@ Urd can be accessed by a large number of clients.  Each client may add
 to or truncate any list at any time.  In order to avoid race
 conditions and make the database deterministic, all \texttt{add}-
 and \texttt{truncate}-requests appears in a sequential manner to the
-Urd server.  Each request is assigned with an uniqe timestamp, and
+Urd server.  Each request is assigned with an unique timestamp, and
 stored in the requested list.
 
 When Urd is restarted, it reads all the database files, and sorts all

@@ -269,7 +269,7 @@ account, so in addition to decimal numbers, it is also straightforward
 to parse octal and hexadecimal numbers.  The \emph{ignore} option
 causes parsing to ignore trailing garbage characters.
 \starttablenotitle
-\RPnotitle   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deteministic type if possible \\
+\RPnotitle   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deterministic type if possible \\
 \RPnotitle   \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
 \RPnotitle   \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
 \RPnotitle   \texttt{int32\_8i}  & \texttt{int64\_8i}  & \emph{octal}, ignore trailing garbage \\
@@ -404,7 +404,7 @@ Ascii is similar, there are two types
   \texttt{replace} & All unparsable bytes are replaced by an octal
   escapes "\texttt{\textbackslash ooo}"\\[1ex]
   \texttt{encode} & Like replace except "\texttt{\textbackslash}" is also replaced by
-  "\texttt{\textbackslash 134}" (for full reversability).\\[1ex]
+  "\texttt{\textbackslash 134}" (for full reversibility).\\[1ex]
 \end{tabular}\\[1ex]
 \noindent Using \texttt{strict} will cause errors if unparsable.
 
@@ -414,7 +414,7 @@ Ascii is similar, there are two types
 \clearpage
 \section{\texttt{csvexport} -- Exporting Text Files}
 
-The \texttt{dataset\_export} metod is used to export datasets to
+The \texttt{dataset\_export} method is used to export datasets to
 column based text files (CSV, Comma Separated Values).  It can export
 plain files and gzip-compressed files, export a chain of datasets,
 export one output file per slice, and more.  Read the Options section

@@ -21,7 +21,7 @@ This chapter covers most aspects of jobs and methods.  It describes
 what methods are and how they are stored.  When they are built and
 when not.  What input parameters look like in full detail.  How to
 access another job's parameters.  Parallel processing.  Return values
-and result merging.  Storing and retreiving data.  Building subjobs.
+and result merging.  Storing and retrieving data.  Building subjobs.
 
 
 
@@ -228,7 +228,7 @@ objects or filenames relative to the method's location.
 
 A change to a method's source code will cause a new job to be built
 upon running \mintinline{python}{build()}, but sometimes it is
-desireable to modify the source code and \textsl{not} causing a
+desirable to modify the source code and \textsl{not} causing a
 re-build.  This happens, for example, when new functionality is added
 to an existing method.  The way it worked before the code change is
 the same, so existing jobs do not need to be re-built.  For this
@@ -293,7 +293,7 @@ functions at run time.  Here is a complete list
 \RPtwo \texttt{params} & A dictionary containing all parameters input
        from both the calling function and the Accelerator.  This will be
        explained in detail in section~\ref{sec:params}.\\[2mm]
-\RPtwo \texttt{sliceno} & (For \analysis only.)  A unique identifier for each parallell \analysis process.\\[2mm]
+\RPtwo \texttt{sliceno} & (For \analysis only.)  A unique identifier for each parallel \analysis process.\\[2mm]
 \RPtwo \texttt{SOURCE\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{sec:SOURCE_DIR}.\\[2mm]
 \RPtwo \texttt{RESULT\_DIRECTORY} & A path defined in the Accelerator's configuration file, see~\ref{sec:RESULT_DIR}.\\
 %\RPtwo \texttt{jobids}, \texttt{options}, \texttt{datasets} & Defined globally in the method, but may be 
@@ -963,7 +963,7 @@ job (including return values) will by default be stored in the job's
 directory.
 
 When a job completes, the meta data files are updated with profiling
-infomation, such as execution time spent in single and parallel
+information, such as execution time spent in single and parallel
 processing modes.
 
 All code that is directly related to the job is also stored in the job

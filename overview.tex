@@ -30,7 +30,7 @@ In parallel, all jobs covered by a build script may be stored by
 the \texttt{urd} server into the \textsl{job logs} file system
 database.  \texttt{urd} is also responsible for finding collections,
 or lists, of related previously executed jobs.  The \texttt{urd}
-server is very capable and helps ensuring reproducability and
+server is very capable and helps ensuring reproducibility and
 transparency, and its details are not covered in this chapter.
 
 
@@ -43,7 +43,7 @@ called a \textsl{job}.
 
 The Accelerator keeps a record of all jobs that have been run.  It
 turns out that this is very useful for avoiding unnecessary
-re-computing and instead rely on reusing previosly computed results.
+re-computing and instead rely on reusing previously computed results.
 This does not only speed up processing and encourage incremental
 design, but also makes it transparent which code and which data was
 used for any particular result, thus reducing uncertainty.
@@ -176,7 +176,7 @@ and high performance.  Datasets are built on top of jobs, so
 
 Internally, data in a dataset is stored in a row-column format, and is
 typically \emph{sliced} into a fixed number of slices to allow
-efficient parallell access, see figure~\ref{fig:dataset}. Columns are
+efficient parallel access, see figure~\ref{fig:dataset}. Columns are
 accessed independently, so there is no overhead in reading a set of or
 even a single column.
 
@@ -217,7 +217,7 @@ figure~\ref{fig:dataset_csvimport}.
 \end{figure}
 
 \noindent The bundled standard method \texttt{csvimport} is designed
-to parse a pletoria of ``comma separated values''-file formats and
+to parse a plethora of ``comma separated values''-file formats and
 store the data as a dataset.  The method takes several input options,
 where the file name is mandatory.  Here is an example (non-simplified)
 invocation
@@ -238,8 +238,8 @@ single job can contain any number of datasets, as we will see shortly.
 
 \subsection{Linking Datasets, Chaining}
 
-Just like jobs can be linked to eachother, datasets can link to
-eachother too.  Since datasets are build on top of jobs, this is
+Just like jobs can be linked to each other, datasets can link to
+each other too.  Since datasets are build on top of jobs, this is
 straightforward.  Assume that we've just imported \texttt{file0.txt}
 into \texttt{imp-0/default} and that there is more data like it stored
 in \texttt{file1.txt}.  We can import the latter file and supply a
@@ -311,7 +311,7 @@ applications.
 One application for keeping multiple datasets in a job is when data is
 split into subsets based on some condition.  This could, for example,
 be when a dataset is split into a training set and a test set.  One
-way to achieve this using the Accelerator is by creating a boolean
+way to achieve this using the Accelerator is by creating a Boolean
 column that tells if the current row is train or test data, followed
 by a job that splits the dataset in two based on the value on that
 column.  See Figure~\ref{fig:dep_dataset_csvimport_chain}.
@@ -354,7 +354,7 @@ multiple files for two reasons.  One reason is that we can read only
 the columns that we need, without overhead, and the other is to allow
 fast parallel reads.  The parameter \texttt{slices} determines how
 many slices that the dataset should be partitioned into, and it also
-sets the number of parallell process that may be used for processing
+sets the number of parallel process that may be used for processing
 the dataset.  There is always one process for each slice of the
 dataset, and each process operates on a unique part of the dataset.
 
@@ -373,7 +373,7 @@ about it later on.
 \subsection{Dataset Column Types}
 
 There are a number of useful types available for dataset columns.
-They include floating and integer point numbers, booleans, timestamps,
+They include floating and integer point numbers, Booleans, timestamps,
 several string types, and json types for storing arbitrary data
 collections.  Most of these types come with advanced parsers, making
 importing data from text files straightforward with deterministic
@@ -575,7 +575,7 @@ executes, they are called one after the other.
   available in the variable \texttt{prepare\_res}.
 \item[] \texttt{analysis()} is run in parallel processes, one for each
   slice.  It is called after completion of \texttt{prepare()}.  Common
-  input paramerers are \texttt{sliceno}, holding the number of the
+  input parameters are \texttt{sliceno}, holding the number of the
   current process instance, and \texttt{prepare\_res}.  The return
   value for each process becomes available in the
   \texttt{analysis\_res} variable.

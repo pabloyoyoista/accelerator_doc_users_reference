@@ -41,7 +41,7 @@ or \synthesis.  There are three iterators available:
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains, and
 \item [] \texttt{iterate\_list()} for iterating over a list of datasets.
 \end{itemize}
-In many common usecases it is sufficient to provide only two arguments
+In many common use cases it is sufficient to provide only two arguments
 to the iterator: \texttt{sliceno} (mandatory) and \texttt{columns}.
 These, and all possible arguments are presented in detail shortly. A
 typical call may look like this
@@ -252,7 +252,7 @@ model with the newly added data imported since the last model update.
 In these cases, the processing job should iterate over a part of the
 the dataset chain only, from the first dataset after the last
 processing job up to the most recent imported dataset.  Again, see
-figure~\ref{fig:dsprocchain}.  The rigt part of the image illustrates
+figure~\ref{fig:dsprocchain}.  The right part of the image illustrates
 two builds of the processing method.  The first operates on the
 dataset \texttt{imp-0}, and the last on \texttt{imp-1}
 and \texttt{imp-2}.  The input parameters to the first processing
@@ -383,7 +383,7 @@ Hashing a dataset on a particular columns, see
 section~\ref{sec:slicing_and_hashing}, may really simplify the
 parallel programming of methods using the dataset.  however, such
 parallel code will not work properly if it turns out that the input
-data is not hashed in the expected way.  For that reasson, it is a
+data is not hashed in the expected way.  For that reason, it is a
 good idea to \emph{assert} the hashlabel by entering it into the
 iterator function, like this
 \begin{python}
@@ -557,7 +557,7 @@ strings will be reversed.
 
 Filter are used to decide which output data rows that are allowed to
 reach the iterator output.  Filters are run \emph{after} translators.
-As for translators, filter are either a callables or a \texttt{dict}s.
+As for translators, filter are either callables or \texttt{dict}s.
 
 
 
@@ -621,7 +621,7 @@ discarded lines.
 \subsection*{Filter by Column Values}
 
 Filtering could also be by column value directly.  For example, assume
-there is a column \texttt{has\_trunk} with values being boolean
+there is a column \texttt{has\_trunk} with values being Boolean
 integers, i.e.\ \texttt{1} or \texttt{0}.  Animals with trunks may be
 iterated using
 \begin{python}

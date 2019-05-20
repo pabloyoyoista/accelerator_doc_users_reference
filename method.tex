@@ -164,9 +164,11 @@ line.  Any characters from a hash sign (``\texttt{\#}'') to the end of
 the line is considered to be a comment.  It is allowed to have any
 number of empty lines in the file.  Available methods are entered on a
 line by first stating the name of the method, without the \texttt{a\_}
-prefix and \texttt{.py} suffix, followed by one or more whitespaces
-and a token ``\texttt{py2}'' or ``\texttt{py3}'', indicating which
-Python version that should be used when executing the method.  Here is an example
+prefix and \texttt{.py} suffix.  If required, this can be followed by
+one or more whitespaces and a token ``\texttt{py2}'' or
+``\texttt{py3}'', indicating which Python version to use when
+executing the method.  If the method works on both versions, this
+field is left blank.  Here is an example
 \begin{shell}
 # this is a comment
 

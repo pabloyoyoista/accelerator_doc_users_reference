@@ -162,25 +162,28 @@ a lot of sense in any production environment.
 The \texttt{methods.conf} is a plain text file with one entry per
 line.  Any characters from a hash sign (``\texttt{\#}'') to the end of
 the line is considered to be a comment.  It is allowed to have any
-number of empty lines in the file.  Available methods are entered on a
-line by first stating the name of the method, without the \texttt{a\_}
-prefix and \texttt{.py} suffix.  If required, this can be followed by
-one or more whitespaces and a token ``\texttt{py2}'' or
+number of empty lines in the file.  Available methods are entered
+first on a line by stating the name of the method, without the
+\texttt{a\_} prefix and \texttt{.py} suffix.  If required, this can be
+followed by one or more whitespaces and a token ``\texttt{py2}'' or
 ``\texttt{py3}'', indicating which Python version to use when
-executing the method.  If the method works on both versions, this
-field is left blank.  Here is an example
+executing the method.  The field is left blank if the method works on
+both versions.  Here is an example
 \begin{shell}
 # this is a comment
 
 test2           py2
 
 test3           py3  # newer
+test23               # works on both Python2 and Python3
 #bogusmethod    py3
 \end{shell}
-This file declares two methods corresponding to the
-filenames \texttt{a\_test2.py} and \texttt{a\_test3.py}, written in
-Python2 and Python3 respectively.  Another method \texttt{bogusmethod}
-is commented out and trying to build this will issue an error.
+This file declares three methods corresponding to the filenames
+\texttt{a\_test2.py}, \texttt{a\_test3.py}, and \texttt{a_test23.py},
+where the first two require Python2 and Python3 respectively.  The
+method \texttt{test23} works on both versions.  Another method
+\texttt{bogusmethod} is commented out and trying to build this will
+issue an error.
 
 
 

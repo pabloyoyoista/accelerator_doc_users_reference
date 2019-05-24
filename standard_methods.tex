@@ -628,8 +628,9 @@ datasets.  One or more columns may be selected for sorting, and it
 will sort one column at a time.  The sorting algorithm is stable,
 meaning that things with equal sorting keys will keep their order.
 
-A note on sorting using Python3:  Neither of \pyNone nor
-\mintinline{python}|Nan| are valid inputs values for sorting!
+\mintinline{python}|None| and \mintinline{python}|NaN| values will
+sort the same as the smallest/largest value possible in a comparable
+type.
 
 
 

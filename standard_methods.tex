@@ -674,4 +674,41 @@ computer can sort very large datasets without trouble.
 \clearpage
 \section{dataset\_checksum, dataset\_checksum\_chain}
 
+The \texttt{dataset\_checksum} method is used to create a single
+checksum from a dataset based on one or more columns.  The chained
+version returns a single checksum from a dataset chain.  It is mainly
+intended as a debugging aid, enabling comparison of datasets across
+machines, even if they have different slicing.
+
+If \mintinline{python}|options.sort=False|, hashing will depend on the
+actual row order of the dataset.  If, on the other
+hand, \mintinline{python}|options.sort=True|, hashing will
+be \textsl{slice invariant} and \textsl{row order invariant}, meaning
+that the methods only look at the contents of the dataset(s).
+
+Chain limits will affect the checksum of a chain, so if checksumming
+two chains containing the same data, but with different number of
+chained datasets, their checksums will differ.
+
+Note that sorting uses about 64 bytes per row, upper limiting the size
+of hashable datasets.  This corresponds to about 1GB of RAM per 20
+million lines or so.
+
+
+\subsection*{Options}
+
+\starttable
+\RP \texttt{columns} & \texttt{set()} & A set of columns to base the checksum on.  Leave blank for all columns\\[1ex]
+
+\RP \texttt{sort} & \texttt{True} & Sort dataset before hashing, see text. \\[1ex]
+
+\RP \texttt{chain\_length} & \texttt{-1} & Number of datasets in chain to hash. \\[1ex]
+\stoptable
+
+
+\subsection*{Datasets}
+\starttable
+\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
+\RP \texttt{stop} & chained version only& Stop hashing at this dataset.\\[1ex]
+\stoptable
 

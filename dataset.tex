@@ -115,10 +115,10 @@ are read.
 Datasets can be sliced in a number of different ways.  A simple method
 is to use round-robin, which cycles through the slices when writing.
 Round-robin will balance the number of rows per slice as equal as
-possible, which is a good thing in many scenarios.  In mathematical
+possible, which is a good thing in many scenarios.  In semi-mathematical
 terms, round robin would be
 \begin{equation*}
-  \textrm{row}~n \longrightarrow \textrm{slice}(n~\textrm{mod}~N)
+  n \longrightarrow n~\textrm{mod}~N
 \end{equation*}
 Meaning that input data row $n$ is stored in slice $n~\textrm{mod}~N$.
 Another way is to slice by looking at the values of a fixed single
@@ -128,8 +128,9 @@ slice may vary significantly.  In the context of the Accelerator, this
 is called \emph{hashing}, and a dataset can be hashed on any single
 column.  Written as an equation, it will look like this
 \begin{equation*}
-\textrm{row}~n \longrightarrow \textrm{slice}(\textrm{hash}(\textrm{column data})~\textrm{mod}~N)
+  n \longrightarrow \textrm{hash}(\textrm{data})~\textrm{mod}~N
 \end{equation*}
+where ``data'' is the value of row $n$ in the hashing column.
 
 In many practical applications, data may be sliced using a hashing
 function so that data in each slice is \textsl{independent}.

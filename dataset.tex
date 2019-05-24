@@ -335,20 +335,25 @@ follow in the next sections.
 
 
 \starttabletwo
+\RPtwo   \texttt{bytes}     &  raw data \\[1ex]
+
 \RPtwo   \texttt{number}     &  float or int\\[1ex]
    
 \RPtwo   \texttt{float64}   &  64 bit (double) float\\
-\RPtwo   \texttt{float32}   &  32 bit float\\
+\RPtwo   \texttt{float32}   &  32 bit float\\[1ex]
+
 \RPtwo   \texttt{int64}     &  64 bit signed integer\\
 \RPtwo   \texttt{int32}     &  32 bit integer\\[1ex]
-   
+
+\RPtwo   \texttt{bits64}     &  64 bit bitmask\\
+\RPtwo   \texttt{bits32}     &  32 bit bitmask\\[1ex]
+
 \RPtwo   \texttt{bool}      &  True or False\\[1ex]
    
 \RPtwo   \texttt{date}      &  date\\
 \RPtwo   \texttt{time}      &  time\\
 \RPtwo   \texttt{datetime}  &  complete date and time object\\[1ex]
    
-\RPtwo   \texttt{bytes}     &  raw input, avoid \\
 \RPtwo   \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
 \RPtwo   \texttt{unicode}   &  use for strings\\[1ex]
    
@@ -394,11 +399,22 @@ for ts in datasets.source.iterate(sliceno, 'timestamp'):
 
 
 \subsection{String Types}
-There are three string types, \texttt{bytes}, \texttt{ascii}, and
-\texttt{unicode}.  The \texttt{bytes} type is what is assigned to
-columns by \texttt{csvimport}.  For columns with text,
-\texttt{unicode} is the preferred choice, and it executes faster in
-Python~3.
+There is a \texttt{unicode} type for strings.  On Python2, the
+\texttt{ascii} type could be used as well.  The \texttt{unicode}
+type executes faster on Python3.
+
+
+\subsection{Raw Data}
+
+The \texttt{bytes} type is used to store raw data, such as binary
+image files.  The upper storage limit for a value typed
+as \texttt{bytes} is almost 2GB ($2^{31}-1$ bytes).
+The \texttt{csvimport} standard method uses this type for all data in
+its output dataset.
+
+
+\subsection{Bitmasks}
+\comment{BITMASKS?}
 
 
 \subsection{JSON Type}

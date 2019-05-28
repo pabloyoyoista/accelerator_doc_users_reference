@@ -622,6 +622,22 @@ directory.
 
 
 
+\section{Accessing Files in Another Job Directory}
+Files residing in another job is found using the
+\texttt{resolve\_jobid\_filename} function.  This function returns the
+full path to a file specified by a jobid and a filename, like in this
+example
+\begin{python}
+from extras import resolve_jobid_filename
+
+fn = resolve_jobid_filename('test-43', 'names.txt')
+print(fn)
+
+# /home/acc/workdirs/test/test-43/names.txt
+\end{python}
+This function works in a build script too.
+
+
 \section{Subjobs}
 \label{sec:subjobs}
 \index{subjobs}

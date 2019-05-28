@@ -572,7 +572,7 @@ check that the job exists.
 
 
 
-\section{Accessing Another job's Datasets}
+\section{Accessing Another Job's Datasets}
 Accessing another job's dataset parameters is done using the
 \texttt{Dataset} constructor like this
 \begin{python}
@@ -636,6 +636,12 @@ print(fn)
 # /home/acc/workdirs/test/test-43/names.txt
 \end{python}
 This function works in a build script too.
+
+There is also a method input option, \texttt{JobWithFile}, that is
+worth mentioning in this context.  This function is described in
+section~\ref{sec:jobwithfile}.
+
+
 
 
 \section{Subjobs}
@@ -927,6 +933,7 @@ containers.  Otherwise, the specified values are the default contents.
 
 
 \subsubsection*{A File From Another Job:  \texttt{JobWithFile}}
+\label{sec:jobwithfile}
 
 \index{input options!\texttt{JobWithFile}}
 Any file residing in a jobdir may be input to a method like this

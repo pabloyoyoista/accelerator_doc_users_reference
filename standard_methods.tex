@@ -230,13 +230,18 @@ urd.build('dataset_type',
 
 
 \subsection{Typing}
-This section describes all typing possibilities in detail.
+This section describes all typing possibilities in detail.  Default
+behaviour when typing numbers (i.e.\ \texttt{float}s, \texttt{int}s,
+and \texttt{number}s) is that any number of whitespaces before and
+after the actual number are silently discarded.
+
+
 
 \subsubsection{Numbers}
 The \texttt{number} type is integer or floating point.
 \starttablenotitle
 \RPnotitle   \texttt{number}    && \texttt{int} or \texttt{float} \\
-\RPnotitle  \texttt{number:int} && \texttt{int}, will convert floats to ints.\\
+\RPnotitle  \texttt{number:int} && \texttt{int}, will convert \texttt{float}s to \texttt{int}s.\\
 \stoptablenotitle
 \noindent Integers are enforced using \texttt{number:int}, and the type accepts
 trailing decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This

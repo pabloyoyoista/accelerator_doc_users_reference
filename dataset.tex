@@ -532,6 +532,13 @@ This is done by calling \texttt{finish()} as shown below
 \begin{python}
 dw.finish()
 \end{python}
+The \texttt{finish()}-call returns a dataset object, so it is possible
+to start using the finished dataset immediately like this
+\begin{python}
+ds = dw.finish()
+it = ds.iterate(None, 'user')
+...
+\end{python}
 
 
 

@@ -604,8 +604,21 @@ The \texttt{DatasetWriter} will automatically check that the number of
 appended rows does match the number of rows in the parent dataset.
 Otherwise, an error will be issued and execution will terminate.
 
-It is strongly recommended that new columns are added
-in \texttt{analysis}, and \textbf{not} in \synthesis.  This is because
-reading data is one full slice at a time, while writing data is
-round-robin per row, and unless being very careful, new column values
-will not be added to the correct rows.
+
+\subsection{Appending New Columns in Synthesis}
+
+\comment{FILL IN HERE}
+
+\begin{python}
+def synthesis(params):
+
+    dw = DatasetWriter()
+    dw.add('newcolumn', 'json')
+    
+    for sliceno in range(params.slices):
+        dw.set_slice(sliceno)
+        for data in datasets.source.iterate(sliceno, ...):
+            ...
+            dw.write(x)
+\end{python}
+

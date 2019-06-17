@@ -211,7 +211,7 @@ is intended to make it simple to work with.  These functions will be
 described in the next sections.
 
 
-\subsection*{Column Names}
+\subsection{Column Names}
 All columns in a dataset may be acquired using the \texttt{columns}
 property, like this
 \begin{python}
@@ -226,7 +226,7 @@ The \texttt{columns} attribute is actually a dictionary from column
 name to properties, as will be shown in the next section.
 
 
-\subsection*{Column Properties}
+\subsection{Column Properties}
 For each column, the name, type, and if applicable, the minimum and
 maximum values are accessible like this
 \begin{python}
@@ -250,7 +250,7 @@ range and can be skipped in its entirety, see
 section~\ref{sec:iterate_sloppy_range}.
 
 
-\subsection*{Rows per Slice}
+\subsection{Rows per Slice}
 
 It may be interesting to see how many rows there are per slice in a
 dataset.  This information is available as a list, for example
@@ -266,7 +266,7 @@ fourth.  The total number of rows in the Dataset is the sum of these
 numbers.
 
 
-\subsection*{Dataset Shape}
+\subsection{Dataset Shape}
 The shape of the dataset, i.e.\ the number of rows and columns, is
 available from the shape attribute
 \begin{python}
@@ -277,7 +277,7 @@ The second number is exactly the sum of the number of lines for each
 slice from above.
 
 
-\subsection*{Hashlabel}
+\subsection{Hashlabel}
 If the dataset is hashed on a particular column, the name of this
 column is stored in the hashlabel attribute
 \begin{python}
@@ -287,7 +287,7 @@ print(datasets.source.hashlabel)
 
 
 
-\subsection*{Filename and Caption}
+\subsection{Filename and Caption}
 The dataset may have a filename associated to it.  This makes sense in
 situations for example where the dataset is created from an input data
 file using \texttt{csvimport} or similar.  The filename is accessible
@@ -306,7 +306,7 @@ print(datasets.source.caption)
 
 
 
-\subsection*{Chains}
+\subsection{Chains}
 The previous dataset in a dataset chain is found in the
 \texttt{previous} attribute:
 \begin{python}

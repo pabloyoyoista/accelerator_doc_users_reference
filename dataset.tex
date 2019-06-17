@@ -597,13 +597,20 @@ With minimal overhead, existing datasets could be extended with new
 columns.  Internally, this is implemented by storing the new column
 data together with a pointer to the original, ``parent'', dataset.
 
-
 Appending new columns works the same way as when creating a dataset,
 with the exception that a link to a dataset that is to be appended to
-is input to the writer constructor.  The following example appends one
-column to an existing dataset while maintaining the chain.  Note that
-appending a column does only apply to one single dataset, and not to
-the complete chain of datasets, if present.
+is input to the writer constructor.  Columns can be appended either
+in \texttt{analysis} or \texttt{synthesis}, as shown in the two
+following sections.  Note that appending a column does only apply to
+one single dataset, and not to the complete chain of datasets, if
+present.
+
+
+\subsection{Appending New Columns in Analysis}
+
+The following example appends one column to an existing
+dataset \texttt{source}, while chaining to the
+dataset \texttt{previous}.
 \begin{python}
 from dataset import DatasetWriter
 
@@ -630,12 +637,13 @@ Otherwise, an error will be issued and execution will terminate.
 
 \subsection{Appending New Columns in Synthesis}
 
-\comment{FILL IN HERE}
-
+A straightforward way to append columns to a dataset in synthesis is
+using the \texttt{set\_slice()} function, as shown in the example
+below.
 \begin{python}
 def synthesis(params):
 
-    dw = DatasetWriter()
+    dw = DatasetWriter(parent=datasets.source)
     dw.add('newcolumn', 'json')
     
     for sliceno in range(params.slices):
@@ -644,4 +652,5 @@ def synthesis(params):
             ...
             dw.write(x)
 \end{python}
-
+Note the \texttt{for}-loop over \texttt{sliceno}, which controls both
+the reading iterator \textsl{and} the dataset writer.

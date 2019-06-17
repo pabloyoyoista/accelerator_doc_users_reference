@@ -225,6 +225,8 @@ def synthesis():
 The \texttt{columns} attribute is actually a dictionary from column
 name to properties, as will be shown in the next section.
 
+Not all column names are valid, see
+section~\ref{sec:valid-column-names} for more information.
 
 \subsection{Column Properties}
 For each column, the name, type, and if applicable, the minimum and
@@ -559,6 +561,27 @@ dw.enable_hash_discard()
 \end{python}
 first in each slice or after each \texttt{set\_slice()}.  Then, writes
 that belongs to another slice are silently ignored.
+
+
+
+\subsection{Column Name Restrictions}
+\label{sec:valid-column-names}
+
+Column names must be valid Python identifiers.  Invalid characters are
+replaced by the underline(\texttt{\_}) character.  The underline
+character is also used to make column names unique when necessary.
+The table below shows some examples.
+\starttablenoheader
+\RP \textbf{input} & \textbf{converted} & \textbf{comment}\\[1ex]\hline\\[1ex]
+\RP \texttt{"-"}      &  \texttt{"\_"}       & Converting to valid python identifier.\\
+\RP \texttt{"a b"}    &  \texttt{"a\_b"}     & Converting to valid python identifier.\\
+\RP \texttt{"42"}     &  \texttt{"\_42"}     & Converting to valid python identifier.\\
+\RP \texttt{"print"}  &  \texttt{"print\_"}  & \texttt{print} is a keyword (in py2).\\
+\RP \texttt{"print@"} & \texttt{"print\_\_"} & \texttt{print\_} is taken.\\
+\RP \texttt{"None"}   &  \texttt{"None\_"}   & \texttt{None} is a keyword (in py3).\\
+\stoptable
+
+
 
 
 

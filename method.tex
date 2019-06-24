@@ -226,6 +226,15 @@ depend_extra = (my_python_module, 'mystuff.data',)
 As seen in the example, it is possible to specify either Python module
 objects or filenames relative to the method's location.
 
+The Accelerator daemon will suggest adding modules to a source file in
+the output log like this:
+
+\begin{shell}
+=================================================================
+WARNING: dev.a_test should probably depend_extra on myfuncs
+=================================================================
+\end{shell}
+
 
 
 \section{Avoiding Rebuild: \texttt{equivalent\_hashes}}

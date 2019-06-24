@@ -23,7 +23,7 @@
 % needs "apt-get transfig" on debian to build image postscripts            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\documentclass[a4paper]{book}
+\documentclass[a4paper]{report}
 \usepackage{graphicx}
 \usepackage{color}
 \usepackage[T1]{fontenc}
@@ -45,7 +45,7 @@
 \usepackage{draftwatermark}
 \SetWatermarkText{DRAFT}
 \SetWatermarkScale{4}
-\SetWatermarkLightness{0.85}
+\SetWatermarkLightness{0.95}
 
 % comment macro
 \definecolor{readercomment}{rgb}{1.0,0.0,0.0}
@@ -66,6 +66,11 @@
 % minted Python
 \usepackage{minted, xcolor}
 \usemintedstyle{lovelace}
+%\usemintedstyle{friendly}
+
+\definecolor{tablecol1}{rgb}{0.95,0.95,0.95}
+\definecolor{tablecol2}{rgb}{0.93,0.96,0.99}
+
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
 \definecolor{hl}{rgb}{1.00,1.00,0.80}
@@ -96,11 +101,15 @@
 % Table macros
 % table with three columns
 \def\starttable{%
-  \definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
+  \definecolor{shadecolor}{rgb}{0.96 0.96 0.96}
   \begin{snugshade}
     \noindent\begin{longtable}{@{}p{3.2cm}p{1.8cm}p{8cm}}\hline\\[-1ex]
       \textbf{name} & \textbf{default} & \textbf{description}\\[1ex]
       \hline\\[1ex]}
+\def\starttablenoheader{%
+  \definecolor{shadecolor}{rgb}{0.96 0.96 0.96}
+  \begin{snugshade}
+    \noindent\begin{longtable}{@{}p{3.2cm}p{1.8cm}p{8cm}}\hline\\[-1ex]}
 \def\stoptable{\\[1ex]\hline\end{longtable}\end{snugshade}}
 \def\RP #1&#2&#3{ #1&#2&#3}
 
@@ -113,6 +122,12 @@
       \hline\\[1ex]}
 \def\stoptabletwo{\\[1ex]\hline\end{tabular}\end{snugshade}}
 \def\RPtwo #1&#2{ #1&#2}
+
+\def\starttabletwonoheader{%
+  \definecolor{shadecolor}{rgb}{0.96,0.96,0.96}
+  \begin{snugshade}
+    \noindent\begin{tabular}{@{}p{5.0cm}p{8cm}}\hline\\[-1ex]}
+
 
 \def\starttablenotitle{%
   \definecolor{shadecolor}{rgb}{0.93,0.96,0.99}
@@ -131,12 +146,15 @@
   \vspace*{1.0cm}
   {\Huge The Accelerator}\\[0.7cm]
   {\Large User's Reference}\\[0.5cm]
-  {\large Version 0.9, 2018-05-28, \textbf{draft}}
+  {\large Version 0.981, 2019-06-24, \textbf{draft}}
   \vspace{1.3cm}
   \begin{figure}[h]
     \centering
     \includegraphics[width=11cm]{odhner_square_100dpi.jpg}
   \end{figure}
+
+  {\Large --- Fast and reproducible data processing ---}
+
   \vfill
   { Anders Berkeman, Carl Drougge, and Sofia H\"orberg}\\
   {\tiny{version: \inputfile{gitrevision}}}
@@ -148,10 +166,15 @@
 \thispagestyle{empty}
 \section*{Document History}
 
-\begin{tabular}{rrp{8cm}}
-version & description\\[0.75ex]
-   --, \texttt{772990f4} & 2018-04-23 & First open version.\\
-  0.9, \texttt{\inputfile{gitrevision}} & 2018-05-28 & Updated parts of Urd chapters.\\
+\begin{tabular}{lrrp{8cm}}
+version & git hash & date & description\\[0.75ex]
+    -- & \texttt{772990f4} & 2018-04-23 & First open version.\\
+  0.90 & \texttt{a6d6750b} & 2018-05-28 & Updated parts of Urd chapters.\\
+  0.98 & \texttt{24b4b6c2} & 2019-06-11 & Major makeover.\\
+
+  0.981 & \texttt{\inputfile{gitrevision}} & 2019-06-24 & More on
+  \texttt{depend\_extra}, valid column names, appeding columns in
+  synthesis, and some formatting.\\
 \end{tabular}
 
 

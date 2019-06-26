@@ -208,7 +208,16 @@ ds = Dataset((jobids.previous, 'source'))
 \section{Dataset Properties}
 The Dataset class has a number of member functions and attributes that
 is intended to make it simple to work with.  These functions will be
-described in the next sections.
+described in the next sections.  But first a note on naming datasets.
+
+
+\subsection{Dataset Name}
+The Accelerator is designed to handle various string encodings with
+ease, and in most situations the naming rules are very liberal.  The
+dataset name, however, should preferably be \textsl{limited to ASCII
+characters}, since a directory with the name of the dataset will be
+stored on disk.  The Accelerator cannot guarantee that the file system
+in use handles any ``special'' characters.
 
 
 \subsection{Column Names}

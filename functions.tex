@@ -300,4 +300,10 @@ with gzutil.GzUnicodeLines(filename, strip_bom=True) as fh:
 
 
 \section{profile\_jobs}
-\comment{see redmine}
+Returns a float corresponding to the total execution time (in seconds)
+of an input list of jobids.
+\begin{python}
+from automata_common import profile_jobs
+...
+print(profile_jobs(urd.joblist))
+\end{python}

@@ -195,7 +195,7 @@ Calling \texttt{urd.finish()} will update the Urd database with the
 contents of the current \textsl{session}.  Each session is addressable
 using a \textsl{list} name (in the format \texttt{<user>/<list>}) and
 a \textsl{timestamp}.  Session data is stored internally in
-the \texttt{json} format, and in build scripts it appears as
+the JSON format, and in build scripts it appears as
 Python \texttt{dict}s.  The example presented earlier in this chapter
 may have been recorded similarly to this
 \begin{json}
@@ -649,7 +649,7 @@ Here is a list of all API endpoints
   /<user>/<list><timestamp>
   /<user>/<list>/since/<timestamp>
 \end{verbatim}
-All calls return data in the \texttt{json} format.  In the following
+All calls return data in the JSON format.  In the following
 the standard tool \texttt{curl} is used, and it is assumed that there
 is an Urd server running on \texttt{localhost}, port \texttt{8833}.
 
@@ -660,7 +660,7 @@ To show all stored lists issue
 % curl http://localhost:8833/list
 ["ab/test"]
 \end{shell}
-All available lists are returned in a json list.
+All available lists are returned in a JSON list.
 
 
 
@@ -675,7 +675,7 @@ Fr example, to see what is more recent than \texttt{2016-10-24} do
 % curl http://localhost:8833/ab/test/since/2016-10-26
 []
 \end{shell}
-Results are in json list format.
+Results are in JSON list format.
 
 
 \subsection{The \texttt{first} and \texttt{latest} endpoints}
@@ -691,7 +691,7 @@ And see the first stored job in the test list
 % curl http://localhost:8833/ab/test/first
 \end{shell}
 works similarly.  The returned data is an Urd item, described in
-section~\ref{sec:urd_item}, in json format.
+section~\ref{sec:urd_item}, in JSON format.
 
 
 

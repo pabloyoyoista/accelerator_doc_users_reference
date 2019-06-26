@@ -421,9 +421,19 @@ and is represented by unisgned integers in the Python code.
 
 
 \subsection{JSON Type}
-It is possible to store more complex data structures using the JSON
-format.  The \texttt{JSON} type accept a JSON-able datastructure as
-input.
+The JSON type makes it possible to store and load more complex data
+structures in a dataset.  Anything that is JSONable works as input.
+Conversion between JSON and Python data types is done by the writers
+and iterators, so the user can just work on the data and never has to
+see the actual JSON, for example
+\begin{python}
+  dw = DatasetWriter(...)
+  ...
+  a = dict(x=3, y=dict(z=5, w=[1,2,3]))
+  dw.write(a)
+\end{python}
+
+
 
 \subsection{\texttt{parsed} Types}
 In addition, there are a few types prefixed with \texttt{parsed:} that

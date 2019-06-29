@@ -142,25 +142,26 @@ character (\texttt{0x00}, \mintinline{python}|'\0'|).
 \section{\texttt{dataset\_type} -- Typing Datasets}
 The \texttt{dataset\_type} method will read a source dataset and
 create a new dataset that is typed.  This is primarily used for typing
-datasets created by \texttt{csvimport}.
+datasets created by \texttt{csvimport}, but the method can type any
+column of type \texttt{bytes}, \texttt{ascii}, or \texttt{unicode}.
 
 Default behaviour is to append new columns with typed data.  These
 columns will have the same name as the untyped version of the data,
 making the untyped data ``inaccessible'', even if it is still in the
 dataset.  Using the \texttt{rename} options, typed columns could be
 assigned a name that differs from the original columns, so that both
-typed and untyped data is available simultaneously.  This brings
+typed and untyped data are available simultaneously.  This brings
 transparency to the typing process.  (But even if the untyped data is
 ``inaccessible'' in the typed dataset, it is still available from the
 input dataset.)
 
-In order to type the data, it is subject to parsing.  Some datasets
-may have contain data that is incorrect in the sense that it causes
-parsing errors when typing.  Unparseable data could either be replaced
-by a default value or removed from the dataset.  Since the dataset
-type does not permit removal of rows, \texttt{dataset\_type} will
-create a new dataset containing only the rows containing typeable
-data.
+In order to type the data, the input data is subject to parsing.  Some
+datasets may contain data that is incorrect in the sense that it
+causes parsing errors when typing.  Unparseable data can either be
+replaced by a default value or removed from the dataset.  Since the
+dataset type does not permit removal of rows, i.e.\ datasets can not
+shrink, \texttt{dataset\_type} will in this situation create a new
+dataset containing only the rows containing typeable data.
 
 
 

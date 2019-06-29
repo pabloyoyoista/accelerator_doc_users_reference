@@ -661,6 +661,20 @@ type.
 \RP \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
 \stoptable
 
+
+\subsection{Sorting \pyNone and \mintinline{python}|NaN| values}
+The special values \mintinline{python}|None| and \mintinline{python}|NaN| follow these rules
+\begin{itemize}
+\item \mintinline{python}|NaN| will sort same as \mintinline{python}|+Inf|, i.e.\ \textsl{last}.
+\item \pyNone sorts as \mintinline{python}|-Inf|, i.e.\ \textsl{first} in \texttt{float} columns.  Intermingled \pyNone and \mintinline{python}|-Inf| will keep their original order due to the stable sorting algorithm.
+\item \pyNone sorts \textsl{last} in \texttt{date}, \texttt{time}, and \texttt{datetime} columns.
+\item For all other types, \pyNone sorts \textsl{first}.
+\end{itemize}
+
+
+
+
+
 \subsection{A Practical Limitation}
 Internally, the method works by reading the columns to sort by, and
 create an indexing column that stipulates the sorting order.  Each

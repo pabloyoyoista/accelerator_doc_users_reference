@@ -212,7 +212,9 @@ x = json_load(
     unicode_as_utf8bytes=PY2
 )
 \end{python}
-
+The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
+to let strings decode as bytes.  Override this for unicode.  In
+Python3, strings decode as unicode.
 
 
 

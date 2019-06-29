@@ -453,6 +453,14 @@ number, such as \texttt{'3.14'}.
 
 
 
+\subsection{\pyNone-Handling}
+The value \pyNone is valid input for all types that support \pyNone,
+i.e.\ all types except the bitmask-types.  For example, valid
+values for a \texttt{bool} type column
+are \{\pyTrue,\pyFalse, \mintinline{python}|None|\}.
+
+
+
 \section{Create a New Dataset}
 Datasets are created by methods using the \texttt{DatasetWriter}
 class.  The most common scenario is to set up the new dataset in

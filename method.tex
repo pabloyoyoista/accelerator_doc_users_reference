@@ -677,10 +677,9 @@ from a subjob build is a jobid to the built job.
 There are two catches, tough.
 \begin{enumerate}
   \item
-If there are datasets built in a subjob,
-these will not be explicitly available to Urd.  A workaround is to
-link the dataset to the building method like this
-\index{\texttt{link\_to\_here}}
+Dataset ids to datasets created in subjobs will not be explicitly
+available to the runner.  A workaround is to link the dataset to the
+building method like this \index{\texttt{link\_to\_here}}
 \begin{python}
 from dataset import Dataset
 

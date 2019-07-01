@@ -799,7 +799,7 @@ The following sections will describe typing in more detail.
 
 
 
-\subsubsection{Unspecifieds}
+\subsection{Options with no Type}
 An option with no typing may be specified by assigning \texttt{None}.
 \begin{python}
 options = dict(length=None)  # accepts anything, default is None
@@ -808,7 +808,7 @@ Here, \texttt{length} could be set to anything.
 
 
 
-\subsubsection*{Scalars}
+\subsection{Scalar Options}
 Scalars are either explicitly typed, as
 \begin{python}
 options = dict(length=int)   # Requires an intable value or None
@@ -824,7 +824,7 @@ or the string \texttt{'3'} both yield the integer number 3.
 
 
 
-\subsubsection*{Strings}
+\subsection{String Options}
 A (possibly empty) string with default value \mintinline{python}{None} is typed as
 \begin{python}
 options = dict(name=str)     # requires string or None, defaults to None
@@ -850,7 +850,7 @@ programmer a way to express what is expected.
 
 
 
-\subsubsection*{Enums}
+\subsection{Enumerated Options}
 Enumerations are convenient in a number of situations.  An option with
 three enumerations is typed as
 \begin{python}
@@ -882,7 +882,7 @@ and all strings starting with the character ``\texttt{c}''.
 
 
 
-\subsubsection*{Lists and Sets}
+\subsection{List and Set Options}
 Lists are specified like this
 \begin{python}
 # Requires list of intable or None, defaults to empty list
@@ -900,7 +900,7 @@ accepted, and \mintinline{python}/None/ is a valid set member.
 
 
 
-\subsubsection*{Date and Time}
+\subsection{Date and Time Options}
 The following date and time related types are supported:
 \begin{itemize}
 \item[] \texttt{datetime},
@@ -923,7 +923,7 @@ options = dict(ts=datetime(2014, 1, 1))
 
 
 
-\subsubsection*{More Complex Stuff:  Containing Types}
+\subsection{More Complex Stuff:  Types Containing Types}
 It is possible to have more complex types, such as dictionaries of
 dictionaries and so on, for example
 \begin{python}
@@ -940,7 +940,7 @@ containers.  Otherwise, the specified values are the default contents.
 
 
 
-\subsubsection*{A File From Another Job:  \texttt{JobWithFile}}
+\subsection{A File From Another Job:  \texttt{JobWithFile}}
 \label{sec:jobwithfile}
 
 \index{input options!\texttt{JobWithFile}}

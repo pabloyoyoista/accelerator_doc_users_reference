@@ -99,6 +99,10 @@ jid2 = urd.build('csvimport', options=dict(filename='file2.txt'),
                               datasets=dict(previous=jid1))
 \end{python}
 
+In order to maintain high speed when processing long chains, the
+Accelerator caches chain metadata every 64th dataset.  This reduces
+seek times significantly on rotating disks.
+
 
 
 \section{Slicing and Hashing}

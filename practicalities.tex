@@ -94,12 +94,14 @@ any method.\\[1ex]
 
 \RPtwo \texttt{logfilename} & Location of the Accelerator's log.\\[1ex]
 
-\RPtwo \texttt{py2} (\texttt{py27}, \texttt{py3}, $\dots$) & Path to
-Python executable.  There could be any number of Python executables
-listed using keys starting with ``\texttt{py}'' followed by a set of
-numbers, such as \texttt{py2}, \texttt{py3}, \texttt{py35} etc.  The
-file \texttt{methods.conf} (see section~\ref{sec:methods_conf}) is
-used to map a method to a specific executable.
+\RPtwo \texttt{py[0-9]+} (\texttt{py27}, \texttt{py3}, $\dots$) & Path
+to Python executable.  There could be any number of Python executables
+listed using key starting with \texttt{py} followed by a sequence of
+numbers, such as \texttt{py2}, \texttt{py3}, \texttt{py35} et cetera.
+The file \texttt{methods.conf} (see section~\ref{sec:methods_conf}) is
+used to map a method to a specific executable.  Note that the
+\texttt{py} keyword is statically set to the Python version that is
+currently currently running the Accelerator daemon.
 
 \stoptabletwo
 

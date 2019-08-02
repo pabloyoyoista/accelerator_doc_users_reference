@@ -110,6 +110,14 @@ The result of the \texttt{csvimport} is a dataset named
 typing.
 
 
+\subsection{Limitations}
+Each data value is limited to 16MB maximim.  However, this is just a
+constant in the code that is by default set to a value that allows the
+Accelerator to run on low memory platforms.  If you need to store,
+say, \texttt{bytes} values larger than 16MB, please update this
+constant to a larger value.
+
+
 
 \subsection{Example Invocation}
 An example invocation is the following

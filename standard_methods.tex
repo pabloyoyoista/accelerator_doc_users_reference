@@ -145,6 +145,31 @@ character (\texttt{0x00}, \mintinline{python}|'\0'|).
 
 
 
+\clearpage
+\section{\texttt{csvimport\_zip}}
+The \texttt{csvimport\_zip} method is a wrapper
+around \texttt{csvimport} that is used to import files stored in
+a \texttt{zip} archive.  One or more files in a \texttt{zip} archive
+can be imported by a call to this function.  Each file is imported to
+a separate dataset.
+
+All options to \texttt{csvimport} are available to this method as
+well, and the \texttt{filename} option is used to specify the name of
+the \texttt{zip} file.  An additional option \texttt{inside\_filenames}
+is used to match files inside the \texttt{zip} file to datasets.
+This option is of type \texttt{dict}, and is used like this
+\begin{python}
+ options.inside_filenames = {'filename in zip': 'dataset name', ...}
+\end{python}
+If left empty, all files will be imported to datasets with cleaned up
+names.  If there is only one file imported from the zip (whether
+specified explicitly or because the zip only contains one file) this
+will also end up as the default dataset.
+
+
+
+
+
 
 \clearpage
 \section{\texttt{dataset\_type} -- Typing Datasets}

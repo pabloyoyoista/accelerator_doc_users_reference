@@ -34,9 +34,7 @@ supports advanced quote support.  It also deals with ``broken'' input
 data in a predicted and user controlled way.
 
 
-
-\subsection{Options}
-
+\subsection{Options, NEW}
 \starttable
   \RP \texttt{filename} & \emph{mandatory} & Name of file to import.  The
   filename is mandatory and the file may either be a plain text file
@@ -46,7 +44,56 @@ data in a predicted and user controlled way.
   configuration parameter specified in the configuration
   file, see section~\ref{sec:configfile}.  A relative path makes it
   possible to relocate files to a different directory without trigging
-  job remake.\\
+  job remake.\\[1ex]
+
+ \RP \texttt{separator} & ',' & Field separator character.  Accepts a
+ single iso-8859-1 character or keep empty for a single field. \\[1ex]
+
+ \RP \texttt{comment} & '' & Lines beginning with this character are
+ ignored.  Accepts a single iso-8859-1 character or empty string for
+ no comments. \\[1ex]
+
+\RP \texttt{newline} & '' & Newline character.  Empty means
+\texttt{\textbackslash{}n} or \texttt{\textbackslash{}r\textbackslash{}n}.
+Alternatively any single iso-8859-1 character can be chosen.\\[1ex]
+
+\RP \texttt{quotes} & '' & Quote character.  Empty or \pyFalse means no
+quotes, \pyTrue means both \texttt{'}, and \texttt{"}, any other
+character means itself. \\[1ex]
+
+\RP \texttt{labelsonfirstline} & \texttt{True} & If set to
+\mintinline{python}{True}, data on the first line of the file will
+be used as column labels.  If \mintinline{python}{False}, labels must
+be entered using the \texttt{label} option, see \texttt{labels}
+below.\\
+
+
+
+\stoptable
+%% labelsonfirstline = True,
+%% labels            = [],    # Mandatory if not labelsonfirstline, always sets labels if set.
+%% rename            = {},    # Labels to replace (if they are in the file) (happens first)
+%% discard           = set(), # Labels to not include (if they are in the file)
+%% allow_bad         = False, # Still succeed if some lines have too few/many fields or bad quotes
+%% # creates a ``bad'' dataset containing lineno and data from the bad lines.
+%% skip_lines        = 0,     # skip this many lines at the start of the file.
+%% compression       = 6,     # gzip level
+
+
+
+
+\subsection{Options}
+
+\starttable
+  \RP \texttt{filename} & \emph{mandatory} & Name of file to import.
+  The filename is mandatory and the file may either be a plain text
+  file or a gzipped file.  It is also possible to specify a filename
+  including a path.  If the path begins with a slash, it is absolute.
+  Otherwise, the path is relative to the \texttt{source\_directory}
+  configuration parameter specified in the configuration file, see
+  section~\ref{sec:configfile}.  A relative path makes it possible to
+  relocate files to a different directory without trigging job
+  remake.\\
   
   \RP \texttt{separator} & ``,'' & Field separator.  Any character, except
   ``\verb$\0$'', ``\verb$\n$'', and ``\verb$\r$'' will work.\\

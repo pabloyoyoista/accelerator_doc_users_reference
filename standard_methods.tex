@@ -670,6 +670,19 @@ The special values \mintinline{python}|None| and \mintinline{python}|NaN| follow
 
 
 
+\subsection*{Spreading of Left Over Values}
+If the number of rows in a dataset is not even divisible by the number
+of slices, some slices will have one more row than others.  Instead of
+putting this data in, say, the first slices, \texttt{dataset\_sort}
+attempts to even out any bias by selecting the slices that get the
+additional data row in a pseudo-random manner.  In order to have the
+sorting stable, selection of slices is based on the first values of
+the sorting column.  It is not perfect, if the data is already sorted
+the first slices will be picked, but it is stable, which is the most
+important thing.
+
+
+
 
 
 \subsection{A Practical Limitation}

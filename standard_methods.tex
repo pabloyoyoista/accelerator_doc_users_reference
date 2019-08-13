@@ -93,15 +93,16 @@ Renaming happens first.  It accepts a dictionary of type
 not be stored in the dataset.\\[1ex]
 
 \RP \texttt{allow\_bad} &\mintinline{python}{False} & By default, this is
-set to \pyFalse and an error will be asserted if ther are format
-errors in the input data.  Setting it to \pyTrue will put all ``bad''
-lines together with the corresponding line numbers into a separate
-dataset named \texttt{bad}.  It is recommended to check the resulting
-datasets if enabling this option!\\[1ex]
+set to \pyFalse and an error will be asserted if there are problems
+parsing the input data, see section~\ref{sec:csvimport-bad}.  Setting it
+to \pyTrue will put all ``bad'' lines together with the corresponding
+line numbers into a separate dataset named \texttt{bad}.  It is
+recommended to check the resulting datasets if enabling this
+option!\\[1ex]
 
 \RP \texttt{skip\_lines} & 0 & Skip this many lines at the start of the file.
 This is useful for data files that starts with a header, for
-example.\\[1ex]
+example.  Skipped lines will be stored in the \texttt{skipped} dataset.\\[1ex]
 
 \RP \texttt{compression} & 6 & Compression level for the \texttt{gzip} compressor.
 \stoptable
@@ -117,12 +118,29 @@ example.\\[1ex]
 
 
 
+\subsection{Bad Lines}
+\label{sec:csvimport-bad}
+A line is flagged as ``bad'' for one of two reasons
+\begin{itemize}
+\item[] -- there is a problem with quoting, or
+\item[] -- there is an incorrect number of separators.
+\end{itemize}
+for example
+\begin{python}
+  "a","b" "c"     # invalid assuming two or three comma separated columns
+  "a","b"" ""c"   # valid assuming two comma separated columns
+\end{python}
+
+
 \subsection{Output}
 The result of the \texttt{csvimport} is a dataset named
-\texttt{default}.  All columns will be of type
+\texttt{default}.  Lines marked as ``bad'' will be stored in the
+dataset \texttt{bad}, and skipped lines will be stored in the
+dataset \texttt{skipped}.  All columns will be of type
 \mintinline{python}{bytes}.  Typically, the dataset from
 \texttt{csvimport} is fed to a \texttt{dataset\_type} job for column
 typing.
+
 
 
 \subsection{Limitations}

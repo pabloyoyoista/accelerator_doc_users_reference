@@ -456,7 +456,8 @@ can be one of\\[1ex]
 \noindent Using \texttt{strict} will cause errors if unparsable.  For
 example, typing the string "\texttt{ab\textbackslash xffc}" will give
 an error (\texttt{strict}), "\texttt{abc}" (ignore), or
-"\texttt{ab\textbackslash ufffdc}" (replace).
+"\texttt{ab\textbackslash ufffdc}" (replace).  \texttt{strip} will
+happen before \texttt{ignore}.
 
 
 
@@ -477,7 +478,7 @@ ASCII is similar, there are two types
   "\texttt{\textbackslash 134}" (for full reversibility).\\[1ex]
 \end{tabular}\\[1ex]
 \noindent Using \texttt{strict} will cause errors if unparsable.
-
+\texttt{strip} will happen before \texttt{ignore}.
 
 
 

@@ -165,10 +165,12 @@ the line is considered to be a comment.  It is allowed to have any
 number of empty lines in the file.  Available methods are entered
 first on a line by stating the name of the method, without the
 \texttt{a\_} prefix and \texttt{.py} suffix.  If required, this can be
-followed by one or more whitespaces and a token ``\texttt{py2}'' or
-``\texttt{py3}'', indicating which Python version to use when
-executing the method.  The field is left blank if the method works on
-both versions.  Here is an example
+followed by one or more whitespaces and a token such as
+``\texttt{py2}'' or ``\texttt{py3}'', indicating the Python version to
+use when executing the method.  Python executables are defined in
+the configuration file, see section~\ref{sec:configfile}.  The field
+can be left blank if the method works on any Python version.  Here is
+an example
 \begin{shell}
 # this is a comment
 

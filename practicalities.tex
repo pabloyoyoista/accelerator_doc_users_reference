@@ -94,10 +94,12 @@ any method.\\[1ex]
 
 \RPtwo \texttt{logfilename} & Location of the Accelerator's log.\\[1ex]
 
-\RPtwo \texttt{py2} and \texttt{py3} & path to Python executables.
-Current versions of the methods in the \texttt{standard\_methods}
-directory require Python2.  In the future, the Accelerator will
-require Python3, so it is safest to have both here.
+\RPtwo \texttt{py2} (\texttt{py27}, \texttt{py3}, $\dots$) & Path to
+Python executable.  There could be any number of Python executables
+listed using keys starting with ``\texttt{py}'' followed by a set of
+numbers, such as \texttt{py2}, \texttt{py3}, \texttt{py35} etc.  The
+file \texttt{methods.conf} (see section~\ref{sec:methods_conf}) is
+used to map a method to a specific executable.
 
 \stoptabletwo
 

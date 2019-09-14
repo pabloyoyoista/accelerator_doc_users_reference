@@ -55,9 +55,10 @@ data in a predicted and user controlled way.
  single \texttt{iso-8859-1} character.  Leave this empty to import
  each line of the input file into a single column.  \\[1ex]
 
- \RP \texttt{comment} & \texttt{''} & Lines beginning with this character are
- ignored.  Accepts a single \texttt{iso-8859-1} character, or the empty
- string for no comments. \\[1ex]
+ \RP \texttt{comment} & \texttt{''} & Lines beginning with this
+ character are ignored.  Accepts a single \texttt{iso-8859-1}
+ character, or the empty string for no comments. Commented lines are
+ stored in the \texttt{skipped} dataset.\\[1ex]
 
 \RP \texttt{newline} & \texttt{''} & Newline character.  Empty means
 "\texttt{\textbackslash{}n}" or "\texttt{\textbackslash{}r\textbackslash{}n}".
@@ -71,24 +72,32 @@ character means itself. \\[1ex]
 \mintinline{python}{True}, data on the first line of the file will
 be used as column labels.  If \mintinline{python}{False}, labels must
 be entered using the \texttt{label} option, see \texttt{labels}
-below.\\
+below.\\[1ex]
 
 \RP \texttt{labels} & \texttt{[]} & If \texttt{labelsonfirstline} (see
 above) is set to \mintinline{python}{False}, labels must be provided
 using this option.  For example \mintinline{python}{labels = ['foo',
-'bar',]}.\\
+'bar',]}.\\[1ex]
 
-\RP \texttt{rename} & \texttt{\{\}} & This option makes it possible to
-change the column names read from the first line of the input file.
-Renaming happens first.  It accepts a dictionary of type
-\mintinline{python}/{old_name: new_name,}/.\\
 \stoptable
-
+\vfill
+\noindent\emph{Table continues on next page}
 
 
 \clearpage
 \noindent\emph{Table continues from previous page}
 \starttable
+
+\RP \texttt{rename} & \texttt{\{\}} & This option makes it possible to
+change the column names read from the first line of the input file.
+Renaming happens first.  It accepts a dictionary of type
+\mintinline{python}/{old_name: new_name,}/.\\[1ex]
+
+\RP \texttt{lineno\_label} & \texttt{''} & If set,
+\texttt{lineno\_label} becomes a column containing line numbers.
+Line numbers start at one (1), and corresponds to line numbers in the
+input file.  \\[1ex]
+
 \RP \texttt{discard} & \mintinline{python}/set()/ & Labels in the discard set will
 not be stored in the dataset.\\[1ex]
 
@@ -135,11 +144,21 @@ for example
 \subsection{Output}
 The result of the \texttt{csvimport} is a dataset named
 \texttt{default}.  Lines marked as ``bad'' will be stored in the
-dataset \texttt{bad}, and skipped lines will be stored in the
-dataset \texttt{skipped}.  All columns will be of type
+dataset \texttt{bad}, while skipped and commented lines will be stored
+in the dataset \texttt{skipped}.  All columns will be of type
 \mintinline{python}{bytes}.  Typically, the dataset from
 \texttt{csvimport} is fed to a \texttt{dataset\_type} job for column
 typing.
+
+
+\subsection{Line Numbers}
+A column with line numbers is always attached to the \texttt{bad}
+and \texttt{skipped} datasets, and conditionally
+using \texttt{lineno\_label} to the main dataset.  Line numbers start
+at one (1), and always corresponds to the lines in the input dataset.
+For example, if there are labels on the first line of the input file,
+this line is number 1.  Any line number can thus only appear in one of
+the main, \texttt{bad}, or \texttt{skipped} datasets.
 
 
 

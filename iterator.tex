@@ -56,9 +56,10 @@ n2d = dict(dataset.source.iterate(sliceno, ('name', 'date',)))
 
 All three iterators share these arguments
 \starttable
-  \RP \texttt{sliceno} & \textsl{mandatory} & Slice number to iterate
-  over, or \mintinline{python}/None/ to iterate over all slices
-  sequentially. \\[1ex]
+  \RP \texttt{sliceno} & \textsl{mandatory} & Slice number (an
+  integer) to iterate over, \mintinline{python}/None/ to iterate over
+  all slices sequentially, or \texttt{"roundrobin"} to take one value
+  per slice in a round robin fashion. \\[1ex]
 
   \RP \texttt{columns} & \pyNone & Tuple of column labels or a single name if
   iterating over one column.  \pyNone selects all columns in alphabetic order.\\[1ex]
@@ -194,6 +195,23 @@ def analysis(sliceno):
             stop_ds={jobids.previous: 'source',}):
         h[user].add(item)
 \end{python}
+
+
+
+\subsection{Special Case, Round Robin Iteration}
+By default, the iterators stream slices of data.  This is almost
+always exactly what is needed.  There is, however, a special iterator
+case when the order of rows imported by \texttt{csvimport} matters.
+For maximum performance, the \texttt{csvimport} method writes datasets
+in a round robin fashion, so iterating over a csvimported dataset does
+not return the lines in the same order as they were written.
+
+By setting the first parameter of any of the iterator functions to
+\texttt{roundrobin}, the iterator will internally fetch all slice iterators
+and return one value at a time from each iterator in a round robin
+fashion.  The resulting output is then in the same order as in the
+file imported by \texttt{csvimport}.  There is a preformance penalty
+associated with this functionality.
 
 
 

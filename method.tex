@@ -686,11 +686,11 @@ the input parameters \options, \datasets, \jobids, and
 \texttt{caption} are available here too.  Similarly, the return value
 from a subjob build is a jobid to the built job.
 
-There are two catches, tough.
+There are two catches, though.
 \begin{enumerate}
   \item
 Dataset ids to datasets created in subjobs will not be explicitly
-available to the runner.  A workaround is to link the dataset to the
+available to the runner.  The workaround is to link the dataset to the
 building method like this \index{\texttt{link\_to\_here}}
 \begin{python}
 from dataset import Dataset
@@ -710,7 +710,7 @@ the \texttt{override\_previous} option, which takes a jobid
 \begin{python}
 Dataset(jid).link_to_here(name='thename', override_previous=xxx)
 \end{python}
-
+The \texttt{link\_to\_here} call returns a dataset object.
 
 \item
 Currently there is no dependency checking on subjobs, so if a subjob

@@ -576,6 +576,14 @@ it = ds.iterate(None, 'user')
 
 
 
+\subsection{Datasets Created by Subjobs}
+If a dataset is created in a subjob, it is not visible from the build
+scripts.  This is solved by linking dataset meta-information to the
+job calling the subjob, using the \texttt{link\_to\_here} function.
+This is explained in detail in section~\ref{sec:subjobs}.
+
+
+
 \subsection{Creating Hashed Datasets}
 Creating a hashed dataset is accomplished by setting
 the \texttt{hashlabel} argument of \texttt{DatasetWriter}.  It is up

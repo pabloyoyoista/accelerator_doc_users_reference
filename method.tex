@@ -386,6 +386,30 @@ is straightforward to merge using \texttt{merge\_auto}.
 
 
 
+\section{Standard Out and Standard Error}
+\label{sec:OUTPUT}
+
+Anything sent to \texttt{stdout} or \texttt{stderr}, for example using
+Python's \texttt{print()}-function, will be sent \textsl{both} to the
+termininal in which the Accelerator daemon was started \textsl{and} to
+a file in the job directory.
+
+Output is collected in the job directory in a directory named
+\texttt{OUTPUT}.  This directory is created only if anything was
+output from the job, otherwise it does not exist.  Inside the
+directory there may be files like this
+\begin{verbatim}
+job-x/
+   OUTPUT/
+      prepare    # created if output in prepare()
+      synthesis  #                      synthesis()
+      0          #                      analysis() slice 0
+      3          #                                       3
+\end{verbatim}
+No empty files will be created.
+
+
+
 \section{Method Input Parameters}
 \label{sec:input_params}
 

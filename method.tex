@@ -575,7 +575,7 @@ Sometimes it is useful to access another job's \params.  There is a
 special function for that, called \texttt{job\_params}, and it is used
 like this
 \begin{python}
-from extras import job_params
+from accelerator.extras import job_params
 
 jobids = ('anotherjob',)
 
@@ -597,7 +597,7 @@ check that the job exists.
 Accessing another job's dataset parameters is done using the
 \texttt{Dataset} constructor like this
 \begin{python}
-from dataset import Dataset
+from accelerator.dataset import Dataset
 
 jobids = ('previous',)
 
@@ -649,7 +649,7 @@ Files residing in another job is found using the
 full path to a file specified by a jobid and a filename, like in this
 example
 \begin{python}
-from extras import resolve_jobid_filename
+from accelerator.extras import resolve_jobid_filename
 
 fn = resolve_jobid_filename('test-43', 'names.txt')
 print(fn)
@@ -674,7 +674,7 @@ recursive manner.  As always, if the jobs have been built already,
 they will immediately be linked in.  The syntax for building a job
 inside a method is as follows, assuming we build the jobs in \prepare
 \begin{python}
-import subjobs
+from accelerator import subjobs
 
 def prepare():
     subjobs.build('count_items', options=dict(length=3))
@@ -693,7 +693,7 @@ Dataset ids to datasets created in subjobs will not be explicitly
 available to the runner.  The workaround is to link the dataset to the
 building method like this \index{\texttt{link\_to\_here}}
 \begin{python}
-from dataset import Dataset
+from accelerator.dataset import Dataset
 
 def synthesis():
     jid = subjobs.build('create_dataset')
@@ -718,7 +718,7 @@ method is changed, the calling method will not be updated.  The
 current remedy is to use \texttt{depend\_extra} in the building
 method, like this
 \begin{python}
-import subjobs
+from accelerator import subjobs
 
 depend_extra = ('a_childjob.py',)
 
@@ -848,12 +848,12 @@ options = dict(name='foo')   # requires string or None, provides default value
 And a string required to be specified and none-empty as
 \index{input options!\texttt{OptionString}}
 \begin{python}
-from extras import OptionString
+from accelerator.extras import OptionString
 options = dict(name=OptionString)       # requires non-empty string
 \end{python}
 In some situations, an example string is convenient
 \begin{python}
-from extras import OptionString
+from accelerator.extras import OptionString
 options = dict(name=OptionString('bar') # Requires non-empty string,
                                         # provides example (NOT default value)
 \end{python}
@@ -867,19 +867,19 @@ Enumerations are convenient in a number of situations.  An option with
 three enumerations is typed as
 \begin{python}
 # Requires one of the strings 'a', 'b' or 'c'
-from extras import OptionEnum
+from accelerator.extras import OptionEnum
 options = dict(foo=OptionEnum('a b c'))
 \end{python}
 and there is a flag to have it accept \mintinline{python}/None/ too
 \begin{python}
 # Requires one of the strings 'a', 'b', or 'c'; or None
-from extras import OptionEnum
+from accelerator.extras import OptionEnum
 options = dict(foo=OptionEnum('a b c', none_ok=True))
 \end{python}
 A default value may be specified like this
 \begin{python}
 # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
-from extras import OptionEnum
+from accelerator.extras import OptionEnum
 options = dict(foo=OptionEnum('a b c').b)
 \end{python}
 (The \texttt{none\_ok} flag may be combined with a default value.)
@@ -958,7 +958,7 @@ containers.  Otherwise, the specified values are the default contents.
 \index{input options!\texttt{JobWithFile}}
 Any file residing in a jobdir may be input to a method like this
 \begin{python}
-from extras import JobWithFile
+from accelerator.extras import JobWithFile
 options = dict(usefile=JobWithFile(jid, 'user.txt')
 \end{python}
 There are two additional arguments, \texttt{sliced} and
@@ -978,7 +978,7 @@ usefile.extras
 \end{python}
 %% Where the full filename of the file is available through
 %% \begin{python}
-%% from extras import full_filename
+%% from accelerator.extras import full_filename
 %% print(full_filename(filename, ''))
 %% \end{python}
 %% The second option to \texttt{full\_filename} is mandatory, it may be

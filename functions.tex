@@ -17,14 +17,14 @@ filename contains a path pointing elsewhere.
 \subsection*{Storing/Loading a  Single File}
 Data is saved in this way
 \begin{python}
-import blob
+from accelerator import blob
 def synthesis():
     data = ...  # some data created here
     blob.save(data, filename)
 \end{python}
 The data is loaded like this
 \begin{python}
-import blob
+from accelerator import blob
 def synthesis()
     data = blob.load(jobid, filename)
 \end{python}
@@ -90,7 +90,7 @@ Debug mode is active if the Accelerator is started with the
 
 \noindent Example
 \begin{python}
-from extras import Temp
+from accelerator.extras import Temp
 def analysis(sliceno):
   # save only if --debug
   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
@@ -107,7 +107,7 @@ in \texttt{resolve\_jobid\_filename()}.  The function takes two
 arguments, a \textsl{jobid} and a \textsl{filename}.  See the example
 below
 \begin{python}
-from extras import resolve_jobid_filename
+from accelerator.extras import resolve_jobid_filename
 
 jobids = ('oldjob',)
 
@@ -123,7 +123,7 @@ Note that this function works in a build script as well.
 Creating a symlink, for example from the \texttt{result\_directory} to
 current workdir, may be implemented in a simple and safe way like this
 \begin{python}
-from extras import symlink
+from accelerator.extras import symlink
 
 def synthesis(RESULT_DIRECTORY):
 
@@ -145,7 +145,7 @@ it already exists.
 The \texttt{job\_post} function returns a job's post execution
 information as a Python \texttt{dict}
 \begin{python}
-from extras import job_post
+from accelerator.extras import job_post
 postinfo = job_post(jobid)
 \end{python}
 The post data contains mainly profiling information.
@@ -154,7 +154,7 @@ The post data contains mainly profiling information.
 
 \section{json\_encode}
 \begin{python}
-from extras import json_encode
+from accelerator.extras import json_encode
 json_encode(variable, sort_keys=True, as_str=False)
 \end{python}
 
@@ -172,7 +172,7 @@ otherwise.
 
 \section{json\_decode}
 \begin{python}
-from extras import json_decode
+from accelerator.extras import json_decode
 x = json_decode(s)
 \end{python}
 Return a datastructure defined by the string \texttt{s}.
@@ -182,7 +182,7 @@ Return a datastructure defined by the string \texttt{s}.
 
 \section{json\_save}
 \begin{python}
-from extras import json_save
+from accelerator.extras import json_save
 json_save(variable,
     filename='result',
     jobid=None,
@@ -198,7 +198,7 @@ json_save(variable,
 
 \section{json\_load}
 \begin{python}
-from extras import json_load
+from accelerator.extras import json_load
 x = json_load(
     filename='result',
     jobid='',
@@ -237,7 +237,7 @@ with gzutil.GzUnicodeLines(filename, strip_bom=True) as fh:
 Returns a float corresponding to the total execution time (in seconds)
 of an input list of jobids.
 \begin{python}
-from automata_common import profile_jobs
+from accelerator.automata_common import profile_jobs
 ...
 print(profile_jobs(urd.joblist))
 \end{python}

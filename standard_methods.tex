@@ -639,7 +639,7 @@ determined based on the output value of a hashing function applied to
 a certain column (the \texttt{hashlabel}) of that row.  In code, the
 operation is similar to
 \begin{python}
-from gzutil import siphash
+from accelerator.gzutil import siphash
 
 target_sliceno = siphash(cols[hashlabel]) % params.slices
 \end{python}

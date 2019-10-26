@@ -145,7 +145,7 @@ The hash function used by the Accelerator is a well-known function
 called \texttt{siphash24} that is available from the
 Accelerator's \texttt{gzutil} library
 \begin{python}
-from gzutil import siphash24
+from accelerator.gzutil import siphash24
 
 y = siphash24(x)
 \end{python}
@@ -171,7 +171,7 @@ Dataset.
 A Dataset object can be
 instantiated from a jobid, like this
 \begin{python}
-from dataset import Dataset
+from accelerator.dataset import Dataset
 ...
 ds = Dataset('foo-0')
 \end{python}
@@ -197,7 +197,7 @@ ds = Dataset((jobids.previous, 'source'))
 %% the following example is stored in a job that has two datasets
 %% named \texttt{first} and \texttt{second}.
 %% \begin{python}
-%% from dataset import Dataset
+%% from accelerator.dataset import Dataset
 
 %% datasets=('source',)
 
@@ -592,7 +592,7 @@ to the dataset generating method to make sure that each row is written
 to the correct slice, according to the hash function value of the
 hashlabel column.  A row should go into slice $n$ if and only if
 \begin{python}
-from gzutil import siphash24
+from accelerator.gzutil import siphash24
 assert siphash24(hashcol) % options.slices == n
 \end{python}
 Otherwise an exception will occur.  It is possible to override this
@@ -664,7 +664,7 @@ The following example appends one column to an existing
 dataset \texttt{source}, while chaining to the
 dataset \texttt{previous}.
 \begin{python}
-from dataset import DatasetWriter
+from accelerator.dataset import DatasetWriter
 
 datasets = ('source', 'previous',)
 

@@ -142,14 +142,14 @@ Independent data means that processing of the dataset can be carried
 out in a completely parallel fashion.
 
 The hash function used by the Accelerator is a well-known function
-called \texttt{siphash24} that is available from the
+called siphash 2-4 that is available from the
 Accelerator's \texttt{gzutil} library
 \begin{python}
 from accelerator.gzutil import siphash24
 
 y = siphash24(x)
 \end{python}
-
+Typically this function is only used ``under the hood''.
 
 
 \section{Dataset as Input Parameter}
@@ -586,34 +586,42 @@ This is explained in detail in section~\ref{sec:subjobs}.
 
 
 \subsection{Creating Hashed Datasets}
-Creating a hashed dataset is accomplished by setting
-the \texttt{hashlabel} argument of \texttt{DatasetWriter}.  It is up
-to the dataset generating method to make sure that each row is written
-to the correct slice, according to the hash function value of the
-hashlabel column.  A row should go into slice $n$ if and only if
-\begin{python}
-from accelerator.gzutil import siphash24
-assert siphash24(hashcol) % options.slices == n
-\end{python}
-Otherwise an exception will occur.  It is possible to override this
-behavior by calling
+A hashed dataset is created by setting the \texttt{hashlabel} argument
+when calling \texttt{DatasetWriter}.  Note that for a hashed dataset,
+only data fulfilling the hashing requirement for a slice may be
+written to that slice.  A straightforward write will cause an
+exception if the data does not belong to the slice.
+
+A simple way to filter the data written is to call
 \begin{python}
 dw.enable_hash_discard()
 \end{python}
 first in each slice or after each \texttt{set\_slice()}.  Then, writes
-that belongs to another slice are silently ignored.  Alternatively, it
-is possible to check before writing if the data is to be put into the
-current slice using the \texttt{dw.hashcheck()} function
+that belongs to another slice are silently ignored, while ``correct''
+data gets written as expected.
+
+It is possible to check before writing if the data is to be put into
+the current slice using the \texttt{dw.hashcheck()} function, like
+this
 \begin{python}
 ...
 if dw.hashcheck(hashcoldata):
-    # compute bulkdata here...
-    ...
-    dw.write(hashcoldata, bulkdata)
+# compute bulkdata here...
+...
+dw.write(hashcoldata, bulkdata)
 \end{python}
-This is useful if it is expensive to compute the data to be stored.
-In the example above using \texttt{hashcheck()}, data is only computed
-if it is to be stored in the slice.
+This is also beneficial if it is expensive to compute the data to be
+stored.  In the example above using \texttt{hashcheck()}, data is only
+computed if it is to be stored in the slice.
+
+In general, the hash function for a particular column is available like this
+\begin{python}
+dw.writers[colname].hash
+\end{python}
+This function can be used to manually check if the data belongs to a
+slice.  For more details and alternatives, please see the
+documentation in \texttt{dataset.py}.
+
 
 
 \subsection{Column Name Restrictions}

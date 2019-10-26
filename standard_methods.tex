@@ -636,12 +636,12 @@ This method will create a new dataset based on all the data in the
 source dataset.  The difference between input and output is in which
 slices the rows will be stored.  For each row, the target slice is
 determined based on the output value of a hashing function applied to
-a certain column (the \texttt{hashlabel}) of that row.  In code, the
-operation is similar to
+a certain column (the \texttt{hashlabel}) of that row.  To illustrate
+the operation, the code is similar to
 \begin{python}
-from accelerator.gzutil import siphash
+from accelerator.gzutil import siphash24
 
-target_sliceno = siphash(cols[hashlabel]) % params.slices
+target_sliceno = siphash24(cols[hashlabel]) % params.slices
 \end{python}
 
 \subsection{Notes on Chains}

@@ -179,14 +179,86 @@ certain Urd lists.  Nothing more.
 %\clearpage
 \section{\texttt{dsinfo} -- Dataset Information}
 The \texttt{dsinfo} command line tool gives a compact, but easy to
-read, overview of a dataset or a dataset chain.  The tool is located
-in the \texttt{accelerator} home directory, and the full file name is
-\texttt{dsinfo.py}.
+read, overview of either
+\begin{itemize}
+\item[] a dataset,
+\item[] a chain of datasets, or
+\item[] available datasets in a job directory.
+\end{itemize}
+The tool is located in the \texttt{accelerator} home directory, and
+the full file name is \texttt{dsinfo.py}.
 
 \subsection{Invocation}
 \begin{shell}
-dsinfo.py [dataset [dataset [...]]
+dsinfo.py [-h] [-c] [-l] [-q] [-s] [-S] dataset [dataset ...]
 \end{shell}
+The \texttt{dataset} option is either a \textsl{dataset}, when used
+with the \texttt{-s}, \texttt{-S}, and \texttt{-c} options, or a
+\textsl{jobid} when used with \texttt{-l} option.  Datasets or jobids
+could be either names or absolute paths.  Examples of valid datasets
+are \texttt{test-2}, \texttt{test-2/default}, and
+\texttt{/home/wdirs/test/test2/dsx}.  Of these, only \texttt{test-2}
+is a valid jobid.  Here are all options
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and exit.\\[4ex]
+  \texttt{-q}\hspace{3cm}\texttt{---quiiet} & Silently ignore any error.\\
+\end{tabular}
+\end{snugshade}
+When \texttt{dsinfo} is fed with dataset(s)
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-c}\hspace{3cm}\texttt{---chain} & Print name and number of
+  lines for all datasets in the chain.\\[4ex]
+  \texttt{-s}\hspace{3cm}\texttt{---slices} & Print absolute and
+  relative number of lines per slice for the input dataset.\\[4ex]
+  \texttt{-S}\hspace{3cm}\texttt{---chain} & Same as \texttt{-s}, but
+  data is for the whole chain of datasets.\\
+\end{tabular}
+\end{snugshade}
+When \texttt{dsinfo} is fed with jobid(s)
+\begin{snugshade}
+\begin{tabular}{p{4cm}p{9cm}}
+  \texttt{-l}\hspace{3cm}\texttt{---list} & Print the name and number
+  of lines of all datasets in the input jobid.\\
+\end{tabular}
+\end{snugshade}
+
+\begin{verbatim}
+WIDE37-1/default
+    Parent: None
+    Hashlabel: None
+    Columns:
+        'a string'       ascii
+        'gauss float'    float64
+        'gauss number'   number
+        'large number'   number
+        'small integer'  int32
+        'small number'   number
+    6 columns
+    1,000,000 lines
+    Chain length 2, from WIDE37-0 to WIDE37-1
+    0: WIDE37-0/default (1,000,000)
+    1: WIDE37-1/default (1,000,000)
+    Balance, lines per slice, full chain:
+          0:   2.70% (54,056)   13:   2.70% (54,054)   26:   2.70% (54,054)
+          1:   2.70% (54,054)   14:   2.70% (54,054)   27:   2.70% (54,054)
+          2:   2.70% (54,054)   15:   2.70% (54,054)   28:   2.70% (54,054)
+          3:   2.70% (54,054)   16:   2.70% (54,054)   29:   2.70% (54,054)
+          4:   2.70% (54,054)   17:   2.70% (54,054)   30:   2.70% (54,054)
+          5:   2.70% (54,054)   18:   2.70% (54,054)   31:   2.70% (54,054)
+          6:   2.70% (54,054)   19:   2.70% (54,054)   32:   2.70% (54,054)
+          7:   2.70% (54,054)   20:   2.70% (54,054)   33:   2.70% (54,054)
+          8:   2.70% (54,054)   21:   2.70% (54,054)   34:   2.70% (54,054)
+          9:   2.70% (54,054)   22:   2.70% (54,054)   35:   2.70% (54,054)
+         10:   2.70% (54,054)   23:   2.70% (54,054)   36:   2.70% (54,054)
+         11:   2.70% (54,054)   24:   2.70% (54,054)
+         12:   2.70% (54,054)   25:   2.70% (54,054)
+    Max to average ratio: 1.000
+    2,000,000 total lines in chain
+\end{verbatim}
+
+
 Example invocation
 \begin{shell}
 % ./dsinfo.py test-20
@@ -195,6 +267,15 @@ The argument can be one or more jobids or dataset ids.  If the
 argument is a jobid, it is assumed that the dataset name is
 \texttt{default}.  If there are more than one dataset in the job, a
 list of dataset names will be returned.
+
+
+Note also that it may be convenient to use the shells feature....
+\begin{shell}
+% dsinfo -l -q test-{0..99}
+\end{shell}
+to scan for datasets in the 100 first jobids.  Adding the \texttt{-q}
+option will make \texttt{dsinfo} suppress the warning messages for
+those jobids that do not contain datasets.
 
 
 

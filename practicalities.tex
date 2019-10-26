@@ -6,102 +6,125 @@
 \section{Daemon Configuration File}
 \label{sec:configfile}
 
-The Accelerator is shipped with a configuration file template with
-comments to each line.  It is a good idea to copy and modify this when
-a new configuration file is needed.
-
-Below is an example configuration file that defines two workdirs,
-called \texttt{import} and
-\texttt{processing}.  The workdirs are specified relative to the user's
-home directory.  The workdir \texttt{processing} is the default workdir
-for writing, but a build script could explicitly request to write to
-the \texttt{import} workdir as well.
-
-Methods available for use are the \texttt{standard\_methods} bundled
-with the Accelerator, and methods defined in the
-directory \texttt{dev} (if they are defined in \texttt{dev/methods.conf}).
+The configuration file specifies which method packages and workdirs
+that are available for a project.  A template configuration file can
+be generated using the \texttt{init} command as described on
+page~\ref{init_command}.  Below is an example of a configuration file.
 %\begin{leftbar}
 \begin{snugshade}
 \begin{verbatim}
-workdir=import:${HOME}/accelerator/workdirs/import:16
-workdir=processing:${HOME}/accelerator/workdirs/processing:16
+# The configuration is a collection of key value pairs.
+#
+# Values are specified as
+# key: value
+# or for several values
+# key:
+#       value 1
+#       value 2
+#       ...
+# (any leading whitespace is ok)
+#
+# Use ${VAR} or ${VAR=DEFAULT} to use environment variables.
 
-target_workdir=processing
+slices: 23
+workdirs:
+        test /zbd/workdirs/test
+        import ${HOME}/workdirs/import
 
-source_workdirs=import,processing
+# Target workdir defaults to the first workdir, but you can override it.
+# target workdir: dev
+# (this is where jobs without a workdir override are built)
 
-method_directories=dev,standard_methods
+method packages:
+        dev
+        accelerator.standard_methods
+#       accelerator.test_methods   
 
-result_directory=${HOME}/accelerator/results
+urd: http://localhost:9000
 
-source_directory=/some/other/path
+result directory: ${HOME}/accelerator/results
+source directory: /zbd/data/backblaze
+logfile: ${HOME}/accelerator/daemon.log
 
-logfilename=${HOME}/accelerator/daemon.log
-
-py2=/usr/bin/python2.7
-py3=/usr/bin/python3.5
+# If you want to run methods on different python interpreters you can
+# specify names for other interpreters here, and put that name after
+# the method in methods.conf.
+# You automatically get four names for the interpreter that started
+# the daemon: DEFAULT, 3, 3.7 and 3.7.3 (adjusted to the actual
+# version used). You can override these here, except DEFAULT.
+# interpreters:
+#       2.7 /path/to/python2.7
+#       test /path/to/beta/python  
 \end{verbatim}
-\end{snugshade}
-%\end{leftbar}
-\noindent and here are explanations to all keywords
+\end{snugshade}%
+%\end{leftbar}%
+
+The configuration file above specifies 23 slices and two workdirs,
+called \texttt{test} and \texttt{import}.  The \texttt{test} workdir
+is specified using an absolute path, while the \texttt{import} workdir
+is specified relative to the user's home directory using the shell
+environment variable \texttt{\$HOME}.
+
+The workdir that is specified first is the \textsl{target workdir},
+where jobs are written to by default.  All other specified workdirs
+will by default only be used for reading.  Any of the workdirs
+specified could be written to, though, using the
+\texttt{set\_workdir=} option to the \texttt{build} command, as
+described on page~\ref{set_workdir}.
+
+Methods packages available for use are the \texttt{standard\_methods} bundled
+with the Accelerator, and methods defined in the
+directory \texttt{dev} (if defined in \texttt{dev/methods.conf}).
+
 \starttabletwo
 
-\RPtwo \texttt{workdir} & A \textsl{workdir}, defined as
-\texttt{name:path:slices}.  At least one workdir needs to be defined.
-All workdirs used together must have the same number of slices.  Shell
-variables are available too, such as \texttt{\$\{HOME\}}, please see
-text.\\[1ex]
+\RPtwo \texttt{slices} & Number of slices used for the project.\\[1ex]
 
-\RPtwo \texttt{target\_workdir} & Default \textsl{workdir}
-that new jobs get written to.  There can only be one target workdir.
-Please see \texttt{source\_workdirs} below for more
-information.\\[1ex]
+\RPtwo \texttt{workdirs} & A list of paths to workdir directories.  At
+least one workdir needs to be defined.  All workdirs that are used
+together must have the same number of slices.  It is possible to use
+shell environment variables such as \texttt{\$\{HOME\}} when
+specifying workdirs.
 
-\RPtwo \texttt{source\_workdirs} & A comma separated list of workdirs
-available for reading.  Workdirs specified by \texttt{workdir=...}
-but not listed as \texttt{target\_workdir}
-or \texttt{source\_workdirs} will be ignored.  Note:
-\begin{itemize}
-  \item[1.] The \texttt{target\_workdir} is automatically included in
-    the \texttt{source\_workdirs}, and does not need to be
-    explicitly.
-  \item[2.] The \texttt{target\_workdir} is the default
-    workdir for writing new jobs, \textsl{but} a build script may write
-    to \textsl{any} of the specified \texttt{source\_workdirs}.
-\end{itemize}\\[1ex]
+Unless overridden by the \texttt{target workdir}, the first workdir in
+the list will be the default \textsl{target workdir} that is used for
+all writing.  Other specified workdirs will only be read from, unless
+overrided by the \texttt{build} call as described on
+page~\ref{set_workdir}.\\[1ex]
 
-\RPtwo \texttt{method\_directories} & A comma separated list of
-directories containing methods.  These will be the only directories
-where the Accelerator can ``see'' methods.  \texttt{standard\_methods}
-is bundled with the Accelerator and is commonly used.\\[1ex]
+\RPtwo \texttt{target workdir} & Name of the \textsl{target workdir}.
+If specified this overrides the first item in the \texttt{workdirs}
+list.\\[1ex]
 
-\RPtwo \texttt{result\_directory} & A common path that is available to all
-jobs.  It has been used sparsely by the Accelerator team since it
-voids the possibility to see where a file comes from.  Nevertheless,
-in some projects it is valuable to have a common place where methods
-store results, see section~\ref{sec:RESULT_DIR}.  A way to keep traceability is to
-store the file in the job directory as usual, and then create a soft
-link to it in \texttt{result\_directory}.\\[1ex]
-
-\RPtwo \texttt{source\_directory} & Default root path for
-\texttt{csvimport}.  This is to avoid rebuilds of imports if source
-files are moved to another directory.  (This typically happens when
-setting up a similar system on another physical machine.)  See
-section~\ref{sec:SOURCE_DIR} on how to get access to \texttt{source\_directory} from
-any method.\\[1ex]
+\RPtwo \texttt{method packages} & A list of directories containing
+methods.  These will be the only directories where the Accelerator can
+``see'' methods.  \texttt{standard\_methods} is bundled with the
+Accelerator and is commonly used.\\[1ex]
 
 \RPtwo \texttt{urd} & If present, an URL to the Urd server.\\[1ex]
 
-\RPtwo \texttt{logfilename} & Location of the Accelerator's log.\\[1ex]
+\RPtwo \texttt{result directory} & A common path that is available to
+all jobs.  It has been used sparsely by the Accelerator team since it
+voids the possibility to see where a file comes from.  Nevertheless,
+in some projects it is valuable to have a common place where methods
+store results, see section~\ref{sec:RESULT_DIR}.  A way to keep
+traceability is to store the file in the job directory as usual, and
+then create a soft link to it in \texttt{result\_directory}.\\[1ex]
 
-\RPtwo \texttt{py[0-9]+} (\texttt{py27}, \texttt{py3}, $\dots$) & Path
-to Python executable.  There could be any number of Python executables
-listed using key starting with \texttt{py} followed by a sequence of
-numbers, such as \texttt{py2}, \texttt{py3}, \texttt{py35} et cetera.
-The file \texttt{methods.conf} (see section~\ref{sec:methods_conf}) is
-used to map a method to a specific executable.  Note that the
-\texttt{py} keyword is statically set to the Python version that is
-currently currently running the Accelerator daemon.
+\RPtwo \texttt{source directory} & Default root path for
+\texttt{csvimport}.  This is to avoid rebuilds of imports if source
+files are moved to another directory.  (This typically happens when
+setting up a similar system on another physical machine.)  See
+section~\ref{sec:SOURCE_DIR} on how to get access to
+\texttt{source\_directory} from any method.\\[1ex]
+
+\RPtwo \texttt{logfile} & Location of the Accelerator's log.\\[1ex]
+
+\RPtwo \texttt{interpreters} & Name and path to python executables.
+These are used in \texttt{methods.conf} to specify specific Python
+versions (or virtual environments) for individual methods.  If
+unspecified, methods will be executed using the same binary that runs
+the Accelerator's daemon process.\\[1ex]
 
 \stoptabletwo
 

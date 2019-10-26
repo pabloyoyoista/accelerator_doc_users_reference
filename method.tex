@@ -166,37 +166,30 @@ number of empty lines in the file.  Available methods are entered
 first on a line by stating the name of the method, without the
 \texttt{a\_} prefix and \texttt{.py} suffix.
 
-The method name can be followed by one or more whitespaces and a token
-such as \texttt{py}, \texttt{py2} or \texttt{py35}, indicating the
-Python version to use when executing the method.  Python executables
-are defined in the configuration file, see
-section~\ref{sec:configfile}.  If this field is left empty, the
-default executable \texttt{py} is selected, which always corresponds
-to the same executable as the currently runing Accelerator daemon is
-using.
+The method name can be followed by one or more whitespaces and a name
+specifying the actual Python executable that will be used to execute
+the method.  Python executables are defined in the configuration file,
+see section~\ref{sec:configfile}.  If this field is left empty, the
+default executable is selected, which always corresponds to the same
+executable as the currently runing Accelerator daemon is using.  The
+field can be left blank if the method works on any Python version.
+Here is an example
 
-
-
-The field can be left blank if the
-method works on any Python version.  Here is an example
 \begin{shell}
 # this is a comment
 
-test2           py2
-
+test2                # will use default python
 test3           py3  # newer
-testx                # same as "py"
+testx           tf   # the Tensorflow virtual environment python
 #bogusmethod    py3
 \end{shell}
-This file declares three methods corresponding to the filenames
-\texttt{a\_test2.py}, \texttt{a\_test3.py}, and \texttt{a\_testx.py},
-where the first two runs on Python2 and Python3 respectively (assuming
-a sensible binding in the Accerator's configuration file).  The method
-\texttt{testx} will use the \texttt{py} executable, which points to
-the executable used to run the current Accelerator daemon processes.
-Finally, the method \texttt{bogusmethod} is commented out and trying
-to build it will issue an error.
-
+This file declares three methods corresponding to the files
+\texttt{a\_test2.py}, \texttt{a\_test3.py}, and \texttt{a\_testx.py}.
+These are the only methods that can be built in this package
+directory.  Note that it is possible to define an executable from a
+virtual environment.  This makes it straightforward to install any
+package in a dedicated environment and making it accessible only to a
+set of specified mehods.
 
 
 
@@ -518,15 +511,20 @@ options = dict(mode='testing', length=3)
 def synthesis(params):
     print(json.dumps(params, indent=4))
 \end{python}
-The corresponding output may look something like this
+The corresponding output will look something like this
 %\begin{leftbar}
 \begin{json}
 {
+    "starttime": 1572082453.0400746,
+    "caption": "fsm_example_method",
+    "hash": "eea8591fefc636eb6d13df22118e4d9ff303163e",
+    "jobid": "test-20",
+    "method": "example_method",
     "package": "dev",
-    "method": "my_example_method",
-    "jobid": "EXAMPLE-12",
-    "starttime": 1520652213.4547446,
-    "slices": 16,
+    "python": "/home/ab/accvenv/bin/python",
+    "seed": 411200712313859665,
+    "slices": 23,
+    "version": 1,
     "options": {
         "mode": "testing",
         "length": 3
@@ -535,12 +533,9 @@ The corresponding output may look something like this
         "source": "EXAMPLE-3",
         "parent": "EXAMPLE-2"
     },
-    "caption": "fsm_my_example_method",
-    "seed": 53231916470152325,
     "jobids": {
         "jid": "EXAMPLE-0"
     },
-    "hash": "42af401251840b3798e9e78da5b5c5b4ef525ecc"
 }
 \end{json}
 %\end{leftbar}

@@ -9,23 +9,23 @@ chapter~\ref{chap:urd}.
 
 \section{Build Scripts}
 \index{build scripts}
-Build scripts are executed by the \texttt{automatarunner} executable.
-Example of its use is provided in this section~\ref{sec:exec_runner}.
-A build script must contain the function \texttt{main}, since this is
-called by the runner, like this
+Build scripts are executed by the \texttt{run} command, and examples
+of its use is provided in section~\ref{sec:exec_runner}.  A build
+script must contain the function \texttt{main}, since this is called
+by the run command, like this
 \index{build script!\texttt{main} function}
 \begin{python}
 def main(urd):
     ...
 \end{python}
-At run time, the \texttt{runner} inserts an object of the \texttt{Urd}
-class as argument to the \texttt{main} function.  This \texttt{urd}
-object has a number of member functions and attributes useful for job
-building and tracking.  For tracking purposes, it remembers all jobs
-that are built, together with their input parameters and some more
-meta information.  This chapter will only cover the basic
-possibilities provided by Urd, and a more comprehensive view will be
-provided in the next chapter.
+At run time, the \texttt{run} command inserts an object of
+the \texttt{Urd} class as argument to the \texttt{main} function.
+This \texttt{urd} object has a number of member functions and
+attributes useful for job building and tracking.  For tracking
+purposes, it remembers all jobs that are built, together with their
+input parameters and some more meta information.  This chapter will
+only cover the basic possibilities provided by Urd, and a more
+comprehensive view will be provided in the next chapter.
 
 
 

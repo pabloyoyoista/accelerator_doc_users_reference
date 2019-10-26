@@ -741,10 +741,10 @@ The methods are sorted by execution time, top to bottom.
 
 
 \section{Passing Flags from the Command Line}
-It is possible to add a comma separated list of flags to the runner
+It is possible to add a comma separated list of flags to the run command
 like this
 \begin{python}
-./automatarunner.py --flags=verbose,skiptest
+ax run [script] --flags=verbose,skiptest
 \end{python}
 The flags will appear in the \texttt{urd}-object like this
 \begin{python}

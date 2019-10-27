@@ -296,20 +296,34 @@ is used for the workdir.
 
 
 
-\section{Progress Indication:  \texttt{C-t}}
+\section{Status (Progress) Reporting}
 
 During job building, it is possible to press \texttt{C-t},
-i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, to get status
-information.  The status will cover the processing state, if it is in
-\prepare, \analysis, or \synthesis, reading or writing files, etc.
+i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, in the \texttt{run}
+shell to get status information.  Several built in functions make use
+of this, and the \texttt{status} module makes it possible to insert
+status reporting into any method.
 
-If the \analysis function is executing, \texttt{C-t} will list all
-analysis processes that are active at the moment.  If iterating over a
-dataset, the status message will include which dataset (perhaps in a
-chain) that is currently being iterated.
+The built in status will report the processing state, if it is in
+\prepare, \analysis, or \synthesis.  Iterators report which dataset
+(perhaps in a chain) that is currently being iterated, and the
+\texttt{blob} functions report status of file pickling.
 
-Note that \texttt{C-t} could be pressed either in the \texttt{daemon}
-or \texttt{run} shells.
+Here is an example of how to use the status module
+\begin{python}
+from accelerator.status import status
+...
+def analysis(sliceno):
+    msg = "reached line %d already!"
+    with status(msg % (0,) as update:
+        for ix, data in enumerate(datasets.source.iterate(sliceno, 'data')):
+            if ix % 1000000 == 0:
+                update(msg % (ix,))
+\end{python}
+In the example above, the status message will be updated once every
+million iteration.  By pressing \texttt{C-t} during its execution, the
+user will get a message telling how many lines the iterator has
+reached.
 
 
 

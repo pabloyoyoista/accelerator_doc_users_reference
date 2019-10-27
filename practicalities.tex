@@ -33,6 +33,41 @@ In order to run, the Accelerator needs to have these things in place
 \end{itemize}
 This is all taken care of by the \texttt{init} command.
 
+
+
+
+\section{Run the Tests}
+A rather extensive test suite is included in the Accerator
+installation.  To run this, enable the test package in the
+configuration file:
+\begin{verbatim}
+method packages:
+    ...
+    accelerator.test_methods
+\end{verbatim}
+start the daemon using
+\begin{python}
+  ax daemon
+\end{python}
+and in another shell start the test
+\begin{python}
+ax run tests
+\end{python}
+Since the tests include testing of different character encodings, you may end up with a
+\begin{verbatim}
+Exception: Failed to enable numeric_comma, please install at least one
+of the following locales: da_DK nb_NO nn_NO sv_SE fi_FI en_ZA es_ES
+es_MX fr_FR ru_RU de_DE nl_NL it_IT
+\end{verbatim}
+On a Debian-based machine, locales can be configured using
+\begin{shell}
+dpkg-reconfigure locales 
+\end{shell}
+which has to be run with root privileges.
+
+
+
+
 \section{Daemon Configuration File}
 \label{sec:configfile}
 

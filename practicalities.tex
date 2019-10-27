@@ -1,7 +1,37 @@
-%There are three main components in the Accelerator framework, the
-%\texttt{daemon}, the \texttt{runner}, and \texttt{urd}.  How to
-%configure and run these components is the topic of this chapter.
 
+\section{Install the Accelerator}
+
+\subsection{Using the \texttt{pip} command}
+The easiest way to install the Accelerator is by fetching it from the
+PyPi repository
+\begin{shell}
+pip install accelerator
+\end{shell}
+Some prefer to install to a virtual environment and do something in
+line with the following
+\begin{shell}
+python3 -m venv accvenv
+source accvenv/bin/activate
+pip install accelerator
+\end{shell}
+This will install the Accelerator to the \texttt{accvenv} virtual
+environment.  Now, use for example the following command
+\begin{shell}
+ax --help
+\end{shell}
+to check that the installation worked.  The next step is to set up a
+project.
+
+
+
+\section{Set up a New Project}
+In order to run, the Accelerator needs to have these things in place
+\begin{itemize}
+\item[] at least one \textsl{workdir} to store data in,
+\item[] most likely a new \textsl{method package} directory to store new code in, and
+\item[] a \textsl{configuration file} to set things up.
+\end{itemize}
+This is all taken care of by the \texttt{init} command.
 
 \section{Daemon Configuration File}
 \label{sec:configfile}

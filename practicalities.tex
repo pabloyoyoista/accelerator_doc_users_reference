@@ -249,15 +249,15 @@ as \texttt{cd/import}.  It can read all lists, though.
 
 \section{Workdirs}
 
-Jobs are stored in \textsl{workdirs}.  The Accelerator must have one
-target workdir, and may optionally have several source workdirs.
-Target and source workdirs are specified in the daemon configuration
-file.
+Jobs are stored in \textsl{workdirs}.  Workdirs are defined in the
+Accelerator's configuration file, where at least one workdir must be
+specified.
 
 By default, the only workdir that is written to is the target workdir,
-while the source workdirs are for reading.  It is possible to override
-this, however, by setting the \mintinline{python}|workdir=| option in
-the \texttt{urd.build()} call, see section~\ref{sec:urd_build}.
+while all other defined workdirs are for reading.  It is possible to
+override this, however, by setting the \mintinline{python}|workdir=|
+option in the \texttt{urd.build()} call, see
+section~\ref{sec:urd_build}.
 
 Jobdirs are stored in the workdir by the daemon, and jobdirs will
 inherit the workdir name and add a suffix that is an incremental job
@@ -280,10 +280,9 @@ but the link will always point to the most recent version.
 
 \subsection{Creating a Workdir}
 Any empty directory can be a workdir.  To create a new workdir, create
-the directory and add it in the configuration file either as source or
-target workdir.  Stop and restart the \texttt{daemon}.  Upon startup,
-any uninitialised source or target workdir in the configuration file
-will be initialised.
+the directory and add it in the configuration file.  Stop and restart
+the \texttt{daemon}.  Upon startup, any uninitialised workdir in the
+configuration file will be initialised.
 
 The initiation process creates a file named
 \texttt{<workdir>-slices.conf} that indicates that the directory is
@@ -419,28 +418,23 @@ overcome using for example soft file links, however, see section~\ref{sec:symlin
 
 
 \subsection{Understanding Workdirs}
-When the \texttt{Daemon} is starting, it will read
-all \texttt{workdir}-definitions in the configuration file.  It will
-check that all workdirs specified by \texttt{target\_workdir}
-and \texttt{source\_workdirs} are defined.  All other defined workdirs
-are ignored.  The daemon will also check that all workdirs have the
-same number of slices as specified in the configuration file, and that
-all workdirs to be used together have the same number of slices.
+When the \texttt{Daemon} is starting, it will read all
+\texttt{workdir}-definitions in the configuration file.  It will check
+that all workdirs are defined, that all workdirs have the same number
+of slices as specified in the configuration file, and that all
+workdirs to be used together have the same number of slices.
 
 The \texttt{target\_workdir} is the default location where new jobs
-will be stored.  However, a build script may write jobs to any of the
-\texttt{source\_workdirs} as well.  Furthermore, the \texttt{target\_workdir}
-may always be read from, and may therefore be omitted from
-the \texttt{source\_workdirs} list.
+will be stored.  However, a build script may write jobs to any other
+defined workdir as well.
 
 \subsection{How to Create New Workdirs}
 If a workdir defined in the configuration file does not exist on disk
 at the stated location, the Daemon will exit and print an error
 stating that a directory is missing.  The first time the Daemon
 encounters a new directory it will initialise it in accordance with
-the configuration file.  This is true both for source and target
-workspaces.  So, new workdirs are created by adding them to the
-configuration file \textsl{and} creating the corresponding
+the configuration file.  So, new workdirs are created by adding them
+to the configuration file \textsl{and} creating the corresponding
 directories.  The Accelerator will then initiate these directories on
 the next startup.
 

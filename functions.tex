@@ -3,6 +3,36 @@ This chapter is dedicated to the Accelerator's helper functions.
 Some, like the \texttt{blob} module, are very useful, while others are
 less likely to be included in a project.
 
+
+\section{Generate Progress Messages:  the \texttt{status} Module}
+
+The status module is used by the Accelerator to report processing
+state.  It is also used by various functions to report iterator and
+file access progress.  Status messages are presented in
+the \texttt{run} shell by pressing \texttt{C-t}, i.e.\
+the \texttt{Ctrl} and \texttt{t} keys simultaneously.
+
+The status module can be used to write progress and status messages
+for any function.  Here is an example of how to use the status module
+\begin{python}
+from accelerator.status import status
+...
+def analysis(sliceno):
+    msg = "reached line %d already!"
+    with status(msg % (0,) as update:
+        for ix, data in enumerate(datasets.source.iterate(sliceno, 'data')):
+            if ix % 1000000 == 0:
+                update(msg % (ix,))
+\end{python}
+In the example above, the status message will be updated once every
+million iteration.  By pressing \texttt{C-t} during its execution, the
+user will get a message telling how many lines the iterator has
+reached.
+
+
+
+
+
 \section{Share Data Between Jobs:  the \texttt{blob} Module}
 
 The simplest way to share reasonable amounts of data between jobs is

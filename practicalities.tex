@@ -299,30 +299,17 @@ is used for the workdir.
 
 During job building, it is possible to press \texttt{C-t},
 i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, in the \texttt{run}
-shell to get status information.  Several built in functions make use
-of this, and the \texttt{status} module makes it possible to insert
-status reporting into any method.
+shell to get status information.  The built in status will report the
+processing state, if it is in \prepare, \analysis, or \synthesis.
+Iterators report which dataset (perhaps in a chain) that is currently
+being iterated, and the \texttt{blob} functions report status of file
+pickling.
 
-The built in status will report the processing state, if it is in
-\prepare, \analysis, or \synthesis.  Iterators report which dataset
-(perhaps in a chain) that is currently being iterated, and the
-\texttt{blob} functions report status of file pickling.
+The \texttt{status} module makes it possible to insert
+status reporting into any method.  For more information about status
+reporting, see section~\ref{sec:statusreporting}.
 
-Here is an example of how to use the status module
-\begin{python}
-from accelerator.status import status
-...
-def analysis(sliceno):
-    msg = "reached line %d already!"
-    with status(msg % (0,) as update:
-        for ix, data in enumerate(datasets.source.iterate(sliceno, 'data')):
-            if ix % 1000000 == 0:
-                update(msg % (ix,))
-\end{python}
-In the example above, the status message will be updated once every
-million iteration.  By pressing \texttt{C-t} during its execution, the
-user will get a message telling how many lines the iterator has
-reached.
+
 
 
 

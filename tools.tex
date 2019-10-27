@@ -22,8 +22,18 @@
 
 
 
-The Accelerator is controlled using the \cmd shell command.  Asking
-for help is always an option.  To begin,
+The Accelerator is controlled using the \cmd shell command.  In order
+to run any command, \cmd needs to have access to a configuration file
+(see section~\ref{}).  The \cmd command will look for this file first
+in the current directory, and then recursively in directories above
+it.
+
+It is assumed that the Accelerator \texttt{daemon} and build script
+\texttt{run} commands are executed from the same directory.  This will
+work out of the box.  But if set up correctly, they could be run from
+different directories or even from different computers if necessary.
+
+Asking for help is always an option.  To begin,
 \begin{shell}
   ax --help
 \end{shell}
@@ -57,8 +67,15 @@ each command will be introduced next.
 
 
 \section{Initialisation}
-In order to start a new project, a few things needs to be set up.  A
-simple way to start from scratch is to use the \texttt{init} command
+In order to start a new project, a few things need to be set up, in
+particular
+\begin{itemize}
+\item[] identify existing / create new \textsl{workdirs},
+\item[] identify existing / create new \textsl{method packages}, and
+\item[] write a \textsl{configuration file}.
+\end{itemize}
+This can be done manually, but a simple way to start from scratch is
+to use the \texttt{init} command
 \begin{shell}
   ax init
 \end{shell}
@@ -79,15 +96,18 @@ with the following options
   optional arguments:
   -h, --help       show this help message and exit
   --slices SLICES  Override slice count detection
-  --name NAME      Name of method dir and workdir, default ``dev''
-  --directory DIR  project directory to create. default ``.''
+  --name NAME      Name of method dir and workdir, default "dev"
+  --directory DIR  project directory to create. default "."
   --prefix PREFIX  Put workdirs and daemon.log here, default
-  ``${HOME}/accelerator''
+                   "${HOME}/accelerator"
   --source SOURCE  source directory
   --force          Go ahead even though directory is not empty, or workdir
-  exists with incompatible slice count
+                   exists with incompatible slice count
 \end{verbatim}
 \end{snugshade}
+The command help listed above says most of it.  See
+section~\ref{section_on_init} on how to set up a new project from
+scratch.
 
 
 
@@ -117,27 +137,10 @@ optional arguments:
   --socket SOCKET  Listen on unix socket (default: socket.dir/default)
 \end{verbatim}%
 \end{snugshade}
-
-Optional arguments
-\begin{snugshade}
-\begin{tabular}{p{4cm}p{9cm}}
-  \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and
-  exit.\\[4ex]
-
-  \texttt{---debug} & Start in debug mode.  See section~\ref{sec:debugflag}\\[2ex]
-  \texttt{---config CONFIG\_FILE} & configuration file, default
-  \texttt{../conf/framework.conf}\\[4ex]
-
-  \texttt{---port PORT} & listen on TCP port (default \pyNone)\\[4ex]
-
-  \texttt{---socket SOCKET} & listen on unix socket, default
-  \texttt{socket.dir/default}\\[4ex]
-\end{tabular}
-\end{snugshade}
 Communication with the Accelerator daemon will take place over an UNIX
-socket.  There is no need for any additional configuration to make
-that happen.  It is possible, however, to communicate over a TCP port
-instead if specified.
+socket by default.  There is no need for any additional configuration
+to make that happen.  It is possible, however, to communicate over a
+TCP port instead if specified.
 
 
 
@@ -149,7 +152,7 @@ instead if specified.
 \subsection{Invocation}
 Build scripts are executed using
 \begin{python}
-ax run [script]
+ax run <script>
 \end{python}
 
 \begin{python}
@@ -194,11 +197,9 @@ methods.  Thereafter, the Accelerator will proceed and scan all source
 workdirs to see if any new jobs have been created (by another
 Accelerator daemon).  Thereafter, it will execute the build script.
 
-If there are more than one build script with the same name, the one
-first in the list of method packages specified in the Accelerator's
-configuration file will be used.  This can be overridden by explicitly
-specifying the method package and build scrip to run.
-
+Is for the \texttt{daemon} command, there is no need to specify any
+socket or port as long as the commands are issued from the same
+directory.
 
 
 
@@ -211,34 +212,13 @@ overview of either
 \item[] a chain of datasets, or
 \item[] available datasets in a job directory.
 \end{itemize}
+it provides information about column names and types, max and min
+values, number of rows, and balance of rows between slices.
 
 \subsection{Invocation}
 \begin{shell}
-ax dsinfo --help
+ax dsinfo [options] [dataset [dataset [...]]]
 \end{shell}
-\begin{snugshade}
-\begin{verbatim}
-usage: dsinfo [options] dataset(s)
-
-positional arguments:
-  dataset
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c, --chain           list all datasets in a chain
-  -l, --list            list all datasets in a job
-  -L, --chainedlist     list all datasets in a job, @@@@@@@@@@@@@@
-  -m, --suppress_minmax
-                        do not print min/max column values
-  -n, --suppress_columns
-                        do not print columns
-  -q, --suppress_errors
-                        silently ignores bad input datasets/jobids
-  -s, --slices          list relative number of lines per slice in sorted
-                        order
-  -S, --chainedslices   same as -s but for full chain
-\end{verbatim}
-\end{snugshade}
 
 The \texttt{dataset} option is either a \textsl{dataset}, when used
 with the \texttt{-s}, \texttt{-S}, and \texttt{-c} options, or a
@@ -246,11 +226,12 @@ with the \texttt{-s}, \texttt{-S}, and \texttt{-c} options, or a
 could be either names or absolute paths.  Examples of valid datasets
 are \texttt{test-2}, \texttt{test-2/default}, and
 \texttt{/home/wdirs/test/test2/dsx}.  Of these, only \texttt{test-2}
-is a valid jobid.  Here are all options
+is a valid jobid.
+Here are all options
 \begin{snugshade}
 \begin{tabular}{p{4cm}p{9cm}}
   \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and exit.\\[4ex]
-  \texttt{-q}\hspace{3cm}\texttt{---quiiet} & Silently ignore any error.\\
+  \texttt{-q}\hspace{3cm}\texttt{---quiet} & Silently ignore any error.\\
 \end{tabular}
 \end{snugshade}
 When \texttt{dsinfo} is fed with dataset(s)
@@ -259,7 +240,7 @@ When \texttt{dsinfo} is fed with dataset(s)
   \texttt{-c}\hspace{3cm}\texttt{---chain} & Print name and number of
   lines for all datasets in the chain.\\[4ex]
   \texttt{-s}\hspace{3cm}\texttt{---slices} & Print absolute and
-  relative number of lines per slice for the input dataset.\\[4ex]
+  relative number of lines per slice for the input dataset.\\[2ex]
   \texttt{-S}\hspace{3cm}\texttt{---chain} & Same as \texttt{-s}, but
   data is for the whole chain of datasets.\\
 \end{tabular}
@@ -272,56 +253,71 @@ When \texttt{dsinfo} is fed with jobid(s)
 \end{tabular}
 \end{snugshade}
 
-\begin{verbatim}
-WIDE37-1/default
-    Parent: None
-    Hashlabel: None
-    Columns:
-        'a string'       ascii
-        'gauss float'    float64
-        'gauss number'   number
-        'large number'   number
-        'small integer'  int32
-        'small number'   number
-    6 columns
-    1,000,000 lines
-    Chain length 2, from WIDE37-0 to WIDE37-1
-    0: WIDE37-0/default (1,000,000)
-    1: WIDE37-1/default (1,000,000)
-    Balance, lines per slice, full chain:
-          0:   2.70% (54,056)   13:   2.70% (54,054)   26:   2.70% (54,054)
-          1:   2.70% (54,054)   14:   2.70% (54,054)   27:   2.70% (54,054)
-          2:   2.70% (54,054)   15:   2.70% (54,054)   28:   2.70% (54,054)
-          3:   2.70% (54,054)   16:   2.70% (54,054)   29:   2.70% (54,054)
-          4:   2.70% (54,054)   17:   2.70% (54,054)   30:   2.70% (54,054)
-          5:   2.70% (54,054)   18:   2.70% (54,054)   31:   2.70% (54,054)
-          6:   2.70% (54,054)   19:   2.70% (54,054)   32:   2.70% (54,054)
-          7:   2.70% (54,054)   20:   2.70% (54,054)   33:   2.70% (54,054)
-          8:   2.70% (54,054)   21:   2.70% (54,054)   34:   2.70% (54,054)
-          9:   2.70% (54,054)   22:   2.70% (54,054)   35:   2.70% (54,054)
-         10:   2.70% (54,054)   23:   2.70% (54,054)   36:   2.70% (54,054)
-         11:   2.70% (54,054)   24:   2.70% (54,054)
-         12:   2.70% (54,054)   25:   2.70% (54,054)
-    Max to average ratio: 1.000
-    2,000,000 total lines in chain
-\end{verbatim}
-
-Example invocation
+\subsubsection*{Example invocation 1}
 \begin{shell}
-% ./dsinfo.py test-20
+ax dsinfo test-20 -S
 \end{shell}
+or
+\begin{shell}
+ax dsinfo test-20/badlines
+\end{shell}
+
 The argument can be one or more jobids or dataset ids.  If the
 argument is a jobid, it is assumed that the dataset name is
 \texttt{default}.  If there are more than one dataset in the job, a
 list of dataset names will be returned.
 
-Note also that it may be convenient to use the shells feature....
+\subsubsection*{Example invocation 2}
+Combining \texttt{dsinfo} will shell features can be an elegant way to
+extract information from a workdir.  For example
 \begin{shell}
-% dsinfo -l -q test-{0..99}
+ax dsinfo -l -q test-{0..99}
 \end{shell}
-to scan for datasets in the 100 first jobids.  Adding the \texttt{-q}
-option will make \texttt{dsinfo} suppress the warning messages for
-those jobids that do not contain datasets.
+will scan for datasets in the 100 first jobids of \texttt{test}.
+Adding the \texttt{-q} option will make \texttt{dsinfo} suppress the
+warning messages for those jobids that do not contain any datasets.
+
+\subsubsection*{Example invocation 3}
+Find all datasets in \texttt{test-20}
+\begin{shell}
+ax dsinfo -l test-20
+\end{shell}
+
+
+\subsubsection*{Example Output}
+\begin{snugshade}
+\begin{verbatim}
+import-2340/default
+    Previous: import-2245/default
+    Hashlabel: serial_number
+    Columns:
+          capacity_bytes        int64   [        -1, 14000519643136]
+          date                  date    [2019-04-01, 2019-06-30]
+          failure               bool    [     False,       True]
+          model                 ascii
+        * serial_number         ascii
+    5 columns
+    9,831,138 lines
+    Chain length 17, from import-269 to import-2340
+    Balance, lines per slice, full chain:
+          1:   4.44% (6,486,330)   20:   4.35% (6,365,896)    3:   4.32% (6,323,701)
+          0:   4.43% (6,472,949)   17:   4.35% (6,363,206)   19:   4.31% (6,309,295)
+         11:   4.39% (6,423,397)   21:   4.35% (6,360,759)   12:   4.31% (6,306,181)
+          4:   4.39% (6,421,043)   15:   4.35% (6,358,757)    8:   4.31% (6,304,311)
+          6:   4.39% (6,418,617)    7:   4.34% (6,352,750)   13:   4.31% (6,303,637)
+         14:   4.39% (6,417,911)   18:   4.34% (6,348,128)    5:   4.28% (6,252,735)
+          2:   4.36% (6,376,139)   10:   4.34% (6,347,694)   16:   4.26% (6,230,543)
+         22:   4.35% (6,366,040)    9:   4.33% (6,325,241)
+    Max to average ratio: 1.020
+    146,235,260 total lines in chain
+\end{verbatim}
+\end{snugshade}
+The \texttt{max to average ratio} shows the ratio between the slice
+with most rows and the average number of rows.  This can be
+interpreted as the execution time overhead for a dataset where all
+slices are not of the same size.
+
+
 
 
 
@@ -332,28 +328,13 @@ The \texttt{dsgrep} command is a parallel grep for datasets that is
 used to look at data stored in datasets or dataset chains.
 \subsection{Invocation}
 \begin{shell}
-ax dsgrep --help
+ax dsgrep [options] pattern ds [ds [...]] [column [column [...]]
 \end{shell}
 
-\begin{snugshade}
-\begin{verbatim}
-usage: dsgrep [options] pattern ds [ds [...]] [column [column [...]]
-
-  positional arguments:
-  pattern
-  dataset
-  columns
-
-  optional arguments:
-  -h, --help         show this help message and exit
-  -c, --chain        Follow dataset chains
-  -i, --ignore-case  Case insensitive pattern
-\end{verbatim}
-\end{snugshade}
-
-The \texttt{pattern} is a regular expression and \texttt{ds} are datasets.  For example
+The \texttt{pattern} is a regular expression and \texttt{ds} are
+datasets.  For example
 \begin{shell}
-% dsgrep.py Alice test-0 test-1/special name
+ax dsgrep Alice test-0 test-1/special name
 \end{shell}
 Will look for the string \texttt{Alice} in the \texttt{name} column of
 the two datasets \texttt{text-0} and \texttt{test-1/special}.
@@ -373,9 +354,9 @@ Strings and columns with special characters have to be quoted.
 The data in a dataset may be printed to \texttt{stdout} by
 \texttt{grep}ing using a regexp that always matches, like this
 \begin{shell}
-% ./dsgrep.py . test-0 | less
+ax dsgrep . test-0 | less
 \end{shell}
-
+(The regexp \texttt{.} will match any string that is at least one character long.)
 
 
 

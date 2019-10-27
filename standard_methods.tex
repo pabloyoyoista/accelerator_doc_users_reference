@@ -199,29 +199,66 @@ character (\texttt{0x00}, \mintinline{python}|'\0'|).
 \section{\texttt{csvimport\_zip} -- Importing \texttt{zip} Archives}
 The \texttt{csvimport\_zip} method is a wrapper
 around \texttt{csvimport} that is used to import files stored in
-a \texttt{zip} archive.  One or more files in a \texttt{zip} archive
-can be imported by a call to this function.  Each file is imported to
-a separate dataset.
+\texttt{zip} archives.  One or more files in a \texttt{zip} archive
+can be imported by a call to this function, and each file will be
+imported to a separate dataset.
+
+
+\subsection{Options}
 
 All options to \texttt{csvimport} are available to this method as
 well, and the \texttt{filename} option is used to specify the name of
-the \texttt{zip} file.  An additional option \texttt{inside\_filenames}
-is used to match files inside the \texttt{zip} file to datasets.
-This option is of type \texttt{dict}, and is used like this
+the \texttt{zip} file.
+
+\starttable
+\RP \texttt{inside\_filenames} & \texttt{\{\}}&
+   Dictionary from filename in zipfile to dataset
+   name, \mintinline{python}/{'filename in zip': 'dataset name',
+   ...}/.  If left empty, all files will be imported to datasets with
+   cleaned up names.  If there is only one file imported from the zip
+   (whether specified explicitly or because the zip only contains one
+   file) this will also end up as the default dataset.\\
+\RP \texttt{chaining}          & \texttt{on}  &
+  Can be one of \texttt{off}, \texttt{on}, \texttt{by\_filename},
+  or \texttt{by\_dsname}.
+  \begin{itemize}
+  \item[]\texttt{off} -- Don't chain the imports.
+  \item[]\texttt{on} -- Chain the imports in the order the files are in the zip file.
+  \item[]\texttt{by\_filename} -- Chain in filename order.
+  \item[]\texttt{by\_dsname} -- Chain in dataset name order. Since \texttt{inside\_filenames} is a dict this is your only way of controlling its order.
+\end{itemize}\\
+\RP \texttt{include\_re}       & \texttt{''}  & Regexp of files to include, matches anywhere.\\
+\RP \texttt{exclude\_re}       & \texttt{''}  & Regexp of files to exclude, takes priority over \texttt{include\_re}.\\
+\RP \texttt{strip\_dirs}       & \pyFalse     & Strip directories from filename (\texttt{a/b/c} $\rightarrow$ \texttt{c}.)\\
+\stoptable
+
+If you chain you will also get the last dataset as
+the \texttt{default} dataset, to make it easy to find. Naming a
+non-last dataset ``\texttt{default}'' is an error.
+
+If you set \texttt{strip\_dirs} the filename (as used for both sorting
+and naming datasets, but not when matching regexes) will not include
+directories. The default is to include directories.
+
+\subsection{Example invocation}
+
 \begin{python}
- options.inside_filenames = {'filename in zip': 'dataset name', ...}
+    jid = urd.build("csvimport_zip",
+        options=dict(
+            filename="data_Q2_2019.zip",
+            exclude_re=r"(__MACOSX|\.DS_Store)",
+            chaining="by_filename",
+            strip_dirs=True,
+        ),
+    )
 \end{python}
-If left empty, all files will be imported to datasets with cleaned up
-names.  If there is only one file imported from the zip (whether
-specified explicitly or because the zip only contains one file) this
-will also end up as the default dataset.
 
 
 
 
 
 
-\clearpage
+
 \section{\texttt{dataset\_type} -- Typing Datasets}
 The \texttt{dataset\_type} method will read a source dataset and
 create a new dataset that is typed.  This is primarily used for typing
@@ -290,7 +327,7 @@ dataset containing only the rows containing typeable data.
 
 
 
-\clearpage
+
 \subsection{Example Invocation}
 An example invocation is the following
 
@@ -501,7 +538,6 @@ ASCII is similar, there are two types
 
 
 
-\clearpage
 \section{\texttt{csvexport} -- Exporting Text Files}
 
 The \texttt{dataset\_export} method is used to export datasets to
@@ -784,7 +820,6 @@ computer can sort very large datasets without trouble.
 
 
 
-\clearpage
 \section{dataset\_checksum, dataset\_checksum\_chain}
 
 The \texttt{dataset\_checksum} method is used to create a single

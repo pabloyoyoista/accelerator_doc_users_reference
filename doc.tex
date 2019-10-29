@@ -64,7 +64,9 @@
 \newcommand{\params}{\texttt{params}\xspace}
 
 % minted Python
+\usepackage{mdframed}
 \usepackage{minted, xcolor}
+
 \usemintedstyle{lovelace}
 %\usemintedstyle{friendly}
 
@@ -74,7 +76,11 @@
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
 \definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
 \definecolor{hl}{rgb}{1.00,1.00,0.80}
-\newminted[python]{python}{bgcolor=bg, escapeinside=||}
+
+\BeforeBeginEnvironment{minted}{\begin{mdframed}[backgroundcolor=bg,hidealllines=true,innerleftmargin=0pt,innerrightmargin=0pt,innertopmargin=3pt,innerbottommargin=3pt]}
+\AfterEndEnvironment{minted}{\end{mdframed}}
+
+\newminted[python]{python}{escapeinside=||}
 
 % Common Python tokens
 \newcommand{\pyNone}{\mintinline{python}/None/\xspace}

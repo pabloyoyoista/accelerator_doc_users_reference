@@ -16,5 +16,6 @@ clean:
 
 
 show_missing_refs:
-	cat doc.log| grep -e Refere -e '(..*\.tex' | less
+	cat doc.log | grep 'LaTeX Warning: Reference' | less
+	#cat doc.log| grep -e Refere -e '(..*\.tex' | less
 

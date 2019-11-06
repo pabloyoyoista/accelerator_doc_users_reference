@@ -57,7 +57,9 @@ When the job has been successfully built, the \texttt{build} function
 will return a reference, a \textsl{jobid} to the job.  Similarly, if
 the job already existed in an available \textsl{workdir}, the
 \texttt{build} function immediately returns the jobid to that job
-without executing anything.
+without executing anything.  The jobid is of type \texttt{JobID},
+which is a \texttt{str}-like type with some additional functionality.
+The \texttt{JobID} type is descriped in detail in section~\ref{xxx}
 
 
 

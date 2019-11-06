@@ -2,6 +2,179 @@
 This chapter is dedicated to the Accelerator's helper functions.
 Some, like the \texttt{blob} module, are very useful, while others are
 less likely to be included in a project.
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22
+
+
+\section{The \texttt{JobID} Class}
+The \texttt{JobID} class is derived from the \texttt{str} class and
+has some additional methods.
+
+It appears everywhere a jobid appears, most commonly in
+- returned from build / subjob.build
+- seen by jobids=('dd',)
+- urd
+
+The \texttt{JobID} has the following methods
+\starttabletwo
+\texttt{method} & In a \texttt{JobList} this is set
+to the name of the method.  Almost everywhere else it is set
+to \pyNone.\\
+\texttt{number} & The sequence number of the jobid\\
+\texttt{workdir} & The name of the workdir, i.e.\ the part before the hyphen in the jobid string.\\
+\texttt{path} & Absolute path to where the job is stored\\
+\texttt{filename(<file>)} & Absolute path to a \texttt{file} stored in the job.\\
+\texttt{params()} & The job's \texttt{params} dictionary.\\
+\texttt{post()} & The job's post data, containing profiling information.\\
+\stoptabletwo
+It may seem strange at first that the \texttt{method} does not always
+contain the name of the method corresponding to the job.  The reason
+for this is that the jobid is commonly used as a job identifier.  In
+order to know the method name, it has to be looked up inside the job,
+and there is usually no point in doing that.
+
+
+
+
+
+\section{The \texttt{JobList} Class}
+
+\starttabletwo
+\texttt{find(<method>)} & a new JobList with only jobs with that method in it.\\
+\texttt{get(<method>, default=None)} & latest JobID with that method\\
+\texttt{[<method>]} & Same as .get but error if no job with that method is in the list.\\
+\texttt{as\_tuples} &  The same list but as (method, jid) tuple\\
+\texttt{pretty} & a pretty-printed version (string)\\
+\texttt{print\_profile} & \\
+\stoptabletwo
+
+
+
+
+
+\section{The \texttt{Dataset} Class}
+
+    Represents a dataset. Is also a string 'jobid/name', or just 'jobid' if
+        name is 'default' (for better backwards compatibility).
+
+    You usually don't have to make these yourself, because datasets.foo is
+        already a Dataset instance (or None).
+
+    You can pass jobid=''jid/name'' or jobid=''jid'', name=''name'', or skip
+        name completely for ``default''.
+
+    You can also pass jobid={jid: dsname} to resolve dsname from the datasets
+        passed to jid. This gives None if that option was unset.
+
+    These decay to a (unicode) string when pickled.
+
+
+\starttabletwo
+\texttt{columns} & \\
+\texttt{previous} & \\
+\texttt{parent} & \\
+\texttt{filename} & \\
+\texttt{hashlabel} & \\
+\texttt{caption} & \\
+\texttt{lines} & \\
+\texttt{shape} & \\
+\texttt{link\_to\_here} &\\
+\texttt{column\_filename} & \\
+\texttt{chain} & \\
+\texttt{iterate\_chain} & \\
+\texttt{iterate} & \\
+\texttt{iterate\_list} & \\
+\stoptabletwo
+
+
+
+
+
+\section{The \texttt{DatasetWriter} Class}
+
+\begin{verbatim}
+    Create in prepare, use in analysis. Or do the whole thing in
+        synthesis.
+
+    You can pass these through prepare_res, or get them by trying to
+        create a new writer in analysis (don't specify any arguments except
+            an optional name).
+
+    There are three writing functions with different arguments:
+
+    dw.write_dict({column: value})
+        dw.write_list([value, value, ...])
+            dw.write(value, value, ...)
+
+    Values are in the same order as you add()ed the columns (which is in
+        sorted order if you passed a dict). The dw.write() function names the
+            arguments from the columns too.
+
+    If you set hashlabel you can use dw.hashcheck(v) to check if v
+        belongs in this slice. You can also call enable_hash_discard
+            (in each slice, or after each set_slice), then the writer will
+                discard anything that does not belong in this slice.
+
+    If you are not in analysis and you wish to use the functions above
+        you need to call dw.set_slice(sliceno) first.
+
+    If you do not, you can instead get one of the splitting writer
+        functions, that select which slice to use based on hashlabel, or
+            round robin if there is no hashlabel.
+
+    dw.get_split_write_dict()({column: value})
+        dw.get_split_write_list()([value, value, ...])
+            dw.get_split_write()(value, value, ...)
+
+    These should of course be assigned to a local name for performance.
+
+    It is permitted (but probably useless) to mix different write or
+        split functions, but you can only use either write functions or
+            split functions.
+
+    You can also use dw.writers[colname] to get a typed_writer and use
+        it as you please. The one belonging to the hashlabel will be
+            filtering, and returns True if this is the right slice.
+
+    If you need to handle everything yourself, set meta_only=True and
+        use dw.column_filename(colname) to find the right files to write to.
+            In this case you also need to call dw.set_lines(sliceno, count)
+                before finishing. You should also call
+                    dw.set_minmax(sliceno, {colname: (min, max)}) if you can.
+\end{verbatim}
+
+\starttabletwo
+\texttt{add} & \\
+\texttt{set\_slice} & \\
+\texttt{column\_filename} & \\
+\texttt{enable\_hash\_discard} & \\
+\texttt{get\_split\_write} & \\
+\texttt{get\_split\_write\_list} & \\
+\texttt{get\_split\_write\_dict} & \\
+\texttt{close} & \\
+\texttt{discard} & \\
+\texttt{set\_lines} & \\
+\texttt{set\_minmax} & \\
+\texttt{finish} & \\
+\stoptabletwo
+
+
+
+
+\section{The \texttt{DatasetChain} Class}
+
+\starttabletwo
+\texttt{min} & \\
+\texttt{max} & \\
+\texttt{lines} & \\
+\texttt{column\_counts} & \\
+\texttt{column\_count} & \\
+\texttt{with\_column} & \\
+\stoptabletwo
+
+
+
+
+
 
 
 \section{Generate Progress Messages:  the \texttt{status} Module}

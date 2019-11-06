@@ -205,46 +205,28 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 \section{Setting up Urd}
 \label{sec:urd_setup}
 
-\subsubsection{The Urd Source Files}
-
-Urd is included in the \texttt{accelerator} repository, in the
-subdirectory \texttt{accelerator/urd}.
-
-
-\subsubsection{Dependencies}
-Urd requires the \texttt{bottle} library to run.  It is bundled with
-Debian-like systems, and can be installed by
+To run Urd two things are needed
+\begin{itemize}
+\item[] a directory where it can put its database, and
+\item[] a \texttt{passwd} file to store user-password pairs in.
+\end{itemize}
+The \texttt{passwd} file is stored in the urd database directory.  The
+default name of the database directory is \texttt{urd.db}, so
 \begin{shell}
-sudo apt-get install python-bottle
+mkdir urd.db
+cd urd.db
+<editor> passwd
 \end{shell}
-It can also be downloaded from the project's home page
-\begin{verbatim}
-https://bottlepy.org/docs/dev/
-\end{verbatim}
-as a single python file, \texttt{bottle.py}.  This file should be put
-in the \texttt{accelerator/urd} directory.
-
-
-
-\subsubsection{Creating a Database}
-A new database is created by making a new directory and adding
-a \texttt{passwd} file to it.  Urd takes care of the rest.  In
-practice,
-\begin{shell}
-mkdir database_root
-vi database_root/passwd
-\end{shell}
-where \texttt{vi} is just an editor picked by random.
+where \texttt{<editor>} should be replaced by the editor of choice.
 
 
 \subsubsection{Starting Urd}
-Urd is running as a daemon.  It is started like this (make sure
-to \texttt{cd} into the \texttt{accelerator/urd}-directory.
+Urd is running as a daemon.  It is started like this
 \begin{shell}
-./urd.py --path=<database_root> --port=<port>
+ax urd --port=<port> --path=<path>
 \end{shell}
-Where \texttt{<database\_root>} is a path to an Urd database,
-and \texttt{<port>} is a port number, for example \texttt{6502}.
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 \subsection{The Urd Database}
 The Urd database has the following structure
@@ -259,6 +241,8 @@ database_root/
             list3
 \end{verbatim}
 
+
+
 \subsubsection{The \texttt{passwd} file}
 The \texttt{passwd} file stores write access authentication.  The file
 format is straightforward, each line is a user--password pair as follows
@@ -269,6 +253,11 @@ For example, if the file contains the following line
 \begin{verbatim}
 ab:secret
 \end{verbatim}
+
+
+
+\subsection{}
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 A build script issued like this
 \begin{shell}
 URD_AUTH=ab:secret ax run test

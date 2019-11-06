@@ -64,8 +64,8 @@ The \texttt{JobID} type is descriped in detail in section~\ref{xxx}
 
 
 \subsection{Connecting Jobs}
-It is straightforward to connect jobs by feeding the output jobid from
-the \texttt{build} function into a new job build.  For example
+Jobs are connected by feeding the output jobid from the \texttt{build}
+function into a new job build.  For example
 \begin{python}
 jid_filter = urd.build('filter', datasets=dict(source=<some_input>))
 jid_reduce = urd.build('reduce', datasets=dict(source=jid_filter))
@@ -132,10 +132,7 @@ Python \texttt{list} with some additional features for searching,
 profiling and pretty-printing.
 
 
-
-
 \subsection{Printing a \texttt{JobList}:  \texttt{urd.joblist.pretty}}
-
 Create a \texttt{JobList} and pretty-print it
 \begin{python}
 def main(urd):
@@ -151,91 +148,136 @@ JobList(
 )
 \end{shell}
 The name is either the name of the method, or, if present, the name
-given explicitly by \texttt{name=} in \texttt{urd.build()}.
+given explicitly using the \texttt{urd.build(name=)} option.
 
 
+\subsection{Finding Jobs in a Joblist}
 
-
-\subsection{Finding jobs by name:  \texttt{urd.joblist[name]}}
-\label{sec:clumsy_dot_jobid}
-
-Any job in the list can be accessed by its name, so for example the
-jobid to the \texttt{first} job could be retrieved by
+\subsubsection*{Using \texttt{find} to Extract Jobs to a New Joblist}
+The \texttt{find()} function finds matching jobs and returns them in a
+new \texttt{JobList}.  For example,
 \begin{python}
-urd.joblist['first'].jobid
+jl = urd.joblist.find('csvimport')
 \end{python}
-Using the \texttt{JobList}, we can modify the previous example to
+will create a \texttt{JobList} of all \texttt{csvimport} jobs
+in \texttt{urd.joblist}.
+
+
+\subsubsection*{Using \texttt{get} to Potentially Extract a Single Job}
+The \texttt{get} function will return a \texttt{JobID} to the most
+recent matching job.  For example,
 \begin{python}
-def main(urd):
-    urd.build('first')
-    urd.build('second', jobids=dict(first=urd.joblist['first'].jobid))
+jid = urd.joblist.get('csvimport')
 \end{python}
-An exception will be raised if \texttt{first} does not exist in the
-joblist.
-
-Note that if there are several jobs created by the same method, they
-will have the same key in the \texttt{JobList}.  This situation could be
-resolved using unique names to the \texttt{name=} option to
-the \texttt{build()}-function as mentioned earlier.  By default, the
-last (newest) matching instance will be returned.
-
-The ``\texttt{.jobid}'' is a bit clumsy, but currently required to get
-the actual jobid for the job.  There is also a \texttt{.method} that
-will return the name of the last method in the \texttt{JobList}.
+If no matching job is found, \texttt{get} will return \pyNone.
 
 
-
-\subsection{Finding the latest job:  \texttt{urd.joblist.latest}}
-
-An important special case is that the \textsl{latest} jobid is always
-accessible using \texttt{urd.joblist.jobid}, so the code example could
-also be written
+\subsubsection*{Using Square Brackets to Extract a Singe Job}
+Accessing jobs directly with a key like this
 \begin{python}
-def main(urd):
-    urd.build('first')
-    urd.build('second', jobids=dict(first=urd.joblist.jobid))
+jid = urd.joblist['csvimport']
 \end{python}
+is similar to \texttt{get}, but will return an error if a matching job
+is not found.
 
 
-
-\subsection{Finding jobs:  \texttt{urd.joblist.find(name)}}
-
-The \mintinline{python}|urd.joblist.find()| function returns a
-new \texttt{JobList} containing all matching items, see this example
+\subsection{Return a \texttt{JobList} as Tuples}
+The \texttt{as\_tuples} function will return the joblist as a list of
+tuples,
 \begin{python}
-x = urd.joblist.find('csvimport')
+x = urd.joblist.as_tuples
 \end{python}
-The \texttt{x} variable will be a (perhaps) empty \texttt{JobList} containing
-all \texttt{csvimport} jobs present in \texttt{urd.joblist} in
-chronological order.
-
-
-
-\subsection{Get a List of all Jobs: \texttt{urd.joblist.all}}
-
-There is a \texttt{.all} method that will return the \texttt{JobList} as a
-comma separated list of jobids
-\begin{python}
-print(urd.joblist.all)
-\end{python}
-producing something like
-\begin{shell}
-TEST-38,TEST-39
-\end{shell}
-
+will return something like
+\begin{verbatim}
+[('csvimport', 'test-0'), ...]
+\end{verbatim}
 
 
 \subsection{Indexing and Slicing a \texttt{JobList}}
-Since the \texttt{Joblist} is actually
-a \texttt{Python} \texttt{list}, it is possible to access individual
-items and slices like this
+Since the \texttt{Joblist} is derived from a Python \texttt{list},
+individual items and slices can be accessed just like a \texttt{list},
+for example
 \begin{python}
 jl[3]
 \end{python}
-and like this
+or
 \begin{python}
 jl[-2:]
 \end{python}
+
+
+
+
+
+%% \subsection{Finding jobs by name:  \texttt{urd.joblist[name]}}
+%% \label{sec:clumsy_dot_jobid}
+
+%% Any job in the list can be accessed by its name, so for example the
+%% jobid to the \texttt{first} job could be retrieved by
+%% \begin{python}
+%% urd.joblist['first'].jobid
+%% \end{python}
+%% Using the \texttt{JobList}, we can modify the previous example to
+%% \begin{python}
+%% def main(urd):
+%%     urd.build('first')
+%%     urd.build('second', jobids=dict(first=urd.joblist['first'].jobid))
+%% \end{python}
+%% An exception will be raised if \texttt{first} does not exist in the
+%% joblist.
+
+%% Note that if there are several jobs created by the same method, they
+%% will have the same key in the \texttt{JobList}.  This situation could be
+%% resolved using unique names to the \texttt{name=} option to
+%% the \texttt{build()}-function as mentioned earlier.  By default, the
+%% last (newest) matching instance will be returned.
+
+%% The ``\texttt{.jobid}'' is a bit clumsy, but currently required to get
+%% the actual jobid for the job.  There is also a \texttt{.method} that
+%% will return the name of the last method in the \texttt{JobList}.
+
+
+
+%% \subsection{Finding the latest job:  \texttt{urd.joblist.latest}}
+
+%% An important special case is that the \textsl{latest} jobid is always
+%% accessible using \texttt{urd.joblist.jobid}, so the code example could
+%% also be written
+%% \begin{python}
+%% def main(urd):
+%%     urd.build('first')
+%%     urd.build('second', jobids=dict(first=urd.joblist.jobid))
+%% \end{python}
+
+
+
+%% \subsection{Finding jobs:  \texttt{urd.joblist.find(name)}}
+
+%% The \mintinline{python}|urd.joblist.find()| function returns a
+%% new \texttt{JobList} containing all matching items, see this example
+%% \begin{python}
+%% x = urd.joblist.find('csvimport')
+%% \end{python}
+%% The \texttt{x} variable will be a (perhaps) empty \texttt{JobList} containing
+%% all \texttt{csvimport} jobs present in \texttt{urd.joblist} in
+%% chronological order.
+
+
+
+%% \subsection{Get a List of all Jobs: \texttt{urd.joblist.all}}
+
+%% There is a \texttt{.all} method that will return the \texttt{JobList} as a
+%% comma separated list of jobids
+%% \begin{python}
+%% print(urd.joblist.all)
+%% \end{python}
+%% producing something like
+%% \begin{shell}
+%% TEST-38,TEST-39
+%% \end{shell}
+
+
+
 
 
 

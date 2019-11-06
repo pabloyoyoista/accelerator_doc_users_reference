@@ -585,30 +585,23 @@ The corresponding output will look something like this
 
 
 
-\section{Accessing Another Job's Parameters:  \texttt{job\_params}}
-
+\section{Accessing Another Job's Parameters}
 \index{\texttt{job\_params}|textbf}
-The previous sections show that the \params data structure
-contains all input parameters and initialization data for a job.
-Sometimes it is useful to access another job's \params.  There is a
-special function for that, called \texttt{job\_params}, and it is used
-like this
-\begin{python}
-from accelerator.extras import job_params
 
+The previous sections show that the \params data structure contains
+all input parameters and initialization data for a job.  Accessing
+another job's parameters is straightforward, since all input jobids
+are of the \texttt{jobID} type, hence
+\begin{python}
 jobids = ('anotherjob',)
 
 def synthesis():
+    # print something like 'jid-0_0'
     print(jobids.anotherjob)
-    # will print something like 'jid-0_0'
-    if jobids.anotherjob is not None:
-        print(job_params(jobids.anotherjob).options)
-        # will print the options of anotherjob
+    # print the options of anotherjob
+    print(jobids.anotherjob.params().options)
 \end{python}
-Note that if \texttt{jobids.anotherjob} is not defined, i.e.\ \pyNone,
-\texttt{job\_params} will return the parameters of the
-\textsl{current} job.  So in order to be safe, it makes sense to first
-check that the job exists.
+See section~\ref{} for details about the \texttt{JobID} class.
 
 
 
@@ -662,24 +655,28 @@ directory.
 
 
 
-\section{Accessing Files in Another Job Directory}
-Files residing in another job is found using the
-\texttt{resolve\_jobid\_filename} function.  This function returns the
-full path to a file specified by a jobid and a filename, like in this
-example
+\section{Accessing Files Belonging to Another Job}
+Files residing in another job directory are found using the job's
+jobid.  If the jobid is of type \texttt{JobID}, absolute paths to
+filenames in the job can be found immediately using \texttt{JobID}s
+helper methods.  See section~\ref{} for more information about the
+\texttt{JobID} class.
 \begin{python}
-from accelerator.extras import resolve_jobid_filename
-
-fn = resolve_jobid_filename('test-43', 'names.txt')
-print(fn)
-
-# /home/acc/workdirs/test/test-43/names.txt
+# full filename for the file 'distribution.txt' in job 'test-43'
+fn = JobID('test-43').filename('distribution.txt')
 \end{python}
-This function works in a build script too.
+or
+\begin{python}
+jobids = ('thejob',)
 
-There is also a method \textsl{input option}, \texttt{JobWithFile}, that is
-worth mentioning in this context.  This function is described in
-section~\ref{sec:jobwithfile}.
+def synthesis():
+    # jobids.thejob is of type JobID, so
+    fn = jobids.thejob.filename('nameoffile.txt')
+\end{python}
+
+(There is also a method \textsl{input type}, \texttt{JobWithFile},
+that is used to pass pairs of jobids and filenames to a job.  This
+function is described in section~\ref{sec:jobwithfile}.)
 
 
 

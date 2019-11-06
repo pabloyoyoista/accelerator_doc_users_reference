@@ -149,7 +149,8 @@ from accelerator.gzutil import siphash24
 
 y = siphash24(x)
 \end{python}
-Typically this function is only used ``under the hood''.
+This function is normally only used ``under the hood'', there should
+be no need to call it explicitly.
 
 
 \section{Dataset as Input Parameter}
@@ -322,17 +323,34 @@ print(datasets.source.caption)
 
 
 
-\subsection{Chains}
-The previous dataset in a dataset chain is found in the
-\texttt{previous} attribute:
+\section{Operations on Chains}
+The \texttt{chain} function is used to operate on dataset chains.  It
+takes a dataset as input, some options that will be discussed next,
+and returns a \texttt{DatasetChain} object.
 \begin{python}
-print(datasets.source.previous)
-# import-4893/default
+# return the chain object from the 'default' dataset in jobid
+chain = Dataset(jobid).chain()
 \end{python}
-A list containing all datasets in a chain is returned by
-\begin{python}
-print(datasets.source.ds_chain)
-\end{python}
+The \texttt{chain()}-function takes the following optional arguments
+
+\starttable
+\texttt{length} & \texttt{-1} & Number of datasets to include, default is \texttt{-1}, meaning all datasets in chain.  Do not mix with \texttt{stop\_ds}.\\
+\texttt{reverse} & \pyFalse & Return the datasets in reverse order.  Default \pyFalse.\\
+\texttt{stop\_ds} & \pyNone & Return datasets \textsl{from} \texttt{stop\_ds} to current dataset.  Do not mix with \texttt{length}.\\
+\stoptable
+
+Now, the returned value, \texttt{chain} in the previous example, is of
+type \texttt{DatasetChain}, which supports the followin operations.
+\starttabletwo
+\mintinline{python}|min(<column>)| & Minimum value of column, or \pyNone if column does not exist or is not sortable.\\
+\mintinline{python}|max(<column>)| & Return minimum value of column, or \pyNone if column does not exist or is not sortable.\\
+\mintinline{python}|lines(sliceno=None)| & Default is number of lines in chain.  With option \texttt{sliceno=x}, number of lines in slice \texttt{x}.\\
+\mintinline{python}|column_counts()| & Counter of occurances per column per dataset in chain.\\
+\mintinline{python}|column_count(<column>)| & Number of datasets in chain containing column \texttt{<column>}\\
+\mintinline{python}|with_column(<column>)| & A \texttt{DatasetChain} object containing only those datasets that has column \texttt{<column>}.\\
+\stoptabletwo
+
+
 
 
 

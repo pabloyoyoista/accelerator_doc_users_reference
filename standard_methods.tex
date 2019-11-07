@@ -50,48 +50,48 @@ data in a predicted and user controlled way.
   configuration parameter specified in the configuration
   file, see section~\ref{sec:configfile}.  A relative path makes it
   possible to relocate files to a different directory without trigging
-  job remake.\\[1ex]
+  job remake.\\
 
  \RP \texttt{separator} & \texttt{,} & Field separator character.  Accepts a
  single \texttt{iso-8859-1} character.  Leave this empty to import
- each line of the input file into a single column.  \\[1ex]
+ each line of the input file into a single column.  \\
 
  \RP \texttt{comment} & \texttt{''} & Lines beginning with this
  character are ignored.  Accepts a single \texttt{iso-8859-1}
  character, or the empty string for no comments. Commented lines are
- stored in the \texttt{skipped} dataset.\\[1ex]
+ stored in the \texttt{skipped} dataset.\\
 
 \RP \texttt{newline} & \texttt{''} & Newline character.  Empty means
 "\texttt{\textbackslash{}n}" or "\texttt{\textbackslash{}r\textbackslash{}n}".
-Alternatively any single \texttt{iso-8859-1} character can be chosen.\\[1ex]
+Alternatively any single \texttt{iso-8859-1} character can be chosen.\\
 
 \RP \texttt{quotes} & \texttt{''} & Quote character.  Empty or \pyFalse means no
 quotes, \pyTrue means both \texttt{'}, and \texttt{"}, any other
-character means itself. \\[1ex]
+character means itself. \\
 
 \RP \texttt{labelsonfirstline} & \pyTrue & If set to
 \mintinline{python}{True}, data on the first line of the file will
 be used as column labels.  If \mintinline{python}{False}, labels must
 be entered using the \texttt{label} option, see \texttt{labels}
-below.\\[1ex]
+below.\\
 
 \RP \texttt{labels} & \texttt{[]} & If \texttt{labelsonfirstline} (see
 above) is set to \mintinline{python}{False}, labels must be provided
 using this option.  For example \mintinline{python}{labels = ['foo',
-'bar',]}.\\[1ex]
+'bar',]}.\\
 
 \RP \texttt{rename} & \texttt{\{\}} & This option makes it possible to
 change the column names read from the first line of the input file.
 Renaming happens first.  It accepts a dictionary of type
-\mintinline{python}/{old_name: new_name,}/.\\[1ex]
+\mintinline{python}/{old_name: new_name,}/.\\
 
 \RP \texttt{lineno\_label} & \texttt{''} & If set,
 \texttt{lineno\_label} becomes a column containing line numbers.
 Line numbers start at one (1), and corresponds to line numbers in the
-input file.  \\[1ex]
+input file.  \\
 
 \RP \texttt{discard} & \mintinline{python}/set()/ & Labels in the discard set will
-not be stored in the dataset.\\[1ex]
+not be stored in the dataset.\\
 
 \RP \texttt{allow\_bad} &\mintinline{python}{False} & By default, this is
 set to \pyFalse and an error will be asserted if there are problems
@@ -99,13 +99,13 @@ parsing the input data, see section~\ref{sec:csvimport-bad}.  Setting it
 to \pyTrue will put all ``bad'' lines together with the corresponding
 line numbers into a separate dataset named \texttt{bad}.  It is
 recommended to check the resulting datasets if enabling this
-option!\\[1ex]
+option!\\
 
 \RP \texttt{skip\_lines} & 0 & Skip this many lines at the start of the file.
 This is useful for data files that starts with a header, for
-example.  Skipped lines will be stored in the \texttt{skipped} dataset.\\[1ex]
+example.  Skipped lines will be stored in the \texttt{skipped} dataset.\\
 
-\RP \texttt{compression} & 6 & Compression level for the \texttt{gzip} compressor.
+\RP \texttt{compression} & 6 & Compression level for the \texttt{gzip} compressor.\\
 \stoptable
 
 

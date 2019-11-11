@@ -17,29 +17,33 @@ level, it can be visualised like in figure~\ref{fig:overview}.
     \label{fig:overview}
   \end{center}
 \end{figure}
-This manual will describe the setup in detail.  For now, the most
-important features are as follows.  On the left side there is a
-\texttt{runner} client.  To the right, there are two servers, called
-\texttt{daemon} and \texttt{urd}.  The \texttt{runner} program runs
-scripts, called \texttt{build scripts}, that execute jobs on the
-\texttt{daemon} server.  This server will load and store information
-and results for all jobs executed using the \textsl{workdirs} file
-system based database.
 
-In parallel, all jobs covered by a build script may be stored by
-the \texttt{urd} server into the \textsl{job logs} file system
-database.  \texttt{urd} is also responsible for finding collections,
-or lists, of related previously executed jobs.  The \texttt{urd}
-server is very capable and helps ensuring reproducibility and
-transparency, and its details are not covered in this chapter.
+On the left side there is the \texttt{run} program.  To the right, there
+are two servers, called \texttt{daemon} and \texttt{urd}.  The
+\texttt{run} program runs what is called \texttt{build scripts}, that
+execute jobs on the \texttt{daemon} server.  This server will load and
+store information and results for all jobs executed using the
+\textsl{workdirs} file system based database.
+
+In parallel, all jobs covered by a build script may be stored by the
+\texttt{urd} server into the \textsl{job logs} file system database.
+\texttt{urd} is also responsible for finding collections, or lists, of
+related previously executed jobs.  The \texttt{urd} server is very
+capable and helps ensuring reproducibility and transparency, and it
+will be further discussed in section~\ref{}.
 
 
-\section{Jobs:  Executing Code}
+\section{Jobs}
 The basic operation of the Accelerator is to execute small Python
 programs called \textsl{methods}.  In a method, some reserved function
 names are used to execute code sequentially or in parallel and to pass
 parameters and results.  A method that has completed execution is
 called a \textsl{job}.
+
+Jobs are stored in \textsl{job directories}.  A dedicated directory
+will be created for each new job, and the directory will contain all
+information regarding the job, such as its input parameters, stored
+files, return values, profiling information, and more.
 
 The Accelerator keeps a record of all jobs that have been run.  It
 turns out that this is very useful for avoiding unnecessary
@@ -48,45 +52,55 @@ This does not only speed up processing and encourage incremental
 design, but also makes it transparent which code and which data was
 used for any particular result, thus reducing uncertainty.
 
-In this section, we'll look at basic job running and result sharing.
-%, and parameters.
 
 
 
-\subsection{Basic Job Running:  ``Hello, World''}
+\subsection{A Very Simple Job:  ``Hello, World''}
 
-Let's begin with a simple ``hello world'' program.  We create a method
-that we call \texttt{hello\_world} with the following contents
+The following example method is very simple.  It does not use any
+features and it does not take any input parameters, it will just
+return the string ``\texttt{hello world}'' and exit.
 \begin{python}
 def synthesis():
     return "hello world"
 \end{python}
-This program does not take any input parameters.  It just returns a
-string and exits.  Slightly simplified for clarity, we run the method
-like this. (Running methods on the Accelerator is further explained in
-chapter~\ref{chap:urd_basic}.)
+In order to get the method to execute, it is called from a
+\textsl{build script} looking something like this
 \begin{python}
-jobid = build('hello_world')
+def main(urd)
+    job = urd.build('hello_world')
 \end{python}
-When execution of the method is completed, a single link, called a
-\texttt{jobid} is the only thing that is returned to the user.  The
-jobid points to a directory where the result from the execution is
-stored, together with all information that was needed to run the job
-plus some profiling information.
+The \texttt{urd} object contains functions for job building and
+organisation, and is described in detail in section~\ref{}.  Remember
+that during the job build process, a job directory is created that
+will contain everything associated with the build.
 
-If we try to run the job again it will not execute, simply because the
-Accelerator remembers that the job has been run in the past.  Instead
-of running the job again, it immediately returns the jobid pointing to
-the previous run.  This means that from a user's perspective, there is
-no difference between job running and job result recalling!  In order
-to have the job executing again, we have to change either the source
-code or input parameters.
+When execution is completed, a single object of the class \texttt{Job}
+is the only thing that is returned to the user.  In the example above,
+the variable \texttt{job} will be of type \texttt{Job}.  This object
+provides a convenient interface to the data in the corresponding job
+directory.
 
+
+
+\subsection{Trying to Run the Job Again}
+If the build script is executed again, the job will not be re-built,
+simply because the Accelerator remembers that the job has been built
+in the past and its associated information is stored in a job
+directory.  Instead, the Accelerator immediately returns a job object
+representing the previous run.  This means that from a user's
+perspective, there is no difference between job running and job result
+recalling!  In order to have the job executing again, we have to
+change either the source code or input parameters.
+
+
+
+\subsection{Back to the ``Hello, World'' example}
 Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
-\texttt{hello\_world} method.  The created jobid is called
-\texttt{test-0}, and corresponding directory information is shown in
-green.  The job directory contains several files, of which the most
-important to mention right now are
+\texttt{hello\_world} method.  The created job gets the \textsl{jobid}
+\texttt{test-0}, and parts of the corresponding job directory
+information is shown in green.  The job directory contains several
+files, of which the most important to here are
 \begin{itemize}
 \item[] \texttt{setup.json}, containing job information;
 \item[] \texttt{result.pickle}, containing the returned data; and
@@ -102,51 +116,60 @@ important to mention right now are
   \end{center}
 \end{figure}
 
-Jobids are named by their corresponding \textsl{workdir} plus an
-integer counter value.  Workdirs are used to separate jobs into
-different physical locations, and jobs may be shared between users on
-the workdir level.  A running Accelerator could have any number of
-workdirs associated, but only one at a time for writing.
+The \texttt{Job} class provides conveniently access to the important
+files in this directory.  For example, the job's return value can be
+loaded into a variable using the \texttt{.load()} function, like this
+\begin{python}
+def main(urd)
+    job = urd.build('hello_world')
+    print(job.load())
+\end{python}
+Running this build script will print the string to the \texttt{run}
+program's standard output.
+
+
+Jobids are job identifiers, that are named by their corresponding
+\textsl{workdir} plus an integer counter value.  Workdirs are used to
+separate jobs into different physical locations, and jobs may be
+shared between users on the workdir level.  A running Accelerator
+could have any number of workdirs associated, of which one is default for writing.
 
 
 
 \subsection{Linking Jobs}
 
-The Accelerator makes it easy to split complex tasks into several
-smaller operations.  Several jobs may be connected so that the next
-job will depend on the result of a previous job or set of jobs.
+Using jobs, complex tasks can be split into several smaller
+operations.  Jobs can be connected so that the next job will depend on
+the result of a previous job or set of jobs, and so on.
 
-Assume that the job that we just run was computationally expensive,
-and that it returned a result that we'd like to use as input to
-further processing.  To keep things simple, we demonstrate the
-principle by creating a method that just reads and prints the result
-from the previous job to
-\texttt{stdout}.  We create a new method \texttt{print\_result}, and it
-goes like this
+To continue the simple example, assume for a second that the ``hello
+world''-job is computationally expensive, and that it returns a result
+that is to be used as input to further processing.  To keep things
+simple, this further processing is represented by printing the result
+to standard output.  A new method \texttt{print\_result} is created,
+and it goes like this
 \begin{python}
-import blob
-
 jobids = {'hello_world_job',}
 
 def synthesis():
-    x = blob.load(jobid=jobids.hello_world_job)
-    print(x)
+    print(jobids.hello_world_job.load())
 \end{python}
 This method expects the \texttt{hello\_world\_job} input parameter to
 be provided at execution time, and this is accomplished by the
-following \textsl{simplified} build script
+following build script
 \begin{python}
-jobid1 = build('hello_world')
-jobid2 = build('print_result', hello_world_job=jobid1)
+def main(urd):
+    job1 = urd.build('hello_world')
+    job2 = urd.build('print_result', options=dict(hello_world_job=job1))
 \end{python}
-The \texttt{print\_result} method then reads the result from the
-provided jobid and assigns it to the variable \texttt{x}, which is
-then printed to \texttt{stdout}.  Note that this method does not
-return anything.  Figure~\ref{fig:execflow-print-result} illustrates
-the situation.  (Note the direction of the arrow: the second job,
-\texttt{test-1} had \texttt{test-0} as input parameter, but
-\texttt{test-0} does not know of any jobs run in the future.  Hence,
-arrows point to previous jobs.)
+The \texttt{print\_result} method then loads the result from the
+provided job and prints its contents to \texttt{stdout}.  Note that
+this method does not return anything.
+
+Figure~\ref{fig:execflow-print-result} illustrates the situation.
+(Note the direction of the arrow: the second job, \texttt{test-1} has
+\texttt{test-0} as input parameter, but \texttt{test-0} does not know
+of any jobs run in the future.  Hence, arrows point to previous jobs.)
 
 \begin{figure}[h!]
   \begin{center}
@@ -157,13 +180,14 @@ arrows point to previous jobs.)
   \end{center}
 \end{figure}
 
-A complex task is split into several jobs, each reading intermediate
-results from previous jobs.  The Accelerator will keep track of all
-job dependencies, so there is no doubt which jobs that are run when
-and on which data.  Furthermore, since the Accelerator remembers if a
-job has been executed before, it will link and ``recycle'' previous
-jobs, which brings a great execution speed advantage.  A recycled job
-is the proof of that the code, input- and output data is connected.
+The example shows how a complex task may be split into several jobs,
+each reading intermediate results from previous jobs.  The Accelerator
+will keep track of all job dependencies, so there is no doubt which
+jobs that are run when and on which data.  Furthermore, since the
+Accelerator remembers if a job has been executed before, it will link
+and ``recycle'' previous jobs.  This may bring a significant
+improvement in execution speed.  Furthermore, a recycled job is a
+proof of that the code, input- and output data is connected.
 
 
 \section{Datasets: Storing Data}

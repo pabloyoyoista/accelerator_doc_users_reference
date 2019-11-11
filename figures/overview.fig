@@ -1,8 +1,8 @@
-#FIG 3.2  Produced by xfig version 3.2.6a
+#FIG 3.2  Produced by xfig version 3.2.5c
 Landscape
 Center
 Metric
-A4
+A4      
 100.00
 Single
 -2
@@ -53,4 +53,4 @@ Single
 4 1 0 50 -1 0 10 0.0000 2 135 495 5130 11835 job logs\001
 4 1 0 50 -1 0 10 0.0000 2 135 765 3600 11835 \\texttt{urd}\001
 4 1 0 50 -1 0 10 0.0000 2 135 1020 3600 12600 \\texttt{daemon}\001
-4 1 0 50 -1 0 10 0.0000 2 135 960 1350 12195 \\texttt{runner}\001
+4 1 0 50 -1 0 10 0.0000 2 135 765 1350 12195 \\texttt{run}\001

@@ -496,7 +496,7 @@ datasets = {'source',}
 def analysis(sliceno):
     user2movieset = defaultdict(set)
     for user, movie in datasets.source.iterate(sliceno, ('user', 'movie')):
-    user2movieset[user].add(movie)
+        user2movieset[user].add(movie)
     return user2movieset
 \end{python}
 This example creates a lookup dictionary from users to sets of movies.
@@ -510,11 +510,10 @@ list of columns or by using the value \texttt{None}.
 ...
 def analysis(sliceno):
     for columns in datasets.source.iterate(sliceno, None):
-    print(columns)
-    break
+        ...
 \end{python}
-This example will print the first row for each slice of a dataset and
-then exit.
+Here, \texttt{columns} will be a list of values, one for each column
+in the dataset.
 
 
 \subsection{Iterating over Dataset Chains}
@@ -643,36 +642,8 @@ a job can take.  Here the input parameters are summarised:
 \item[] \texttt{options}, a dictionary of options; and
 \item[] \texttt{datasets}, a set of input \textsl{datasets}.
 \end{itemize}
-See Figure~\ref{fig:execflow}.  These will all be explained later in
-this chapter.  Parameters are entered as global variables early in the
-method's source.
-
-
-
-\subsubsection*{The Params Variable}
-A job's parameters are always available in the \texttt{params}
-variable.  The \texttt{params} variable is made available by adding it
-as input to \texttt{prepare()}, \texttt{analysis()}, or
-\texttt{synthesis()}, like this
-\begin{python}
-def synthesis(params):
-    print(params)
-\end{python}
-Accessing the \texttt{params} variable for \textsl{another} job is
-done like this
-\begin{python}
-jobids = {'thejob',}
-
-def synthesis():
-    print(jobids.thejob.params)
-\end{python}
-It turns out that it can be very useful to know for example which
-datasets another job has been processing, and so on.
-
-Apart from the input parameters, the \texttt{params} variable also
-gives access to more information about the job and the current
-Accelerator setup, such as the total number of slices, the random
-seed, the hash of the source code, and method execution start time.
+See Figure~\ref{fig:execflow}.  Parameters are entered as global
+variables early in the method's source.
 
 
 \begin{figure}[h!]
@@ -684,35 +655,6 @@ seed, the hash of the source code, and method execution start time.
     \label{fig:execflow}
   \end{center}
 \end{figure}
-
-
-\subsubsection*{Input parameter \texttt{jobids}}
-The \texttt{jobids} parameter is a set containing any number of input
-jobids.  For example
-\begin{python}
-jobid = {'sales_stats', 'overhead_stats',}
-\end{python}
-When a method is to be executed, actual links to jobs, i.e.\ jobids,
-are passed using these parameters.
-
-
-\subsubsection*{Input parameter \texttt{options}}
-Options are supplied as a dictionary and is very flexible in typing.  For example
-\begin{python}
-options = dict(
-    name = 'alice',
-    defaultnames = set('alice', 'bob'),
-    param1 = 1,
-    param2 = float,
-)
-\end{python}
-Here, values are defaults, so \texttt{param1} is default set to 1,
-while a floating point value must be supplied to \texttt{param2}.
-
-\subsubsection*{Input parameter \texttt{datasets}}
-The \texttt{datasets} parameter is similar to the \texttt{jobids}
-parameter, each entry in the \texttt{datasets} parameter will be
-passed a value when the method is executed.
 
 
 

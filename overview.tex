@@ -90,8 +90,8 @@ in the past and its associated information is stored in a job
 directory.  Instead, the Accelerator immediately returns a job object
 representing the previous run.  This means that from a user's
 perspective, there is no difference between job running and job result
-recalling!  In order to have the job executing again, we have to
-change either the source code or input parameters.
+recalling!  In order to have the job executing again, either the
+source code or input parameters have to change.
 
 
 
@@ -174,7 +174,7 @@ of any jobs run in the future.  Hence, arrows point to previous jobs.)
 \begin{figure}[h!]
   \begin{center}
     \input{figures/job0job1.pdftex_t}
-    \caption{Jobid \texttt{test-0}, is used as input to the
+    \caption{Job \texttt{test-0}, is used as input to the
       \texttt{print\_result} job.}
     \label{fig:execflow-print-result}
   \end{center}
@@ -201,8 +201,8 @@ and high performance.  Datasets are built on top of jobs, so
 Internally, data in a dataset is stored in a row-column format, and is
 typically \emph{sliced} into a fixed number of slices to allow
 efficient parallel access, see figure~\ref{fig:dataset}. Columns are
-accessed independently, so there is no overhead in reading a set of or
-even a single column.
+accessed independently, so there is no overhead in reading a single or
+a set of columns.
 
 
 \begin{figure}[h!]
@@ -216,22 +216,23 @@ even a single column.
   \end{center}
 \end{figure}
 
-Furthermore, datasets may be \textsl{hashed}, so that slicing is based
-on the hash value of a given column.  Slicing on, for example, a
-column containing some ID string will partition all rows such that
-rows corresponding to any particular ID is stored in a single slice
-only.  In many practical applications, hashing makes parallel
-processes independent, minimising the need for complicated merging
-operations.  This is explained further in chapter~\ref{sec:why_hashing}.
+Furthermore, datasets may be \textsl{hash partitioned}, so that
+slicing is based on the hash value of a given column.  Slicing on, for
+example, a column containing some ID string will partition all rows
+such that rows corresponding to any particular ID is stored in a
+single slice only.  In many practical applications, hash partitioning
+makes parallel processes independent, minimising the need for
+complicated merging operations.  This is explained further in
+chapter~\ref{sec:why_hashing}.
 
 
 
 \subsection{Importing Data}
 
-Let's have a look at the common operation of \textsl{importing},
-data, i.e.\ creating a dataset from a file.  See
-figure~\ref{fig:dataset_csvimport}.
-
+A project typically starts with \textsl{importing} some data from a
+file on disk.  The bundled method \texttt{csvimport} is designed to
+parse a plethora of ``comma separated values''-file formats and store
+the data as a dataset.  See figure~\ref{fig:dataset_csvimport}.
 \begin{figure}[h!]
   \begin{center}
     \input{figures/import_file1.pdftex_t}
@@ -239,35 +240,33 @@ figure~\ref{fig:dataset_csvimport}.
     \label{fig:dataset_csvimport}
   \end{center}
 \end{figure}
-
-\noindent The bundled standard method \texttt{csvimport} is designed
-to parse a plethora of ``comma separated values''-file formats and
-store the data as a dataset.  The method takes several input options,
-where the file name is mandatory.  Here is an example (non-simplified)
-invocation
+The method takes several input options in addition to the mandatory
+filename to control the import process.  Here is an example
+(non-simplified) invocation
 \begin{python}
 def main(urd):
     jid = urd.build('csvimport', option=dict(filename='file0.txt'))  
 \end{python}
-When executed, the created dataset
-will be stored in the resulting job, and the name of the dataset will
-by default be the jobid plus the string \texttt{default}.  For
-example, if the \texttt{csvimport} jobid is \texttt{imp-0}, the
-dataset will be referenced by \texttt{imp-0/default}.  In this case,
-and always when there is no ambiguity, the jobid alone
-(\texttt{imp-0}) could be used too.  The reason for this is that a
-single job can contain any number of datasets, as we will see shortly.
+When executed, the created dataset will be stored in the resulting job
+directory, and the name of the dataset will by default be the jobid
+plus the string \texttt{default}.  For example, if the
+\texttt{csvimport} jobid is \texttt{imp-0}, the dataset will be
+referenced by \texttt{imp-0/default}.  In this case, and always when
+there is no ambiguity, the jobid alone (\texttt{imp-0}) could be used
+too.  In general, a job could contain any number of datasets, but a
+single dataset is a common case.
+
 
 
 
 \subsection{Linking Datasets, Chaining}
 
-Just like jobs can be linked to each other, datasets can link to
-each other too.  Since datasets are build on top of jobs, this is
-straightforward.  Assume that we've just imported \texttt{file0.txt}
-into \texttt{imp-0/default} and that there is more data like it stored
-in \texttt{file1.txt}.  We can import the latter file and supply a
-link to the previous dataset, see
+Just like jobs can be linked to each other, datasets can link to each
+other too.  Since datasets are build on top of jobs, this is
+straightforward.  Assume the file \texttt{file0.txt} is imported into
+dataset \texttt{imp-0/default}, and that there is more data like it
+stored in the file \texttt{file1.txt}.  The second file is imported
+with a link to the first dataset, see
 figure~\ref{fig:dataset_csvimport_chain}.
 \begin{figure}[h!]
   \begin{center}
@@ -282,25 +281,25 @@ now be used to access all data imported from \textsl{both} files!
 
 Linking datasets containing related content is called \emph{chaining},
 and this is particularly convenient when dealing with data that grows
-over time.  Good example are all kind of \emph{log} data, such as logs
-of transactions, user interactions, etc.  Using chaining, we can
-extend datasets with more rows just by linking, which is a very
-lightweight constant time operation.
+over time.  A good example is any kind of \emph{log} data, such as
+logs of transactions, user interactions, and similar.  Using chaining,
+datasets can be with more rows just by linking, which is a lightweight
+constant time operation.
 
 
 
 \subsection{Adding New Columns to a Dataset}
-We have seen how easy it is to add more lines to data to a dataset
-using chaining.  A dataset chain is created simply by linking one
-dataset to the other, so the overhead is minimal.  Now we'll see that
-is it equally simple to add new columns to existing datasets.  Adding
-columns is a common operation and the Accelerator handles this
-situation efficiently using links.
+In the previous section it was shown that datasets can be chained and
+thereby grow in number of rows.  A dataset chain is created simply by
+linking one dataset to the other, so the overhead is minimal.  In this
+section it is shown that it is equally simple to add new columns to
+existing datasets.  Adding columns is a common operation and the
+Accelerator handles this situation efficiently using links.
 
-The idea is very simple.  Assume that we have a ``source'' dataset to
-which we want to add one or more new columns.  We create a new dataset
-containing \textsl{only} the new column(s), and while creating it we
-instruct the Accelerator to link all the source dataset's columns to
+The idea is very simple.  Assume a ``source'' dataset to which one or
+more new columns should be added.  A new dataset is created containing
+\textsl{only} the new column(s), and while creating it, the
+constructor is instructed to link all the source dataset's columns to
 the new dataset such that the new dataset appears to contain all
 columns from both datasets.  (Note that this linking is similar to but
 different from chaining.)
@@ -319,9 +318,10 @@ Figure~\ref{fig:dep_dataset_append_column}.
 \end{figure}
 
 A common case is to compute new columns based on existing ones.  In
-this case, we iterate over the rows in the source dataset, and for
-each iteration we write a new row of values to the new columns.  This
-will be shown later in section~\ref{sec:appending_new_columns}
+this case, values are written to the new columns in the new dataset
+while reading from the iterator iterating over the existing columns in
+the source dataset.  This will be discussed in detail in
+section~\ref{sec:appending_new_columns}
 
 
 
@@ -392,16 +392,34 @@ same value in the hash column end up in the same slice.  This is
 efficient for many parallel processing tasks, and we'll talk more
 about it later on.
 
+Methods may be designed simpler and more efficient using hash
+partitioning, since the partitioning ensures some kind of data
+independence between slices and processes.  If, however, the same
+method is used on data that is not partitioned in the expected way, it
+will not process the data correctly.  To ensure that an assumption
+about hash partitioning is correct, there is an optional
+\texttt{hashlabel} parameter to the iterators that will cause a
+failure if the supplied column name does not correspond to the
+dataset's hashlabel.
+
+On the other hand it is also possible to have the iterator re-hash
+on-the-fly.  In general this is not recommended, since there is a
+\texttt{dataset\_rehash} method that does the same and stores the
+result for immediate re-use.  Using \texttt{dataset\_rehash} will be
+much more efficient.
+
+
 
 
 \subsection{Dataset Column Types}
 
 There are a number of useful types available for dataset columns.
-They include floating and integer point numbers, Booleans, timestamps,
-several string types, and json types for storing arbitrary data
-collections.  Most of these types come with advanced parsers, making
-importing data from text files straightforward with deterministic
-handling of errors, overflows, and so on.
+They include \textsl{floating} and \textsl{integer point numbers},
+\textsl{Booleans}, \textsl{timestamps}, several \textsl{string types}
+(handling all kinds of encodings), and \textsl{json} types for storing
+arbitrary data collections.  Most of these types come with advanced
+parsers, making importing data from text files straightforward with
+deterministic handling of errors, overflows, and so on.
 
 
 
@@ -424,20 +442,19 @@ and so on.
 
 Data in a dataset is typically accessed using an \emph{iterator} that
 reads and streams one dataset slice at a time to a CPU core.  The
-parallel processing capabilities of the Accelerator will dispatch a
-set of parallel iterators, one for each slice, in order to have
-efficient parallel processing of the dataset.
+parallel processing capabilities of the Accelerator makes it possible
+to dispatch a set of parallel iterators, one for each slice, in order
+to have efficient parallel processing of the dataset.
 
-In this
-section, we'll have a look at iterators for reading data, how to take
-advantage of slicing to have parallel processing, and how to
-efficiently create datasets.
+This section shows how iterators are used for reading data, how to
+take advantage of slicing to have parallel processing, and how to
+efficiently create new datasets.
 
 \subsection{Iterator Basics}
 
-Assume that we have a dataset with a column containing movie titles
-named \texttt{movie}, and we want to know the ten most frequent
-movies.  Consider the following example of a complete method
+Assume a dataset that has a column containing movie titles named
+\texttt{movie}, and the problem is to extract the ten most frequent
+movies.  Consider the following complete example
 \begin{python}
 from collections import Counter
 datasets = ('source',)
@@ -450,14 +467,15 @@ This will print the ten most common movie titles and their
 corresponding counts in the \texttt{source} dataset.  The code will
 run on a single CPU core, because we use the single-process
 \texttt{synthesis} function, which is called and executed only once.
-The \texttt{iterate} (class-)method therefore has to read through all
+The \texttt{.iterate} (class-)method therefore has to read through all
 slices, one at a time, in a serial fashion, and this is reflected by
 the first argument to the iterator being \texttt{None}.
 
 
+
 \subsection{Parallel Execution}
 The Accelerator is much about parallel processing, and since datasets
-are sliced, we can modify the above program to execute in parallel by
+are sliced, the program can be  modified to execute in parallel by
 doing the following modification
 \begin{python}
 def analysis(sliceno):
@@ -467,11 +485,11 @@ def synthesis(analysis_res)
     c = analysis_res.merge_auto()
     print(c.most_common(10))
 \end{python}
-Here, we run \texttt{iterate} inside the \texttt{analysis()} function.
-This function is forked once for each slice, and the argument
-\texttt{sliceno} will contain an integer between zero and the number
-of slices minus one.  The returned value from the analysis functions
-will be available as input to the synthesis function in the
+Here, \texttt{.iterate} is run inside the \texttt{analysis()}
+function.  This function is forked once for each slice, and the
+argument \texttt{sliceno} will contain an integer between zero and the
+number of slices minus one.  The returned value from the analysis
+functions will be available as input to the synthesis function in the
 \texttt{analysis\_res} Python iterable.  It is possible to merge the
 results explicitly, but the iterator comes with a rather magic method
 \texttt{merge\_auto()}, which merges the results from all slices into
@@ -518,10 +536,10 @@ in the dataset.
 
 \subsection{Iterating over Dataset Chains}
 
-Previously, we've seen how to iterate over a single dataset using
-\texttt{iterate}.  There is a corresponding function,
-\texttt{iterate\_chain}, that is used for iterating over chains of
-datasets.  This function takes a number of arguments, such as
+The \texttt{iterate} function is used to iterate over a single
+dataset.  There is a corresponding function, \texttt{iterate\_chain},
+that is used for iterating over chains of datasets.  This function
+takes a number of arguments, such as
 \begin{itemize}
 \item[] \texttt{length}, i.e.\ the number of datasets to iterate over.
   By default, it will iterate over all datasets in the chain.
@@ -532,7 +550,6 @@ datasets.  This function takes a number of arguments, such as
   This dataset could be from \textsl{another} job's parameters, so we
   can for example iterate exactly over all new datasets not covered by
   a previous job.
-
 \item[] \texttt{range}, which allows for iterating over a range of
   data.
 \end{itemize}
@@ -551,19 +568,6 @@ one row with a date within the range.  This is useful, for example, to
 very quickly produce histograms or plots of subsets of the data.
 
 
-\subsection{Asserting the Hashlabel}
-Depending on how the parallel processing is implemented in a method,
-some methods will only work if the input datasets are hashed on a
-certain column.  To make sure this is the case, there is an optional
-\texttt{hashlabel} parameter to the iterators that will cause a
-failure if the supplied column name does not correspond to the
-dataset's hashlabel.
-
-On the other hand it is also possible to have the iterator re-hash
-on-the-fly.  In general this is not recommended, since there is a
-\texttt{dataset\_rehash} method that does the same and stores the
-result for immediate re-use.  Using \texttt{dataset\_rehash} will be
-much more efficient.
 
 \subsection{Dataset Translators and Filters}
 

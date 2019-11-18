@@ -546,38 +546,72 @@ specified like this
 Options are straightforward to use and quite flexible.  A formal
 overview is presented in section~\ref{sec:formal_options}.
 
-
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ Got THIS FAR
 
-\section{Reading all Method Parameters:  \texttt{params}}
-\label{sec:params}
 
+
+\section{The User Friendly \texttt{Job} and \texttt{Currentjob} Classes}
+All data and metadata associated with a job is stored in the job's job
+directory.  In order to simplify access to a job's data, common job
+operations have been factored into the \texttt{Job} class.  There is
+also an extended version of this, called the \texttt{CurrentJob}
+class, that also contains information and helper functions to a
+running job.  These classes are the topics of section~\ref{}
+and~\ref{}.
+
+Examples of how the \texttt{Job} class can be used has been shown
+earlier in this chapter.  For example, the result resturned by a
+method could be loaded in a build script or another method like this
+\begin{python}
+def main(urd):
+    job = urd.build('example')
+    x = job.load()
+\end{python}
+Inside a method, an object of type \texttt{CurrentJob} is available as
+input parameter to any of the \prepare, \analysis, and \synthesis
+functions.  An example use is storing files, like in the following example
+\begin{python}
+def synthesis(job):
+    data = 'xxxx'
+    job.save(data, 'mydata')
+\end{python}
+This example will store \texttt{data} in a file \texttt{mydata.pickle}
+in the current job directory.
+
+
+
+\subsection{Easy Access to All Job Parameters}
+\label{sec:params}
 There are two sources of parameters to a running method,
 \begin{itemize}
-\item [] parameters from the caller, i.e.\ the \texttt{build()}-call, and
-\item [] parameters assigned by the Accelerator when the job starts building.
+\item [] parameters from the caller, i.e.\ the \texttt{.build()}-call,
+  and
+\item [] parameters assigned by the Accelerator when the job starts
+  building.
 \end{itemize}
-All parameters are available in the \texttt{params} dictionary.  Build
-parameters will be described thoroughly in
-section~\ref{sec:input_params}, and parameters from the Accelerator
-will be brought up at the end of this section.
+All these parameters are available to the running method by the
+\texttt{job.params()} function, wher \texttt{job} is the input
+parameter introduced in the previous section.  Note that the
+\texttt{.params()} function exists both on the \texttt{Job} and the
+\texttt{CurrentJob} class, meaning that parameters can be extracted
+both from existing and currently running jobs.
 
-Consider the following example method that pretty-prints
-the \texttt{params} variable.  Note that the method explicitly expects
-input parameters to be assigned by the caller in the \jobids
-and \datasets constants, while \options keeps the default value unless
-assigned in the build call.
-
+Consider the following example method that pretty-prints the
+\texttt{job.params()} variable.
 \begin{python}
 import json
 
-jobids = ('jid',)
-datasets = ('source', 'parent',)
-options = dict(mode='testing', length=3)
+jobids = ('anotherjob',)
 
-def synthesis(params):
-    print(json.dumps(params, indent=4))
+def synthesis(params, job):
+    # first, print parameters belonging to the input job
+    print(json.dumps(jobids.anotherjob.params(), indent=4))
+    # then, print parameters belonging to THIS job
+    print(json.dumps(job.params(), indent=4))
 \end{python}
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@222 move part below
 The corresponding output will look something like this
 %\begin{leftbar}
 \begin{json}
@@ -626,46 +660,51 @@ The corresponding output will look something like this
 \multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
     \texttt{seed}, unless non-determinism is actually a goal.}}\\
 \stoptabletwo
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ move part above to detailed explanation of Job and CurrentJob .params()!
 
 
-
-\section{Accessing Another Job's Parameters}
-\index{\texttt{job\_params}|textbf}
-
-The previous sections show that the \params data structure contains
-all input parameters and initialization data for a job.  Accessing
-another job's parameters is straightforward, since all input jobids
-are of the \texttt{jobID} type, hence
+\subsection{Writing and Reading Files}
+The \texttt{CurrentJob} class provides the recommended way to write
+data and datasets to disk.  Files may be written using the
+\texttt{job.save()} and \texttt{job.json\_save()} functions.  The
+first writes a \texttt{pickle} file, and the latter uses \texttt{json}
+encoding.  For example
+\begin{python}
+def synthesis(job):
+   job.save('a string to be written', 'stringfile')
+   job.json_save(dict(key='value'), 'jsonfile')
+\end{python}
+There are corresponding \texttt{job.load()} and
+\texttt{job.json\_load()} functions that can be called \textsl{both}
+in methods \textsl{and} build scripts.  For example
 \begin{python}
 jobids = ('anotherjob',)
 
 def synthesis():
-    # print something like 'jid-0_0'
-    print(jobids.anotherjob)
-    # print the options of anotherjob
-    print(jobids.anotherjob.params().options)
+    jobids.anotherjob.load('stringfile')
 \end{python}
-See section~\ref{} for details about the \texttt{JobID} class.
-
-
-
-\section{Accessing Another Job's Datasets}
-Accessing another job's dataset parameters is done using the
-\texttt{Dataset} constructor like this
+will load a file from another job into the currently running method, while
 \begin{python}
-from accelerator.dataset import Dataset
-
-jobids = ('previous',)
-
-def synthesis():
-    # use the "default" dataset if unspecified
-    ds_default = Dataset(jobids.previous)
-    # specify the "source" dataset
-    ds_source = Dataset(jobids.previous, 'source')
+  def main(urd):
+      job.urd.build('example')
+      x = job.load('thefile')
 \end{python}
-assuming that \texttt{jobids.previous} has the datasets
-\texttt{default} and \texttt{source}.
+will load data stored by the \texttt{example} method using the
+filename \texttt{thefile.pickle} into the build script.
 
+
+\subsection{Accessing Other Job's Datasets}
+Using the \texttt{Job} class, it is straightforward to access datasets
+in other jobs.  For example
+\begin{python}
+def main(urd):
+    job = urd.build(...)
+
+    print(job.datasets())@@@@@@@@@@@@@@@@@@@@@@@@@@2
+
+    print(job.dataset('training')) @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
+\end{python}
+This works both in running methods and in build scripts.
 
 
 

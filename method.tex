@@ -77,10 +77,12 @@ reasons for the actual name will be apparent later in this chapter.
 
 
 \subsection{Jobids}
-A \textbf{jobid} is a reference to a job.  Since all job directories
-have unique names, the name of the job is used as the jobid.  In the
-example above, the job is uniquely identified by the
-string \texttt{example-0}.
+A \textbf{jobid} is a string that can be used as a reference to a job.
+Since all job directories have unique names, the name of the job is
+used as the jobid.  In the example above, the job is uniquely
+identified by the string \texttt{example-0}.  Jobids are composed by
+the name of the workdir and an integer that increments by one for each
+new job in that workdir.
 
 
 
@@ -155,7 +157,7 @@ In order to create a new method, follow these steps
 For example, \texttt{a\_example.py} is a valid method filename.
 
 
-\subsection{Methods.conf}
+\subsection{Limited Execution:  \texttt{methods.conf}}
 \label{sec:methods_conf}
 For a package to be valid, it must contain a \texttt{methods.conf}
 file.  This file specifies which methods in the package directory that
@@ -244,12 +246,15 @@ objects or filenames relative to the method's location.
 
 The Accelerator daemon will suggest adding modules to a source file in
 the output log like this:
-\begin{shell}
+
+\begin{snugshade}
+\begin{verbatim}
 =================================================================
 WARNING: dev.a_test should probably depend_extra on myfuncs
 =================================================================
-\end{shell}
-The point of this is to make the user aware that the method depends on
+\end{verbatim}
+\end{snugshade}
+\noindent The point of this is to make the user aware that the method depends on
 additional files that are currently not taken into account in the
 build check hashing.
 
@@ -352,8 +357,9 @@ The number of parallel analysis processes is set by the
 The idea is that when the Accelerator is processing dataset, each
 dataset slice should have exactly one corresponding \analysis process,
 so that all the slices in a dataset can be processed in parallel.  The
-input parameter \texttt{sliceno} to the \analysis function is in the
-range from zero to the number of slices minus one.
+input parameter \texttt{sliceno} to the \analysis function is the
+unique identifier for each parallel function call, and its value is in
+the range from zero to the number of slices minus one.
 
 
 \subsection{Return Values}
@@ -366,11 +372,10 @@ slice in turn.  Finally, the return value from \synthesis is stored
 permanently in the job directory using the name
 ``\texttt{result.pickle}''.  Here is an example of return value passing
 \begin{python}
-# return a set of all users in the source dataset
 options = dict(length=4)
-datasets = ('source',)
 
-def prepare(options):
+def prepare():
+    # options is a global variable
     return options.length * 2
 
 def analysis(sliceno, prepare_res)
@@ -389,6 +394,7 @@ the topic of section~\ref{}.
 \subsection{Merging Results from \analysis}
 Consider this example
 \begin{python}
+# create a set of all users
 datasets = ('source',)
   
 def analysis(sliceno):
@@ -398,32 +404,36 @@ def prepare(analysis_res):
     return analysis_res.merge_auto()
 \end{python}
 Here, each \analysis process creates a set of users seen in that
-\textsl{slice} of the \texttt{source} datasets.  In order to create a
-set of all users in dataset, all these sets have to be merged.
-Merging could be done using for example a \texttt{for}-loop, but the
-merging operation is dependent of the actual type, and writing merging
-functions is error prone.  Therefore, \analysisres has a function
-called \texttt{merge\_auto()}, that is recommended for merging.  This
-function can merge most data types, and even merge container variables
-in a recursive fashion.  For example,
+\textsl{slice} of the \texttt{source} dataset.  In order to create a
+set of all users in the dataset, all slice-sets have to be merged.
+Merging can be implemented using for example a \texttt{for}-loop, but
+the actual merging operation is dependendent of the actual data type,
+and writing merging functions is error prone.  Therefore, \analysisres
+has a function called \texttt{merge\_auto()}, that is recommended for
+merging.  This function can merge most data types, and even merge
+container variables in a recursive fashion.  For example, a variable
+defined like this 
 \begin{python}
 h = defaultdict(lambda: defaultdict(set))
 \end{python}
-is straightforward to merge using \texttt{merge\_auto}.
+(a \texttt{dict} of \texttt{dict}s of \texttt{set}s) is
+straightforward to merge using \texttt{merge\_auto()}.
 
 
 
 \subsection{Accessing Return Values}
-Values returned by a job can be retrieved in a build script or another
-method using the \texttt{.load()} function from the \texttt{Job}
-class, like in the following build script example:
+Values returned by a job's \synthesis function can be retrieved in
+build scripts or other methods using the \texttt{.load()} function
+from the \texttt{Job} class, like in the following build script
+example:
 \begin{python}
 def main(urd):
     job = urd.build('example')
     x = job.load()
 \end{python}
 The \texttt{Job} class is designed to be a user friendly encapsulation
-of the job directory and its files and meta data.
+of the job directory and its files and meta data.  More about this
+class in section~\ref{}.
 
 
 

@@ -305,7 +305,6 @@ features have been added that does not interfere with existing use.
 
 
 \section{Method Execution}
-
 Methods are not executed from top to bottom.  Instead, there are three
 functions that are called by the method dispatcher that controls the
 execution flow.  These functions are
@@ -314,11 +313,6 @@ execution flow.  These functions are
 \item [] \analysis, and
 \item [] \synthesis.
 \end{itemize}
-These functions, their execution order, and how to pass data between
-them, is the topic of this section.
-
-
-\subsection{Execution Flow}
 The three functions \prepare, \analysis, and \synthesis are called one
 at a time in that order.  \prepare and \synthesis executes as single
 processes, while \analysis provides parallel execution.  None of them
@@ -326,7 +320,8 @@ is mandatory, but at least one must be present for the method to
 execute.  It is discouraged to use \prepare only.
 
 
-\subsection{Function Arguments}
+
+\section{Function Arguments}
 There are two constants that can be passed into the executing
 functions \prepare, \analysis, and \synthesis at run time.
 \begin{itemize}
@@ -351,7 +346,7 @@ are global, so they do not need to be explicit in these function
 calls.
 
 
-\subsection{Parallel Processing:  The \analysis function, Slices, and Datasets}
+\section{Parallel Processing:  The \analysis function, Slices, and Datasets}
 The number of parallel analysis processes is set by the
 \texttt{slices} parameter in the Accelerator's configuration file.
 The idea is that when the Accelerator is processing dataset, each
@@ -362,7 +357,7 @@ unique identifier for each parallel function call, and its value is in
 the range from zero to the number of slices minus one.
 
 
-\subsection{Return Values}
+\section{Return Values}
 Return values may be passed from one function to another.  What is
 returned from prepare is called \prepareres, and may be used as input
 argument to \analysis and \synthesis.  The return values from

@@ -314,7 +314,6 @@ them, is the topic of this section.
 
 
 \subsection{Execution Flow}
-
 The three functions \prepare, \analysis, and \synthesis are called one
 at a time in that order.  \prepare and \synthesis executes as single
 processes, while \analysis provides parallel execution.  None of them
@@ -323,27 +322,24 @@ execute.  It is discouraged to use \prepare only.
 
 
 \subsection{Function Arguments}
-There are a few constants that can be passed into the executing
-functions at run time.  Here is a complete list
+There are two constants that can be passed into the executing
+functions \prepare, \analysis, and \synthesis at run time.
+\begin{itemize}
+\item[--] \texttt{job}, which is a job instance, and
+\item[--] \texttt{sliceno}, which provides a unique number to each
+  parallel \analysis-process.
+\end{itemize}
 
-\starttabletwo
-\texttt{params} & A dictionary containing all parameters input
-from both the calling function and the Accelerator.  This will be
-explained in detail in section~\ref{sec:params}.\\
-\texttt{sliceno} & For \analysis only.  A unique identifier for each
-parallel \analysis process.\\
-\texttt{SOURCE\_DIRECTORY} & A path defined in the Accelerator's
-configuration file, see~\ref{sec:SOURCE_DIR}.\\
-\texttt{RESULT\_DIRECTORY} & A path defined in the Accelerator's
-configuration file, see~\ref{sec:RESULT_DIR}.\\
-\stoptabletwo
+The \texttt{job} instance contains all information about the running
+job.  The object is of type \texttt{CurrentJob}, which is an extension
+of the \texttt{Job} class used for job instances that are not in the
+execution stage.  This will be discusse in detail in section~\ref{}.
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ job?!
-
-The \analysis function is special and takes a required argument
-\texttt{sliceno}, which is an integer between zero and the total
-number of slices minus one.  This is the unique identifier for each
-\analysis process, and is described in the next section.
+The \analysis function (and only the \analysis function) takes the
+optional argument \texttt{sliceno}, which is an integer between zero
+and the total number of slices minus one.  This is the unique
+identifier for each \analysis process, and it is discussed further in
+section~\ref{}.
 
 Note that the method input parameters \options, \jobids, and \datasets
 are global, so they do not need to be explicit in these function

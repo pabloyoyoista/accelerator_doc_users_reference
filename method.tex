@@ -17,11 +17,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-This chapter covers most aspects of jobs and methods.  It describes
-what methods are and how they are stored; when they are built and when
-not; what input parameters look like in full detail; how to access
-another job's parameters; parallel processing; return values and
-result merging; storing and retrieving data; and how to build subjobs.
+%% This chapter covers most aspects of jobs and methods.  It describes
+%% what methods are and how they are stored; when they are built and when
+%% not; what input parameters look like in full detail; how to access
+%% another job's parameters; parallel processing; return values and
+%% result merging; storing and retrieving data; and how to build subjobs.
 
 
 
@@ -36,7 +36,7 @@ equation
   \quad+\quad \text{execution time} \quad\rightarrow\quad
   \text{result}
 \]
-In the Accelerator context, the equation becomes
+In the Accelerator context, the notation is as follows
 \[
   \text{method} \quad+\quad \text{input data} \quad+\quad \text{input
     parameters} \quad+\quad \text{execution time}
@@ -46,9 +46,11 @@ where the \textbf{method} is the source code, and the \textbf{job} is
 a directory containing
 \begin{itemize}
 \item[--] any number of output files created by the running method, as well as
-\item[--] a number of job meta information files.
+\item[--] a number of job meta information files containing all
+  information needed to reproduce the job.
 \end{itemize}
-The exact contents of the job directory will be discussed in section~\ref{sec:job_directories}.
+The exact contents of the job directory will be discussed in
+section~\ref{sec:job_directories}.
 
 Computing a job is denoted job \textsl{building}.
 Jobs are \textbf{built} from methods.  When a job has been built, it
@@ -56,32 +58,31 @@ is \textsl{static}, and cannot be altered or removed by the
 Accelerator.  Jobs are built either by
 \begin{itemize}
 \item[--] a \textsl{build script}, see chapter~\ref{chap:urd}, or
-\item[--] by a method, using \textsl{subjobs}.
+\item[--] by a method, using \textsl{subjobs}, see~section~\ref{sec:subjobs}
 \end{itemize}
-subjobs will be the topic of section~\ref{sec:subjobs}.  The following
-figure illustrates how a job ``\texttt{example-0}'' is built from the
-method \texttt{a\_method.py} The job identifier (in this case
+The following figure illustrates how a job ``\texttt{example-0}'' is
+built from the method \texttt{a\_method.py}.  The job is stored in the
+\texttt{example} work directory.  The job identifier (in this case
 \texttt{example-0}) is always unique so that it can be used as a
-reference to the particular job.  The job is stored in the
-\texttt{example} work directory.
+reference to that particular job.
 \begin{figure}[h!]
   \begin{center}
     \hspace{2cm}\input{figures/method.pdftex_t}
     \label{fig:method}
   \end{center}
-  \caption{When a method is built, a job directory is created,
-    containing files with all data an meta information regarding the
-    job.}
+  \caption{When a method is built, a job directory is created in the
+    target work directory, containing files with all data an meta
+    information regarding the job.}
 \end{figure}
 
 
 \subsection{Jobids}
 A \textbf{jobid} is a string that can be used as a reference to a job.
-Since all job directories have unique names, the name of the job is
-used as the jobid.  In the example above, the job is uniquely
-identified by the string \texttt{example-0}.  Jobids are composed by
-the name of the workdir and an integer that increments by one for each
-new job in that workdir.
+Since all job directories have unique names, the name of the job
+directory is used as the jobid.  In the example above, the job is
+uniquely identified by the string \texttt{example-0}.  Jobids are
+composed by the name of the workdir and an integer that increments by
+one for each new job in that workdir.
 
 
 \subsection{Work Directories and Job Directories}
@@ -101,31 +102,31 @@ workdirs/test/
         datasets.txt
         default/
 \end{verbatim}
-The following table shows examples of files commonly stored in a job
+The following table shows examples of files commonly found in a job
 directory.
 
 \starttabletwo
 
-\texttt{setup.json} & will contain information for the job, including
-name of method, input parameters, and, after execution, some profiling
-information.\\
+\texttt{setup.json} & Contains information about the job build,
+including name of method, input parameters, and, after execution, some
+profiling information.\\
 
-\texttt{post.json} & contains profiling information, and is written
-only of the job builds successfully.\\
+\texttt{post.json} & Contains profiling information, and is written
+only if the job builds successfully.\\
 
 \texttt{method.tar.gz} & All source files, i.e.\ the method's source
-and
+and any \texttt{depend\_extra}s are stored in this gziped
+\texttt{tar}-archive.\\
 
-\texttt{depend\_extra}s are stored in the \texttt{tar}-archive.\\
-
-\texttt{result.pickle} & Finally, the return value from \synthesis is
-stored as a Python pickle file with the name \texttt{result.pickle}.\\
+\texttt{result.pickle} & The return value from \synthesis stored in the
+Python pickle format.\\
 
 \texttt{default/} & If the job contains datasets, these will be stored
 in directories, such as for example \texttt{default/}, in the root of
 the job directory.\\
 
-\texttt{datasets.txt} & list of all datasets in job in human readable format.\\
+\texttt{datasets.txt} & List of all datasets in job in a human
+readable format.\\
 
 \texttt{OUTPUT/} & Any output to \texttt{stdout} and \texttt{stderr} will be
 stored in the \texttt{OUTPUT/} directory.\\
@@ -133,19 +134,20 @@ stored in the \texttt{OUTPUT/} directory.\\
 
 
 \subsection{The \texttt{Job} and \texttt{CurrentJob} Convenience Wrappers}
-In order to simplify access to a job's data stored in a job directory,
-common job operations have been factored into the \texttt{Job} class.
-There is also an extended version of this, called the
-\texttt{CurrentJob} class, that also contains information and helper
-functions to a running job.
+In order to simplify access to job directory data, common job data
+operations have been factored into the \texttt{Job} class.  There is
+also an extended version of this, called the \texttt{CurrentJob}
+class, that also contains information and helper functions to a
+running job.  See section~\ref{} for details about these classes.
 
 
 
 \section{Python Packages}
-Methods are stored in standard Python packages, i.e.\ in a directory that is
+Methods are stored in standard Python packages, i.e.\ in directories
+that are
 \begin{itemize}
 \item[--] reachable by the Python interpreter, and
-\item[--] contains the (perhaps empty) file \texttt{\_\_init\_\_.py}.
+\item[--] contain the (perhaps empty) file \texttt{\_\_init\_\_.py}.
 \end{itemize}
 In addition, for the Accelerator to accept a package, the following
 constraints need to be satisfied
@@ -154,8 +156,8 @@ constraints need to be satisfied
 \item[--] the package must be added in the Accelerator's configuration file.
 \end{itemize}
 A package is reachable by The Accelerator if it is included in the
-Accelerator's configuration file, see section~\ref{}.  The next
-section guides through the steps required to create a new package.
+Accelerator's configuration file using the key
+``\mintinline{shell}{method packages}'', see section~\ref{}.
 
 
 \subsection{Creating a new Package}
@@ -169,11 +171,9 @@ directory
 The first two lines create a Python package, and the third line adds
 the file \texttt{methods.conf}, which is required by the Accelerator.
 
-For security reasons, the Accelerator does not look for packages by
-itself.  Instead, packages to be used need to be explicitly specified
-in the Accelerator's configuration file using the
-\mintinline{shell}{method_directories} assignment.  Basically, the
-assignment should be a comma separated list of packages, see
+For security reasons, the Accelerator only looks for packages
+explicitly specified in the configuration file using the
+\mintinline{shell}{method_directories} assignment.  See
 chapter~\ref{sec:configfile} for detailed information about the
 configuration file.
 
@@ -209,19 +209,15 @@ In order to create a new method, follow these steps
 \item (Make sure that the method directory is in the Accelerator's
   configuration file.)
 \end{enumerate}
-For example, \texttt{a\_example.py} is a valid method filename.
 
 
 \subsection{Limited Execution:  \texttt{methods.conf}}
 \label{sec:methods_conf}
-For a package to be valid, it must contain a \texttt{methods.conf}
-file.  This file specifies which methods in the package directory that
-are available for building.  It also optionally specifies which Python
-interpreter each method should use.  Files not specified in
-\texttt{methods.conf} cannot be executed.  The file
-\texttt{methods.conf} provides an easy way to specify and limit which
-source files that can be executed, which is something that makes a lot
-of sense in any production environment.
+The file \texttt{methods.conf} provides an easy way to specify and
+limit which source files that can be executed, which is something that
+makes a lot of sense in any production environment.  Files not
+specified in \texttt{methods.conf} cannot be executed.  It also
+optionally specifies which Python interpreter each method should use.
 
 The \texttt{methods.conf} is a plain text file with one entry per
 line.  Any characters from a hash sign (``\texttt{\#}'') to the end of
@@ -231,11 +227,13 @@ first on a line by stating the name of the method, without the
 \texttt{a\_} prefix and \texttt{.py} suffix.
 
 The method name can optionally be followed by one or more whitespaces
-and a name specifying the actual Python executable that will be used
-to execute the method.  A list of valid Python executables is defined
-in the configuration file, see section~\ref{sec:configfile}.  If this
-field is left empty, the default executable is selected, which always
-corresponds to the same executable as the currently runing Accelerator
+and a name specifying the actual Python interpreter that will be used
+to execute the method.  A list of valid Python interpreters is defined
+in the configuration file using the key
+\mintinline{shell}{interpreters}, see section~\ref{sec:configfile}.
+
+The default interpreter is selected if this field is left empty, where
+default corresponds to the one that the currently running Accelerator
 daemon is using.  The Accelerator and its \texttt{standard\_methods}
 library are compatible with both Python 2 and Python 3.
 
@@ -250,20 +248,20 @@ testx           tf   # the Tensorflow virtual environment Python
 \end{shell}
 This file declares three methods corresponding to the files
 \texttt{a\_test2.py}, \texttt{a\_test3.py}, and \texttt{a\_testx.py}.
-These are the only methods that can be built in this package
-directory.  Note that it is possible to define an executable from a
-virtual environment.  This makes it straightforward to install any
-package in a dedicated environment and making it accessible only to a
-set of specified mehods.
+These are the only methods that can be built in this method package.
+Note that it is possible to specify an interpreter from a virtual
+environment.  This makes it straightforward to install any package in
+a dedicated environment and making it accessible only to a set of
+specified mehods.
 
 
 
 \section{Job Building or Job Recycling}
 Since the Accelerator keeps track of a job's dependencies and results,
-it can in an instant determine if a job to be built has been build
-before.  If built before, it will immediately return a job instance to
-the existing job.  Otherwise, the job will be built, and thereafter a
-job instance will be returned.
+it can in an instant determine if a job to be built has been built
+before.  If it has been built before, the Acce will immediately return
+a job instance to the existing job.  Otherwise, the job will first be
+built, and then a job instance will be returned.
 
 
 \subsection{Job Already Built Check}
@@ -275,8 +273,7 @@ def main(urd):
 \end{python}
 
 Prior to building a method, the Accelerator checks if an equivalent
-job has been built in the past.  If it has, it will not be executed
-again.  This check is based on two things:
+job has been built in the past.  This check is based on two things:
 \begin{enumerate}
 \item  the output of a hash function applied to the method source code, and
 \item  the method's input parameters.
@@ -285,14 +282,14 @@ The hash value is combined with the input arguments and compared to
 all jobs already built.  Only if the hash and input parameter
 combination is unique will the method be executed.  The
 \texttt{.build()}-function returns an instance of type \texttt{Job}.
-It does not matter if the job is just built or if it was build at an
-earlier time.
+To the caller, it is not apparent if the job was just built or if it
+was built at an earlier time.
 
 
 \subsection{Depend on More Files:  \texttt{depend\_extra}}
-A method may import code located in other files, and these other files
-can be included in the build check hash calculation as well.  This
-will ensure that a change to an imported file will indeed force a
+A method may import code located in other files, and such files can be
+included in the build check hash calculation as well.  This will
+ensure that a change to an imported file will indeed force a
 re-execution of the method if a build is requested.  Additional files
 are specified in the method using the \texttt{depend\_extra} list, as
 for example:
@@ -306,7 +303,6 @@ objects or filenames relative to the method's location.
 
 The Accelerator daemon will suggest adding modules to a source file in
 the output log like this:
-
 \begin{snugshade}
 \begin{verbatim}
 =================================================================
@@ -314,9 +310,11 @@ WARNING: dev.a_test should probably depend_extra on myfuncs
 =================================================================
 \end{verbatim}
 \end{snugshade}
-\noindent The point of this is to make the user aware that the method depends on
-additional files that are currently not taken into account in the
-build check hashing.
+\noindent The point of this is to make the user aware that the method
+depends on additional files that are currently not taken into account
+in the build check hashing.  The warning is removed by putting the
+\texttt{myfuncs} file in a \texttt{depend\_extra} list of the
+\texttt{test} method.
 
 
 \subsection{Avoiding Rebuild: \texttt{equivalent\_hashes}}
@@ -326,17 +324,16 @@ A change to a method's source code will cause a new job to be built
 upon running \mintinline{python}{.build()}, but sometimes it is
 desirable to modify the source code \textsl{without} causing a
 re-build.  This happens, for example, when new functionality is added
-to an existing method, and re-computing all jobs is considered to be
-too time consuming.  The way the existing code behaves has not
-changed, so existing jobs do not need to be re-built.  For this
-situation, there is an \texttt{equivalent\_hashes} dictionary that can
-be used to specify which versions of the source code that are
-equivalent.  The Accelerator helps creating this, if needed.  This is
-how it works.
+to an existing method, and re-computing all jobs is not an option.  If
+functionality remains the same, existing jobs strictly do not need to
+be re-built.  For this situation, there is an
+\texttt{equivalent\_hashes} dictionary that can be used to specify
+which versions of the source code that are equivalent.  The
+Accelerator helps creating this, if needed.  This is how it works.
 \begin{enumerate}
 \item Find the hash \texttt{<old\_hash>} of the existing job in that
   job's \texttt{setup.json}.
-\item Add the following line to the method's source code
+\item Add the following line to the updated method's source code
 \begin{python}
 equivalent_hashes = {'whatever': (<old_hash>,)}
 \end{python}
@@ -359,20 +356,20 @@ will not be built again.  Note that the right part of the assignment
 is actually a list, so there could be any number of equivalent
 versions of the source code.  This has been used frequently during
 development of the Accelerator's \texttt{standard\_methods}, when new
-features have been added that does not interfere with existing use.
+features have been added that do not interfere with existing use.
 
 
 
 \section{Method Execution}
-Methods takes input parameters and may have return values and produce
-output files as well as output to \texttt{stdout} and \texttt{stderr}.
-
 Methods are executed using the \texttt{build()} call, either from a
 \texttt{build script}, or from another method as a \texttt{subjob}.
+Methods typically takes input parameters, and they may generate return
+values and produce output files as well as output to \texttt{stdout}
+and \texttt{stderr}.
 
-Methods are not executed from top to bottom.  Instead, there are three
-functions that are called by the method dispatcher that controls the
-execution flow.  These functions are
+During execution, methods are not run from top to bottom.  Instead,
+there are three reserved functions that are called by the method
+dispatcher controlling the execution flow.  These functions are
 \begin{itemize}
 \item [] \prepare,
 \item [] \analysis, and
@@ -382,7 +379,7 @@ execution flow.  These functions are
 
 \subsection{Execution Order}
 The three functions \prepare, \analysis, and \synthesis are called one
-at a time in that order.  \prepare and \synthesis executes as single
+at a time in that order.  \prepare and \synthesis execute as single
 processes, while \analysis provides parallel execution.  None of them
 is mandatory, but at least one must be present for the method to
 execute.  It is discouraged to use \prepare only.
@@ -582,7 +579,7 @@ def main(urd):
 This works both in build scripts and inside methods.
 
 
-\subsection{Accessing Other Job's Datasets}
+\subsection{Accessing A Job's Datasets}
 Using the \texttt{Job} class, it is straightforward to access datasets
 in other jobs.  For example
 \begin{python}

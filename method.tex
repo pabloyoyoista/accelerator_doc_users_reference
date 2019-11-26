@@ -25,6 +25,9 @@
 
 
 
+
+
+
 \section{Definitions}
 
 \subsection{Methods and Jobs}
@@ -211,7 +214,7 @@ In order to create a new method, follow these steps
 \end{enumerate}
 
 
-\subsection{Limited Execution:  \texttt{methods.conf}}
+\subsection{Limiting Execution:  \texttt{methods.conf}}
 \label{sec:methods_conf}
 The file \texttt{methods.conf} provides an easy way to specify and
 limit which source files that can be executed, which is something that
@@ -504,10 +507,11 @@ current job directory.  This covers, for example, anything output from
 Python's \texttt{print()}-function.
 
 Output is collected in the job directory in a subdirectory named
-\texttt{OUTPUT}.  This directory is created \textsl{only} if anything
-was output from the job to \texttt{stdout} or \texttt{stderr},
-otherwise it does not exist.  Inside the directory there may be files
-like this
+\texttt{OUTPUT}, and it is made available using the \texttt{.output()}
+function, see section~\ref{sec:jobclass:output}.  The \texttt{OUTPUT}
+directory is created \textsl{only} if anything was output from the job
+to \texttt{stdout} or \texttt{stderr}, otherwise it does not exist.
+Inside the directory there may be files like this
 \begin{verbatim}
 job-x/
    OUTPUT/
@@ -520,14 +524,15 @@ No empty files will be created.
 
 
 
-\section{The \texttt{Job} and \texttt{CurrentJob} Convenience Classes}
+
+\section{The \texttt{Job} and \texttt{CurrentJob} Classes}
 The \texttt{Job} and \texttt{CurrentJob} classes provide functionality
-for easy access to the data stored in a job directory.  The
-\texttt{CurrentJob} is an extension of \texttt{Job} that adds special
-functions that are useful to a method during execution.  \textsl{This
-  section just provides a taste of the most common operations that are
-  provided.  See section~\ref{} for a complete list of the
-  functionality.}
+for easy access to data and datasets stored in a job directory.
+(Datasets will be covered in section~\ref{}).  The \texttt{CurrentJob}
+is an extension of \texttt{Job} that adds special functions that are
+useful to a method during execution.  \textsl{This section just
+  provides a taste of the most common operations that are provided.
+  See section~\ref{} for a complete list of the functionality.}
 
 Instances of these two classes are used extensibly.  In a build script
 every reference to a job, such as the return value of the
@@ -538,21 +543,21 @@ the running method.  There is only one way to get a variable of type
 \texttt{CurrentJob}, though, and that is to ask for a \texttt{job}
 input parameter in one of \prepare, \analysis, or \synthesis.
 
-\subsection{Writing and Reading Files}
-The \texttt{CurrentJob} class provides the recommended way to write
-data and datasets to disk.  (Dataset writing is the topic of
-section~\ref{}.)  Files may be written using the \texttt{job.save()}
-and \texttt{job.json\_save()} functions.  The first writes a Python
-``pickle'' file, and the latter uses \texttt{json} encoding.  For
-example
+
+\subsection{Writing and Reading Serialised Data}
+Data structures may be serialsed and written to disk using
+\texttt{job.save()} and \texttt{job.json\_save()}, with corresponding
+\texttt{.load()} and \texttt{.json\_load()}, where the first writes a
+Python ``pickle'' file, and the latter uses \texttt{json} encoding.
+Here is an example
 \begin{python}
 def synthesis(job):
    job.save('a string to be written', 'stringfile')
    job.json_save(dict(key='value'), 'jsonfile')
 \end{python}
-There are corresponding \texttt{job.load()} and
-\texttt{job.json\_load()} functions that can be called \textsl{both}
-in methods \textsl{and} build scripts.  For example
+The corresponding \texttt{job.load()} and \texttt{job.json\_load()}
+functions that can be called \textsl{both} in methods \textsl{and}
+build scripts.  For example
 \begin{python}
 jobids = ('anotherjob',)
 
@@ -568,7 +573,35 @@ def main(urd):
 will load data stored by the \texttt{example} method using the
 filename \texttt{thefile.pickle} into the build script.
 
-\comment{Sliced files!!!}
+
+\subsection{Writing and Reading Serialised Data in Parallel}
+If data is read and written in the parallel \analysis-function, the
+argument \texttt{slices=} may be used to write one file for each
+slice.  For example
+\begin{python}
+def analysis(sliceno, job)
+    data = ...
+    job.save(data, 'filename', sliceno=sliceno)
+\end{python}
+Similarly, another job can then read one of these files per slice as follows
+\begin{python}
+def analysis(sliceno, job):
+    data = job.load('filename', sliceno=sliceno)
+\end{python}
+
+
+\subsection{General File Access}
+The \texttt{.open()} function corresponds to the built in
+\texttt{open()} with the addition that it cannot write to existing
+jobs, and that files written using it are book-kept in the job.  It
+has to be used as a context manager, i.e.\ using the \texttt{with}
+statement, for example like this
+\begin{python}
+def synthesis(job):
+    with job.open('filename, 'wb') as fh:
+        fh.write(...)
+\end{python}
+
 
 \subsection{Accessing A Job's Return Value}
 The default behaviour of a job instance's \texttt{.load()} function is
@@ -607,7 +640,7 @@ There are two sources of parameters to a running method,
 \item [] parameters assigned by the Accelerator when the job starts
   building.
 \end{itemize}
-All these parameters are available using the \texttt{job.params()}
+All these parameters are available using the \texttt{job.params}
 function.  This is useful for example in methods that needs to find the
 options to its input jobs.  For example
 \begin{python}
@@ -616,7 +649,7 @@ import json
 jobids = ('anotherjob',)
 
 def synthesis():
-    print(jobids.anotherjob.params().options)
+    print(jobids.anotherjob.params.options)
 \end{python}
 will print the \texttt{options} dictionary that was fed to the
 \texttt{anotherjob} at build time, for example
@@ -625,7 +658,7 @@ will print the \texttt{options} dictionary that was fed to the
 {'message': 'Hello world!'}
 \end{verbatim}
 \end{snugshade}
-\noindent A complete print of a job's \texttt{.params()} may look like this
+\noindent A complete print of a job's \texttt{.params} may look like this
 \begin{json}
   {
     "slices": 8,
@@ -667,6 +700,33 @@ will print the \texttt{options} dictionary that was fed to the
 \multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
     \texttt{seed}, unless non-determinism is actually a goal.}}\\
 \stoptabletwo
+
+
+\subsection{Accessing Job Output}
+\label{sec:jobclass:output}
+Anything written to \texttt{stderr} or \texttt{stdout} during job
+execution is available using the \texttt{.output()} function.  Here is
+an example
+\begin{python}
+def main(urd):
+    job = urd.build('example')
+    print(job.output())
+\end{python}
+With no argument, the \texttt{.output()} function returns all output.
+Particular parts of the output can be selected using the options,
+\texttt{'prepare'}, \texttt{'analysis'}, \texttt{'synthesis'}, or a
+digit specifying a particular slice.
+
+
+\subsection{Reading Post Data}
+The \texttt{.post} attribute contains information such as starttime,
+execution time (per function and slice), written files and subjobs for
+a job.  For example
+\begin{python}
+def main(urd):
+    job = job.build('example')
+    print(job.post.profile)
+\end{python}
 
 
 

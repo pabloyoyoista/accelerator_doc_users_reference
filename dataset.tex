@@ -94,9 +94,9 @@ over the next dataset in the chain when the current dataset is
 exhausted.  Here is a an example of how \texttt{csvimport} jobs can be
 chained
 \begin{python}
-jid1 = urd.build('csvimport', options=dict(filename='file1.txt'))
-jid2 = urd.build('csvimport', options=dict(filename='file2.txt'),
-                              datasets=dict(previous=jid1))
+job1 = urd.build('csvimport', options=dict(filename='file1.txt'))
+job2 = urd.build('csvimport', options=dict(filename='file2.txt'),
+                              datasets=dict(previous=job1))
 \end{python}
 
 In order to maintain high speed when processing long chains, the
@@ -142,7 +142,7 @@ Independent data means that processing of the dataset can be carried
 out in a completely parallel fashion.
 
 The hash function used by the Accelerator is a well-known function
-called siphash 2-4 that is available from the
+called siphash-2-4 that is available from the
 Accelerator's \texttt{gzutil} library
 \begin{python}
 from accelerator.gzutil import siphash24
@@ -162,51 +162,33 @@ functions, for example
 datasets = ('source',)
 
 def synthesis():
-  print(datasets.source.shape)
+    print(datasets.source.shape)
 \end{python}
 will print the number of rows and columns of the \texttt{source}
 Dataset.
 
 
-\section{Datasets from Jobids}
-A Dataset object can be
-instantiated from a jobid, like this
+\section{Datasets from Jobs}
+
+Information about a job instance's datasets is provided using
+the \texttt{.dataset()} function and the \texttt{.datasets} attribute.
+To find all datasets in a job, use \texttt{.datasets} like in this
+example
 \begin{python}
-from accelerator.dataset import Dataset
-...
-ds = Dataset('foo-0')
+def main(urd):
+    job = urd.build('create_datasets')
+    for ds in job.datasets:
+        print(ds.name)
 \end{python}
-In this case, \texttt{ds} will be an object based on the default
-dataset residing at jobid \texttt{foo-0}.  If the dataset is stored by
-a different name, i.e.\ different from \texttt{default}, it may be
-accessed like this
+To work on a specific dataset, just ask for it using its name as input
+parameter to \texttt{.dataset()},
 \begin{python}
-ds = Dataset('foo-0/bar')
-# or
-ds = Dataset(('foo-0', 'bar'))
+    ...
+    ds_first = job.dataset('first')
+    ds_default = job.dataset()
 \end{python}
-A common operation is to fetch a dataset from another jobid
-\begin{python}
-ds = Dataset((jobids.previous, 'source'))
-\end{python}
-
-
-
-%% \section{Change to Another Dataset in a Job}
-%% If a job contains more than one dataset, it is possible to switch from
-%% one to another easily.  Assume for example that the input dataset in
-%% the following example is stored in a job that has two datasets
-%% named \texttt{first} and \texttt{second}.
-%% \begin{python}
-%% from accelerator.dataset import Dataset
-
-%% datasets=('source',)
-
-%% def synthesis():
-%%     first = datasets.source, 'first')
-%%     second = datasets.source, 'second')
-%% \end{python}
-
+Without an input parameter, the default dataset is returned.  An error
+is issued if the dataset does not exist.
 
                       
 
@@ -217,6 +199,12 @@ described in the next sections.  But first a note on naming datasets.
 
 
 \subsection{Dataset Name}
+The name of a dataset is accessible using the \texttt{.name}
+attribute, like this
+\begin{python}
+    print(ds_first.name)
+\end{python}
+
 The Accelerator is designed to handle various string encodings with
 ease, and in most situations the naming rules are very liberal.  The
 dataset name, however, should preferably be \textsl{limited to ASCII
@@ -227,17 +215,17 @@ allowed.
 
 
 \subsection{Column Names}
-All columns in a dataset may be acquired using the \texttt{columns}
+All columns in a dataset may be acquired using the \texttt{.columns}
 property, like this
 \begin{python}
 datasets = ('source',)
 
 def synthesis():
-  print(datasets.source.columns.keys())
-  # may print something like
-  # ['GTIN', 'date', 'locale', 'subsource']
+    print(datasets.source.columns.keys())
+    # may print something like
+    # ['GTIN', 'date', 'locale', 'subsource']
 \end{python}
-The \texttt{columns} attribute is actually a dictionary from column
+The \texttt{.columns} attribute is actually a dictionary from column
 name to properties, as will be shown in the next section.
 
 Not all column names are valid, see
@@ -328,8 +316,8 @@ The \texttt{chain} function is used to operate on dataset chains.  It
 takes a dataset as input, some options that will be discussed next,
 and returns a \texttt{DatasetChain} object.
 \begin{python}
-# return the chain object from the 'default' dataset in jobid
-chain = Dataset(jobid).chain()
+# return the chain object from the 'default' dataset in job
+chain = ds.chain()
 \end{python}
 The \texttt{chain()}-function takes the following optional arguments
 
@@ -448,8 +436,9 @@ its output dataset.
 
 
 \subsection{Bitmasks}
-The bitmask types are stored as 32 or 64 bits of data in a dataset,
-and is represented by unisgned integers in the Python code.
+The bitmask types, \texttt{bits32} and \texttt{bits64}, are stored as
+32 or 64 bits of data in a dataset, and is represented by unisgned
+integers in the Python code.
 
 
 \subsection{JSON Type}
@@ -459,10 +448,10 @@ Conversion between JSON and Python data types is done by the writers
 and iterators, so the user can just work on the data and never has to
 see the actual JSON, for example
 \begin{python}
-  dw = DatasetWriter(...)
-  ...
-  a = dict(x=3, y=dict(z=5, w=[1,2,3]))
-  dw.write(a)
+    dw = DatasetWriter(...)
+    ...
+    a = dict(x=3, y=dict(z=5, w=[1,2,3]))
+    dw.write(a)
 \end{python}
 
 
@@ -480,13 +469,20 @@ number, such as \texttt{'3.14'}.
 The value \pyNone is valid input for all types that support \pyNone,
 i.e.\ all types except the bitmask-types.  For example, valid
 values for a \texttt{bool} type column
-are \{\pyTrue,\pyFalse, \mintinline{python}|None|\}.
+are \{\pyTrue, \pyFalse, \mintinline{python}|None|\}.
 
 
 
 \section{Create a New Dataset}
 Datasets are created by methods using the \texttt{DatasetWriter}
-class.  The most common scenario is to set up the new dataset in
+class.  An instance of this class is available in a running method
+as \texttt{job.datasetwriter} like this
+\begin{python}
+def prepare(job):
+    dw = job.datasetwriter()
+\end{python}
+
+The most common scenario is to set up the new dataset in
 \prepare, and write data to it in parallel in \analysis, but is is
 also possible to write a dataset in an entirely serial fashion in
 \synthesis.  When a dataset-creating method terminates, it will create
@@ -508,22 +504,18 @@ The most common arguments to \texttt{DatasetWriter} are
 
 \subsection{Create in \prepare + \analysis}
 \label{sec:create_dataset_in_analysis}
-
 The following example will use \texttt{DatasetWriter} to create a
-Dataset with three columns.  The name of the dataset will be
-\texttt{firstset}.  If the name is omitted, the name
-\texttt{default} will be used instead.  The writer will be initialised
-in \prepare, and data will be written to the Dataset in \analysis.
-Note that the example creates a dataset \emph{chain}, linking the
-dataset under creation to the dataset named \texttt{previous} from the
-input parameters.
-\texttt{X}.
+Dataset with three columns of different types.  The name of the
+dataset will be \texttt{firstset}.  The writer will be initialised
+in \prepare(), and data will be written to the Dataset in \analysis.
+Note that the example actually creates a dataset \emph{chain}, since
+it links the dataset under creation to the dataset
+named \texttt{previous} from the input parameters.
 \begin{python}
-from dataset import DatasetWriter
 datasets = ('previous',)
 
-def prepare():
-    dw = DatasetWriter(
+def prepare(job):
+    dw = job.datasetwriter(
         previous = datasets.previous,
         name = 'firstset'
     )
@@ -538,41 +530,48 @@ def analysis(sliceno, prepare_res):
     for x, y, z in some_data:
         dw.write(x, y, z)
 \end{python}
-The order of the variables in the dw.write function call is the same
-as the order of the add calls in prepare.  There are a few alternative
-ways of writing data, as shown here
+The function \texttt{dw.write()} is used to write data to the dataset.
+The order of the variables in the \texttt{.write()} function call is
+the same as the order of the \texttt{.add()} calls in prepare.  There
+are a few alternative ways of writing data, as shown here
 \begin{python}
-dw.write_dict({column: value})
+    # write a dict with keys corresponding to column names
+    dw.write_dict({column: value})
 
-dw.write_list([value, value, ...])
+    # write a list with items in same order as dw.add() calls
+    dw.write_list([value, value, ...])
 
-dw.write(value, value, ...)
+    # one parameter for each .add() call, in same order
+    dw.write(value, value, ...)
 \end{python}
-Several Datasets can be created simultaneously using multiple writers
+Several datasets can be created simultaneously using multiple writers
 with different names.
 
 
-
-
-\subsection{Create in synthesis}
-
-There are two possible ways to create a Dataset in \synthesis.  One is
-to first set a slice number
+\subsection{Create in \synthesis}
+Since a dataset is slices in multiple disjoint sets, and \synthesis is
+run only once, data has to be sliced during writing somehow.  There
+are two possible ways to do this.  One is to first set a slice number
 \begin{python}
 dw.set_slice(sliceno)
 \end{python}
 before writing data into that slice.  The other is to use one of
 the \texttt{split\_write} functions
 \begin{python}
-dw.get_split_write_dict()({column: value})
+    # use a dict-writer
+    writer = dw.get_split_write_dict()
+    writer({column: value})
 
-dw.get_split_write_list()([value, value, ...])
+    # use a list-writer
+    writer = dw.get_split_write_list()
+    writer([value, value, ...])
 
-dw.get_split_write()(value, value, ...)
+    # use a parameterised writer
+    writer = dw.get_split_write()
+    writer(value, value, ...)
 \end{python}
 These writers will write round-robin if the dataset is not hashed, and
 to the ``right'' slice if the dataset is hashed.
-
 
 
 \subsection{Completing Dataset Creation}
@@ -598,25 +597,25 @@ it = ds.iterate(None, 'user')
 \subsection{Datasets Created by Subjobs}
 If a dataset is created in a subjob, it is not visible from the build
 scripts.  This is solved by linking dataset meta-information to the
-job calling the subjob, using the \texttt{link\_to\_here} function.
+job calling the subjob, using the \texttt{.link\_to\_here()} function.
 This is explained in detail in section~\ref{sec:subjobs}.
 
 
-
-\subsection{Creating Hashed Datasets}
-A hashed dataset is created by setting the \texttt{hashlabel} argument
-when calling \texttt{DatasetWriter}.  Note that for a hashed dataset,
-only data fulfilling the hashing requirement for a slice may be
-written to that slice.  A straightforward write will cause an
-exception if the data does not belong to the slice.
+\subsection{Creating Hash Partitioned Datasets}
+A hash partitioned dataset is created by setting
+the \texttt{hashlabel} argument when creating
+the \texttt{DatasetWriter}.  Note that for a hashed dataset, only data
+fulfilling the hashing requirement for a slice may be written to that
+slice, and an exception will be rised if the data written does not
+belong to the current slice.
 
 A simple way to filter the data written is to call
 \begin{python}
 dw.enable_hash_discard()
 \end{python}
-first in each slice or after each \texttt{set\_slice()}.  Then, writes
-that belongs to another slice are silently ignored, while ``correct''
-data gets written as expected.
+first in each slice or after each \texttt{.set\_slice()}.  Then,
+writes that belongs to another slice are silently ignored, while
+``correct'' data gets written as expected.
 
 It is possible to check before writing if the data is to be put into
 the current slice using the \texttt{dw.hashcheck()} function, like
@@ -624,11 +623,12 @@ this
 \begin{python}
 ...
 if dw.hashcheck(hashcoldata):
-# compute bulkdata here...
-...
-dw.write(hashcoldata, bulkdata)
+    # compute bulkdata here
+    bulkdata = expensive_function(...)
+    # and write to dataset
+    dw.write(hashcoldata, bulkdata)
 \end{python}
-This is also beneficial if it is expensive to compute the data to be
+This is beneficial if it is expensive to compute the data to be
 stored.  In the example above using \texttt{hashcheck()}, data is only
 computed if it is to be stored in the slice.
 
@@ -638,7 +638,7 @@ dw.writers[colname].hash
 \end{python}
 This function can be used to manually check if the data belongs to a
 slice.  For more details and alternatives, please see the
-documentation in \texttt{dataset.py}.
+documentation in the source file \texttt{dataset.py}.
 
 
 
@@ -650,7 +650,7 @@ replaced by the underline(\texttt{\_}) character.  The underline
 character is also used to make column names unique when necessary.
 The table below shows some examples.
 \starttablenoheader
-\RP \textbf{input} & \textbf{converted} & \textbf{comment}\\[1ex]\hline\\[1ex]
+\RP \textbf{input} & \textbf{converted} & \textbf{comment}\\\midrule
 \RP \texttt{"-"}      &  \texttt{"\_"}       & Converting to valid python identifier.\\
 \RP \texttt{"a b"}    &  \texttt{"a\_b"}     & Converting to valid python identifier.\\
 \RP \texttt{"42"}     &  \texttt{"\_42"}     & Converting to valid python identifier.\\
@@ -664,8 +664,9 @@ The table below shows some examples.
 
 
 \subsection{More Advanced Dataset Creation}
-Currently out-of-scope of this manual.  Please see the file
+Currently out-of-scope of this manual.  Please see the source file
 \texttt{dataset.py} for full information.
+
 
 
 \section{Appending New Columns to an Existing Dataset}
@@ -690,12 +691,10 @@ The following example appends one column to an existing
 dataset \texttt{source}, while chaining to the
 dataset \texttt{previous}.
 \begin{python}
-from accelerator.dataset import DatasetWriter
-
 datasets = ('source', 'previous',)
 
-def prepare():
-    dw = DatasetWriter(
+def prepare(job):
+    dw = job.datasetwriter(
         parent=datasets.source,
         previous=datasets.previous,
         caption='with the new column'
@@ -719,16 +718,17 @@ A straightforward way to append columns to a dataset in synthesis is
 using the \texttt{set\_slice()} function, as shown in the example
 below.
 \begin{python}
-def synthesis(params):
+def synthesis(job):
 
-    dw = DatasetWriter(parent=datasets.source)
+    dw = job.datasetwriter(parent=datasets.source)
     dw.add('newcolumn', 'json')
     
-    for sliceno in range(params.slices):
+    for sliceno in range(job.params.slices):
         dw.set_slice(sliceno)
         for data in datasets.source.iterate(sliceno, ...):
             ...
             dw.write(x)
 \end{python}
-Note the \texttt{for}-loop over \texttt{sliceno}, which controls both
-the reading iterator \textsl{and} the dataset writer.
+Note that the \texttt{for}-loop over all slices is
+controlling \textsl{both} the reading iterator \textsl{and} the
+dataset writer.

@@ -8,9 +8,14 @@
 *latexmk
 gitrevision
 _minted-doc/
+*.idx
+*.sty_*
+*.toc
 *.fls
 *.pyg
 *.fig.bak
 *.pdf_t
 *.pstex
 *.pstex_t
+figures/*pdftex_t
+figures/*pstex

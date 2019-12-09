@@ -25,7 +25,6 @@ Python2 and Python3.
 
 
 \section{\texttt{csvimport} -- Importing Data Files}
-
 The \texttt{csvimport} method is used to import a text files into a
 dataset.  The method can be chained, so any number of text files can
 be connected in a dataset chain.  Input data is assumed to be in a
@@ -39,8 +38,8 @@ supports advanced quote support.  It also deals with ``broken'' input
 data in a predicted and user controlled way.
 
 
-\subsection{Options}
 
+\subsection{Options}
 \starttable
   \RP \texttt{filename} & \emph{mandatory} & Name of file to import.  The
   filename is mandatory and the file may either be a plain text file
@@ -109,14 +108,11 @@ example.  Skipped lines will be stored in the \texttt{skipped} dataset.\\
 \stoptable
 
 
-
 \subsection{Datasets}
-
 \starttable
   \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a
   chain.\\
 \stoptable
-
 
 
 \subsection{Bad Lines}
@@ -153,14 +149,12 @@ this line is number 1.  Any line number can thus only appear in one of
 the main, \texttt{bad}, or \texttt{skipped} datasets.
 
 
-
 \subsection{Limitations}
 Each data value is limited to 16MB maximim.  However, this is just a
 constant in the code that is by default set to a value that allows the
 Accelerator to run on low memory platforms.  If you need to store,
 say, \texttt{bytes} values larger than 16MB, please update this
 constant to a larger value.
-
 
 
 \subsection{Example Invocation}
@@ -177,14 +171,6 @@ urd.build(csvimport',
 this will import the file \texttt{inputfile.txt} assuming that there
 are labels on the first line and the column separator is a null
 character (\texttt{0x00}, \mintinline{python}|'\0'|).
-
-
-%\subsection{Additional Information}
-%The \texttt{csvimport} method will create a file \texttt{report.txt}
-%in the job directory.  This report file contains information about
-%number of rows read and the slice distribution.  In addition, there is
-%a \texttt{default/dataset.txt} info file about columns as well.
-
 
 
 
@@ -258,17 +244,23 @@ directories. The default is to include directories.
 The \texttt{dataset\_type} method will read a source dataset and
 create a new dataset that is typed.  This is primarily used for typing
 datasets created by \texttt{csvimport}, but the method can type any
-column of type \texttt{bytes}, \texttt{ascii}, or \texttt{unicode}.
+column of type \texttt{bytes}, \texttt{ascii}, or \texttt{unicode} to
+any other type.
+
+The method will also hash partition the output dataset if
+the \texttt{hashlabel} input paramter is set.  For additional
+information about hash partitioning, see the \texttt{dateset\_rehash}
+method in section~\ref{sec:dataset_rehash}.
 
 Default behaviour is to append new columns with typed data.  These
 columns will have the same name as the untyped version of the data,
 making the untyped data ``inaccessible'', even if it is still in the
-dataset.  Using the \texttt{rename} options, typed columns could be
+dataset.  Using the \texttt{rename} option, typed columns can be
 assigned a name that differs from the original columns, so that both
 typed and untyped data are available simultaneously.  This brings
-transparency to the typing process.  (But even if the untyped data is
-``inaccessible'' in the typed dataset, it is still available from the
-input dataset.)
+transparency to the typing process.  (However, even if the untyped
+data is ``inaccessible'' in the typed dataset, it is still available
+from the input dataset.)
 
 In order to type the data, the input data is subject to parsing.  Some
 datasets may contain data that is incorrect in the sense that it
@@ -279,53 +271,58 @@ shrink, \texttt{dataset\_type} will in this situation create a new
 dataset containing only the rows containing typeable data.
 
 
-
-
-
-
-
-
 \subsection{Datasets}
 \starttable
-  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\[1ex]
+  \RP \texttt{source} & \textsl{mandatory} & Dataset to type.\\
   \RP \texttt{previous} & \mintinline{python}{None} & Previous dataset if creating a chain.\\
 \stoptable
 
 \subsection{Options}
 \starttable
-  \RP \texttt{column2type} & \mintinline{python}/{}/ & A dictionary from column
-  label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\[1ex]
+  \RP \texttt{column2type} & \texttt{\{\}} & A dictionary from column
+  label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\
 
+  \RP \texttt{hashlabel} & \pyNone & Hash partition dataset based
+  on this column.  Leave as \pyNone to inherit hashlabel, set
+  to \texttt{''} to not have a hashlabel.\\
 
-  \RP \texttt{defaults} & \mintinline{python}/{}/& A \texttt{dict} from
+  \RP \texttt{defaults} & \texttt{\{\}}& A \texttt{dict} from
   column name to default value, for example
   \mintinline{python}/{'COLNAME': value}/.  Method will fail if data
-  is unconvertible unless \mintinline{python}/filter_bad = True/.\\[1ex]
+  is unconvertible unless \mintinline{python}/filter_bad = True/.\\
 
-  \RP \texttt{rename} & & A dictionary from old name to new name, for
-  example \mintinline{python}/{'old': 'new'}/ The old name and data
-  will be preserved, unless a new dataset is created ,
-  and the column with the new name will contain the typed
-  data. \\[1ex]
+  \RP \texttt{rename} & \texttt{\{\}} & A dictionary from old name to
+  new name, for example \mintinline{python}/{'old': 'new'}/ The old
+  name and data will be preserved, unless a new dataset is created ,
+  and the column with the new name will contain the typed data. \\
 
-  \RP \texttt{caption} & \textsl{empty string} & A caption.\\[4ex]
+  \RP \texttt{caption} &  & Optional caption.  A
+  reasonable caption is created automatically if left blank\\
 
-  \RP \texttt{discard\_untyped} & \mintinline{python}{None}& Force creation of new dataset.\\[1ex]
+  \RP \texttt{discard\_untyped} & \mintinline{python}{None}& Force
+  creation of new dataset.  Untyped columns will be inaccessible.\\
 
-  \RP \texttt{filter\_bad} & \pyFalse &  remove rows containing untypeable data.  Will create new dataset.\\[1ex]
+  \RP \texttt{filter\_bad} & \pyFalse & remove rows containing
+  untypeable data.  Will create new dataset.\\
 
-  \RP \texttt{numeric\_comma} & \mintinline{python}{False}& If
-  \mintinline{python}{True}, write decimal number as ``\texttt{3,14}'' instead of
-  default ``\texttt{3.14}''.\\[1ex]
+  \RP \texttt{numeric\_comma} & \mintinline{python}{False}&
+  If \mintinline{python}{True}, write decimal number as
+  ``\texttt{3,14}'' instead of default ``\texttt{3.14}''.\\
+
+  \RP \texttt{length} & \texttt{-1} & Go back at most this many
+  datasets. The default is \texttt{-1}, which goes
+  until \texttt{previous.source} if it exists, or first dataset in
+  chain otherwise.\\
+
+  \RP \texttt{as\_chain} & \pyFalse & If hash partitioning, avoid
+  re-writing at the end by doing one dataset per slice.\\
+
+  \RP \texttt{compression} & \texttt{6} & \texttt{gzip} compression level.\\
 \stoptable
   
 
-
-
-
 \subsection{Example Invocation}
 An example invocation is the following
-
 \begin{python}
 urd.build('dataset_type',
     datasets=dict(
@@ -344,7 +341,6 @@ urd.build('dataset_type',
 \end{python}
 
 
-
 \subsection{Typing}
 This section describes all typing possibilities in detail.  Default
 behaviour when typing numbers (i.e.\ \texttt{float}s, \texttt{int}s,
@@ -352,11 +348,10 @@ and \texttt{number}s) is that any number of whitespaces before and
 after the actual number are silently discarded.
 
 
-
 \subsubsection{Numbers}
 The \texttt{number} type is integer or floating point.
 \starttablenotitle
-\RPnotitle   \texttt{number}    && \texttt{int} or \texttt{float} \\
+\RPnotitle  \texttt{number}     && \texttt{int} or \texttt{float} \\
 \RPnotitle  \texttt{number:int} && \texttt{int}, will convert \texttt{float}s to \texttt{int}s.\\
 \stoptablenotitle
 \noindent Integers are enforced using \texttt{number:int}, and the type accepts
@@ -383,7 +378,6 @@ below for all alternatives
 \stoptablenotitle
 
 
-
 \subsubsection{Integers}
 Integers are stored as either 32 or 64 bits.  Parsing takes base into
 account, so in addition to decimal numbers, it is also straightforward
@@ -401,8 +395,6 @@ causes parsing to ignore trailing garbage characters.
 \stoptablenotitle
 
 
-
-
 \subsubsection{Integers Stored as Floats}
 There are also a parsing options for integers that are represented in
 a floating point format in the source data.  This is useful if integer
@@ -415,7 +407,6 @@ value.
 \RPnotitle   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
 \RPnotitle   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
 \stoptablenotitle
-
 
 
 \subsubsection{Convert to Boolean}
@@ -433,7 +424,6 @@ strings and floats.
 
 \RPnotitle  \texttt{floatbooli} && same + \emph{ignore}\\
 \stoptablenotitle
-
 
 
 \subsubsection{Time and Date}
@@ -495,14 +485,14 @@ documentation
   \texttt{https://docs.python.org/2/library/codecs.html\#standard-encodings}
 \end{center}
 for more information.  The \texttt{errors} part is optional, and
-can be one of\\[1ex]
+can be one of\\
 
 \begin{tabular}{p{2cm}p{10cm}}
-  \texttt{strict} &The default, an error marks this row as bad\\[1ex]
-  \texttt{ignore} & All unparsable bytes are discarded.\\[1ex]
+  \texttt{strict} &The default, an error marks this row as bad\\
+  \texttt{ignore} & All unparsable bytes are discarded.\\
   \texttt{replace} & All unparsable bytes are replaced by the unicode
-  replacement character ("\texttt{\textbackslash ufffd}").\\[1ex]
-\end{tabular}\\[1ex]
+  replacement character ("\texttt{\textbackslash ufffd}").\\
+\end{tabular}\\
 
 \noindent Using \texttt{strict} will cause errors if unparsable.  For
 example, typing the string "\texttt{ab\textbackslash xffc}" will give
@@ -510,24 +500,22 @@ an error (\texttt{strict}), "\texttt{abc}" (ignore), or
 "\texttt{ab\textbackslash ufffdc}" (replace).  \texttt{strip} will
 happen before \texttt{ignore}.
 
-
-
 ASCII is similar, there are two types
 \starttablenotitle
 \RPnotitle \texttt{ascii:*}      && list of ASCII characters\\
 \RPnotitle \texttt{asciistrip:*} && list of ASCII characters, strip characters 8-13,32 from start and end\\
 \stoptablenotitle
 
-\noindent where the argument is one of\\[1ex]
+\noindent where the argument is one of\\
 
 \begin{tabular}{p{2cm}p{10cm}}
-  \texttt{strict} & The default, an error marks this row as bad\\[1ex]
-  \texttt{ignore} & All unparsable bytes are discarded\\[1ex]
+  \texttt{strict} & The default, an error marks this row as bad\\
+  \texttt{ignore} & All unparsable bytes are discarded\\
   \texttt{replace} & All unparsable bytes are replaced by an octal
-  escapes "\texttt{\textbackslash ooo}"\\[1ex]
+  escapes "\texttt{\textbackslash ooo}"\\
   \texttt{encode} & Like replace except "\texttt{\textbackslash}" is also replaced by
-  "\texttt{\textbackslash 134}" (for full reversibility).\\[1ex]
-\end{tabular}\\[1ex]
+  "\texttt{\textbackslash 134}" (for full reversibility).\\
+\end{tabular}\\
 \noindent Using \texttt{strict} will cause errors if unparsable.
 \texttt{strip} will happen before \texttt{ignore}.
 
@@ -536,7 +524,6 @@ ASCII is similar, there are two types
 \par\noindent\rule{\textwidth}{0.4pt}
 
 \section{\texttt{csvexport} -- Exporting Text Files}
-
 The \texttt{dataset\_export} method is used to export datasets to
 column based text files (CSV, Comma Separated Values).  It can export
 plain files and gzip-compressed files, export a chain of datasets,
@@ -549,49 +536,47 @@ for full details.
   \RP \texttt{filename} & \textsl{mandatory} & Name of output file.
   File will by default be stored in the job's job directory.  The
   filename has to end with ``\texttt{.csv}'' for plain text files, and
-  ``\texttt{.gz}'' for gzipped output.\\[1ex]
+  ``\texttt{.gz}'' for gzipped output.\\
                                                                                                                                 %          .gz
-  \RP \texttt{separator} & ',' & Column separator.\\[1ex]
+  \RP \texttt{separator} & ',' & Column separator.\\
   
   \RP \texttt{labelsonfirstline} & \mintinline{python}{True} & If
-  \mintinline{python}/True/, write column names on first row.\\[1ex]
+  \mintinline{python}/True/, write column names on first row.\\
   
   \RP \texttt{chain\_source} & \mintinline{python}{False} & If
   \mintinline{python}/True/, read a dataset chain from
   \mintinline{python}/datasets.source/ back to
-  \mintinline{python}/jobids.previous/\\[1ex]
+  \mintinline{python}/jobids.previous/\\
 
   \RP \texttt{quote\_fields} & \textsl{empty string} & Export quoted fields.  Must be empty
-  (no quote character, default), ``\texttt{'}``, or ``\texttt{"}``.\\[1ex]
+  (no quote character, default), ``\texttt{'}``, or ``\texttt{"}``.\\
   
   \RP \texttt{labels} & \mintinline{python}/[]/ & Specify which labels to
-  export.  An empty list corresponds to all labels in dataset.\\[1ex]
+  export.  An empty list corresponds to all labels in dataset.\\
   
   \RP \texttt{sliced} & \mintinline{python}/False/ & Each slice is
   exported in a separate file when \mintinline{python}/True/.  If so,
   use \mintinline{python}/"%02d"/ or similar in filename as
-  placeholder for the slice number.\\[1ex]
+  placeholder for the slice number.\\
 \stoptable
+
 
 \subsection*{Datasets}
 \starttable
-  \RP \mintinline{python}{[source,]} & \textsl{mandatory} & A single
-  dataset or a \textsl{list} of datasets.\\[1ex]
+  \RP \mintinline{python}{[source,]} & \textsl{mandatory} & Either A
+  textsl{single} dataset or a \textsl{list} of datasets.\\
 \stoptable
 
 
 \subsection*{Jobids}
 \starttable
   \texttt{previous} & \mintinline{python}/None/ & Jobid to
-  previous \texttt{csvexport} if chained.\\[1ex]
+  previous \texttt{csvexport} if chained.\\
 \stoptable
-
-
 
 
 \subsection{Example Invocation}
 An example invocation is the following
-
 \begin{python}
 urd.build(csvexport',
     datasets=dict(
@@ -608,37 +593,29 @@ urd.build(csvexport',
 
 
 
-
-
-
-
-
-
-
-
-
 \par\noindent\rule{\textwidth}{0.4pt}
 
 \section{\texttt{dataset\_rehash} -- Hash Partition a Dataset}
 \label{sec:dataset_rehash}
 
 The \texttt{dataset\_rehash} method will create a new dataset based on
-its \texttt{source} dataset.  The new dataset will be hashed on a
-column specified in the options.
+its \texttt{source} dataset.  The new dataset will be hash partitioned
+on a column specified in the options.
+
 
 \subsection*{Options}
 \starttable
   \RP \texttt{hashlabel} & \textsl{mandatory} & column for hashing,
   required.  Note that columns typed as \texttt{list}, \texttt{set},
-  or \texttt{json} cannot be used for hashing.\\[1ex]
+  or \texttt{json} cannot be used for hashing.\\
 
   \RP \texttt{length} & \mintinline{python}/-1/ & Go back at most this
-  many datasets in a chain.  Default is -1, which goes back to
-  previous.source if it exists, or to the first dataset in the chain
-  otherwise.\\[1ex]
+  many datasets in a chain.  Default is \texttt{-1}, which goes back
+  to \texttt{previous.source} if it exists, or to the first dataset in
+  the chain otherwise.\\
 
   \RP \texttt{caption} & & Optional caption.  A
-  reasonable caption is created automatically if left blank\\[1ex]
+  reasonable caption is created automatically if left blank\\
 
   \texttt{as\_chain} & \pyFalse & True generates one dataset per slice, False
   generates one dataset.  Default \texttt{False}.\\
@@ -646,24 +623,19 @@ column specified in the options.
 
 
 \subsection*{Datasets}
-
 \starttable
-  \RP \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\[1ex]
-  \RP \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\[1ex]
+  \RP \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\
+  \RP \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\
 \stoptable
-
-
 
 
 \subsection{Example Invocation}
 An example invocation is the following
-
 \begin{python}
 urd.build('dataset_rehash',
           datasets=dict(source=jid,), 
           options=dict(hashlabel='start_date',))
 \end{python}
-
 
 
 \subsection{Hashing Details}
@@ -679,8 +651,8 @@ from accelerator.gzutil import siphash24
 target_sliceno = siphash24(cols[hashlabel]) % params.slices
 \end{python}
 
-\subsection{Notes on Chains}
 
+\subsection{Notes on Chains}
 \begin{enumerate}
   \item[1.]  The default operation is to rehash a complete chain of
     datasets from \texttt{source} back to \texttt{previous.source}.
@@ -725,12 +697,13 @@ target_sliceno = siphash24(cols[hashlabel]) % params.slices
 
 \section{\texttt{dataset\_filter\_columns} -- Removing Columns from a Dataset}
 
-The \texttt{dataset\_rehash} method removes columns from a dataset.
-It is typically run before applying methods that operate on all
-columns of a dataset and only a subset of the columns are required.  A
-typical example is \texttt{dataset\_rehash} that operates on all
-columns of a dataset.  If not all columns are needed, time and storage
-can be saved by removing columns using this method prior to applying
+The \texttt{dataset\_filter\_columns} method removes columns from a
+dataset.  It is typically run before applying methods that operate on
+all columns of a dataset and only a subset of the columns are
+required.  A typical example is \texttt{dataset\_rehash} that operates
+on all columns of a dataset.  If not all columns are needed, time and
+storage can be saved by removing columns using this method prior to
+applying
 \texttt{dataset\_rehash}.
 
 Note that this method only updates soft links, and no data is actually
@@ -740,11 +713,8 @@ redundant data is written to disk.
 \subsection*{Options}
 \starttable
   \RP \texttt{columns} & \mintinline{python}/[]/ & A list of columns to
-  keep.\\[1ex]
+  keep.\\
 \stoptable
-
-
-
 
 
 
@@ -757,27 +727,26 @@ will sort one column at a time.  The sorting algorithm is stable,
 meaning that things with equal sorting keys will keep their order.
 
 
-
 \subsection*{Options}
 
 \starttable
 \RP \texttt{sort\_columns} & \textsl{mandatory} & A column or a list of
   columns.  If a list is specified, sorting will be carried out from left
-  to right.\\[1ex]
+  to right.\\
 
   \RP \texttt{sort\_order} & \texttt{ascending} & Could be reversed by
-  specifying \texttt{descending}\\[1ex]
+  specifying \texttt{descending}\\
   
   \RP \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
   \mintinline{python}/False/, only sort within slices.  Otherwise sort
-  across slices.\\[1ex]
+  across slices.\\
 \stoptable
 
 
 \subsection*{Datasets}
 \starttable
-\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
-\RP \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\[1ex]
+\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\
+\RP \texttt{previous} & \mintinline{python}/None/ & A previous dataset to chain to.\\
 \stoptable
 
 
@@ -791,7 +760,6 @@ The special values \mintinline{python}|None| and \mintinline{python}|NaN| follow
 \end{itemize}
 
 
-
 \subsection*{Spreading of Left Over Values}
 If the number of rows in a dataset is not even divisible by the number
 of slices, some slices will have one more row than others.  Instead of
@@ -802,9 +770,6 @@ sorting stable, selection of slices is based on the first values of
 the sorting column.  It is not perfect, if the data is already sorted
 the first slices will be picked, but it is stable, which is the most
 important thing.
-
-
-
 
 
 \subsection{A Practical Limitation}
@@ -820,12 +785,9 @@ computer can sort very large datasets without trouble.
 
 
 
-
-
-
 \par\noindent\rule{\textwidth}{0.4pt}
 
-\section{dataset\_checksum, dataset\_checksum\_chain}
+\section{\texttt{dataset\_checksum}, \texttt{dataset\_checksum\_chain}}
 
 The \texttt{dataset\_checksum} method is used to create a single
 checksum from a dataset based on one or more columns.  The chained
@@ -851,17 +813,17 @@ million lines or so.
 \subsection*{Options}
 
 \starttable
-\RP \texttt{columns} & \texttt{set()} & A set of columns to base the checksum on.  Leave blank for all columns\\[1ex]
+\RP \texttt{columns} & \texttt{set()} & A set of columns to base the checksum on.  Leave blank for all columns\\
 
-\RP \texttt{sort} & \texttt{True} & Sort dataset before hashing, see text. \\[1ex]
+\RP \texttt{sort} & \texttt{True} & Sort dataset before hashing, see text. \\
 
-\RP \texttt{chain\_length} & \texttt{-1} & Number of datasets in chain to hash. \\[1ex]
+\RP \texttt{chain\_length} & \texttt{-1} & Number of datasets in chain to hash. \\
 \stoptable
 
 
 \subsection*{Datasets}
 \starttable
-\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\[1ex]
-\RP \texttt{stop} & chained version only& Stop hashing at this dataset.\\[1ex]
+\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\
+\RP \texttt{stop} & chained version only& Stop hashing at this dataset.\\
 \stoptable
 

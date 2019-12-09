@@ -33,14 +33,16 @@ projects while maintaining in full control.
 
 Using Urd, a project could be separated into functionally independent
 parts, and all dependencies between jobs inside as well as between
-these parts is logged.  It is possible to re-construct the state of
-any part the way it were at any instance in time.
+these parts is tracked by a \textsl{transaction log}.  It is possible
+to re-construct the state of any project part the way it was at any
+instance in time.
 
 More formally, Urd provides two things:
 \begin{itemize}
 \item[1.] Separation between build scripts,
         and a way to share information about built jobs between
-        different scripts (or the same script at different points in time).
+        different scripts (or the same script at different points in
+        time).
 \item[2.] A searchable transaction log database of all jobs built
 together with their dependencies.
 \end{itemize}
@@ -49,23 +51,22 @@ will be explained in the rest of this chapter.
 
 
 
-
 \section{A Simple Use case}
-
 Assume a project where, say, movie recommendation data is to be
 analysed.  Every hour, recommendations generated during the last hour
 will appear in the shape of a new log file.  The project is using two
 build scripts:
 \begin{itemize}
-\item[] The first build script is used to look for new files, and import and chain
-  them as they appear.  For each new file imported, the build script
-  will tell the Urd server the timestamp of the file as well as a list
-  of all created jobs associated with that file.
+\item[] The first build script is used to look for new files, and
+  import and chain them as they appear.  For each new file imported,
+  the build script will tell the Urd server the timestamp of the file
+  as well as a list of all created jobs associated with that file.
 
-\item[] The second build script is used for the data analysis work, and is perhaps run less regularly.
-  This script needs to know the jobid to the latest imported file, and
-  this is a straightforward thing to ask Urd.  All analysis jobs are
-  also stored in Urd together with a corresponding timestamp.
+\item[] The second build script is used for the data analysis work,
+  and is perhaps run less regularly.  This script needs to know the
+  jobid to the latest imported file, and this is a straightforward
+  thing to ask Urd.  All analysis jobs are also stored in Urd together
+  with a corresponding timestamp.
 \end{itemize}
 Here, Urd is used to forward information about executed jobs from
 first build script to the second.  In this sense, Urd
@@ -80,44 +81,7 @@ and it is there to ensure transparency and reproducibility.
 
 
 
-
-
-
-%% \section{Urd Concepts}
-
-%% Before going into any details, here is a list with description of the
-%% main Urd concepts.
-
-%% \begin{itemize}
-%% \item[]  \textsl{Build scripts}, as presented in chapter~\ref{chap:urd_basic},
-%% provide a powerful way to build and link jobs.  A larger project may
-%% use sevaral build scripts.
-
-%% \item[] \textsl{joblist}s.  A running build script will automatically
-%% record information about all built jobs in the \texttt{urd.joblist}
-%% variable.
-
-
-%% \item[] A \textsl{session} is what happens between the first and last
-%% addition of information to this variable.
-
-%% \item[] \textsl{Urd lists}...
-
-%% \end{itemize}
-%% The Urd database is partitioned into what is called \textsl{lists}.
-%% Each element in such a list is a joblist that represents a session.
-%% Lists are associated by keys in the format \texttt{<user>/<name>}, and
-%% individual elements (sessions) in the lists are associated with a
-%% timestamp.  Lists are globally readable, but writing requires
-%% authentication, so that, for example, only the production user may
-%% publish a model to go live.
-
-%% \comment{det behovs en bild har!}
-
-
-
 \section{Urd Sessions and Lists}
-
 A simple file import script will be used as example in this section:
 \begin{python}
 def main(urd):
@@ -153,9 +117,7 @@ matching sessions in various ways.
 
 
 
-
 \section{A First Urd Query}
-
 The list created in the previous section can now be used by other
 build scripts.  For example, here is a build script that does some
 processing on the previously imported file
@@ -166,9 +128,9 @@ def main(urd):
     import_session = urd.latest('import/txn')
 
     import_timestamp = import_session.timestamp
-    import_jobid     = import_session.joblist.jobid
+    import_job       = import_session.joblist['dataset_type']
 
-    urd.build('process', datasets=dict(source=import_jobid))
+    urd.build('process', datasets=dict(source=import_job))
 
     urd.finish('process/test', import_timestamp)
 \end{python}
@@ -183,8 +145,9 @@ the \textsl{timestamp} and the \textsl{joblist}.  The timestamp will
 be used for this session as well, to indicate that processing is based
 on data with that particular timestamp.  The \textsl{jobid} to
 the \texttt{csvimport} job is then extracted from the joblist and fed
-to the \texttt{process} job as an input dataset parameter.  (The
-slightly clumsy syntax for this is explained in section~\ref{sec:clumsy_dot_jobid}.)
+to the \texttt{process} job as an input dataset parameter. (For
+information about the \texttt{joblist} class, see
+section~\ref{sec:clumsy_dot_jobid}.)
 
 
 
@@ -336,7 +299,8 @@ issued from \textsl{within} a session, i.e.\ after a \texttt{begin()}
 call.  Otherwise Urd would not be able to record all session
 dependencies.
 
-More ways to find sessions is described in section~\ref{sec:more_urd_search}.
+More ways to find sessions is described in
+section~\ref{sec:more_urd_search}.
 
 
 
@@ -418,93 +382,6 @@ the Urd transaction log.
 
 
 
-
-\section{Building Jobs: \texttt{build()}}
-\label{sec:urd_build}
-
-Jobs are dispatched in Urd sessions using the \texttt{build} function.
-Here is the complete call with all possible parameters.
-\begin{python}
-jobid = urd.build(
-    method,
-    options={},    datasets={},    jobids={},
-    name='',       caption='',
-    workdir=None
-)
-\end{python}
-Explanation of \texttt{build} parameters:
-\starttabletwo
-\RPtwo \texttt{method} & Name of method to build.  Enter \texttt{test}
-    here if the method filename is \texttt{a\_test.py}.\\[2ex]
-    
-\RPtwo \texttt{options=\{\}} & a \texttt{dict} of options to the method.
-    This overrides options defined in the method itself, but adding
-    options not prototyped in the method is \textsl{not} allowed.\\[2ex]
-
-\RPtwo \texttt{jobids=\{\}} & a \texttt{dict} of jobids to the method.
-    It is possible to specify a list of jobids like this
-\begin{python}
-jobids=dict{alljobs=[jobid1, jobid2,...]}
-\end{python}
-\\[0ex]
-
-\RPtwo \texttt{datasets=\{\}} & a \texttt{dict} of datasets to the method.
-    Datasets may be lists too, just like \texttt{jobids} above.\\[2ex]
-
-\RPtwo \texttt{workdir=None} & If specified, the job will be built in
-    this workdir, assuming the workdir is specified in the
-    configuration file as either source or target.\\[2ex]
-
-\RPtwo \texttt{name} & A string associated with the job.  Use it
-    to distinguish several jobs created from the same method.\\[2ex]
-    \texttt{caption} & A caption string.  For decorative purposes
-    only, this has no practical use.
-\stoptabletwo
-
-The \texttt{build()} function will only build a job when it has to,
-otherwise it will just return a link (jobid) to a matching existing
-job.  In order to match, an existing job must have
-\begin{itemize}
-\item[-] exactly the same source code, i.e.\ the \textsl{hash} of the source code must match,
-\item[-] exactly the same options, datasets, and jobids.
-\end{itemize}
-If the source code is changed, a job rebuild can be prevented using
-the \texttt{equivalent\_hashes} variable as explained in
-section~\ref{sec:equivalent_hashes}.
-
-
-
-\section{Changing workdir:  \texttt{set\_workdir()}}
-The target workdir specified in the configuration file is the only
-workdir that is written to by default.  Any other workdir is read
-only.  This behaviour can be overridden, either
-\begin{itemize}
-\item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{sec:urd_build}, or
-\item[] using \texttt{urd.set\_workdir()}.
-\end{itemize}
-The latter,
-\begin{python}
-def main(urd):
-    urd.set_workdir(<workdir>)}
-\end{python}
-will set the workdir for all coming \texttt{build} calls in the
-current build script.  It can still be overridden using
-the \texttt{workdir=} option to \texttt{urd.build}.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \section{Truncating and Updating}
 \label{sec:trunc-update}
 Since the Urd database is designed using log files, it will always
@@ -553,7 +430,6 @@ removed.  It is always possible to recover any old result or
 processing state.
 
 
-
 \subsection{Truncation Consequences:  Ghosts}
 When a list is truncated, all items after a specified timestamp are
 made invisible.  Assuming that another list has stored a dependency of
@@ -561,9 +437,6 @@ an item that is truncated, the jobs in this list are now without
 dependencies that can be looked up.  We call them ``ghosts''.  Ghosts
 cannot be looked up in Urd, but they are still in the database, marked
 as ghosts.
-
-
-
 
 
 
@@ -593,7 +466,6 @@ There are two more functions for finding information in the Urd
 database: \texttt{list} and \texttt{since}.
 
 
-
 \subsection{Listing all urd lists:  \texttt{list()}}
 The \texttt{list()} function will return a list of all lists recorded in
 the database:
@@ -606,13 +478,12 @@ may show something like
 \end{shell}
 
 
-
 \subsection{Listing all Items After a Specific Timestamp:  \texttt{since()}}
 The \texttt{since()} function is used to extract lists of \textsl{timestamps}
 corresponding to recorded session.  In its most basic form, it is called
 with a timestamp like this
 \begin{python}
-urd.since('2016-10-05')
+urd.since('ab/test', '2016-10-05')
 \end{python}
 which returns a list with all existing timestamps more recent than the
 one provided
@@ -624,92 +495,88 @@ the input.  The input timestamp may be truncated from the right down
 to only one digits.  An input of zero is also valid.  For example,
 these are all valid
 \begin{python}
-urd.since('0')
-urd.since('2016')
-urd.since('2016-1')
-urd.since('2016-10-05')
-urd.since('2016-10-05T20')
-urd.since('2016-10-05T20:00:00')
+urd.since('ab/test', '0')
+urd.since('ab/test', '2016')
+urd.since('ab/test', '2016-1')
+urd.since('ab/test', '2016-10-05')
+urd.since('ab/test', '2016-10-05T20')
+urd.since('ab/test', '2016-10-05T20:00:00')
 \end{python}
 
 
 
+\section{Building Jobs: \texttt{build()}}
+\label{sec:urd_build}
 
+Jobs are dispatched in Urd sessions using the \texttt{build} function.
+Here is the complete call with all possible parameters.
+\begin{python}
+jobid = urd.build(
+    method,
+    options={},    datasets={},    jobids={},
+    name='',       caption='',
+    workdir=None
+)
+\end{python}
+Explanation of \texttt{build} parameters:
+\starttabletwo
+\RPtwo \texttt{method} & Name of method to build.  Enter \texttt{test}
+    here if the method filename is \texttt{a\_test.py}.\\
+    
+\RPtwo \texttt{options=\{\}} & a \texttt{dict} of options to the method.
+    This overrides options defined in the method itself, but adding
+    options not prototyped in the method is \textsl{not} allowed.\\
 
-\section{The Urd HTTP-API}
+\RPtwo \texttt{jobids=\{\}} & a \texttt{dict} of jobids to the method.
+    It is possible to specify a list of jobids like this
+\begin{python}
+jobids=dict{alljobs=[jobid1, jobid2,...]}
+\end{python}
+\\
 
-Urd can be accessed directly without using the Accelerator by calling
-its HTTP API.  These calls are easy to use and improve transparency
-since the database contents can be peeked without writing a program.
-Here is a list of all API endpoints
-\begin{verbatim}
-  /list
-  /<user>/<list>/first
-  /<user>/<list>/latest
-  /<user>/<list><timestamp>
-  /<user>/<list>/since/<timestamp>
-\end{verbatim}
-All calls return data in the JSON format.  In the following
-the standard tool \texttt{curl} is used, and it is assumed that there
-is an Urd server running on \texttt{localhost}, port \texttt{8833}.
+\RPtwo \texttt{datasets=\{\}} & a \texttt{dict} of datasets to the method.
+    Datasets may be lists too, just like \texttt{jobids} above.\\
 
+\RPtwo \texttt{workdir=None} & If specified, the job will be built in
+    this workdir, assuming the workdir is specified in the
+    configuration file as either source or target.\\
 
-\subsection{The \texttt{list} endpoint}
-To show all stored lists issue
-\begin{shell}
-% curl http://localhost:8833/list
-["ab/test"]
-\end{shell}
-All available lists are returned in a JSON list.
+\RPtwo \texttt{name} & A string associated with the job.  Use it
+    to distinguish several jobs created from the same method.\\
+    
+    \texttt{caption} & A caption string.  For decorative purposes
+    only, this has no practical use.\\
+\stoptabletwo
 
-
-
-\subsection{The \texttt{since} endpoint}
-The \texttt{since} endpoint is used to get a list of all entries more recent than a timestamp.
-Fr example, to see what is more recent than \texttt{2016-10-24} do
-\begin{shell}
-% curl http://localhost:8833/ab/test/since/2016-10-24
-["2016-10-25"]
-\end{shell}
-\begin{shell}
-% curl http://localhost:8833/ab/test/since/2016-10-26
-[]
-\end{shell}
-Results are in JSON list format.
-
-
-\subsection{The \texttt{first} and \texttt{latest} endpoints}
-Looking up the latest stored job in the \texttt{ab/test} list
-\begin{shell}
-% curl http://localhost:8833/ab/test/latest
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-And see the first stored job in the test list
-\begin{shell}
-% curl http://localhost:8833/ab/test/first
-\end{shell}
-works similarly.  The returned data is an Urd item, described in
-section~\ref{sec:urd_item}, in JSON format.
+The \texttt{build()} function will only build a job when it has to,
+otherwise it will just return a link (jobid) to a matching existing
+job.  In order to match, an existing job must have
+\begin{itemize}
+\item[-] exactly the same source code, i.e.\ the \textsl{hash} of the source code must match,
+\item[-] exactly the same options, datasets, and jobids.
+\end{itemize}
+If the source code is changed, a job rebuild can be prevented using
+the \texttt{equivalent\_hashes} variable as explained in
+section~\ref{sec:equivalent_hashes}.
 
 
 
-\subsection{The \texttt{get} endpoint}
-Actually, there is no explicit \texttt{get} endpoint.  Instead, the
-API is just called by the name of the list and a timestamp.  For
-example, to see what is inside the test list stored
-at \texttt{2016-10-25}
-\begin{shell}
-% curl http://localhost:8833/ab/test/2016-10-25
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-The timestamp may be truncated to the right, and prefixed
-by \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=}, just as
-described in section~\ref{sec:urd_get}.  Make sure to quote the
-request if these characters are used in a call from the shell.
+\section{Changing workdir:  \texttt{set\_workdir()}}
+The target workdir specified in the configuration file is the only
+workdir that is written to by default.  Any other workdir is read
+only.  This behaviour can be overridden, either
+\begin{itemize}
+\item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{sec:urd_build}, or
+\item[] using \texttt{urd.set\_workdir()}.
+\end{itemize}
+The latter,
+\begin{python}
+def main(urd):
+    urd.set_workdir(<workdir>)}
+\end{python}
+will set the workdir for all coming \texttt{build} calls in the
+current build script.  It can still be overridden using
+the \texttt{workdir=} option to \texttt{urd.build}.
 
 
 
@@ -740,6 +607,7 @@ Total time 94.8 seconds
 The methods are sorted by execution time, top to bottom.
 
 
+
 \section{Passing Flags from the Command Line}
 It is possible to add a comma separated list of flags to the run command
 like this
@@ -752,6 +620,89 @@ def main(urd):
     if 'verbose' in urd.flags:
        print('verbosity')
 \end{python}
+
+
+
+\section{The Urd HTTP-API}
+Urd can be accessed directly without using the Accelerator by calling
+its HTTP API.  These calls are easy to use and adds transparency since
+the database contents can be peeked without writing any programs.
+Here is a list of all API endpoints
+\begin{verbatim}
+  list
+  <user>/<list>/first
+  <user>/<list>/latest
+  <user>/<list><timestamp>
+  <user>/<list>/since/<timestamp>
+\end{verbatim}
+All calls return data in the JSON format.  The Accelerator comes with
+a built in ``\texttt{curl}'' command that is designed for these calls,
+and it is used like this
+\begin{shell}
+% ax curl <endpoint>
+\end{shell}
+But any standard tool such as the famous \texttt{curl} program works
+too, for example like this
+\begin{shell}
+% curl http://localhost:8123/list
+\end{shell}
+
+
+\subsection{The \texttt{list} endpoint}
+To show all stored lists issue
+\begin{shell}
+% ax curl list
+["ab/test"]
+\end{shell}
+All available lists are returned in a typed JSON list.
+
+
+\subsection{The \texttt{since} endpoint}
+The \texttt{since} endpoint is used to get a list of all entries more
+recent than a timestamp.  For example, to see information added
+after \texttt{2016-10-24}, do
+\begin{shell}
+% ax curl ab/test/since/2016-10-24
+["2016-10-25"]
+\end{shell}
+\begin{shell}
+% ax curl ab/test/since/2016-10-26
+[]
+\end{shell}
+Results are in JSON list format.
+
+
+\subsection{The \texttt{first} and \texttt{latest} endpoints}
+Looking up the latest stored job in the \texttt{ab/test} list
+\begin{shell}
+% ax curl ab/test/latest
+{"caption": "", "automata": "test", "user": "ab", "deps": {},
+  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
+\end{shell}
+And see the first stored job in the test list
+\begin{shell}
+% ax curl ab/test/first
+\end{shell}
+works similarly.  The returned data is an Urd item, described in
+section~\ref{sec:urd_item}, in JSON format.
+
+
+\subsection{The \texttt{get} endpoint}
+Actually, there is no explicit \texttt{get} endpoint.  Instead, the
+API is just called by the name of the list and a timestamp.  For
+example, to see what is inside the test list stored
+at \texttt{2016-10-25}
+\begin{shell}
+% ax curl ab/test/2016-10-25
+{"caption": "", "automata": "test", "user": "ab", "deps": {},
+  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
+  ["method2", "test-59"], ["method3", "test-60"]]}
+\end{shell}
+The timestamp may be truncated to the right, and prefixed
+by \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=}, just as
+described in section~\ref{sec:urd_get}.  \textsl{Make sure to quote
+the request if these characters are used in a call from the shell.}
 
 
 

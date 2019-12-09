@@ -387,40 +387,41 @@ the \texttt{result\_directory} is intended for writing output.  See
 the following subsections for details.
 
 
-\subsection{The SOURCE\_DIRECTORY}
+\subsection{The \texttt{source\_directory}}
 \label{sec:SOURCE_DIR}
 
-The \texttt{SOURCE\_DIRECTORY} variable is used by
-the \texttt{csvimport} method, but could be used by any method reading
+The \texttt{job.source\_directory} variable is used by the
+\texttt{csvimport} method, but could be used by any method reading
 input files, like in this example
 \begin{python}
 import os
 options = dict(filename=Optionstring)
 
-def synthesis(SOURCE_DIRECTORY):
-    fname = os.path.join(SOURCE_DIRECTORY, options.filename)
+def synthesis(job)
+    fname = os.path.join(job.source_directory, options.filename)
 \end{python}
-here, the \texttt{fname} is a concatenation of
-the \texttt{SOURCE\_DIRECTORY} specified in the Accelerator's
+here, the \texttt{fname} is a concatenation of the
+\texttt{job.source\_directory} specified in the Accelerator's
 configuration file (see section ~\ref{sec:symlinking}) and the input
 option \texttt{filename}.
 
 
-\subsection{The RESULT\_DIRECTORY}
+\subsection{The \texttt{result\_directory}}
 \label{sec:RESULT_DIR}
 
 It is possible to define a shared directory
 named \texttt{result\_directory} in the Accelerator's configuration
 file.  In a method, this variable may be accessed like in this example
 \begin{python}
-def synthesis(RESULT_DIRECTORY):
-    print(RESULT_DIRECTORY)
+def synthesis(job):
+    print(job.result_directory)
 \end{python}
 Methods could use this for storing for example plots and reports for a
 project in one easy accessible common location.  Note however, that
 tracking these files is not possible, there is no information linking
 back from the result directory to a specific job.  This may be
-overcome using for example soft file links, however, see section~\ref{sec:symlinking}.
+overcome using for example soft file links, however, see
+section~\ref{sec:symlinking}.
 
 
 

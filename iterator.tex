@@ -18,6 +18,8 @@
 
 \label{chap:iterators}
 
+@@@ sharpen
+
 The basic idea of the Accelerator's datasets is to make it really easy
 to create parallel programs that can read or write data at a very high
 speed.  Accessing dataset data is done using \textsl{iterators}.
@@ -39,17 +41,24 @@ or \synthesis.  There are three iterators available:
 \begin{itemize}
 \item [] \texttt{iterate()}, for single dataset iteration,
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains, and
-\item [] \texttt{iterate\_list()} for iterating over a list of datasets.
+\item [] \texttt{iterate\_list()} for iterating over a specified list of datasets.
 \end{itemize}
-In many common use cases it is sufficient to provide only two arguments
-to the iterator: \texttt{sliceno} (mandatory) and \texttt{columns}.
-These, and all possible arguments are presented in detail shortly. A
-typical call may look like this
+And each of them will be discussed later in this chapter.
+
+In many common use cases it is sufficient to provide only two
+arguments to the iterator: \texttt{sliceno}, which is mandatory,
+and \texttt{columns}.  These, and all other arguments are presented in
+detail shortly. A typical use of an iterator looks like this
 \begin{python}
-for m, u in dataset.source.iterate(sliceno, ('movie', 'user',)):
-    # do_something_with m and u here...
+datasets = ('source',)
+
+def analysis(sliceno):
+    for m, u in dataset.source.iterate(sliceno, ('movie', 'user',)):
+        # do something with m and u here...
 \end{python}
-or, if the purpose is to compose a \texttt{dict},
+Python's constructors can be used to create objects from iterators
+like in the following example, where the purpose is to compose
+a \texttt{dict}.
 \begin{python}
 n2d = dict(dataset.source.iterate(sliceno, ('name', 'date',)))
 \end{python}
@@ -61,59 +70,64 @@ All three iterators share these arguments
   all slices sequentially, or \texttt{roundrobin} to take one value
   per slice in a round robin fashion. \\[1ex]
 
-  \RP \texttt{columns} & \pyNone & Tuple of column labels or a single name if
-  iterating over one column.  \pyNone selects all columns in alphabetic order.\\[1ex]
+  \RP \texttt{columns} & \pyNone & Tuple of column labels or a single
+  name if iterating over one column.  \pyNone selects all columns in
+  alphabetic order.\\[1ex]
 
-  \RP \texttt{hashlabel} & \pyNone & Name of hash column.  If the code relies
-  on a dataset being hashed on a particular column, set this to make
-  the iterator verify that this is actually the case.  Execution will terminate
-  if the hashlabel is incorrect.\\[1ex]
+  \RP \texttt{hashlabel} & \pyNone & Name of hash column.  If the code
+  relies on a dataset being hashed on a particular column, set this to
+  make the iterator verify that this is actually the case.  Execution
+  will terminate if the hashlabel is incorrect.\\[1ex]
 
   \RP \texttt{rehash} & \pyFalse & Setting this
   to \mintinline{python}/True/ will rehash the dataset on-the-fly
   based on the \texttt{hashlabel} column.  (Rehashing on-the-fly is
   slower, so ideally datasets should be rehashed using
-  the \texttt{dataset\_rehash} method~\ref{sec:dataset_rehash}.)\\[1ex]
+  the \texttt{dataset\_rehash}
+  method~\ref{sec:dataset_rehash}.)\\[1ex]
   
-  \RP \texttt{translators} & \pyNone & Translators transform data values.
-  Explained in section~\ref{sec:translators}\\[1ex]
+  \RP \texttt{translators} & \pyNone & Translators transform data
+  values.  Explained in section~\ref{sec:translators}\\[1ex]
   
-  \RP \texttt{filters} & \pyNone & Filters decide which rows to include.
-  Explained in section~\ref{sec:filters}\\[1ex]
+  \RP \texttt{filters} & \pyNone & Filters decide which rows to
+  include.  Explained in section~\ref{sec:filters}\\[1ex]
 
-  \RP \texttt{status\_reporting} & \pyTrue & Give status when pressing
-  \texttt{C-t}.  Unless manually \texttt{zip}ing iterators, this
-  should be set to default \mintinline{python}/True/.  See
-  \texttt{dataset.py} source code for full information.\\
+  \RP \texttt{status\_reporting} & \pyTrue & Give status when
+  pressing \texttt{C-t}.  Unless manually \texttt{zip}ing iterators,
+  this should be set to default \mintinline{python}/True/.
+  See \texttt{dataset.py} source code for full information.\\
 \stoptable
 
 \noindent In addition, \texttt{iterate\_chain} takes these arguments too
 \starttable
-  \RP \texttt{length}&$-1$& Number of datasets in a chain to iterate over.
-  Default is $-1$, which corresponds to all datasets in a chain.\\[1ex]
+  \RP \texttt{length}&$-1$& Number of datasets in a chain to iterate
+  over.  Default is $-1$, which corresponds to all datasets in a
+  chain.\\[1ex]
   
-  \RP \texttt{range}& \pyNone& Filter rows based on a column's value being
-  within a range, see section~\ref{sec:iterate_sloppy_range}\\[1ex]
+  \RP \texttt{range}& \pyNone& Filter rows based on a column's value
+  being within a range, see
+  section~\ref{sec:iterate_sloppy_range}\\[1ex]
 
-  \RP \texttt{sloppy\_range}& \pyFalse & Used with \texttt{range}, but will
-  iterate over full datasets for those datasets that have values
+  \RP \texttt{sloppy\_range}& \pyFalse & Used with \texttt{range}, but
+  will iterate over full datasets for those datasets that have values
   within range, see section~\ref{sec:iterate_sloppy_range}.\\[1ex]
   
-  \RP \texttt{reverse}& \pyFalse & Iterate chain
-  backwards.  Default is to iterate forward, i.e.\ from oldest to
-  newest dataset.\\[1ex]
+  \RP \texttt{reverse}& \pyFalse & Iterate chain backwards.  Default
+  is to iterate forward, i.e.\ from oldest to newest dataset.\\[1ex]
 
-  \RP \texttt{stop\_ds}& \pyNone & Iterate back to this dataset.  Actually, setting
-  this will iterate from \texttt{stop\_ds} to the newest dataset in the chain.\\[1ex]
+  \RP \texttt{stop\_ds}& \pyNone & Iterate back to this dataset.
+  Actually, setting this will iterate from the dataset
+  following \texttt{stop\_ds} to the newest dataset in the
+  chain.\\[1ex]
 
-  \RP \texttt{pre\_callback}& \pyNone & A function that will be called before
-  iterating each dataset.\\[1ex]
+  \RP \texttt{pre\_callback}& \pyNone & A function that will be called
+  before iterating each dataset.\\[1ex]
 
-  \RP \texttt{post\_callback}& \pyNone & A function that will be called after
-  iterating each dataset.\\
+  \RP \texttt{post\_callback}& \pyNone & A function that will be
+  called after iterating each dataset.\\
 \stoptable
 
-\noindent while \texttt{iterate\_list} takes a \texttt{datasets} parameter
+\noindent and \texttt{iterate\_list()} takes a \texttt{datasets} parameter
 \starttable
   \RP \texttt{datasets} &\pyNone& List of datasets to iterate over.\\
 \stoptable
@@ -125,64 +139,66 @@ Basic use include iterating in parallel or serial over one dataset or
 a chain of datasets.
 
 
-
-\subsection*{Parallel Iterator Invocation}
+\subsection{Parallel Iterator Invocation}
 For parallel iteration in \analysis, the iterator needs to know the
-number of the current slice.  The following is an example of iteration
-that happens independently in each slice.
-
+number of the current slice.  This information is fed to the \analysis
+function in the \texttt{sliceno} variable. The following is an example
+of iteration that happens independently in each slice.
 \begin{python}
 datasets = ('source',)
 
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in datasets.source.iterate(sliceno,
-                                              columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(
+                           sliceno, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 The program creates dictionaries mapping \texttt{user}s to sets of
 \texttt{item}s for the \texttt{source} dataset.  (Assuming that
-the dataset is hashed (see ~\ref{sec:slicing_and_hashing}), this operation is entirely parallel
-and there is no need to merge all the results from the analysis
-processes later.
+the dataset is hash partitioned (see ~\ref{sec:slicing_and_hashing}),
+this operation is entirely parallel and there is no need to merge all
+the results from the analysis processes later.
 
 
 
-\subsection*{Sequential Iterator Invocation}
-By specifying the \texttt{sliceno} parameter to
-\mintinline{python}/None/, the iterator will run through all slices of
+\subsection{Sequential Iterator Invocation}
+Setting the \texttt{sliceno} parameter to
+\pyNone will cause the iterator to run through all slices of
 the dataset, one at a time, like in this example
 \begin{python}
 def synthesis():
     h = defaultdict(set)
-    for user, item in datasets.source.iterate(None,
-                                              columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(
+                           None, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
-Slices will be iterated one at at time in increasing order.
+Dataset slices will be iterated in increasing order.
 
 
-
-\subsection*{Iterate Over Chains}
-To iterate over several datasets in a chain, use
-\texttt{iterate\_chain}.  The following example will iterate over the
-last three datasets in the chain, oldest dataset first.
+\subsection{Iterate Over Chains}
+The \texttt{iterate\_chain()} iterator is used to iterate over one or
+more datasets in a chain, starting at the ``oldest'' dataset.  The
+following example will iterate over the last three datasets in the
+chain, oldest dataset first.
 \begin{python}
 datasets = ('source',)
 
 def analysis(sliceno):
     h = defaultdict(set)
     for user, item in datasets.source.iterate_chain(
-                      sliceno, columns=('user', 'item',), length=3):
+                           sliceno, columns=('user', 'item',), length=3):
         h[user].add(item)
 \end{python}
-Using \texttt{iterate\_chain} without explicitly specifying
+Using \texttt{iterate\_chain()} without explicitly specifying
 \texttt{length} will default to a \texttt{length} of $-1$, which
 corresponds to all datasets in the chain.
 
 Here is an interesting example of a method that will iterate over all
 chained \texttt{source} datasets that are new since the last
 invocation of the method.
+
+@@@@@  Hmmm, fråga skickad till Carl
+
 \begin{python}
 datasets = ('source',)
 jobids = ('previous',)
@@ -190,9 +206,8 @@ jobids = ('previous',)
 def analysis(sliceno):
     h = defaultdict(set)
     for user, item in datasets.source.iterate_chain(
-            sliceno,
-            columns=('user', 'item',),
-            stop_ds={jobids.previous: 'source',}):
+                           sliceno, columns=('user', 'item',),
+                           stop_ds=jobids.previous.source,):
         h[user].add(item)
 \end{python}
 
@@ -207,7 +222,7 @@ in a round robin fashion, so iterating over a csvimported dataset does
 not return the lines in the same order as they were written.
 
 By setting the first parameter of any of the iterator functions to
-\texttt{roundrobin}, the iterator will internally fetch all slice iterators
+``\texttt{roundrobin}'', the iterator will internally fetch all slice iterators
 and return one value at a time from each iterator in a round robin
 fashion.  The resulting output is then in the same order as in the
 file imported by \texttt{csvimport}.  There is a preformance penalty
@@ -215,7 +230,7 @@ associated with this functionality.
 
 
 
-\subsection*{Special Cases, Iterating Over All or a Singe Column}
+\subsection{Special Cases, Iterating Over All or a Singe Column}
 It is possible to iterate over all columns in a dataset by specifying
 an empty list of column names, like this
 \begin{python}
@@ -226,9 +241,9 @@ The iterator will output a \texttt{tuple} populated with all column
 values for each row.  The columns will be in sorted column name order.
 
 If iterating over a single column, it makes little sense to keep the
-output values in a one-dimensional tuple.  Then, it is probably more
-efficient to output scalars instead.  Here are the two different ways
-to iterate over a single column
+output values in a one-dimensional tuple.  A scalar is cleaner and
+more efficient.  Here are the two different ways to iterate over a
+single column
 \begin{python}
 # alternative 1, use lists/tuples
 for user in datasets.source.iterate(sliceno, ('USER',)):
@@ -239,14 +254,14 @@ for user in datasets.source.iterate(sliceno, 'USER',):
     userset.add(user)     # user is a scalar!
 \end{python}
 Both styles are supported by filters and translators introduced later
-i this chapter.
+in this chapter.
 
 
 
 \begin{figure}[t!]
   \begin{center}
     \input{figures/dsprocchain.pdftex_t}
-    \caption{Example of import and processing jobs.  Blue text and arrows relate to the \textsl{current job}, \texttt{proc-1}.}
+    \caption{@@@  Example of import and processing jobs.  Blue text and arrows relate to the \textsl{current job}, \texttt{proc-1}.}
     \label{fig:dsprocchain}
   \end{center}
 \end{figure}
@@ -298,6 +313,7 @@ def analysis(sliceno):
     for ... in datasets.source.iterate_chain(
             ...
             stop_ds={jobids.previous: 'source',}):
+@@@@@@@@@@@@@@@@@@@@@@@@@
     ...
 \end{python}
 
@@ -314,40 +330,41 @@ def analysis(sliceno):
 \section{Halting Iteration}
 
 Iteration over a dataset chain will continue until all data is
-exhausted or some stop criteria is fulfilled.  There are several
-mechanisms for stopping, and they may be combined in a single
-expression.  If so, iteration will be over the shortest range of the
+exhausted or a stop criteria is fulfilled.  There are several
+mechanisms for stopping, and they may be combined in a single iterator
+call.  If so, iteration will be over the shortest range of the
 conditions.
 
-\subsection*{Halting Using \texttt{length}}
+\subsection{Halting Using \texttt{length}}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno, ('user', 'item',),
-    length = options.length):
+                       sliceno, ('user', 'item',),
+                       length = options.length):
 \end{python}
 This will iterate for the last \texttt{options.length} number of
 datasets.  Note that a length of $-1$ is default and will iterate
 without bounds.
 
 
-\subsection*{Halting Using \texttt{stop\_ds}}
+\subsection{Halting Using \texttt{stop\_ds}}
 Similar to using \texttt{length}, but will stop when reaching a
 certain dataset.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno, ('user', 'item',),
-    stop_ds = 'foo-3'):
+                       sliceno, ('user', 'item',),
+                       stop_ds = 'foo-3'):
 \end{python}
 Stopping at a constant dataset has limited value.  Next section shows
 how to stop iterating based on previous jobs.
 
 
 
-\subsection*{Halting Using Another Job's Input Parameters}
+\subsection{Halting Using Another Job's Input Parameters}
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno, ('user', 'item',),
-    stop_ds = {jobids.previous: 'source',}):
+                       sliceno, ('user', 'item',),
+                       stop_ds = {jobids.previous: 'source',}):
+@@@@@@@@@@@@@@@@@@@@@@@@@@@
 \end{python}
 This will iterate until reaching the \texttt{source} dataset of
 the \texttt{jobids.previous} job.
@@ -361,8 +378,8 @@ within a certain range.  This works best on datasets that are sorted
 on the specified column.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno, ('user', 'item',),
-    range={timestamp, ('2016-01-01', '2016-01-31'),}):
+           sliceno, ('user', 'item',),
+           range={timestamp, datetime(2016, 1, 1), datetime(2016, 3, 31),}):
 \end{python}
 This example will limit the iterator to exactly the range of lines
 that fulfill the range condition.  It is relatively costly to filter
@@ -371,14 +388,15 @@ each line, and there is a speed advantage by instead specifying
 contain part of the range:
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno, ('user', 'item',),
-    sloppy_range={timestamp, ('2016-01-01', '2016-01-31'),}):
+           sliceno, ('user', 'item',),
+           sloppy_range={timestamp,
+                         datetime(2016, 1, 1),
+                         datetime(2016, 3, 31),}):
 \end{python}
 Here, all datasets that \textsl{contain} any line containing values
 within the range will be included in the iteration.  Still, if the
-datasets are sorted, and there are many datasets, there will be a
-limited side-effect caused by reading too many lines, and in many
-cases this could be remedied with little effort.
+datasets are sorted, and there are many datasets, the side-effect
+caused by reading too many lines will be limited.
 
 
 
@@ -390,33 +408,33 @@ that row iteration is still in the forward direction within each
 dataset!
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-    sliceno, ('user', 'item',),
-    reverse=True):
+                       sliceno, ('user', 'item',),
+                       reverse=True):
 \end{python}
 
 
 
-\section{Hashed Datasets and on-the-fly Rehash}
-Hashing a dataset on a particular columns, see
+\section{Hash Partitioned Datasets and on-the-fly Rehash}
+Hash partitioning a dataset on a particular columns, see
 section~\ref{sec:slicing_and_hashing}, may really simplify the
-parallel programming of methods using the dataset.  however, such
+parallel programming of methods using the dataset.  However, the
 parallel code will not work properly if it turns out that the input
-data is not hashed in the expected way.  For that reason, it is a
-good idea to \emph{assert} the hashlabel by entering it into the
-iterator function, like this
+data is in fact not hash partitioned in the expected way.  For that
+reason, it is a good idea to \emph{assert} the hashlabel by entering
+it into the iterator function, like this
 \begin{python}
 s = {user: item for user, item datasets.source.iterate_chain(
      sliceno, ('user', 'item',), hashlabel='user')}
 \end{python}
-and execution will terminate if the hashlabel is not correct.
+so that execution will terminate if the \texttt{hashlabel} is not correct.
 
 It is possible to rehash the dataset on-the-fly.  This is done by
 setting the \texttt{rehash} argument to the iterator to
 \mintinline{python}/True/, like this
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-        sliceno, ('user', 'item',),
-        rehash='item'):
+                       sliceno, ('user', 'item',),
+                       rehash='item'):
     # only lines with items such that
     # has(item) % slices == sliceno here
 \end{python}
@@ -439,7 +457,7 @@ dataset when iterating over a dataset chain.
 
 There are two independent callbacks for these two cases,
 called \texttt{pre\_callback} and \texttt{post\_callback}.
-If \mintinline{python}/sliceno=None/, i.e.\ iteration runs over all
+If \texttt{sliceno} is set to \pyNone, i.e.\ iteration runs over all
 slices of all datasets in one process, it is even possible to have
 callback between slice changes.
 
@@ -447,34 +465,35 @@ The example below will print the dataset identifier for each dataset
 prior to iterating over it.
 \begin{python}
 # pre_callback once per dataset
-def prefun(dataset_id):
-    print(dataset_id)
+def prefun(dataset):
+    print(dataset.name)
 
-for user, item in datasets.source.iterate(sliceno, ('user', 'item',),
-                                          pre_callback=prefun):
+for user, item in datasets.source.iterate(
+                       sliceno, ('user', 'item',),
+                       pre_callback=prefun):
     ...
 \end{python}
-The argument to the callback is the dataset id to the dataset to be
-iterated next.
+The argument to the callback is the dataset instance corresponding to
+the dataset to be iterated next.
 
 Next is an example of an iterator running over all slices.  The
 callback function is executed before each new slice is iterated.  The
-callback takes two arguments in this scenario, first, the dataset id
-as per the example above, and second the number of the slice.
+callback takes two arguments in this scenario, first, the dataset
+instance as per the example above, and second the number of the slice.
 \begin{python}
 # callback once per slice
-def prefun(dataset_id, sliceno):
-    print(dataset_id, sliceno)
+def prefun(dataset, sliceno):
+    print(dataset.name, sliceno)
 
-for user, item in datasets.source.iterate(None, ('user', 'item',),
-                                          pre_callback=prefun):
+for user, item in datasets.source.iterate(
+                       None, ('user', 'item',),
+                       pre_callback=prefun):
     ...
 \end{python}
 The \texttt{post\_callback} function is defined similarly.
 
 
-
-\subsection*{Skipping Datasets and Slices from Callbacks}
+\subsection{Skipping Datasets and Slices from Callbacks}
 It is possible to skip dataset iterations by raising exceptions, as
 follows.
 \begin{itemize}
@@ -497,13 +516,8 @@ In this case, a \texttt{post\_callback} will never be run.
 
 
 
-
-
-
-
 \section{Translators}
 \label{sec:translators}
-
 Translators transform iterator output data values on-the-fly.  A
 translator is either a callable or a \texttt{dict}.  Translators are
 similar to \textsl{filters} (explained later), and always
@@ -516,6 +530,8 @@ behaviour depending on context.
 
 \subsection*{Callable Translator, translating \texttt{tuple}s}
 
+@@@@ kolla att det funkar
+
 A translator function is a function from an input \texttt{tuple} (of
 column values) to an output \texttt{tuple} of the same length.
 Individual items may be passed through or modified, and it is possible
@@ -525,20 +541,24 @@ iterator output.  Here is an example
 def merger(user, item):
     return ("%s:%s" % (user, item), None)
 
-for merge, _ in datasets.source.iterate_chain(None, ('user', 'item',),
-                                              translator=merger):
+for merge, _ in datasets.source.iterate_chain(
+                     None, ('user', 'item',),
+                     translator=merger):
     ...
 \end{python}
 The purpose of this translator is to convert each
-\mintinline{python}/(user, item)/ tuple to a string \texttt{user:item}.  This is
-the first output of the translator and iterator and is stored in the
-\texttt{merge} variable.  The second output variable is not used in
-this application, but a variable still has to be assigned, so it is
-set arbitrarily to \pyNone.
+\mintinline{python}/(user, item)/ tuple to a string ``\texttt{user:item}''.
+This is the first output of the translator and iterator and is stored
+in the \texttt{merge} variable.  The second output variable is not
+used in this application, but a variable still has to be assigned, so
+it is set arbitrarily to \pyNone.
 
 
+\subsection{Translator \texttt{dict}, translating columns independently}
 
-\subsection*{Translator \texttt{dict}, translating columns independently}
+@@@@ kolla att det funkar
+
+@@@@ ungefar har, kolla vilka sections som har star, kolla att exempel funkar.
 
 One or more columns may be translated independently using a translator
 dictionary.  Such a dictionary is specified
@@ -549,8 +569,9 @@ translation \texttt{dict}.  Here, integers are translated into more
 comprehensible strings.
 \begin{python}
 mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'STARFISH',}
-for animal in datasets.source.iterate(None, 'NUM_LEGS',
-                                      translator={'NUM_LEGS': mapper,}):
+for animal in datasets.source.iterate(
+                   None, 'NUM_LEGS',
+                   translator={'NUM_LEGS': mapper,}):
     ...
 \end{python}
 This translator will substitute the integers 2, 4, and 5 into strings.
@@ -561,8 +582,9 @@ reading right-to-left.
 \begin{python}
 def reverse(x):
     return x[::-1]
-for resu, item in dataset.source.iterate(None, ('USER', 'ITEM',),
-                                         translator={'USER': reverse,}):
+for resu, item in dataset.source.iterate(
+                       None, ('USER', 'ITEM',),
+                       translator={'USER': reverse,}):
     ...
 \end{python}
 The \texttt{item} values will be passed through, but the \texttt{user}
@@ -572,16 +594,12 @@ strings will be reversed.
 
 \section{Filters}
 \label{sec:filters}
-
 Filter are used to decide which output data rows that are allowed to
 reach the iterator output.  Filters are run \emph{after} translators.
 As for translators, filter are either callables or \texttt{dict}s.
 
 
-
-
-\subsection*{Callable Filter, filtering \texttt{tuple}s}
-
+\subsection{Callable Filter, filtering \texttt{tuple}s}
 Callable filters receive the iterator \texttt{tuple} as input.  The
 output of a filter must be \pyTrue for the \texttt{tuple} to be output
 from the iterator, otherwise the iterator skips and continues to the
@@ -591,16 +609,20 @@ filter, using an \texttt{if}-statement, and the second example uses
 iterator \texttt{filters}.
 \begin{python}
 # Ex. 1. Using if-statement
-for animal, nlegs, wtrunk in datasets.source.iterate(None,
-        ('animal', 'num_legs', 'has_trunk'), filters=filter):
-        if nlegs>=2 and wtrunk:
+for animal, nlegs, wtrunk in datasets.source.iterate(
+                    None,
+                    ('animal', 'num_legs', 'has_trunk'),
+                    filters=filter):
+    if nlegs>=2 and wtrunk:
     ...
 
 # Ex. 2.  Using iterator filters
 filter = lambda line: line[1]>=2 and line[2]
 
-for animal, nlegs, wtrunk in datasets.source.iterate(None,
-        ('animal', 'num_legs', 'has_trunk'), filters=filter):
+for animal, nlegs, wtrunk in datasets.source.iterate(
+                    None,
+                    ('animal', 'num_legs', 'has_trunk'),
+                    filters=filter):
     ...
 \end{python}
 Note the indexing in the \texttt{lambda} function.  Index zero

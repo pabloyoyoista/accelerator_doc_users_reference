@@ -33,6 +33,16 @@ In order to run, the Accelerator needs to have these things in place
 \end{itemize}
 This is all taken care of by the \texttt{init} command.
 
+A typical project setup will look like this
+\begin{shell}
+myproject/
+    accelerator.conf
+    dev/
+        methods.conf
+        a_method.py
+        build.py
+\end{shell}
+where methods are stored in the \texttt{dev} directory.
 
 
 
@@ -47,7 +57,7 @@ method packages:
 \end{verbatim}
 start the daemon using
 \begin{python}
-  ax daemon
+ax daemon
 \end{python}
 and in another shell start the test
 \begin{python}
@@ -67,10 +77,8 @@ which has to be run with root privileges.
 
 
 
-
 \section{Daemon Configuration File}
 \label{sec:configfile}
-
 The configuration file specifies which method packages and workdirs
 that are available for a project.  A template configuration file can
 be generated using the \texttt{init} command as described on
@@ -200,8 +208,6 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 
 
-\clearpage
-
 \section{Setting up Urd}
 \label{sec:urd_setup}
 
@@ -269,10 +275,7 @@ as \texttt{cd/import}.  It can read all lists, though.
 
 
 
-
-
 \section{Workdirs}
-
 Jobs are stored in \textsl{workdirs}.  Workdirs are defined in the
 Accelerator's configuration file, where at least one workdir must be
 specified.
@@ -289,38 +292,38 @@ counter.  Here is an example of a workdir named \texttt{test}, that
 contains three jobdirs.
 \begin{shell}
 test/
-    test-slices.conf
+    .slices.conf
     test-0/
     test-1/
     test-2/
     test-LATEST -> test-2
 \end{shell}
-The link \texttt{<workdir>-LATEST} is always pointing to the last
-jobdir created.  This is useful for example when iteratively testing a
-method and accessing its data for example for plotting purposes.  Each
-new build of the (modified) method will create a new job and jobid,
-but the link will always point to the most recent version.
+The \texttt{.slices.conf} file contains the number of slices used for
+the workdir.  The link \texttt{<workdir>-LATEST} is always pointing to
+the last jobdir created.  This is useful for example when iteratively
+testing a method and accessing its data for example for plotting
+purposes.  Each new build of the (modified) method will create a new
+job and jobid, and the link will always point to the most recent
+version.
 
 
 \subsection{Creating a Workdir}
-Any empty directory can be a workdir.  To create a new workdir, create
-the directory and add it in the configuration file.  Stop and restart
-the \texttt{daemon}.  Upon startup, any uninitialised workdir in the
-configuration file will be initialised.
+If a workdir defined in the configuration file does not exist on disk
+at the stated location, the Daemon will exit and print an error
+stating that a directory is missing.  The first time the Daemon
+encounters a new directory it will initialise it in accordance with
+the configuration file.  So, new workdirs are created by adding them
+to the configuration file \textsl{and} creating the corresponding
+directories.  The Accelerator will then initiate these directories on
+the next startup.
 
-The initiation process creates a file named
-\texttt{<workdir>-slices.conf} that indicates that the directory is
-now a workdir.  The file itself will contain the number of slices that
-is used for the workdir.
-
-
-
-
+The initiation process creates a file named \texttt{.slices.conf} that
+indicates that the directory is now a workdir.  This file contains the
+number of slices that is used for the workdir.
 
 
 
 \section{Status (Progress) Reporting}
-
 During job building, it is possible to press \texttt{C-t},
 i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, in the \texttt{run}
 shell to get status information.  The built in status will report the
@@ -335,40 +338,7 @@ reporting, see section~\ref{sec:statusreporting}.
 
 
 
-
-
-\section{Typical Installation}
-
-See the Accelerator Installation Manual for current installation
-guidelines.
-
-Traditionally, the Accelerator is installed as a \texttt{git
-submodule} as part of the project it is used in.  This makes it
-straightforward to update the Accelerator and project code
-independently, while linking a specific version of the Accelerator to
-the project.  Thus, the project will always use a specific Accelerator
-commit, making the project independent of changes to the Accelerator.
-
-Here is a typical setup
-\begin{shell}
-project/
-    accelerator/
-    dev/
-    conf/
-\end{shell}
-Methods are stored in the \texttt{dev} directory, and Accelerator
-configuration files in \texttt{conf}.  All files are version
-controlled using \texttt{git}, and the \texttt{accelerator} directory
-is a \texttt{git submodule}, which means that the project repository
-is storing the repository location \textsl{and} the commit of the
-Accelerator.
-
-
-
-
-
 \section{Working with Relative Paths}
-
 In some situations, like importing data from files, it is convenient
 to store the absolute path of the files as a configuration parameter
 and then work only with relative paths in the source code.  This has
@@ -389,7 +359,6 @@ the following subsections for details.
 
 \subsection{The \texttt{source\_directory}}
 \label{sec:SOURCE_DIR}
-
 The \texttt{job.source\_directory} variable is used by the
 \texttt{csvimport} method, but could be used by any method reading
 input files, like in this example
@@ -408,7 +377,6 @@ option \texttt{filename}.
 
 \subsection{The \texttt{result\_directory}}
 \label{sec:RESULT_DIR}
-
 It is possible to define a shared directory
 named \texttt{result\_directory} in the Accelerator's configuration
 file.  In a method, this variable may be accessed like in this example
@@ -422,42 +390,3 @@ tracking these files is not possible, there is no information linking
 back from the result directory to a specific job.  This may be
 overcome using for example soft file links, however, see
 section~\ref{sec:symlinking}.
-
-
-
-
-
-
-
-\subsection{Understanding Workdirs}
-When the \texttt{Daemon} is starting, it will read all
-\texttt{workdir}-definitions in the configuration file.  It will check
-that all workdirs are defined, that all workdirs have the same number
-of slices as specified in the configuration file, and that all
-workdirs to be used together have the same number of slices.
-
-The \texttt{target\_workdir} is the default location where new jobs
-will be stored.  However, a build script may write jobs to any other
-defined workdir as well.
-
-\subsection{How to Create New Workdirs}
-If a workdir defined in the configuration file does not exist on disk
-at the stated location, the Daemon will exit and print an error
-stating that a directory is missing.  The first time the Daemon
-encounters a new directory it will initialise it in accordance with
-the configuration file.  So, new workdirs are created by adding them
-to the configuration file \textsl{and} creating the corresponding
-directories.  The Accelerator will then initiate these directories on
-the next startup.
-
-
-
-
-
-
-
-
-
-
-
-

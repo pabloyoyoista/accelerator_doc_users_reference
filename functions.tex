@@ -4,93 +4,170 @@ Some, like the \texttt{blob} module, are very useful, while others are
 less likely to be included in a project.
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22
 
-\section{The \texttt{Job} Class}
-two flavours, from build or current job.
+\section{The \texttt{Job} and \texttt{CurrentJob} Classes}
+The \texttt{Job} class is used to represent and operate on existing
+jobs.  An object of this class is returned from job \texttt{build()}
+calls as well as when retreiving jobs from Urd or a \texttt{JobList}
+object.  The \texttt{CurrentJob} class is an extension that provides
+mechanisms for operations performed while a job is executing, such as
+saving files to the job's jobdir.  The classes are derived from
+the \texttt{str} class, and objects of these classes decay to
+(unicode) strings when pickled.
 
-output from
-- build call
-- Urd
-- input parameter
-currentjob
-- argument to prepanasyn
-
-A string that is a jobid, but also has some extra properties:
-
-
-
-        Decays to a (unicode) string when pickled.
-
-
+The following attributes are available on both the \texttt{Job}
+and \texttt{CurrentJob} classes:
 \starttabletwo
 \texttt{method} & The job method.  This can be overriden by \texttt{name=} if job instance is output from Urd or a \texttt{build()} call.\\
 \texttt{path} & The filesystem directory where the job is stored.\\
-\texttt{workdir} & The workdir name (the part before -number in the jobid).\\
-\texttt{number} & The job number as an int.\\
-\texttt{filename()} & To join .path with a filename.\\
-\texttt{open{}} & to open a file, like standard open\\
-\texttt{withfile{}} & a JobWithFile with this job.\\
-\texttt{params} & setup.json for this job\\
-\texttt{post} & post.json for this job\\
-\texttt{load()} & to load a pickle\\
-\texttt{json\_load()} & to load a json file\\
-\texttt{dataset()} & to get a named Dataset\\
-\texttt{datasets} & list of Datasets in this job.\\
-\texttt{output()} & to get what the job printed\\
+\texttt{workdir} & The workdir name (the part before \texttt{-number} in the jobid).\\
+\texttt{number} & The job number as an \texttt{int}.\\
+\texttt{filename()} & Return absolute path to a file in a job.\\
+\texttt{withfile()} & A \texttt{JobWithFile} with this job.\\
+\texttt{params} & Return a dict corresponding to the file \texttt{setup.json} for this job.\\
+\texttt{post} & Return a dict corresponding to \texttt{post.json} for this job.\\
+\texttt{open()} & Similar to standard \texttt{open}, use to open files\\
+\texttt{load()} & Load a pickle file from the job's directory.\\
+\texttt{json\_load()} & Load a json file from the job's directory.\\
+\texttt{dataset()} & Return a named dataset from the job.\\
+\texttt{datasets} & List of datasets in this job.\\
+\texttt{output()} & Return what the job printed to \texttt{stdout} and \texttt{stderr}.\\
 \stoptabletwo
-In addition to these, the \texttt{CurrentJob} class has these
-attributes too.
+\noindent In addition, the \texttt{CurrentJob} class has these
+attributes too:
 \starttable
+\texttt{datasetwriter()} && to get a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{}.\\
+\texttt{open()}&& With extra temp argument.\\
 \texttt{save()} && to store a pickle file\\
 \texttt{json\_save()} && to store a json file\\
-\texttt{datasetwriter()} && to get a DatasetWriter object\\
-\texttt{open()}&& With extra temp argument.\\
+\stoptable
+\noindent Detailed description for the functions follows below:
+
+
+\subsection{\texttt{Job.filename()}}
+Return the absolute (full path) filename to a file stored in the job.
+If the file is sliced, a particular slice file can be retrieved using
+the \texttt{sliceno} parameter.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
+\texttt{sliceno}  & \pyNone & Set to current slice number if sliced, otherwise \pyNone.\\
 \stoptable
 
-Detailed description where necessary:
+
+\subsection{\texttt{Job.open()}}
+This is a wrapper around the standard \texttt{open} function with some
+extra features.  Note that
+\begin{itemize}
+\item[--]  \texttt{Job.open()} can only read files, not write
+them, and therefore ``\texttt{r}'' flag must be set.
+\item[--]  \texttt{CurrentJob.open()} can both read and write.
+\item[--]  \texttt{CurrentJob.open()} must be used as a context manager,
+like this
+\begin{python}
+with job.open(...) as fh:
+    ....
+\end{python}
+\item[--]  \texttt{CurrentJob.open()} can use the \texttt{temp} flag to
+modify the persistence of written files.
+\end{itemize}
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
+\texttt{sliceno} & \pyNone & Read or write sliced files.\\
+\texttt{encoding} & \pyNone & @@@@@@@@@@@@@@\\
+\texttt{errors} & \pyNone & @@@@@@@@@@@@\\
+\texttt{temp} & \pyNone & @@@@@@@@@22\\
+\stoptable
+
+
+\subsection{\texttt{Job.withfile()}}
+The \texttt{.withfile()} is used to highlight a specific file in a job
+and feed it to another job \texttt{build()}.  The file could be
+sliced.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\texttt{sliced} & \pyFalse & Boolean indicating if the file is sliced or not.\\
+\texttt{extra} & \pyNone & Any additional information to the job to be built.\\
+\stoptable
+
+
+\subsection{\texttt{Job.load()}}
+Load a file from a job in Python's pickle format.
+\starttable
+\texttt{filename} & \texttt{result.pickle} & \hspace{2ex}Name of file.\\
+\texttt{sliceno} & \pyNone & \\
+\texttt{encoding} & \texttt{bytes} & \\
+\stoptable
+
+
+\subsection{\texttt{Job.json\_load()}}
+Load a file from a job, in JSON format.
+\starttable
+\texttt{filename} & \texttt{result.json} & Name of file.\\
+\texttt{sliceno} & \pyNone & \\
+\texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
+\stoptable
+
+
+\subsection{\texttt{Job.dataset()}}
+Get a dataset instance from a job.
+\starttable
+\texttt{name} & \texttt{default} & \\
+\stoptable
+
+
+\subsection{\texttt{Job.output()}}
+Get everything a job has printed to \texttt{stdout}
+and \texttt{stderr} in a string variable.
+\starttable
+\texttt{what} & \pyNone & \\
+\stoptable
+
+
+\subsection{\texttt{Job.save()}}
+For \texttt{CurrentJob} instances only.  Save data into the current
+job's directory in Python's pickle format.
+\starttable
+\texttt{obj} & \textsl{Mandatory} & \\
+\texttt{filename} & \texttt{result.pickle} & \\
+\texttt{sliceno} & \pyNone & \\
+\texttt{temp} & \pyNone & \\
+\stoptable
+
+
+\subsection{\texttt{Job.json\_save()}}
+For \texttt{CurrentJob} instances only.  Save data into the current
+job's directory in JSON format.
+\starttable
+\texttt{obj} & \textsl{Mandatory} & \\
+\texttt{filename} & \texttt{result.json} & \\
+\texttt{sliceno} & \pyNone & \\
+\texttt{sort\_keys} & \pyTrue & \\
+\texttt{temp} & \pyNone & \\
+\stoptable
 
 
 
 
-\section{The \texttt{JobID} Class}
-The \texttt{JobID} class is derived from the \texttt{str} class and
-has some additional methods.
 
-It appears everywhere a jobid appears, most commonly in
-- returned from build / subjob.build
-- seen by jobids=('dd',)
-- urd
-
-The \texttt{JobID} has the following methods
-\starttabletwo
-\texttt{method} & In a \texttt{JobList} this is set
-to the name of the method.  Almost everywhere else it is set
-to \pyNone.\\
-\texttt{number} & The sequence number of the jobid\\
-\texttt{workdir} & The name of the workdir, i.e.\ the part before the hyphen in the jobid string.\\
-\texttt{path} & Absolute path to where the job is stored\\
-\texttt{filename(<file>)} & Absolute path to a \texttt{file} stored in the job.\\
-\texttt{params()} & The job's \texttt{params} dictionary.\\
-\texttt{post()} & The job's post data, containing profiling information.\\
-\stoptabletwo
-It may seem strange at first that the \texttt{method} does not always
-contain the name of the method corresponding to the job.  The reason
-for this is that the jobid is commonly used as a job identifier.  In
-order to know the method name, it has to be looked up inside the job,
-and there is usually no point in doing that.
-
-
+\section{The \texttt{JobWithFile} Class}
+\texttt{resolve}
+\texttt{load}
+\texttt{json\_load}
 
 
 
 \section{The \texttt{JobList} Class}
 
+Objects of the \texttt{JobList} class are returned by functions @@@@@@@@@@ \texttt{Urd} class..
+
 \starttabletwo
-\texttt{find(<method>)} & a new JobList with only jobs with that method in it.\\
-\texttt{get(<method>, default=None)} & latest JobID with that method\\
-\texttt{[<method>]} & Same as .get but error if no job with that method is in the list.\\
-\texttt{as\_tuples} &  The same list but as (method, jid) tuple\\
-\texttt{pretty} & a pretty-printed version (string)\\
-\texttt{print\_profile} & \\
+\texttt{find(<method>)} & a new \texttt{JobList} with only jobs with that method in it.\\
+\texttt{get(<method>, default=None)} & latest \texttt{Job} with that method\\
+\texttt{[<method>]} & Same as \texttt{.get} but error if no job with that method is in the list.\\
+\texttt{as\_tuples} &  The same list but as \texttt{(method, jid)} \texttt{tuple}\\
+\texttt{pretty} & Return a prettified string version of the \texttt{JobList}.\\
+\texttt{profile} & Total exectime and exectime per method.\\
+\texttt{print\_profile(verbose=True)} & Print profiling information to \texttt{stdout}.\\
 \stoptabletwo
 
 
@@ -114,7 +191,7 @@ and there is usually no point in doing that.
     These decay to a (unicode) string when pickled.
 
 
-\starttabletwo
+\starttable
 \texttt{columns} & \\
 \texttt{previous} & \\
 \texttt{parent} & \\
@@ -123,19 +200,40 @@ and there is usually no point in doing that.
 \texttt{caption} & \\
 \texttt{lines} & \\
 \texttt{shape} & \\
-\texttt{link\_to\_here} &\\
+\texttt{link\_to\_here} & \\
+\texttt{merge} & \\
 \texttt{column\_filename} & \\
 \texttt{chain} & \\
 \texttt{iterate\_chain} & \\
 \texttt{iterate} & \\
 \texttt{iterate\_list} & \\
-\stoptabletwo
+\texttt{new} & \\
+\texttt{append} & \\
+\stoptable
+
 
 
 
 
 
 \section{The \texttt{DatasetWriter} Class}
+
+
+\starttable
+\texttt{add} & \\
+\texttt{set\_slice} & \\
+\texttt{column\_filename} & \\
+\texttt{enable\_hash\_discard} & \\
+\texttt{get\_split\_write} & \\
+\texttt{get\_split\_write\_list} & \\
+\texttt{get\_split\_write\_dict} & \\
+\texttt{close} & \\
+\texttt{discard} & \\
+\texttt{set\_lines} & \\
+\texttt{set\_minmax} & \\
+\texttt{finish} & \\
+\stoptable
+
 
 \begin{verbatim}
     Create in prepare, use in analysis. Or do the whole thing in
@@ -188,25 +286,12 @@ and there is usually no point in doing that.
                     dw.set_minmax(sliceno, {colname: (min, max)}) if you can.
 \end{verbatim}
 
-\starttabletwo
-\texttt{add} & \\
-\texttt{set\_slice} & \\
-\texttt{column\_filename} & \\
-\texttt{enable\_hash\_discard} & \\
-\texttt{get\_split\_write} & \\
-\texttt{get\_split\_write\_list} & \\
-\texttt{get\_split\_write\_dict} & \\
-\texttt{close} & \\
-\texttt{discard} & \\
-\texttt{set\_lines} & \\
-\texttt{set\_minmax} & \\
-\texttt{finish} & \\
-\stoptabletwo
 
 
 
 
 \section{The \texttt{DatasetChain} Class}
+
 
 \starttabletwo
 \texttt{min} & \\
@@ -223,7 +308,24 @@ and there is usually no point in doing that.
 
 \section{The \texttt{Urd} Class}
 
-
+\starttable
+\texttt{get} & \\
+\texttt{latest} & \\
+\texttt{first} & \\
+\texttt{peek} & \\
+\texttt{peek\_latest} & \\
+\texttt{peek\_first} & \\
+\texttt{since} & \\
+\texttt{list} & \\
+\texttt{begin} & \\
+\texttt{abort} & \\
+\texttt{finish} & \\
+\texttt{truncate} & \\
+\texttt{set\_workdir} & \\
+\texttt{build} & \\
+\texttt{build\_chained} & \\
+\texttt{warn} & \\
+\stoptable
 
 
 

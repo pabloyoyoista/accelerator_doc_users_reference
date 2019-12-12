@@ -4,6 +4,52 @@ Some, like the \texttt{blob} module, are very useful, while others are
 less likely to be included in a project.
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22
 
+\section{The \texttt{Job} Class}
+two flavours, from build or current job.
+
+output from
+- build call
+- Urd
+- input parameter
+currentjob
+- argument to prepanasyn
+
+A string that is a jobid, but also has some extra properties:
+
+
+
+        Decays to a (unicode) string when pickled.
+
+
+\starttabletwo
+\texttt{method} & The job method.  This can be overriden by \texttt{name=} if job instance is output from Urd or a \texttt{build()} call.\\
+\texttt{path} & The filesystem directory where the job is stored.\\
+\texttt{workdir} & The workdir name (the part before -number in the jobid).\\
+\texttt{number} & The job number as an int.\\
+\texttt{filename()} & To join .path with a filename.\\
+\texttt{open{}} & to open a file, like standard open\\
+\texttt{withfile{}} & a JobWithFile with this job.\\
+\texttt{params} & setup.json for this job\\
+\texttt{post} & post.json for this job\\
+\texttt{load()} & to load a pickle\\
+\texttt{json\_load()} & to load a json file\\
+\texttt{dataset()} & to get a named Dataset\\
+\texttt{datasets} & list of Datasets in this job.\\
+\texttt{output()} & to get what the job printed\\
+\stoptabletwo
+In addition to these, the \texttt{CurrentJob} class has these
+attributes too.
+\starttable
+\texttt{save()} && to store a pickle file\\
+\texttt{json\_save()} && to store a json file\\
+\texttt{datasetwriter()} && to get a DatasetWriter object\\
+\texttt{open()}&& With extra temp argument.\\
+\stoptable
+
+Detailed description where necessary:
+
+
+
 
 \section{The \texttt{JobID} Class}
 The \texttt{JobID} class is derived from the \texttt{str} class and

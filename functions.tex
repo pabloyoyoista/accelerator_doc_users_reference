@@ -77,6 +77,9 @@ modify the persistence of written files.
 \texttt{errors} & \pyNone & @@@@@@@@@@@@\\
 \texttt{temp} & \pyNone & @@@@@@@@@22\\
 \stoptable
+The \texttt{temp} argument is used to control the persistence of files
+written using \texttt{.open()}.  This is useful mainly for debug
+purposes, and explained in section~\ref{sec:debugflag}.
 
 
 \subsection{\texttt{Job.withfile()}}
@@ -106,6 +109,9 @@ Load a file from a job, in JSON format.
 \texttt{sliceno} & \pyNone & \\
 \texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
 \stoptable
+The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
+to let strings decode as bytes.  Override this for unicode.  In
+Python3, strings decode as unicode.
 
 
 \subsection{\texttt{Job.dataset()}}
@@ -132,6 +138,9 @@ job's directory in Python's pickle format.
 \texttt{sliceno} & \pyNone & \\
 \texttt{temp} & \pyNone & \\
 \stoptable
+The \texttt{temp} argument is used to control the persistence of files
+written using \texttt{.save()}.  This is useful mainly for debug
+purposes, and explained in section~\ref{sec:debugflag}.
 
 
 \subsection{\texttt{Job.json\_save()}}
@@ -144,6 +153,47 @@ job's directory in JSON format.
 \texttt{sort\_keys} & \pyTrue & \\
 \texttt{temp} & \pyNone & \\
 \stoptable
+The \texttt{temp} argument is used to control the persistence of files
+written using \texttt{.json\_save()}.  This is useful mainly for debug
+purposes, and explained in section~\ref{sec:debugflag}.
+
+
+\subsection{File Persistence}
+\label{sec:debugflag}
+The \texttt{temp} argument controls persistence of files stored
+using \texttt{.open()}, \texttt{.save()}, or \texttt{.json\_save()}.
+By default it is being set to \pyFalse, which implies that the stored
+file is \textsl{not} temporary.  But setting it to \pyTrue, like in
+the following
+\begin{python}
+job.save(data, filename, temp=True)
+\end{python}
+will cause the stored file to be deleted upon job completion.  The
+argument takes two additional values, \texttt{DEBUG} and
+\texttt{DEBUGTEMP}, working like this
+\begin{snugshade}
+\begin{center}
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ll}
+  \texttt{temp}      & ``normal'' mode     & debug mode  \\\hline
+  \pyFalse           & stored              & @@@@@@@@@@@@@@\\
+  \pyTrue            & stored and removed  & stored and removed\\
+  \texttt{DEBUG}     &                     & stored\\
+  \texttt{DEBUGTEMP}\hspace{4ex} & stored and removed  & stored\\
+\end{tabular*}
+\end{center}
+\end{snugshade}
+\noindent Debug mode is active if the Accelerator is started with the
+\texttt{--debug} flag.  For example
+\begin{python}
+from accelerator import Temp @@@@@@@@@@@@@@@@@@@@@@
+def analysis(sliceno, job):
+    data = ...
+    # save only if --debug
+    job.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
+    # save always, but remove unless --debug
+    job.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
+\end{python}
+
 
 
 
@@ -164,7 +214,7 @@ Objects of the \texttt{JobList} class are returned by functions @@@@@@@@@@ \text
 \texttt{find(<method>)} & a new \texttt{JobList} with only jobs with that method in it.\\
 \texttt{get(<method>, default=None)} & latest \texttt{Job} with that method\\
 \texttt{[<method>]} & Same as \texttt{.get} but error if no job with that method is in the list.\\
-\texttt{as\_tuples} &  The same list but as \texttt{(method, jid)} \texttt{tuple}\\
+\texttt{as\_tuples} &  The \texttt{JobList} represented as \texttt{(method, jid)} \texttt{tuple}s.\\
 \texttt{pretty} & Return a prettified string version of the \texttt{JobList}.\\
 \texttt{profile} & Total exectime and exectime per method.\\
 \texttt{print\_profile(verbose=True)} & Print profiling information to \texttt{stdout}.\\
@@ -419,41 +469,41 @@ will set \texttt{x} to an empty dict if loading fails.
 
 
 
-\subsection{Save Files for Debugging}
-\label{sec:debugflag}
-The \texttt{temp} argument controls persistence of the stored files.
-By default it is being set to \pyFalse, which implies that the stored
-file is \textsl{not} temporary.  But setting it to \pyTrue, like in
-the following
-\begin{python}
-    blob.save(data, filename, temp=True)
-\end{python}
-will cause the stored file to be deleted upon job completion.  The
-argument takes two additional values, \texttt{DEBUG} and
-\texttt{DEBUGTEMP}, working like this
-\vspace{3ex}
+%% \subsection{Save Files for Debugging}
+%% \label{sec:debugflag}
+%% The \texttt{temp} argument controls persistence of the stored files.
+%% By default it is being set to \pyFalse, which implies that the stored
+%% file is \textsl{not} temporary.  But setting it to \pyTrue, like in
+%% the following
+%% \begin{python}
+%%     blob.save(data, filename, temp=True)
+%% \end{python}
+%% will cause the stored file to be deleted upon job completion.  The
+%% argument takes two additional values, \texttt{DEBUG} and
+%% \texttt{DEBUGTEMP}, working like this
+%% \vspace{3ex}
 
-\begin{center}
-\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ll}
-  \texttt{temp=}  & ``normal'' mode     & debug mode  \\\hline
-  \pyFalse           & stored              & \\
-  \pyTrue            & stored and removed  & stored and removed\\
-  \texttt{DEBUG}     &                     & stored\\
-  \texttt{DEBUGTEMP}\hspace{4ex} & stored and removed  & stored\\
-\end{tabular*}
-\end{center}
-Debug mode is active if the Accelerator is started with the
-\texttt{--debug} flag.
+%% \begin{center}
+%% \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ll}
+%%   \texttt{temp=}  & ``normal'' mode     & debug mode  \\\hline
+%%   \pyFalse           & stored              & \\
+%%   \pyTrue            & stored and removed  & stored and removed\\
+%%   \texttt{DEBUG}     &                     & stored\\
+%%   \texttt{DEBUGTEMP}\hspace{4ex} & stored and removed  & stored\\
+%% \end{tabular*}
+%% \end{center}
+%% Debug mode is active if the Accelerator is started with the
+%% \texttt{--debug} flag.
 
-\noindent Example
-\begin{python}
-from accelerator.extras import Temp
-def analysis(sliceno):
-  # save only if --debug
-  blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
-  # save always, but remove unless --debug
-  blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
-\end{python}
+%% \noindent Example
+%% \begin{python}
+%% from accelerator.extras import Temp
+%% def analysis(sliceno):
+%%   # save only if --debug
+%%   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
+%%   # save always, but remove unless --debug
+%%   blob.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
+%% \end{python}
 
 
 
@@ -480,7 +530,7 @@ def analysis(sliceno):
 Creating a symlink, for example from the \texttt{result\_directory} to
 current workdir, may be implemented in a simple and safe way like this
 \begin{python}
-from accelerator.extras import symlink
+from accelerator.extras import symlink @@@@@@@@@@@@@@@@@@@@@@@@
 
 def synthesis(job):
 
@@ -498,75 +548,75 @@ it already exists.
 
 
 
-\section{job\_post}
-The \texttt{job\_post} function returns a job's post execution
-information as a Python \texttt{dict}
-\begin{python}
-from accelerator.extras import job_post
-postinfo = job_post(jobid)
-\end{python}
-The post data contains mainly profiling information.
+%% \section{job\_post}
+%% The \texttt{job\_post} function returns a job's post execution
+%% information as a Python \texttt{dict}
+%% \begin{python}
+%% from accelerator.extras import job_post
+%% postinfo = job_post(jobid)
+%% \end{python}
+%% The post data contains mainly profiling information.
 
 
 
-\section{json\_encode}
-\begin{python}
-from accelerator.extras import json_encode
-json_encode(variable, sort_keys=True, as_str=False)
-\end{python}
+%% \section{json\_encode}
+%% \begin{python}
+%% from accelerator.extras import json_encode
+%% json_encode(variable, sort_keys=True, as_str=False)
+%% \end{python}
 
-\starttabletwo
-\RPtwo \texttt{variable} & variable to be serialised.  \texttt{set}s and
-\texttt{tuple}s will be converted to \texttt{list}s.\\
+%% \starttabletwo
+%% \RPtwo \texttt{variable} & variable to be serialised.  \texttt{set}s and
+%% \texttt{tuple}s will be converted to \texttt{list}s.\\
 
-\RPtwo \texttt{sort\_keys} & Sort keys if \pyTrue.\\
+%% \RPtwo \texttt{sort\_keys} & Sort keys if \pyTrue.\\
 
-\RPtwo \texttt{as\_str} & return a \texttt{str} if \pyTrue, \texttt{bytes}
-otherwise.\\
-\stoptabletwo
-
-
-
-\section{json\_decode}
-\begin{python}
-from accelerator.extras import json_decode
-x = json_decode(s)
-\end{python}
-Return a datastructure defined by the string \texttt{s}.
+%% \RPtwo \texttt{as\_str} & return a \texttt{str} if \pyTrue, \texttt{bytes}
+%% otherwise.\\
+%% \stoptabletwo
 
 
 
-
-\section{json\_save}
-\begin{python}
-from accelerator.extras import json_save
-json_save(variable,
-    filename='result',
-    jobid=None,
-    sliceno=None,
-    sort_keys=True,
-    _encoder=json_encode,
-    temp=False
-)
-\end{python}
+%% \section{json\_decode}
+%% \begin{python}
+%% from accelerator.extras import json_decode
+%% x = json_decode(s)
+%% \end{python}
+%% Return a datastructure defined by the string \texttt{s}.
 
 
 
 
-\section{json\_load}
-\begin{python}
-from accelerator.extras import json_load
-x = json_load(
-    filename='result',
-    jobid='',
-    sliceno=None,
-    default=None,
-    unicode_as_utf8bytes=PY2
-)
-\end{python}
-The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
-to let strings decode as bytes.  Override this for unicode.  In
-Python3, strings decode as unicode.
+%% \section{json\_save}
+%% \begin{python}
+%% from accelerator.extras import json_save
+%% json_save(variable,
+%%     filename='result',
+%%     jobid=None,
+%%     sliceno=None,
+%%     sort_keys=True,
+%%     _encoder=json_encode,
+%%     temp=False
+%% )
+%% \end{python}
+
+
+
+
+%% \section{json\_load}
+%% \begin{python}
+%% from accelerator.extras import json_load
+%% x = json_load(
+%%     filename='result',
+%%     jobid='',
+%%     sliceno=None,
+%%     default=None,
+%%     unicode_as_utf8bytes=PY2
+%% )
+%% \end{python}
+%% The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
+%% to let strings decode as bytes.  Override this for unicode.  In
+%% Python3, strings decode as unicode.
 
 
 

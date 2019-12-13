@@ -57,9 +57,9 @@ used for any particular result, thus reducing uncertainty.
 
 \subsection{A Very Simple Job:  ``Hello, World''}
 
-The following example method is very simple.  It does not use any
-features and it does not take any input parameters, it will just
-return the string ``\texttt{hello world}'' and exit.
+The following example method is very simple.  It does not take any
+input parameters and does almost nothing, it will just return the
+string ``\texttt{hello world}'' and exit.
 \begin{python}
 def synthesis():
     return "hello world"
@@ -75,11 +75,10 @@ organisation, and is described in detail in section~\ref{}.  Remember
 that during the job build process, a job directory is created that
 will contain everything associated with the build.
 
-When execution is completed, a single object of the class \texttt{Job}
-is the only thing that is returned to the user.  In the example above,
-the variable \texttt{job} will be of type \texttt{Job}.  This object
-provides a convenient interface to the data in the corresponding job
-directory.
+When execution is completed, a job object is returned to the user.  In
+the example above, the variable \texttt{job} will be of type
+\texttt{Job}.  This object provides a convenient interface to the data
+in the corresponding job directory.
 
 
 
@@ -116,7 +115,7 @@ files, of which the most important to here are
   \end{center}
 \end{figure}
 
-The \texttt{Job} class provides conveniently access to the important
+The \texttt{Job} class provides a convenient way to access important
 files in this directory.  For example, the job's return value can be
 loaded into a variable using the \texttt{.load()} function, like this
 \begin{python}

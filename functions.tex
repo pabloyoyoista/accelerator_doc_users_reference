@@ -248,64 +248,113 @@ Objects of the \texttt{JobList} class are returned by functions @@@@@@@@@@ \text
 
 
 \section{The \texttt{Dataset} Class}
+The \texttt{Dataset} class is used to operate on small or large
+datasets stored on disk.  It decays to a (unicode) string when
+pickled.
 
-    Represents a dataset. Is also a string 'jobid/name', or just 'jobid' if
-        name is 'default' (for better backwards compatibility).
+\starttabletwo
+\texttt{columns} & A \texttt{dict} from column to properties, such as type, min, and max values.\\
+\texttt{previous} & The dataset's previous dataset, if it exists, \pyNone otherwise.\\
+\texttt{parent} & The dataset's parent dataset, if it exists, \pyNone otherwise.\\
+\texttt{filename} & The dataset's filename, if it exists.  (\texttt{csvimport} sets this.)\\
+\texttt{hashlabel} & Column used for hash partitioning, or \pyNone.\\
+\texttt{caption} & The dataset's caption.\\
+\texttt{lines} & A \texttt{list} with number of lines per slice.\\
+\texttt{shape} & A tuple containing number of columns and number of lines in dataset.\\
+\texttt{link\_to\_here()} & Used to associate a subjob's dataset with the current job, see section~\ref{sec:linktohere}.\\
+\texttt{merge()} & Merge this dataset with another dataset, see section~\ref{sec:datasetmerge}.\\
+\texttt{column\_filename()} & @@@@@@@@@@@@@@@@@@\\
+\texttt{chain()} & A \texttt{DatasetChain} object, see section~\ref{sec:dschain}\\
+\texttt{iterate\_chain()} & Iterator over chains, see section~\ref{sec:iterator}.\\
+\texttt{iterate()} & Iterator over dataset see section~\ref{sec:iterator}.\\
+\texttt{iterate\_list()} & Iterator over a list of datasets, see section~\ref{sec:iterator}.\\
+\texttt{new()} & @@@@@@@@@@@@@@@@@@@\\
+\texttt{append()} & @@@@@@@@@@@@@\\
+\stoptabletwo
 
-    You usually don't have to make these yourself, because datasets.foo is
-        already a Dataset instance (or None).
 
-    You can pass jobid=''jid/name'' or jobid=''jid'', name=''name'', or skip
-        name completely for ``default''.
-
-    You can also pass jobid={jid: dsname} to resolve dsname from the datasets
-        passed to jid. This gives None if that option was unset.
-
-    These decay to a (unicode) string when pickled.
-
-
+\subsection{\texttt{link\_to\_here()}}
+Use this to expose a subjob as a dataset in your job, like in this
+example:
+\begin{python}
+def synthesis():
+    job = build('ex')
+    job.dataset().link_to_here(name='new')
+\end{python}
+The current job will now appear to have a dataset named \texttt{new},
+that is actually a link to the subjob's \texttt{default} dataset.  It
+is possible to filter which columns should be visible in the link
+using \texttt{column\_filter}.  For chaining purposes, it is possible
+for the link to expose a parent dataset of choice, set using
+the \texttt{override\_previous} parameter.
 \starttable
-\texttt{columns} & \\
-\texttt{previous} & \\
-\texttt{parent} & \\
-\texttt{filename} & \\
-\texttt{hashlabel} & \\
-\texttt{caption} & \\
-\texttt{lines} & \\
-\texttt{shape} & \\
-\texttt{link\_to\_here} & \\
-\texttt{merge} & \\
-\texttt{column\_filename} & \\
-\texttt{chain} & \\
-\texttt{iterate\_chain} & \\
-\texttt{iterate} & \\
-\texttt{iterate\_list} & \\
-\texttt{new} & \\
-\texttt{append} & \\
+\texttt{name} & \texttt{default} & The new name of the dataset.\\
+\texttt{column\_filter} & \pyNone & Iterable of columns to include, or \pyNone to get all.\\
+\texttt{override\_previous} & \texttt{\_no\_override} & Set this to the new previous.\\
 \stoptable
 
 
+\subsection{\texttt{merge()}}
+@@@@@@@@@@@@@@
 
+
+\subsection{\texttt{column\_filename()}}
+@@@@@@@@@@@@@@@@@
+
+
+\subsection{\texttt{chain()}}
+This function will return a \texttt{DatasetChain} object, see
+section~\ref{sec:datasetchain}.
+\starttable
+\texttt{length} & \texttt{-1} & Number of datasets in chain.  The default value of \texttt{-1} will include all datasets in chain.\\
+\texttt{reverse} & \pyFalse & Reverse order of chain.\\
+\texttt{stop\_ds} & \pyNone & If set, chain will start at the dataset after \texttt{stop\_ds}.\\
+\stoptable
+
+
+\subsection{\texttt{new()}}
+@@@@@@@@@@@@@@@@
+
+
+\subsection{\texttt{append()}}
+@@@@@@@@@@@@@@@@@@@
+
+
+
+\section{The \texttt{DatasetChain} Class}
+\starttabletwo
+\texttt{min} & \\
+\texttt{max} & \\
+\texttt{lines} & \\
+\texttt{column\_counts} & \\
+\texttt{column\_count} & \\
+\texttt{with\_column} & \\
+\stoptabletwo
 
 
 
 \section{The \texttt{DatasetWriter} Class}
-
-
 \starttable
-\texttt{add} & \\
-\texttt{set\_slice} & \\
-\texttt{column\_filename} & \\
-\texttt{enable\_hash\_discard} & \\
-\texttt{get\_split\_write} & \\
-\texttt{get\_split\_write\_list} & \\
-\texttt{get\_split\_write\_dict} & \\
-\texttt{close} & \\
-\texttt{discard} & \\
-\texttt{set\_lines} & \\
-\texttt{set\_minmax} & \\
-\texttt{finish} & \\
+\texttt{add()} & \\
+\texttt{set\_slice()} & \\
+\texttt{column\_filename()} & \\
+\texttt{enable\_hash\_discard()} & \\
+\texttt{get\_split\_write()} & \\
+\texttt{get\_split\_write\_list()} & \\
+\texttt{get\_split\_write\_dict()} & \\
+\texttt{close()} & \\
+\texttt{discard)(} & \\
+\texttt{set\_lines()} & \\
+\texttt{set\_minmax()} & \\
+\texttt{finish()} & \\
 \stoptable
+
+
+\subsection{\texttt{add()}}
+\subsection{\texttt{set\_slice()}}
+\subsection{\texttt{column\_filename()}}
+\subsection{\texttt{set\_lines()}}
+\subsection{\texttt{set\_minmax()}}
 
 
 \begin{verbatim}
@@ -363,17 +412,6 @@ Objects of the \texttt{JobList} class are returned by functions @@@@@@@@@@ \text
 
 
 
-\section{The \texttt{DatasetChain} Class}
-
-
-\starttabletwo
-\texttt{min} & \\
-\texttt{max} & \\
-\texttt{lines} & \\
-\texttt{column\_counts} & \\
-\texttt{column\_count} & \\
-\texttt{with\_column} & \\
-\stoptabletwo
 
 
 

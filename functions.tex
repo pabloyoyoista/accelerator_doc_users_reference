@@ -42,6 +42,7 @@ attributes too:
 \stoptable
 \noindent Detailed description for the functions follows below:
 
+@@@@@@@@@@ Intro till sliced files var???
 
 \subsection{\texttt{Job.filename()}}
 Return the absolute (full path) filename to a file stored in the job.
@@ -73,13 +74,14 @@ modify the persistence of written files.
 \texttt{filename} & \textsl{Mandatory} & Name of file.\\
 \texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
 \texttt{sliceno} & \pyNone & Read or write sliced files.\\
-\texttt{encoding} & \pyNone & @@@@@@@@@@@@@@\\
-\texttt{errors} & \pyNone & @@@@@@@@@@@@\\
-\texttt{temp} & \pyNone & @@@@@@@@@22\\
+\texttt{encoding} & \pyNone & Same as Python's \texttt{open()}\\
+\texttt{errors} & \pyNone & Same as Python's \texttt{open()}\\
+\texttt{temp} & \pyNone & Control file persistence.  See text.\\
 \stoptable
 The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.open()}.  This is useful mainly for debug
-purposes, and explained in section~\ref{sec:debugflag}.
+purposes, and explained in section~\ref{sec:debugflag}.  Sliced files
+are described in section~\ref{sec:slicedfiles}.
 
 
 \subsection{\texttt{Job.withfile()}}
@@ -107,11 +109,11 @@ Load a file from a job, in JSON format.
 \starttable
 \texttt{filename} & \texttt{result.json} & Name of file.\\
 \texttt{sliceno} & \pyNone & \\
-\texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
+%\texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
 \stoptable
-The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
-to let strings decode as bytes.  Override this for unicode.  In
-Python3, strings decode as unicode.
+%The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
+%to let strings decode as bytes.  Override this for unicode.  In
+%Python3, strings decode as unicode.
 
 
 \subsection{\texttt{Job.dataset()}}
@@ -158,8 +160,29 @@ written using \texttt{.json\_save()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.
 
 
+\subsection{Sliced Files}
+\label{sec:slicedfiles}
+A \textsl{sliced} file is actually a set of files used to store data
+independently in each \analysis process using a common name.  The
+functions that operate on files, such as for example \texttt{.open()}
+and \texttt{.load()}, can switch to sliced files using
+the \texttt{sliceno} parameter.  From a user's perspective, they
+always appear to work on single files.  For example
+\begin{python}
+def analysis(sliceno, job):
+    data = ...
+    job.date(data, "mydata", sliceno=sliceno, temp=False)
+\end{python}
+will create a set of files \texttt{mydata.\%d}, where \texttt{\%d} is
+replaced by the slice number.  In this way, data can be passed ``in
+parallel'' between different jobs.
+
+
 \subsection{File Persistence}
 \label{sec:debugflag}
+@@@@@@@@@@@@@@ Får inte detta att funka, file verkar aldrig sparas vid
+DEBUG eller DEBUGTEMP.  Via --flags=debug
+
 The \texttt{temp} argument controls persistence of files stored
 using \texttt{.open()}, \texttt{.save()}, or \texttt{.json\_save()}.
 By default it is being set to \pyFalse, which implies that the stored
@@ -175,7 +198,7 @@ argument takes two additional values, \texttt{DEBUG} and
 \begin{center}
 \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ll}
   \texttt{temp}      & ``normal'' mode     & debug mode  \\\hline
-  \pyFalse           & stored              & @@@@@@@@@@@@@@\\
+  \pyFalse           & stored              & stored\\
   \pyTrue            & stored and removed  & stored and removed\\
   \texttt{DEBUG}     &                     & stored\\
   \texttt{DEBUGTEMP}\hspace{4ex} & stored and removed  & stored\\
@@ -185,7 +208,7 @@ argument takes two additional values, \texttt{DEBUG} and
 \noindent Debug mode is active if the Accelerator is started with the
 \texttt{--debug} flag.  For example
 \begin{python}
-from accelerator import Temp @@@@@@@@@@@@@@@@@@@@@@
+from accelerator import Temp
 def analysis(sliceno, job):
     data = ...
     # save only if --debug
@@ -409,63 +432,63 @@ reached.
 
 
 
-\section{Share Data Between Jobs:  the \texttt{blob} Module}
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22222
+%% \section{Share Data Between Jobs:  the \texttt{blob} Module}
+%% @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22222
 
-The simplest way to share reasonable amounts of data between jobs is
-by using the \texttt{blob} module.  This module is a
-convenience-wrapper around the Python \texttt{pickle} module.
+%% The simplest way to share reasonable amounts of data between jobs is
+%% by using the \texttt{blob} module.  This module is a
+%% convenience-wrapper around the Python \texttt{pickle} module.
 
-Note that the Accelerator will set the ``current work directory'' to
-the current job directory when building a method, so all files created
-by a job will be stored in the current job directory, unless the
-filename contains a path pointing elsewhere.
+%% Note that the Accelerator will set the ``current work directory'' to
+%% the current job directory when building a method, so all files created
+%% by a job will be stored in the current job directory, unless the
+%% filename contains a path pointing elsewhere.
 
-\subsection*{Storing/Loading a  Single File}
-Data is saved in this way
-\begin{python}
-from accelerator import blob
-def synthesis():
-    data = ...  # some data created here
-    blob.save(data, filename)
-\end{python}
-The data is loaded like this
-\begin{python}
-from accelerator import blob
-def synthesis()
-    data = blob.load(jobid, filename)
-\end{python}
-The \texttt{jobid} in \texttt{blob.load()} is not mandatory.  It
-defaults to the current workdir unless specified.
-
-
-
-\subsection{Storing/Loading a Sliced File}
-It is also possible to use the \texttt{blob} module in \analysis.
-From a user's perspective it will look like a single file is being
-handled, but there is actually one file per slice.  This is how to do
-it
-\begin{python}
-def analysis(sliceno):
-    # save data in slices like this
-    blob.save(data, filename, sliceno=sliceno)
-    # load like this
-    data = blob.load(filename, sliceno=sliceno)
-\end{python}
-
-Data can be passed ``in parallel'' between different jobs using this
-feature.
+%% \subsection*{Storing/Loading a  Single File}
+%% Data is saved in this way
+%% \begin{python}
+%% from accelerator import blob
+%% def synthesis():
+%%     data = ...  # some data created here
+%%     blob.save(data, filename)
+%% \end{python}
+%% The data is loaded like this
+%% \begin{python}
+%% from accelerator import blob
+%% def synthesis()
+%%     data = blob.load(jobid, filename)
+%% \end{python}
+%% The \texttt{jobid} in \texttt{blob.load()} is not mandatory.  It
+%% defaults to the current workdir unless specified.
 
 
 
-\subsection{Default Value}
+%% \subsection{Storing/Loading a Sliced File}
+%% It is also possible to use the \texttt{blob} module in \analysis.
+%% From a user's perspective it will look like a single file is being
+%% handled, but there is actually one file per slice.  This is how to do
+%% it
+%% \begin{python}
+%% def analysis(sliceno):
+%%     # save data in slices like this
+%%     blob.save(data, filename, sliceno=sliceno)
+%%     # load like this
+%%     data = blob.load(filename, sliceno=sliceno)
+%% \end{python}
 
-The value of the \texttt{default} parameter is returned if trying to
-load a file that does not exist, for example
-\begin{python}
-x = blob.load('thisfiledoesnotexist', default=dict())
-\end{python}
-will set \texttt{x} to an empty dict if loading fails.
+%% Data can be passed ``in parallel'' between different jobs using this
+%% feature.
+
+
+
+%% \subsection{Default Value}
+
+%% The value of the \texttt{default} parameter is returned if trying to
+%% load a file that does not exist, for example
+%% \begin{python}
+%% x = blob.load('thisfiledoesnotexist', default=dict())
+%% \end{python}
+%% will set \texttt{x} to an empty dict if loading fails.
 
 
 

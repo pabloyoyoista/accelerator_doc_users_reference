@@ -303,7 +303,7 @@ the workdir.  The link \texttt{<workdir>-LATEST} is always pointing to
 the last jobdir created.  This is useful for example when iteratively
 testing a method and accessing its data for example for plotting
 purposes.  Each new build of the (modified) method will create a new
-job and jobid, and the link will always point to the most recent
+job, and the link will always point to the most recent
 version.
 
 
@@ -429,9 +429,9 @@ from accelerator.extras import symlink @@@@@@@@@@@@@@@@@@@@@@@@
 
 def synthesis(job):
 
-    # create file and write it to jobid
+    # create file and write it to the job directory
     ...
-    with open(filename, 'wb') as fh:
+    with job.open(filename, 'wb') as fh:
         fh.write(...)
 
     # create a symlink to filename in result_directory
@@ -456,7 +456,7 @@ it already exists.
 
 \section{profile\_jobs}
 Returns a float corresponding to the total execution time (in seconds)
-of an input list of jobids.
+of an input list of jobs.
 \begin{python}
 from accelerator.automata_common import profile_jobs
 ...

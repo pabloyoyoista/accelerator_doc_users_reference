@@ -64,7 +64,7 @@ build scripts:
 
 \item[] The second build script is used for the data analysis work,
   and is perhaps run less regularly.  This script needs to know the
-  jobid to the latest imported file, and this is a straightforward
+  job for the latest imported file, and this is a straightforward
   thing to ask Urd.  All analysis jobs are also stored in Urd together
   with a corresponding timestamp.
 \end{itemize}
@@ -143,7 +143,7 @@ The script is then retrieving the recently created urd session stored
 in list \texttt{import/txn}.  Two things are extracted from this data,
 the \textsl{timestamp} and the \textsl{joblist}.  The timestamp will
 be used for this session as well, to indicate that processing is based
-on data with that particular timestamp.  The \textsl{jobid} to
+on data with that particular timestamp.  A reference to
 the \texttt{csvimport} job is then extracted from the joblist and fed
 to the \texttt{process} job as an input dataset parameter. (For
 information about the \texttt{joblist} class, see
@@ -189,8 +189,8 @@ may have been recorded similarly to this
 \end{json}
 
 \noindent (This example states that at timestamp \texttt{2018-05-03} in list \texttt{processing/test},
-there exists a \texttt{process} job with jobid \texttt{TEST-34} that
-used a \texttt{csvimport} job with jobid \texttt{TEST-34}.  This job
+there exists a \texttt{process} job \texttt{TEST-34} that
+used a \texttt{csvimport} job \texttt{TEST-34}.  This job
 also exists in the urd list \texttt{import/txn} at
 timestamp \texttt{2018-05-03}.)
 
@@ -248,7 +248,7 @@ to omit \texttt{finish()} to avoid storage or during development work.
 \subsection{What if a Build Script is Run Again?}
 Running a build script for the first time will cause jobs to be built.
 The second time the same script is run, the Accelerator will look up
-already built jobs and immediately return jobids instead of building
+already built jobs and immediately return job references instead of building
 anything.  As long as there are no changes, re-defining Urd sessions
 that already exists is not a problem - they will be silently ignored.
 But if there are any discrepancies, such as a job being rebuilt, Urd
@@ -453,7 +453,7 @@ urd.peek_latest('test')
 urd.peek_first('test')
 \end{python}
 Note that this is in general not recommended.  These functions will
-look up Urd lists with jobids that may be used to build new jobs, but
+look up Urd lists containing jobs that may be used to build new jobs, but
 these dependencies will not be stored in the current Urd session,
 causing a loss of continuity and visibility.
 
@@ -511,9 +511,9 @@ urd.since('ab/test', '2016-10-05T20:00:00')
 Jobs are dispatched in Urd sessions using the \texttt{build} function.
 Here is the complete call with all possible parameters.
 \begin{python}
-jobid = urd.build(
+job = urd.build(
     method,
-    options={},    datasets={},    jobids={},
+    options={},    datasets={},    jobs={},
     name='',       caption='',
     workdir=None
 )
@@ -527,15 +527,15 @@ Explanation of \texttt{build} parameters:
     This overrides options defined in the method itself, but adding
     options not prototyped in the method is \textsl{not} allowed.\\
 
-\RPtwo \texttt{jobids=\{\}} & a \texttt{dict} of jobids to the method.
-    It is possible to specify a list of jobids like this
+\RPtwo \texttt{jobs=\{\}} & a \texttt{dict} of jobs to the method.
+    It is possible to specify a list of jobs like this
 \begin{python}
-jobids=dict{alljobs=[jobid1, jobid2,...]}
+jobs=dict{alljobs=[job1, job2,...]}
 \end{python}
 \\
 
 \RPtwo \texttt{datasets=\{\}} & a \texttt{dict} of datasets to the method.
-    Datasets may be lists too, just like \texttt{jobids} above.\\
+    Datasets may be lists too, just like \texttt{jobs} above.\\
 
 \RPtwo \texttt{workdir=None} & If specified, the job will be built in
     this workdir, assuming the workdir is specified in the
@@ -549,11 +549,11 @@ jobids=dict{alljobs=[jobid1, jobid2,...]}
 \stoptabletwo
 
 The \texttt{build()} function will only build a job when it has to,
-otherwise it will just return a link (jobid) to a matching existing
+otherwise it will just return a job reference to an existing matching
 job.  In order to match, an existing job must have
 \begin{itemize}
 \item[-] exactly the same source code, i.e.\ the \textsl{hash} of the source code must match,
-\item[-] exactly the same options, datasets, and jobids.
+\item[-] exactly the same options, datasets, and jobs.
 \end{itemize}
 If the source code is changed, a job rebuild can be prevented using
 the \texttt{equivalent\_hashes} variable as explained in

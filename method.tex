@@ -390,13 +390,13 @@ execute.  It is discouraged to use \prepare only.
 
 \subsection{Input Parameters}
 There are three kinds of method input parameters assigned by the
-\texttt{build()} call: \jobids, \datasets, and \options.  These
+\texttt{build()} call: \jobs, \datasets, and \options.  These
 parameters are stated early in the method source code and are
 \textsl{global}, meaning that they do not need to be included as
 parameters to the functions in a method.  Here is an example parameter
 set
 \begin{python}
-jobids = ('accumulated_costs',)
+jobs = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
@@ -559,10 +559,10 @@ The corresponding \texttt{job.load()} and \texttt{job.json\_load()}
 functions that can be called \textsl{both} in methods \textsl{and}
 build scripts.  For example
 \begin{python}
-jobids = ('anotherjob',)
+jobs = ('anotherjob',)
 
 def synthesis():
-    jobids.anotherjob.load('stringfile')
+    jobs.anotherjob.load('stringfile')
 \end{python}
 will load a file from another job into the currently running method, while
 \begin{python}
@@ -646,10 +646,10 @@ options to its input jobs.  For example
 \begin{python}
 import json
 
-jobids = ('anotherjob',)
+jobs = ('anotherjob',)
 
 def synthesis():
-    print(jobids.anotherjob.params.options)
+    print(jobs.anotherjob.params.options)
 \end{python}
 will print the \texttt{options} dictionary that was fed to the
 \texttt{anotherjob} at build time, for example
@@ -663,7 +663,7 @@ will print the \texttt{options} dictionary that was fed to the
   {
     "slices": 8,
     "caption": "fsm_example2",
-    "jobids": {
+    "jobs": {
       "anotherjob": "dev-695"
     },
     "version": 1,
@@ -694,7 +694,7 @@ will print the \texttt{options} dictionary that was fed to the
 
 \texttt{options} & input parameter\\
 \texttt{datasets} & input parameter\\
-\texttt{jobids} &  input parameter\\
+\texttt{jobs} &  input parameter\\
 \hline\\
 
 \multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
@@ -734,18 +734,18 @@ def main(urd):
 \label{sec:input_params}
 
 There are three kinds of method input parameters assign by
-the \texttt{build} call: \jobids, \datasets, and \options.  These
+the \texttt{build} call: \jobs, \datasets, and \options.  These
 parameters are stated early in the method source code, such as for
 example
 \begin{python}
-jobids = ('accumulated_costs',)
+jobs = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
 The input parameters are populated by the builder when the
 \texttt{run} command is executed, see~\ref{chap:urd}.
 
-The \texttt{jobids} parameter list is used to input references to
+The \texttt{jobs} parameter list is used to input references to
 other jobs, while the \datasets parameter list is used to input
 references to datasets.  These parameters must be populated by the
 build call.
@@ -756,13 +756,13 @@ not necessarily be populated by the build call, and this can be used
 for ``global constants'' in the method.  An option assigned by the
 build call will override the default assignment.
 
-Note that \jobids and \datasets are \texttt{tuple}s (or \texttt{list}s
+Note that \jobs and \datasets are \texttt{tuple}s (or \texttt{list}s
 or \texttt{set}s), and a single entry has to be followed by a comma as
 in the example above, while \options is a dictionary.  Individual
 elements of the input parameters may be accessed inside the method
 using dot notation like this
 \begin{python}
-jobids.accumulated_cost
+jobs.accumulated_cost
 datasets.transaction_log
 options.length
 \end{python}
@@ -770,16 +770,16 @@ Each of these parameters will be described in more detail in following
 sections.
 
 
-\subsection{Input Jobids}
-The \jobids parameter is a tuple of job references linking other jobs
-to this job.  In a running method, each item in the \jobids tuple is
+\subsection{Input Jobs}
+The \jobs parameter is a tuple of job references linking other jobs
+to this job.  In a running method, each item in the \jobs tuple is
 of type \texttt{Job} that is used as a reference to the corresponding
-job.  All items in the \jobids tuple must be assigned by the builder
+job.  All items in the \jobs tuple must be assigned by the builder
 to avoid run time errors.
 
-It is possible to specify lists of jobids, see this example
+It is possible to specify lists of jobs, see this example
 \begin{python}
-jobids = ('source', ['alistofjobs'],)
+jobs = ('source', ['alistofjobs'],)
 \end{python}
 where \texttt{source} is a single job reference, whereas
 \texttt{alistofjobs} is a list of job references.
@@ -836,7 +836,7 @@ def prepare():
 It is possible to build subjobs in \prepare and \synthesis, but not in
 \analysis.  The \texttt{subjobs.build()} call uses the same syntax as
 \texttt{urd.build()} described in chapter~\ref{chap:urd}, so the input
-parameters \options, \datasets, \jobids, and \texttt{caption} are
+parameters \options, \datasets, \jobs, and \texttt{caption} are
 available here too.  Similarly, the return value from a subjob
 \texttt{build()} is a job instance corresponding to the built job.
 
@@ -859,7 +859,7 @@ though the dataset is actually created and stored in the subjob.  The
 if left empty, corresponding to the default dataset.
 
 It is possible to override the dataset's previous using the
-\texttt{override\_previous} option, which takes a jobid (or \pyNone)
+\texttt{override\_previous} option, which takes a job reference (or \pyNone)
 to be the new \texttt{previous}.  \index{\texttt{override\_previous}}
 \begin{python}
     ds.link_to_here(name='thename', override_previous=xxx)
@@ -1161,7 +1161,7 @@ section provides a shorter summary about the basic concepts.
 \begin{itemize}
 \item[1.]  Data and metadata relating to a job is stored in a
 job directory.
-\item[2.]  Jobids are pointers to such job directories.
+\item[2.]  Jobs are objects that wraps such job directories.
 \end{itemize}
 The files stored in the job directory at dispatch are complete in the
 sense that they contain all information required to run the job.  So
@@ -1193,7 +1193,7 @@ dependencies).  This hash, together with the input parameters, is used
 to figure out if a result could be re-used instead of re-computed.
 This brings a number of attractive advantages.
 \begin{itemize}
-\item[4.]  Jobs may link to eachother using jobids.
+\item[4.]  Jobs may link to eachother using job references.
 \end{itemize}
 Which means that jobs may share results and parameters with eachother.
 \begin{itemize}

@@ -201,13 +201,13 @@ invocation of the method.
 
 \begin{python}
 datasets = ('source',)
-jobids = ('previous',)
+jobs = ('previous',)
 
 def analysis(sliceno):
     h = defaultdict(set)
     for user, item in datasets.source.iterate_chain(
                            sliceno, columns=('user', 'item',),
-                           stop_ds=jobids.previous.source,):
+                           stop_ds=jobs.previous.source,):
         h[user].add(item)
 \end{python}
 
@@ -291,13 +291,13 @@ dataset \texttt{imp-0}, and the last on \texttt{imp-1}
 and \texttt{imp-2}.  The input parameters to the first processing
 job, \texttt{proc-0}, are
 \begin{itemize}
-\item[] \mintinline{python}|jobids.previous = None|
+\item[] \mintinline{python}|jobs.previous = None|
 \item[] \mintinline{python}|datasets.source = 'imp-0'|
 \end{itemize}
 and the input parameters for the second processing
 job, \texttt{proc-1}, are
 \begin{itemize}
-\item[] \mintinline{python}|jobids.previous = 'proc-0'|
+\item[] \mintinline{python}|jobs.previous = 'proc-0'|
 \item[] \mintinline{python}|datasets.source = 'imp-2'|
 \end{itemize}
 
@@ -307,12 +307,12 @@ the \texttt{previous} job's \texttt{source} dataset, and the code may
 look something like this
 \begin{python}
 datasets = ('source',)
-jobids = ('previous',)
+jobs = ('previous',)
 
 def analysis(sliceno):
     for ... in datasets.source.iterate_chain(
             ...
-            stop_ds={jobids.previous: 'source',}):
+            stop_ds={jobs.previous: 'source',}):
 @@@@@@@@@@@@@@@@@@@@@@@@@
     ...
 \end{python}
@@ -363,11 +363,11 @@ how to stop iterating based on previous jobs.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
                        sliceno, ('user', 'item',),
-                       stop_ds = {jobids.previous: 'source',}):
+                       stop_ds = {jobs.previous: 'source',}):
 @@@@@@@@@@@@@@@@@@@@@@@@@@@
 \end{python}
 This will iterate until reaching the \texttt{source} dataset of
-the \texttt{jobids.previous} job.
+the \texttt{jobs.previous} job.
 
 
 

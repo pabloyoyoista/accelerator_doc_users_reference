@@ -148,10 +148,10 @@ simple, this further processing is represented by printing the result
 to standard output.  A new method \texttt{print\_result} is created,
 and it goes like this
 \begin{python}
-jobids = {'hello_world_job',}
+jobs = {'hello_world_job',}
 
 def synthesis():
-    print(jobids.hello_world_job.load())
+    print(jobs.hello_world_job.load())
 \end{python}
 This method expects the \texttt{hello\_world\_job} input parameter to
 be provided at execution time, and this is accomplished by the
@@ -637,11 +637,11 @@ job's directory making them available to other jobs.
 
 \subsection{Job Parameters}
 \label{sec:jobparams}
-We've seen how jobids from completed jobs can be used as input to new
-jobs.  Jobid parameters is one of three kinds of input parameters that
+We've seen how completed jobs can be used as input to new
+jobs.  Jobs are one of three kinds of input parameters that
 a job can take.  Here the input parameters are summarised:
 \begin{itemize}
-\item[] \texttt{jobids}, a set of identifiers to previously executed jobs;
+\item[] \texttt{jobs}, a set of identifiers to previously executed jobs;
 \item[] \texttt{options}, a dictionary of options; and
 \item[] \texttt{datasets}, a set of input \textsl{datasets}.
 \end{itemize}
@@ -653,7 +653,7 @@ variables early in the method's source.
   \begin{center}
     \input{figures/execflow.pdftex_t}
     \caption{Execution flow of a method.  The method takes optionally
-      three kinds of parameters: \texttt{options}, \texttt{jobids},
+      three kinds of parameters: \texttt{options}, \texttt{jobs},
       and \texttt{datasets}.}
     \label{fig:execflow}
   \end{center}

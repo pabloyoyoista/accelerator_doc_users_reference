@@ -49,11 +49,11 @@ The full syntax for the \texttt{build} function is as follows
 \index{\texttt{urd.build}}
 \begin{python}
 job = urd.build(method,
-                options={}, datasets={}, jobids={},
+                options={}, datasets={}, jobs={},
                 name='', caption='', workdir=None)
 \end{python}
 All parameters, except the name of the method, are optional, and
-the \texttt{options}, \texttt{datasets}, and \texttt{jobids}
+the \texttt{options}, \texttt{datasets}, and \texttt{jobs}
 parameters must correspond to what is defined in the method to be
 executed.
 
@@ -134,7 +134,7 @@ linking a set of dataset-creating jobs.  This function was created for
 the purpose of having build scripts that imported a large set of files
 in a \texttt{for}-loop.  The call looks like this
 \begin{python}
-jobid = urd.build_chained('method1', name='myjob')
+job = urd.build_chained('method1', name='myjob')
 \end{python}
 and it takes the same options as the standard \texttt{build} method,
 with the exception that name is mandatory.  The method must also have
@@ -165,7 +165,7 @@ Create a \texttt{JobList} and pretty-print it
 \begin{python}
 def main(urd):
     job1 = urd.build('first')
-    job2 = urd.build('second', jobids=dict(first=job1))
+    job2 = urd.build('second', jobs=dict(first=job1))
     print(urd.joblist.pretty)
 \end{python}
 which results in

@@ -338,6 +338,33 @@ reporting, see section~\ref{sec:statusreporting}.
 
 
 
+\section{Generate Progress Messages:  the \texttt{status} Module}
+\label{sec:statusreporting}
+The status module is used by the Accelerator to report processing
+state.  It is also used by various functions to report iterator and
+file access progress.  Status messages are presented in
+the \texttt{run} shell by pressing \texttt{C-t}, i.e.\
+the \texttt{Ctrl} and \texttt{t} keys simultaneously.
+
+The status module can be used to write progress and status messages
+for any function.  Here is an example of how to use the status module
+\begin{python}
+from accelerator.status import status
+...
+def analysis(sliceno):
+    msg = "reached line %d already!"
+    with status(msg % (0,) as update:
+        for ix, data in enumerate(datasets.source.iterate(sliceno, 'data')):
+            if ix % 1000000 == 0:
+                update(msg % (ix,))
+\end{python}
+In the example above, the status message will be updated once every
+million iteration.  By pressing \texttt{C-t} during its execution, the
+user will get a message telling how many lines the iterator has
+reached.
+
+
+
 \section{Working with Relative Paths}
 In some situations, like importing data from files, it is convenient
 to store the absolute path of the files as a configuration parameter
@@ -390,3 +417,48 @@ tracking these files is not possible, there is no information linking
 back from the result directory to a specific job.  This may be
 overcome using for example soft file links, however, see
 section~\ref{sec:symlinking}.
+
+
+
+\section{Symlinking}
+\label{sec:symlinking}
+Creating a symlink, for example from the \texttt{result\_directory} to
+current workdir, may be implemented in a simple and safe way like this
+\begin{python}
+from accelerator.extras import symlink @@@@@@@@@@@@@@@@@@@@@@@@
+
+def synthesis(job):
+
+    # create file and write it to jobid
+    ...
+    with open(filename, 'wb') as fh:
+        fh.write(...)
+
+    # create a symlink to filename in result_directory
+    symlink(filename, job.result_directory)
+\end{python}
+The \texttt{extras.symlink} function will write a soft link
+to \texttt{filename} in \texttt{job.result\_directory}, overwriting it if
+it already exists.
+
+
+
+\section{DotDict}
+\begin{verbatim}
+    """Like a dict, but with d.foo as well as d['foo'].
+    d.foo returns '' for unset values by default, but you can specify
+    _attr_default and _item_default constructors (or None to get errors).
+    Normally you should specify _default to set them both to the same thing.
+    The normal dict.f (get, items, ...) still return the functions.
+\end{verbatim}
+
+
+
+\section{profile\_jobs}
+Returns a float corresponding to the total execution time (in seconds)
+of an input list of jobids.
+\begin{python}
+from accelerator.automata_common import profile_jobs
+...
+print(profile_jobs(urd.joblist))
+\end{python}

@@ -433,12 +433,14 @@ Number of rows in this chain, optionally for a specific slice.
 \stoptable
 \end{leftbar}
 
+
 \subsection{\texttt{DatasetChain.column\_counts()}}
 \begin{leftbar}
 Return a Python \texttt{Counter},\mintinline{python}|{colname:
 occurances}|, holding the number of datasets each column appears in.
 Takes no options.
 \end{leftbar}
+
 
 \subsection{\texttt{DatasetChain.column\_count()}}
 \begin{leftbar}
@@ -459,9 +461,11 @@ containing a speficied column.
 \end{leftbar}
 
 
+
 \section{The \texttt{DatasetWriter} Class}
 \starttabletwo
 \texttt{add()} & Add a new column to the dataset under creation.\\
+\texttt{hashcheck()} & Check if value belongs in current slice.\\
 \texttt{set\_slice()} & Set which slice that will receive the next write.\\
 \texttt{column\_filename()} & @@@@@@@@@@@@@@\\
 \texttt{enable\_hash\_discard()} & Make the write functions silently discard data that does not hash to the current slice. \\
@@ -488,8 +492,20 @@ All dataset types are described in section~\ref{}.
 \end{leftbar}
 
 
+\subsection{\texttt{DatasetWriter.hashcheck()}}
+Check if a value belongs to the current slice.
+\begin{leftbar}
+\starttable
+\texttt{value} & \textsl{Mandatory} & Some data/\\
+\stoptable
+Return \pyTrue if \texttt{value} belongs to the current
+slice, \pyFalse otherwise.
+\end{leftbar}
+
+
 \subsection{\texttt{DatasetWriter.set\_slice()}}
-Specify which slice that will receive the next write(s).
+Specify which slice that will receive the next write(s).  Use this if
+writing data in \prepare or \synthesis.
 \begin{leftbar}
 \starttable
 \texttt{sliceno} & \textsl{Mandatory} & Slice number to use for writing.\\
@@ -503,6 +519,15 @@ Specify which slice that will receive the next write(s).
 \starttable
 \texttt{} & \texttt{} & \\
 \stoptable
+\end{leftbar}
+
+
+\subsection{\texttt{DatasetWriter.enable\_hash\_discard()}}
+@@@@@@@@@@@@@@@@@@@
+\begin{leftbar}
+Takes no options.  Set this in each slice or after
+each \texttt{set\_slice()} to make the writer discard values that do
+not belong to the current slice.
 \end{leftbar}
 
 

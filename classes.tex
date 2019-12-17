@@ -324,13 +324,10 @@ pickled.
 \texttt{shape} & A tuple containing number of columns and number of lines in dataset.\\
 \texttt{link\_to\_here()} & Used to associate a subjob's dataset with the current job, see section~\ref{sec:linktohere}.\\
 \texttt{merge()} & Merge this dataset with another dataset, see section~\ref{sec:datasetmerge}.\\
-\texttt{column\_filename()} & @@@@@@@@@@@@@@@@@@\\
 \texttt{chain()} & A \texttt{DatasetChain} object, see section~\ref{sec:dschain}\\
 \texttt{iterate\_chain()} & Iterator over chains, see section~\ref{sec:iterator}.\\
 \texttt{iterate()} & Iterator over dataset see section~\ref{sec:iterator}.\\
 \texttt{iterate\_list()} & Iterator over a list of datasets, see section~\ref{sec:iterator}.\\
-\texttt{new()} & @@@@@@@@@@@@@@@@@@@\\
-\texttt{append()} & @@@@@@@@@@@@@\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
 
@@ -374,11 +371,6 @@ dataset.
 \end{leftbar}
 
 
-
-\subsection{\texttt{Dataset.column\_filename()}}
-@@@@@@@@@@@@@@@@@
-
-
 \subsection{\texttt{Dataset.chain()}}
 \begin{leftbar}
 This function will return a \texttt{DatasetChain} object, see
@@ -389,14 +381,6 @@ section~\ref{sec:datasetchain}.
 \texttt{stop\_ds} & \pyNone & If set, chain will start at the dataset after \texttt{stop\_ds}.\\
 \stoptable
 \end{leftbar}
-
-
-\subsection{\texttt{Dataset.new()}}
-@@@@@@@@@@@@@@@@
-
-
-\subsection{\texttt{Dataset.append()}}
-@@@@@@@@@@@@@@@@@@@
 
 
 
@@ -467,15 +451,11 @@ containing a speficied column.
 \texttt{add()} & Add a new column to the dataset under creation.\\
 \texttt{hashcheck()} & Check if value belongs in current slice.\\
 \texttt{set\_slice()} & Set which slice that will receive the next write.\\
-\texttt{column\_filename()} & @@@@@@@@@@@@@@\\
 \texttt{enable\_hash\_discard()} & Make the write functions silently discard data that does not hash to the current slice. \\
 \texttt{get\_split\_write()} & Get a writer object, see section~\ref{}.\\
 \texttt{get\_split\_write\_list()} & Get a writer object, see section~\ref{}.\\
 \texttt{get\_split\_write\_dict()} & Get a writer object, see section~\ref{}.\\
-\texttt{close()} & @@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\
 \texttt{discard()} & Discard the dataset under creation@@@@@@@@@@@@@@22\\
-\texttt{set\_lines()} & @@@@@@@@@@@@@@@@@\\
-\texttt{set\_minmax()} & @@@@@@@@@@@@@@2\\
 \texttt{finish()} & Call this if dataset is to be used before creating job finishes, e.g.\ if the dataset under creation is input to a subjob.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
@@ -513,39 +493,11 @@ writing data in \prepare or \synthesis.
 \end{leftbar}
 
 
-\subsection{\texttt{DatasetWriter.column\_filename()}}
-@@@@@@@@@@@@@@@@@@@
-\begin{leftbar}
-\starttable
-\texttt{} & \texttt{} & \\
-\stoptable
-\end{leftbar}
-
-
 \subsection{\texttt{DatasetWriter.enable\_hash\_discard()}}
-@@@@@@@@@@@@@@@@@@@
 \begin{leftbar}
 Takes no options.  Set this in each slice or after
 each \texttt{set\_slice()} to make the writer discard values that do
 not belong to the current slice.
-\end{leftbar}
-
-
-\subsection{\texttt{DatasetWriter.set\_lines()}}
-@@@@@@@@@@@@@@@222
-\begin{leftbar}
-\starttable
-\texttt{} & \texttt{} & \\
-\stoptable
-\end{leftbar}
-
-
-\subsection{\texttt{DatasetWriter.set\_minmax()}}
-@@@@@@@@@@@@@@@@
-\begin{leftbar}
-\starttable
-\texttt{} & \texttt{} & \\
-\stoptable
 \end{leftbar}
 
 
@@ -567,7 +519,7 @@ not belong to the current slice.
 \texttt{set\_workdir()} & Set the target workdir.\\
 \texttt{build()} & Build a job.\\
 \texttt{build\_chained()} & Build a job with chaining.\\
-\texttt{warn()} & @@@@@@@@@@@@@@@\\
+\texttt{warn()} & Add a warning message to be displayed at the end of the build.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
 
@@ -716,16 +668,16 @@ dependencies will be recorded.
 
 
 \subsection{\texttt{Urd.build\_chained()}}
-Build a chained job. @@@@@@@@@@@@@@@@
+Build a chained job. @@@@@@@@@@@@@@@@  TESTA DETTA!
 \begin{leftbar}
 Same options as \texttt{build}
 \end{leftbar}
 
 
 \subsection{\texttt{Urd.warn()}}
+Print a string after successful build@@@@
 \begin{leftbar}
-@@@@@@@@@@@@@@@
 \starttable
-\texttt{} & \texttt{} & \\
+\texttt{line} & \textsl{Mandatory} & Some string\\
 \stoptable
 \end{leftbar}

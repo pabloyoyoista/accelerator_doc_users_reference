@@ -313,7 +313,6 @@ def analysis(sliceno):
     for ... in datasets.source.iterate_chain(
             ...
             stop_ds={jobs.previous: 'source',}):
-@@@@@@@@@@@@@@@@@@@@@@@@@
     ...
 \end{python}
 
@@ -364,7 +363,6 @@ how to stop iterating based on previous jobs.
 for user, item in datasets.source.iterate_chain(
                        sliceno, ('user', 'item',),
                        stop_ds = {jobs.previous: 'source',}):
-@@@@@@@@@@@@@@@@@@@@@@@@@@@
 \end{python}
 This will iterate until reaching the \texttt{source} dataset of
 the \texttt{jobs.previous} job.

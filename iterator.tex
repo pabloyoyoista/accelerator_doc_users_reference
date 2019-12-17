@@ -86,11 +86,11 @@ All three iterators share these arguments
   the \texttt{dataset\_rehash}
   method~\ref{sec:dataset_rehash}.)\\[1ex]
   
-  \RP \texttt{translators} & \pyNone & Translators transform data
-  values.  Explained in section~\ref{sec:translators}\\[1ex]
+%  \RP \texttt{translators} & \pyNone & Translators transform data
+%  values.  Explained in section~\ref{sec:translators}\\[1ex]
   
-  \RP \texttt{filters} & \pyNone & Filters decide which rows to
-  include.  Explained in section~\ref{sec:filters}\\[1ex]
+%  \RP \texttt{filters} & \pyNone & Filters decide which rows to
+%  include.  Explained in section~\ref{sec:filters}\\[1ex]
 
   \RP \texttt{status\_reporting} & \pyTrue & Give status when
   pressing \texttt{C-t}.  Unless manually \texttt{zip}ing iterators,
@@ -253,8 +253,8 @@ for user in datasets.source.iterate(sliceno, ('USER',)):
 for user in datasets.source.iterate(sliceno, 'USER',):
     userset.add(user)     # user is a scalar!
 \end{python}
-Both styles are supported by filters and translators introduced later
-in this chapter.
+%Both styles are supported by filters and translators introduced later
+%in this chapter.
 
 
 
@@ -516,163 +516,163 @@ In this case, a \texttt{post\_callback} will never be run.
 
 
 
-\section{Translators}
-\label{sec:translators}
-Translators transform iterator output data values on-the-fly.  A
-translator is either a callable or a \texttt{dict}.  Translators are
-similar to \textsl{filters} (explained later), and always
-executed \emph{before} filtering.  The idea behind translators and
-filters is to provide a way to modify code behavior by supplying
-functions as options to iterators.  Using translators and filters,
-it is possible to write re-useable functions that can have different
-behaviour depending on context.
+%% \section{Translators}
+%% \label{sec:translators}
+%% Translators transform iterator output data values on-the-fly.  A
+%% translator is either a callable or a \texttt{dict}.  Translators are
+%% similar to \textsl{filters} (explained later), and always
+%% executed \emph{before} filtering.  The idea behind translators and
+%% filters is to provide a way to modify code behavior by supplying
+%% functions as options to iterators.  Using translators and filters,
+%% it is possible to write re-useable functions that can have different
+%% behaviour depending on context.
 
 
-\subsection*{Callable Translator, translating \texttt{tuple}s}
+%% \subsection*{Callable Translator, translating \texttt{tuple}s}
 
-@@@@ kolla att det funkar
+%% @@@@ kolla att det funkar
 
-A translator function is a function from an input \texttt{tuple} (of
-column values) to an output \texttt{tuple} of the same length.
-Individual items may be passed through or modified, and it is possible
-to mix different columns with each other before sending them to the
-iterator output.  Here is an example
-\begin{python}
-def merger(user, item):
-    return ("%s:%s" % (user, item), None)
+%% A translator function is a function from an input \texttt{tuple} (of
+%% column values) to an output \texttt{tuple} of the same length.
+%% Individual items may be passed through or modified, and it is possible
+%% to mix different columns with each other before sending them to the
+%% iterator output.  Here is an example
+%% \begin{python}
+%% def merger(user, item):
+%%     return ("%s:%s" % (user, item), None)
 
-for merge, _ in datasets.source.iterate_chain(
-                     None, ('user', 'item',),
-                     translator=merger):
-    ...
-\end{python}
-The purpose of this translator is to convert each
-\mintinline{python}/(user, item)/ tuple to a string ``\texttt{user:item}''.
-This is the first output of the translator and iterator and is stored
-in the \texttt{merge} variable.  The second output variable is not
-used in this application, but a variable still has to be assigned, so
-it is set arbitrarily to \pyNone.
-
-
-\subsection{Translator \texttt{dict}, translating columns independently}
-
-@@@@ kolla att det funkar
-
-@@@@ ungefar har, kolla vilka sections som har star, kolla att exempel funkar.
-
-One or more columns may be translated independently using a translator
-dictionary.  Such a dictionary is specified
-as \mintinline{python}/{name: translation}/.  A translation may be
-either a \texttt{dict} or a callable.  Examples of both kinds are
-shown below.  First an example illustrating the use of a
-translation \texttt{dict}.  Here, integers are translated into more
-comprehensible strings.
-\begin{python}
-mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'STARFISH',}
-for animal in datasets.source.iterate(
-                   None, 'NUM_LEGS',
-                   translator={'NUM_LEGS': mapper,}):
-    ...
-\end{python}
-This translator will substitute the integers 2, 4, and 5 into strings.
-Items missing in a translation-\texttt{dict} yield \pyNone.  The next
-example illustrates a callable inside a translator \texttt{dict}.  In
-this example, each \texttt{user} string is output from the iterator
-reading right-to-left.
-\begin{python}
-def reverse(x):
-    return x[::-1]
-for resu, item in dataset.source.iterate(
-                       None, ('USER', 'ITEM',),
-                       translator={'USER': reverse,}):
-    ...
-\end{python}
-The \texttt{item} values will be passed through, but the \texttt{user}
-strings will be reversed.
+%% for merge, _ in datasets.source.iterate_chain(
+%%                      None, ('user', 'item',),
+%%                      translator=merger):
+%%     ...
+%% \end{python}
+%% The purpose of this translator is to convert each
+%% \mintinline{python}/(user, item)/ tuple to a string ``\texttt{user:item}''.
+%% This is the first output of the translator and iterator and is stored
+%% in the \texttt{merge} variable.  The second output variable is not
+%% used in this application, but a variable still has to be assigned, so
+%% it is set arbitrarily to \pyNone.
 
 
+%% \subsection{Translator \texttt{dict}, translating columns independently}
 
-\section{Filters}
-\label{sec:filters}
-Filter are used to decide which output data rows that are allowed to
-reach the iterator output.  Filters are run \emph{after} translators.
-As for translators, filter are either callables or \texttt{dict}s.
+%% @@@@ kolla att det funkar
 
+%% @@@@ ungefar har, kolla vilka sections som har star, kolla att exempel funkar.
 
-\subsection{Callable Filter, filtering \texttt{tuple}s}
-Callable filters receive the iterator \texttt{tuple} as input.  The
-output of a filter must be \pyTrue for the \texttt{tuple} to be output
-from the iterator, otherwise the iterator skips and continues to the
-next row.  The following two examples will iterate over all animals
-that have at least two legs and a trunk.  The first example is without
-filter, using an \texttt{if}-statement, and the second example uses
-iterator \texttt{filters}.
-\begin{python}
-# Ex. 1. Using if-statement
-for animal, nlegs, wtrunk in datasets.source.iterate(
-                    None,
-                    ('animal', 'num_legs', 'has_trunk'),
-                    filters=filter):
-    if nlegs>=2 and wtrunk:
-    ...
-
-# Ex. 2.  Using iterator filters
-filter = lambda line: line[1]>=2 and line[2]
-
-for animal, nlegs, wtrunk in datasets.source.iterate(
-                    None,
-                    ('animal', 'num_legs', 'has_trunk'),
-                    filters=filter):
-    ...
-\end{python}
-Note the indexing in the \texttt{lambda} function.  Index zero
-corresponds to the \texttt{animal} column, which is not includes in
-the filtering expression.
+%% One or more columns may be translated independently using a translator
+%% dictionary.  Such a dictionary is specified
+%% as \mintinline{python}/{name: translation}/.  A translation may be
+%% either a \texttt{dict} or a callable.  Examples of both kinds are
+%% shown below.  First an example illustrating the use of a
+%% translation \texttt{dict}.  Here, integers are translated into more
+%% comprehensible strings.
+%% \begin{python}
+%% mapper = {2: 'HUMANLIKE', 4: 'LABRADOR', 5: 'STARFISH',}
+%% for animal in datasets.source.iterate(
+%%                    None, 'NUM_LEGS',
+%%                    translator={'NUM_LEGS': mapper,}):
+%%     ...
+%% \end{python}
+%% This translator will substitute the integers 2, 4, and 5 into strings.
+%% Items missing in a translation-\texttt{dict} yield \pyNone.  The next
+%% example illustrates a callable inside a translator \texttt{dict}.  In
+%% this example, each \texttt{user} string is output from the iterator
+%% reading right-to-left.
+%% \begin{python}
+%% def reverse(x):
+%%     return x[::-1]
+%% for resu, item in dataset.source.iterate(
+%%                        None, ('USER', 'ITEM',),
+%%                        translator={'USER': reverse,}):
+%%     ...
+%% \end{python}
+%% The \texttt{item} values will be passed through, but the \texttt{user}
+%% strings will be reversed.
 
 
 
-\subsection*{Filter Dict, filtering independent columns}
-
-It is possible to filter on one or more columns independently using a
-\texttt{dict}.  If there is more than one filter, all filters must be
-\pyTrue for a line to be output from the iterator.
-Below are two examples of filter \texttt{dict}s.  The first example
-will remove all rows except the ones with valid users.
-\begin{python}
-# keep valid users only
-validusers={'user1', 'user2', 'user3'}
-filters={'user': validusers.__contains__}
-\end{python}
-The second example will only keep rows with valid users and movie
-items.
-\begin{python}
-# keep valid users with movie items
-validusers={'user1', 'user2', 'user3'}
-validitems={'movie': True, 'book': False}
-filters={'user': validusers.__contains__, 'item': validitems.get}
-\end{python}
-The fact that book is \pyFalse is actually redundant, since
-missing keys will never evaluate to \pyTrue and thus result in
-discarded lines.
+%% \section{Filters}
+%% \label{sec:filters}
+%% Filter are used to decide which output data rows that are allowed to
+%% reach the iterator output.  Filters are run \emph{after} translators.
+%% As for translators, filter are either callables or \texttt{dict}s.
 
 
+%% \subsection{Callable Filter, filtering \texttt{tuple}s}
+%% Callable filters receive the iterator \texttt{tuple} as input.  The
+%% output of a filter must be \pyTrue for the \texttt{tuple} to be output
+%% from the iterator, otherwise the iterator skips and continues to the
+%% next row.  The following two examples will iterate over all animals
+%% that have at least two legs and a trunk.  The first example is without
+%% filter, using an \texttt{if}-statement, and the second example uses
+%% iterator \texttt{filters}.
+%% \begin{python}
+%% # Ex. 1. Using if-statement
+%% for animal, nlegs, wtrunk in datasets.source.iterate(
+%%                     None,
+%%                     ('animal', 'num_legs', 'has_trunk'),
+%%                     filters=filter):
+%%     if nlegs>=2 and wtrunk:
+%%     ...
+
+%% # Ex. 2.  Using iterator filters
+%% filter = lambda line: line[1]>=2 and line[2]
+
+%% for animal, nlegs, wtrunk in datasets.source.iterate(
+%%                     None,
+%%                     ('animal', 'num_legs', 'has_trunk'),
+%%                     filters=filter):
+%%     ...
+%% \end{python}
+%% Note the indexing in the \texttt{lambda} function.  Index zero
+%% corresponds to the \texttt{animal} column, which is not includes in
+%% the filtering expression.
 
 
-\subsection*{Filter by Column Values}
 
-Filtering could also be by column value directly.  For example, assume
-there is a column \texttt{has\_trunk} with values being Boolean
-integers, i.e.\ \texttt{1} or \texttt{0}.  Animals with trunks may be
-iterated using
-\begin{python}
-for animal, wtrunk in datasets.source.iterate_chain(None,
-                      ('animal', 'has_trunk',),
-                      filters={'has_trunk': None}):
-    trunked.add(animal)
-\end{python}
-This may seem strange at first, but it works because the key for
-the \texttt{has\_trunk} column exists, and the value is
-\pyNone, which is neither a callable nor a \texttt{dict}.
+%% \subsection*{Filter Dict, filtering independent columns}
+
+%% It is possible to filter on one or more columns independently using a
+%% \texttt{dict}.  If there is more than one filter, all filters must be
+%% \pyTrue for a line to be output from the iterator.
+%% Below are two examples of filter \texttt{dict}s.  The first example
+%% will remove all rows except the ones with valid users.
+%% \begin{python}
+%% # keep valid users only
+%% validusers={'user1', 'user2', 'user3'}
+%% filters={'user': validusers.__contains__}
+%% \end{python}
+%% The second example will only keep rows with valid users and movie
+%% items.
+%% \begin{python}
+%% # keep valid users with movie items
+%% validusers={'user1', 'user2', 'user3'}
+%% validitems={'movie': True, 'book': False}
+%% filters={'user': validusers.__contains__, 'item': validitems.get}
+%% \end{python}
+%% The fact that book is \pyFalse is actually redundant, since
+%% missing keys will never evaluate to \pyTrue and thus result in
+%% discarded lines.
+
+
+
+
+%% \subsection*{Filter by Column Values}
+
+%% Filtering could also be by column value directly.  For example, assume
+%% there is a column \texttt{has\_trunk} with values being Boolean
+%% integers, i.e.\ \texttt{1} or \texttt{0}.  Animals with trunks may be
+%% iterated using
+%% \begin{python}
+%% for animal, wtrunk in datasets.source.iterate_chain(None,
+%%                       ('animal', 'has_trunk',),
+%%                       filters={'has_trunk': None}):
+%%     trunked.add(animal)
+%% \end{python}
+%% This may seem strange at first, but it works because the key for
+%% the \texttt{has\_trunk} column exists, and the value is
+%% \pyNone, which is neither a callable nor a \texttt{dict}.
 
 
 

@@ -568,22 +568,22 @@ very quickly produce histograms or plots of subsets of the data.
 
 
 
-\subsection{Dataset Translators and Filters}
+%% \subsection{Dataset Translators and Filters}
 
-The iterator may perform data translation and filtering on-the-fly
-using the \texttt{translators} and \texttt{filters} options.  Here is
-an example of how a dictionary can be fed into the iterator to map a
-column
-\begin{python}
-mapper = {2: "HUMANLIKE", 4: "LABRADOR", 5: "STARFISH",}
-for animal in datasets.source.iterate_chain(sliceno, \
-  "NUM_LEGS", translator={"NUM_LEGS": mapper,}):
-    ...
-\end{python}
-This will iterate over the \texttt{NUM\_LEGS} column, and map numbers
-to strings according to the \texttt{mapper} dict.
+%% The iterator may perform data translation and filtering on-the-fly
+%% using the \texttt{translators} and \texttt{filters} options.  Here is
+%% an example of how a dictionary can be fed into the iterator to map a
+%% column
+%% \begin{python}
+%% mapper = {2: "HUMANLIKE", 4: "LABRADOR", 5: "STARFISH",}
+%% for animal in datasets.source.iterate_chain(sliceno, \
+%%   "NUM_LEGS", translator={"NUM_LEGS": mapper,}):
+%%     ...
+%% \end{python}
+%% This will iterate over the \texttt{NUM\_LEGS} column, and map numbers
+%% to strings according to the \texttt{mapper} dict.
 
-Filters work similarly.
+%% Filters work similarly.
 
 
 

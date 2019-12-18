@@ -164,7 +164,7 @@
     \includegraphics[width=11cm]{odhner_square_100dpi.jpg}
   \end{figure}
 
-  {\Large --- Fast and reproducible data processing ---}
+  {\Large --- Fast and Reproducible Data Processing ---}
 
   \vfill
   { Anders Berkeman, Carl Drougge, and Sofia H\"orberg}\\
@@ -214,10 +214,18 @@ version & git hash & date & description\\[0.75ex]
 \include{urd}
 
 \chapter{Standard Methods}
+The Accelerator is shipped with a set of common standard methods,
+including methods to import, type, export, and hash partition data.
+These methods are found in the method
+directory \texttt{./standard\_methods}.  All methods
+in \texttt{standard\_methods} are designed and tested to work on both
+Python2 and Python3.
 \include{standard_methods}
+
 
 \chapter{Running the Accelerator}
 \include{tools}
+
 
 \appendix
 
@@ -229,6 +237,8 @@ it, and how to set up a new project.
 
 
 \chapter{Classes}
+The Accelerator is programed using an object oriented approach.  This
+chapter outlines the most common classes and its member functions.
 \include{classes}
 
 

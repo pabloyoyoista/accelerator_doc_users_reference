@@ -16,12 +16,6 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Accelerator is shipped with a set of common standard methods,
-including methods to import, type, export, and hash partition data.
-These methods are found in the method
-directory \texttt{./standard\_methods}.  All methods
-in \texttt{standard\_methods} are designed and tested to work on both
-Python2 and Python3.
 
 
 \section{\texttt{csvimport} -- Importing Data Files}
@@ -36,7 +30,6 @@ options below.  For example, \texttt{csvimport} can handle any
 separator character, skip or parse labels on the first line, and
 supports advanced quote support.  It also deals with ``broken'' input
 data in a predicted and user controlled way.
-
 
 
 \subsection{Options}
@@ -174,8 +167,7 @@ character (\texttt{0x00}, \mintinline{python}|'\0'|).
 
 
 
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{csvimport\_zip} -- Importing \texttt{zip} Archives}
 The \texttt{csvimport\_zip} method is a wrapper
 around \texttt{csvimport} that is used to import files stored in
@@ -235,11 +227,7 @@ directories. The default is to include directories.
 
 
 
-
-
-
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{dataset\_type} -- Typing Datasets}
 The \texttt{dataset\_type} method will read a source dataset and
 create a new dataset that is typed.  This is primarily used for typing
@@ -521,8 +509,7 @@ ASCII is similar, there are two types
 
 
 
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{csvexport} -- Exporting Text Files}
 The \texttt{dataset\_export} method is used to export datasets to
 column based text files (CSV, Comma Separated Values).  It can export
@@ -593,8 +580,7 @@ urd.build(csvexport',
 
 
 
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{dataset\_rehash} -- Hash Partition a Dataset}
 \label{sec:dataset_rehash}
 
@@ -693,8 +679,7 @@ target_sliceno = siphash24(cols[hashlabel]) % params.slices
 
 
 
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{dataset\_filter\_columns} -- Removing Columns from a Dataset}
 
 The \texttt{dataset\_filter\_columns} method removes columns from a
@@ -718,8 +703,7 @@ redundant data is written to disk.
 
 
 
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{dataset\_sort} -- Sorting a Dataset}
 The method \texttt{dataset\_sort} is used to sort relatively large
 datasets.  One or more columns may be selected for sorting, and it
@@ -785,8 +769,7 @@ computer can sort very large datasets without trouble.
 
 
 
-\par\noindent\rule{\textwidth}{0.4pt}
-
+\clearpage
 \section{\texttt{dataset\_checksum}, \texttt{dataset\_checksum\_chain}}
 
 The \texttt{dataset\_checksum} method is used to create a single

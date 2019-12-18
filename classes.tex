@@ -1,5 +1,3 @@
-This section covers the Accelerator's most important Classes.
-
 \section{The \texttt{Job} and \texttt{CurrentJob} Classes}
 The \texttt{Job} class is used to represent and operate on existing
 jobs.  An object of this class is returned from job \texttt{build()}
@@ -41,19 +39,27 @@ attributes too:
 @@@@@@@@@@ Intro till sliced files var???
 
 \subsection{\texttt{Job.filename()}}
-\begin{leftbar}
-Return the absolute (full path) filename to a file stored in the job.
-If the file is sliced, a particular slice file can be retrieved using
-the \texttt{sliceno} parameter.
+%\begin{leftbar}
 \starttable
 \texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
 \texttt{sliceno}  & \pyNone & Set to current slice number if sliced, otherwise \pyNone.\\
 \stoptable
-\end{leftbar}
+Return the absolute (full path) filename to a file stored in the job.
+If the file is sliced, a particular slice file can be retrieved using
+the \texttt{sliceno} parameter.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.open()}}
-\begin{leftbar}
+%\begin{leftbar}
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
+\texttt{sliceno} & \pyNone & Read or write sliced files.\\
+\texttt{encoding} & \pyNone & Same as Python's \texttt{open()}\\
+\texttt{errors} & \pyNone & Same as Python's \texttt{open()}\\
+\texttt{temp} & \pyNone & Control file persistence.  See text.\\
+\stoptable
 This is a wrapper around the standard \texttt{open} function with some
 extra features.  Note that
 \begin{itemize}
@@ -69,98 +75,88 @@ with job.open(...) as fh:
 \item[--]  \texttt{CurrentJob.open()} can use the \texttt{temp} flag to
 modify the persistence of written files.
 \end{itemize}
-\starttable
-\texttt{filename} & \textsl{Mandatory} & Name of file.\\
-\texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
-\texttt{sliceno} & \pyNone & Read or write sliced files.\\
-\texttt{encoding} & \pyNone & Same as Python's \texttt{open()}\\
-\texttt{errors} & \pyNone & Same as Python's \texttt{open()}\\
-\texttt{temp} & \pyNone & Control file persistence.  See text.\\
-\stoptable
 The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.open()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.  Sliced files
 are described in section~\ref{sec:slicedfiles}.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.withfile()}}
-\begin{leftbar}
-The \texttt{.withfile()} is used to highlight a specific file in a job
-and feed it to another job \texttt{build()}.  The file could be
-sliced.
+%\begin{leftbar}
 \starttable
 \texttt{filename} & \textsl{Mandatory} & Name of file.\\
 \texttt{sliced} & \pyFalse & Boolean indicating if the file is sliced or not.\\
 \texttt{extra} & \pyNone & Any additional information to the job to be built.\\
 \stoptable
-\end{leftbar}
+The \texttt{.withfile()} is used to highlight a specific file in a job
+and feed it to another job \texttt{build()}.  The file could be
+sliced.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.load()}}
-\begin{leftbar}
-Load a file from a job in Python's pickle format.
+%\begin{leftbar}
 \starttable
 \texttt{filename} & \texttt{result.pickle} & \hspace{2ex}Name of file.\\
 \texttt{sliceno} & \pyNone & \\
 \texttt{encoding} & \texttt{bytes} & \\
 \stoptable
-\end{leftbar}
+Load a file from a job in Python's pickle format.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.json\_load()}}
-\begin{leftbar}
-Load a file from a job, in JSON format.
+%\begin{leftbar}
 \starttable
 \texttt{filename} & \texttt{result.json} & Name of file.\\
 \texttt{sliceno} & \pyNone & \\
 %\texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
 \stoptable
+Load a file from a job, in JSON format.
 %The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
 %to let strings decode as bytes.  Override this for unicode.  In
 %Python3, strings decode as unicode.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.dataset()}}
-\begin{leftbar}
-Get a dataset instance from a job.
+%\begin{leftbar}
 \starttable
 \texttt{name} & \texttt{default} & \\
 \stoptable
-\end{leftbar}
+Get a dataset instance from a job.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.output()}}
-\begin{leftbar}
-Get everything a job has printed to \texttt{stdout}
-and \texttt{stderr} in a string variable.
+%\begin{leftbar}
 \starttable
 \texttt{what} & \pyNone & \\
 \stoptable
-\end{leftbar}
+Get everything a job has printed to \texttt{stdout}
+and \texttt{stderr} in a string variable.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.save()}}
-\begin{leftbar}
-For \texttt{CurrentJob} instances only.  Save data into the current
-job's directory in Python's pickle format.
+%\begin{leftbar}
 \starttable
 \texttt{obj} & \textsl{Mandatory} & \\
 \texttt{filename} & \texttt{result.pickle} & \\
 \texttt{sliceno} & \pyNone & \\
 \texttt{temp} & \pyNone & \\
 \stoptable
+For \texttt{CurrentJob} instances only.  Save data into the current
+job's directory in Python's pickle format.
 The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.save()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.json\_save()}}
-\begin{leftbar}
-For \texttt{CurrentJob} instances only.  Save data into the current
-job's directory in JSON format.
+%\begin{leftbar}
 \starttable
 \texttt{obj} & \textsl{Mandatory} & \\
 \texttt{filename} & \texttt{result.json} & \\
@@ -168,15 +164,17 @@ job's directory in JSON format.
 \texttt{sort\_keys} & \pyTrue & \\
 \texttt{temp} & \pyNone & \\
 \stoptable
+For \texttt{CurrentJob} instances only.  Save data into the current
+job's directory in JSON format.
 The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.json\_save()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{Sliced Files}
 \label{sec:slicedfiles}
-\begin{leftbar}
+%\begin{leftbar}
 A \textsl{sliced} file is actually a set of files used to store data
 independently in each \analysis process using a common name.  The
 functions that operate on files, such as for example \texttt{.open()}
@@ -191,12 +189,12 @@ def analysis(sliceno, job):
 will create a set of files \texttt{mydata.\%d}, where \texttt{\%d} is
 replaced by the slice number.  In this way, data can be passed ``in
 parallel'' between different jobs.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{File Persistence}
 \label{sec:debugflag}
-\begin{leftbar}
+%\begin{leftbar}
 @@@@@@@@@@@@@@ Får inte detta att funka, file verkar aldrig sparas vid
 DEBUG eller DEBUGTEMP.  Via --flags=debug
 
@@ -233,12 +231,11 @@ def analysis(sliceno, job):
     # save always, but remove unless --debug
     job.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
 \end{python}
-\end{leftbar}
+%\end{leftbar}
 
 
 
-
-
+\clearpage
 \section{The \texttt{JobWithFile} Class}
 The \texttt{JobWithFile} class is used to create a job input parameter
 from a file stored in a job.
@@ -255,6 +252,7 @@ up that slice of the file only.
 
 
 
+\clearpage
 \section{The \texttt{JobList} Class}
 Objects of the \texttt{JobList} class are returned by member functions
 to the \texttt{Urd} class.  They are used to group sessions of jobs
@@ -272,7 +270,7 @@ together.
 
 
 \subsection{\texttt{JobList.find()}}
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{method} & \textsl{Mandatory} & Method or name to find.\\
 \stoptable
@@ -281,11 +279,11 @@ current \texttt{JobList} matching the \texttt{method} argument.  The
 matching part is either the unique name of the method's source code,
 or the name optionally given at build time using the \texttt{name=}
 argument.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{JobList.get()}}
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{method} & \textsl{Mandatory} & Method or name to find.\\
 \texttt{default} & \pyNone & Return the latest matching job.\\
@@ -295,19 +293,22 @@ matching part is either the unique name of the method's source code,
 or the name optionally given at build time using the \texttt{name=}
 argument.  If no matches are found, it will return
 the \texttt{default} argument.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{JobList.print\_profile()}}
-\begin{leftbar}
-Print total execution time for the \texttt{Joblist}, and,
-conditionally, execution time for each job in the list,
-to \texttt{stdout}.
+%\begin{leftbar}
 \starttable
 \texttt{verbose} & \pyTrue & In addition to total time, print execution time for each method in list.\\
 \stoptable
-\end{leftbar}
+Print total execution time for the \texttt{Joblist}, and,
+conditionally, execution time for each job in the list,
+to \texttt{stdout}.
+%\end{leftbar}
 
+
+
+\clearpage
 \section{The \texttt{Dataset} Class}
 The \texttt{Dataset} class is used to operate on small or large
 datasets stored on disk.  It decays to a (unicode) string when
@@ -333,7 +334,12 @@ pickled.
 
 
 \subsection{\texttt{Dataset.link\_to\_here()}}
-\begin{leftbar}
+%\begin{leftbar}
+\starttable
+\texttt{name} & \texttt{default} & The new name of the dataset.\\
+\texttt{column\_filter} & \pyNone & Iterable of columns to include, or \pyNone to get all.\\
+\texttt{override\_previous} & \texttt{\_no\_override} & Set this to the new previous.\\
+\stoptable
 Use this to expose a subjob as a dataset in your job, like in this
 example:
 \begin{python}
@@ -347,43 +353,39 @@ is possible to filter which columns should be visible in the link
 using \texttt{column\_filter}.  For chaining purposes, it is possible
 for the link to expose a parent dataset of choice, set using
 the \texttt{override\_previous} parameter.
-\starttable
-\texttt{name} & \texttt{default} & The new name of the dataset.\\
-\texttt{column\_filter} & \pyNone & Iterable of columns to include, or \pyNone to get all.\\
-\texttt{override\_previous} & \texttt{\_no\_override} & Set this to the new previous.\\
-\stoptable
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Dataset.merge()}}
-\begin{leftbar}
-Merge this and other dataset. Columns from the other dataset take
-priority.  If datasets do not have a common ancestor you get an error
-unless \texttt{allow\_unrelated} is set. The new dataset always has
-the previous specified here (even if \pyNone).  Returns the new
-dataset.
+%\begin{leftbar}
 \starttable
 \texttt{other} & \textsl{Mandatory} & Merge with this dataset.\\
 \texttt{name} & ``\texttt{default}''& Name of new dataset\\
 \texttt{previous} & \pyNone& The new dataset's \texttt{previous} dataset.\\
 \texttt{allow\_unrelated} & \pyFalse& Set this if the datasets do not share a common ancestor.\\
 \stoptable
-\end{leftbar}
+Merge this and other dataset. Columns from the other dataset take
+priority.  If datasets do not have a common ancestor you get an error
+unless \texttt{allow\_unrelated} is set. The new dataset always has
+the previous specified here (even if \pyNone).  Returns the new
+dataset.
+%\end{leftbar}
 
 
 \subsection{\texttt{Dataset.chain()}}
-\begin{leftbar}
-This function will return a \texttt{DatasetChain} object, see
-section~\ref{sec:datasetchain}.
+%\begin{leftbar}
 \starttable
 \texttt{length} & \texttt{-1} & Number of datasets in chain.  The default value of \texttt{-1} will include all datasets in chain.\\
 \texttt{reverse} & \pyFalse & Reverse order of chain.\\
 \texttt{stop\_ds} & \pyNone & If set, chain will start at the dataset after \texttt{stop\_ds}.\\
 \stoptable
-\end{leftbar}
+This function will return a \texttt{DatasetChain} object, see
+section~\ref{sec:datasetchain}.
+%\end{leftbar}
 
 
 
+\clearpage
 \section{The \texttt{DatasetChain} Class}
 These are lists of datasets returned from Dataset.chain.
 They exist to provide some convenience methods on chains.
@@ -399,53 +401,54 @@ They exist to provide some convenience methods on chains.
 
 
 \subsection{\texttt{DatasetChain.min()}, \texttt{DatasetChain.max()}}
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{column} & \textsl{Mandatory} & Min/max value of column, see text.\\
 \stoptable
 Minimum or maximum value for column over the whole chain.  Will be
 \pyNone if no dataset in the chain contains \texttt{column}, if all datasets are
 empty or if \texttt{column} has a type without min/max tracking.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetChain.lines()}}
-\begin{leftbar}
-Number of rows in this chain, optionally for a specific slice.
+%\begin{leftbar}
 \starttable
 \texttt{sliceno} & \pyNone & If set, return number of lines in speficied slice.\\
 \stoptable
-\end{leftbar}
+Number of rows in this chain, optionally for a specific slice.
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetChain.column\_counts()}}
-\begin{leftbar}
+%\begin{leftbar}
 Return a Python \texttt{Counter},\mintinline{python}|{colname:
 occurances}|, holding the number of datasets each column appears in.
 Takes no options.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetChain.column\_count()}}
-\begin{leftbar}
-Number of datasets in this chain that contain a specified column.
+%\begin{leftbar}
 \starttable
 \texttt{column} & \textsl{Mandatory} & A column name.\\
 \stoptable
-\end{leftbar}
+Number of datasets in this chain that contain a specified column.
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetChain.with\_column()}}
-\begin{leftbar}
-Return a new \texttt{DatasetChain} with all datasets in this chain
-containing a speficied column.
+%\begin{leftbar}
 \starttable
 \texttt{column} & \textsl{Mandatory} & A column name.\\
 \stoptable
-\end{leftbar}
+Return a new \texttt{DatasetChain} with all datasets in this chain
+containing a speficied column.
+%\end{leftbar}
 
 
 
+\clearpage
 \section{The \texttt{DatasetWriter} Class}
 \starttabletwo
 \texttt{add()} & Add a new column to the dataset under creation.\\
@@ -462,46 +465,47 @@ containing a speficied column.
 
 
 \subsection{\texttt{DatasetWriter.add()}}
-Add a new column to a dataset in creation.
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{colname} & \textsl{Mandatory} & Name of new column.\\
 \texttt{coltype} & \textsl{Mandatory} & Type of new column.\\
 \stoptable
+Add a new column to a dataset in creation.
 All dataset types are described in section~\ref{}.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetWriter.hashcheck()}}
-Check if a value belongs to the current slice.
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{value} & \textsl{Mandatory} & Some data/\\
 \stoptable
+Check if a value belongs to the current slice.
 Return \pyTrue if \texttt{value} belongs to the current
 slice, \pyFalse otherwise.
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetWriter.set\_slice()}}
-Specify which slice that will receive the next write(s).  Use this if
-writing data in \prepare or \synthesis.
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{sliceno} & \textsl{Mandatory} & Slice number to use for writing.\\
 \stoptable
-\end{leftbar}
+Specify which slice that will receive the next write(s).  Use this if
+writing data in \prepare or \synthesis.
+%\end{leftbar}
 
 
 \subsection{\texttt{DatasetWriter.enable\_hash\_discard()}}
-\begin{leftbar}
+%\begin{leftbar}
 Takes no options.  Set this in each slice or after
 each \texttt{set\_slice()} to make the writer discard values that do
 not belong to the current slice.
-\end{leftbar}
+%\end{leftbar}
 
 
 
+\clearpage
 \section{The \texttt{Urd} Class}
 \starttabletwo
 \texttt{get()} & Get an Urd item from a specified list and timetamp.\\
@@ -525,135 +529,133 @@ not belong to the current slice.
 
 
 \subsection{\texttt{Urd.get()}}
-Get an Urd item with specified list and timestamp.  The operation is
-recorded in the current Urd session.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \texttt{timestamp} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Get an Urd item with specified list and timestamp.  The operation is
+recorded in the current Urd session.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.latest()}}
-Get the latest job in a specified Urd list.  The operation is recorded
-in the current Urd session.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Get the latest job in a specified Urd list.  The operation is recorded
+in the current Urd session.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.first()}}
-Get the first job in a specified Urd list.  The operation is recorded
-in the current Urd session.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Get the first job in a specified Urd list.  The operation is recorded
+in the current Urd session.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.peek()}}
-Same as \texttt{.get()}, but without recording the dependency.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \texttt{timestamp} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Same as \texttt{.get()}, but without recording the dependency.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.peek\_latest()}}
-Same as \texttt{.latest()}, but without recording the dependency.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Same as \texttt{.latest()}, but without recording the dependency.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.peek\_first()}}
-Same as \texttt{.first()}, but without recording the dependency.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Same as \texttt{.first()}, but without recording the dependency.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.since()}}
-Return a list of all timestamps more recent than the
-input \texttt{timestamp} for a specified Urd list.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \texttt{timestamp} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Return a list of all timestamps more recent than the
+input \texttt{timestamp} for a specified Urd list.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.list()}}
 Return a list of all available Urd lists.
-\begin{leftbar}
-\end{leftbar}
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.begin()}}
-Start a new Urd session.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \texttt{timestamp} & \textsl{Mandatory} & \\
 \texttt{caption} & \pyNone & \\
 \texttt{update} & \pyFalse & \\
 \stoptable
-\end{leftbar}
+Start a new Urd session.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.abort()}}
 Abort the current Urd session, discard its contents.
-\begin{leftbar}
-\end{leftbar}
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.finish()}}
-Finish the current Urd session and store it in the Urd database.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \texttt{timestamp} & \textsl{Mandatory} & \\
 \texttt{caption} & \pyNone & \\
 \stoptable
-\end{leftbar}
+Finish the current Urd session and store it in the Urd database.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.truncate()}}
-Discard everything later than \texttt{timestamp} for the specified Urd
-list.
-\begin{leftbar}
 \starttable
 \texttt{path} & \textsl{Mandatory} & \\
 \texttt{timestamp} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Discard everything later than \texttt{timestamp} for the specified Urd
+list.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.set\_workdir()}}
-Set target workdir.  It can be set to any workdir present in the
-Accelerator's configuration file.
-\begin{leftbar}
 \starttable
 \texttt{workdir} & \textsl{Mandatory} & \\
 \stoptable
-\end{leftbar}
+Set target workdir.  It can be set to any workdir present in the
+Accelerator's configuration file.
+%\begin{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.build()}}
-Build a job.  If an Urd session is running, the job and its
-dependencies will be recorded.
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{method} & \textsl{Mandatory} & Method to build.\\
 \texttt{options} & \texttt{\{\}} & Input options.\\
@@ -664,20 +666,22 @@ dependencies will be recorded.
 \texttt{why\_build} & \pyFalse & @@@@@@@@@@@@@@@@@@@@\\
 \texttt{workdir} & \pyNone & Store job in this workdir.\\
 \stoptable
-\end{leftbar}
+Build a job.  If an Urd session is running, the job and its
+dependencies will be recorded.
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.build\_chained()}}
 Build a chained job. @@@@@@@@@@@@@@@@  TESTA DETTA!
-\begin{leftbar}
+%\begin{leftbar}
 Same options as \texttt{build}
-\end{leftbar}
+%\end{leftbar}
 
 
 \subsection{\texttt{Urd.warn()}}
 Print a string after successful build@@@@
-\begin{leftbar}
+%\begin{leftbar}
 \starttable
 \texttt{line} & \textsl{Mandatory} & Some string\\
 \stoptable
-\end{leftbar}
+%\end{leftbar}

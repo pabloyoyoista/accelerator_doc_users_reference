@@ -440,14 +440,3 @@ def synthesis(job):
 The \texttt{extras.symlink} function will write a soft link
 to \texttt{filename} in \texttt{job.result\_directory}, overwriting it if
 it already exists.
-
-
-
-\section{profile\_jobs}
-Returns a float corresponding to the total execution time (in seconds)
-of an input list of jobs.
-\begin{python}
-from accelerator.automata_common import profile_jobs
-...
-print(profile_jobs(urd.joblist))
-\end{python}

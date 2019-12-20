@@ -623,6 +623,17 @@ def main(urd):
 
 
 
+\section{profile\_jobs}
+Returns a float corresponding to the total execution time (in seconds)
+of an input list of jobs.
+\begin{python}
+from accelerator.automata_common import profile_jobs
+...
+print(profile_jobs(urd.joblist))
+\end{python}
+
+
+
 \section{The Urd HTTP-API}
 Urd can be accessed directly without using the Accelerator by calling
 its HTTP API.  These calls are easy to use and adds transparency since

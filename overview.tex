@@ -98,8 +98,10 @@ source code or input parameters have to change.
 Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
 \texttt{hello\_world} method.  The created job gets the \textsl{jobid}
 \texttt{test-0}, and parts of the corresponding job directory
-information is shown in green.  The job directory contains several
-files, of which the most important to here are
+information is shown in green.  (Jobids are job identifiers, that are
+named by their corresponding \textsl{workdir} plus an integer counter
+value.)  The job directory contains several files, of which the most
+important are
 \begin{itemize}
 \item[] \texttt{setup.json}, containing job information;
 \item[] \texttt{result.pickle}, containing the returned data; and
@@ -127,12 +129,20 @@ Running this build script will print the string to the \texttt{run}
 program's standard output.
 
 
-Jobids are job identifiers, that are named by their corresponding
-\textsl{workdir} plus an integer counter value.  Workdirs are used to
-separate jobs into different physical locations, and jobs may be
-shared between users on the workdir level.  A running Accelerator
-could have any number of workdirs associated, of which one is default for writing.
 
+\subsection{Workdirs and Sharing Jobs}
+
+Workdirs are used to separate jobs into different physical locations.
+The Accelerator can be set up to have any number of workdirs
+associated, but only one is used for writing.
+
+If the same workdir is entered into two or more different user's
+configuration files, the workdir and its contents will be shared
+between the users.  Each Accelerator daemon will update its knowledge
+about the contents of all workdirs before executing a build script, to
+make sure that the latest jobs are taken into account.  The Urd
+database, as described in section~\ref{}, is very useful for sharing
+job information between users.
 
 
 \subsection{Linking Jobs}

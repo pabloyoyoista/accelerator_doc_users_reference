@@ -465,12 +465,20 @@ containing a speficied column.
 
 
 \subsection{\texttt{DatasetWriter.add()}}
+\label{sec:datasetwriter_add}
 %\begin{leftbar}
 \starttable
 \texttt{colname} & \textsl{Mandatory} & Name of new column.\\
 \texttt{coltype} & \textsl{Mandatory} & Type of new column.\\
+\texttt{none\_support} & \pyFalse & Set to \pyTrue to allow storing {\pyNone}s.\\
 \stoptable
-Add a new column to a dataset in creation.
+
+Add a new column to a dataset in creation.  This example will create
+an \texttt{age} column of type \texttt{number}, where the values could
+also be \pyNone.
+\begin{python}
+dw.add('age', 'number', none_support=True)
+\end{python}
 All dataset types are described in section~\ref{}.
 %\end{leftbar}
 

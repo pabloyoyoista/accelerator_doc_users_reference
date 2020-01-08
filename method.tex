@@ -1121,9 +1121,8 @@ build time using \texttt{job.withfile()}.  Here is an example
 def main(urd):
     job = urd.build('example4')
     urd.build('example5',
-        options=dict(
-            firstfile=job.withfile('myfile1', sliced=True),
-            secondfile=job.withfile('myfile2'),))
+              firstfile=job.withfile('myfile1', sliced=True),
+              secondfile=job.withfile('myfile2'))
 \end{python}
 Inside the method, the \texttt{option} part is defined like this
 \begin{python}

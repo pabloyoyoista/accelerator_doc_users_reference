@@ -93,7 +93,7 @@ the \texttt{urd.begin()} and \texttt{urd.finish()} functions, like this
 \begin{python}
 def main(urd):
     urd.begin('import/txn', '2018-05-03')
-    urd.build('csvimport', options=dict(filename='txn1.txt'))
+    urd.build('csvimport', filename='txn1.txt')
     urd.finish('import/txn')
 \end{python}
 Everything that happens between \texttt{begin()} and \texttt{finish()}
@@ -130,7 +130,7 @@ def main(urd):
     import_timestamp = import_session.timestamp
     import_job       = import_session.joblist['dataset_type']
 
-    urd.build('process', datasets=dict(source=import_job))
+    urd.build('process', source=import_job)
 
     urd.finish('process/test', import_timestamp)
 \end{python}
@@ -153,7 +153,6 @@ section~\ref{sec:clumsy_dot_jobid}.)
 
 \section{The Contents of the Stored Session}
 \label{sec:urd_item}
-
 Calling \texttt{urd.finish()} will update the Urd database with the
 contents of the current \textsl{session}.  Each session is addressable
 using a \textsl{list} name (in the format \texttt{<user>/<list>}) and
@@ -518,6 +517,10 @@ job = urd.build(
     workdir=None
 )
 \end{python}
+If \options, \datasets, and \jobs are uniquely defined in the method,
+they could be entered just as plain keyword arguments.  If there are
+ambiguities, the full \texttt{options=} etc.\ must be used.
+
 Explanation of \texttt{build} parameters:
 \starttabletwo
 \RPtwo \texttt{method} & Name of method to build.  Enter \texttt{test}

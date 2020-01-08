@@ -169,7 +169,7 @@ following build script
 \begin{python}
 def main(urd):
     job1 = urd.build('hello_world')
-    job2 = urd.build('print_result', options=dict(hello_world_job=job1))
+    job2 = urd.build('print_result', hello_world_job=job1)
 \end{python}
 The \texttt{print\_result} method then loads the result from the
 provided job and prints its contents to \texttt{stdout}.  Note that
@@ -254,7 +254,7 @@ filename to control the import process.  Here is an example
 (non-simplified) invocation
 \begin{python}
 def main(urd):
-    jid = urd.build('csvimport', option=dict(filename='file0.txt'))  
+    jid = urd.build('csvimport', filename='file0.txt')
 \end{python}
 When executed, the created dataset will be stored in the resulting job
 directory, and the name of the dataset will by default be the jobid

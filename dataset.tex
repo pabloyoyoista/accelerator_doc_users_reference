@@ -94,9 +94,8 @@ over the next dataset in the chain when the current dataset is
 exhausted.  Here is a an example of how \texttt{csvimport} jobs can be
 chained
 \begin{python}
-job1 = urd.build('csvimport', options=dict(filename='file1.txt'))
-job2 = urd.build('csvimport', options=dict(filename='file2.txt'),
-                              datasets=dict(previous=job1))
+job1 = urd.build('csvimport', filename='file1.txt')
+job2 = urd.build('csvimport', filename='file2.txt', previous=job1)
 \end{python}
 
 In order to maintain high speed when processing long chains, the

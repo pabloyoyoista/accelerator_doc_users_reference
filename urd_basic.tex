@@ -57,6 +57,10 @@ the \texttt{options}, \texttt{datasets}, and \texttt{jobs}
 parameters must correspond to what is defined in the method to be
 executed.
 
+\textsl{Note}, however, that  if there are no collisions, any \options, \datasets, or \jobs
+could be specified immediately after the \texttt{method} name as \textsl{plain
+keyword arguments}.  Examples of this will follow.
+
 When the job is completed, Urd will record it using the name of the
 method as key, unless the \texttt{name=} is specified.
 The \texttt{name} parameter is particularly useful to tell jobs apart
@@ -84,8 +88,8 @@ the \texttt{.build()} function as input parameter to a
 new \texttt{.build()}.  For example
 \begin{python}
 def main(urd):
-    job_import  = urd.build('csvimport', options=dict(name='inputfile.txt'))
-    job_process = urd.build('process',   datasets=dict(source=job_import))
+    job_import  = urd.build('csvimport', filename='inputfile.txt')
+    job_process = urd.build('process',   source=job_import)
 \end{python}
 In the example above, the first job, \texttt{csvimport}, imports the
 file ``\texttt{inputfile.txt}''.  The second job, \texttt{process},
@@ -165,7 +169,7 @@ Create a \texttt{JobList} and pretty-print it
 \begin{python}
 def main(urd):
     job1 = urd.build('first')
-    job2 = urd.build('second', jobs=dict(first=job1))
+    job2 = urd.build('second', first=job1)
     print(urd.joblist.pretty)
 \end{python}
 which results in

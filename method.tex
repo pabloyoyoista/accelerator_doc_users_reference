@@ -825,8 +825,11 @@ overview is presented in section~\ref{sec:formal_options}.
 \label{sec:subjobs}
 Jobs may launch subjobs, i.e.\ methods may build other methods in a
 recursive manner.  As always, if the jobs have been built already,
-they will immediately be linked in.  The syntax for building a job
-inside a method is as follows, assuming we build the jobs in \prepare
+they will immediately be linked in.  If the build of a subjob fails,
+the buiding job will be invalidated.
+
+The syntax for building a job inside a method is as follows, assuming
+we build the jobs in \prepare
 \begin{python}
 from accelerator import subjobs
 

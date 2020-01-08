@@ -351,6 +351,11 @@ be in Python's \texttt{date} format, ready for processing.  The same
 goes for all types, including \texttt{json}, which may return rather
 complex datatypes.
 
+By default, a typed column does not allow the storage of \pyNone
+values.  This can be changed by setting the \texttt{none\_support}
+Boolean when creating the column, see
+section~\ref{sec:datasetwriter_add}.
+
 All available types are shown in the following table.  More details
 follow in the next sections.
 

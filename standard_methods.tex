@@ -229,34 +229,38 @@ directories. The default is to include directories.
 
 \clearpage
 \section{\texttt{dataset\_type} -- Typing Datasets}
-The \texttt{dataset\_type} method will read a source dataset and
-create a new dataset that is typed.  This is primarily used for typing
-datasets created by \texttt{csvimport}, but the method can type any
+The \texttt{dataset\_type} method will read a source dataset or
+dataset chain and type its columns.  This method is primarily used for
+typing datasets created by \texttt{csvimport}, but it can type any
 column of type \texttt{bytes}, \texttt{ascii}, or \texttt{unicode} to
 any other type.
 
-The method will also hash partition the output dataset if
-the \texttt{hashlabel} input paramter is set.  For additional
-information about hash partitioning, see the \texttt{dateset\_rehash}
-method in section~\ref{sec:dataset_rehash}.
+The method will also hash partition the output dataset if the
+\texttt{hashlabel} input paramter is set, causing a new dataset to be
+created.  For additional information about hash partitioning, see the
+\texttt{dateset\_rehash} method in section~\ref{sec:dataset_rehash}.
 
-Default behaviour is to append new columns with typed data.  These
-columns will have the same name as the untyped version of the data,
-making the untyped data ``inaccessible'', even if it is still in the
-dataset.  Using the \texttt{rename} option, typed columns can be
-assigned a name that differs from the original columns, so that both
-typed and untyped data are available simultaneously.  This brings
-transparency to the typing process.  (However, even if the untyped
-data is ``inaccessible'' in the typed dataset, it is still available
-from the input dataset.)
+The default behaviour is to append new columns with typed data to the
+existing source dataset.  These columns will have the same name as the
+untyped version of the data, making the untyped data ``inaccessible'',
+even if it is still in the dataset.  Using the \texttt{rename} option,
+typed columns can be assigned a name that differs from the original
+name, so that both typed and untyped data are available
+simultaneously.  This brings transparency to the typing process.
+(However, even if the untyped data is ``inaccessible'' in the typed
+dataset, it is still available if referenced as the input dataset.)
 
 In order to type the data, the input data is subject to parsing.  Some
 datasets may contain data that is incorrect in the sense that it
 causes parsing errors when typing.  Unparseable data can either be
 replaced by a default value or removed from the dataset.  Since the
-dataset type does not permit removal of rows, i.e.\ datasets can not
-shrink, \texttt{dataset\_type} will in this situation create a new
-dataset containing only the rows containing typeable data.
+Accelerator's dataset type does not permit removal of rows,
+i.e.\ datasets can not shrink, \texttt{dataset\_type} will in this
+situation create a new dataset containing only the rows containing
+typeable data.
+
+If typing a dataset chain, any columns that do not have the same type
+over all the typed datasets will be discarded.
 
 
 \subsection{Datasets}
@@ -270,9 +274,10 @@ dataset containing only the rows containing typeable data.
   \RP \texttt{column2type} & \texttt{\{\}} & A dictionary from column
   label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\
 
-  \RP \texttt{hashlabel} & \pyNone & Hash partition dataset based
-  on this column.  Leave as \pyNone to inherit hashlabel, set
-  to \texttt{''} to not have a hashlabel.\\
+  \RP \texttt{hashlabel} & \pyNone & Hash partition dataset based on
+  this column.  Leave as \pyNone to inherit hashlabel, set to
+  \texttt{''} to not have a hashlabel.  Hashing causes a new dataset
+  to be created.\\
 
   \RP \texttt{defaults} & \texttt{\{\}}& A \texttt{dict} from
   column name to default value, for example
@@ -287,11 +292,14 @@ dataset containing only the rows containing typeable data.
   \RP \texttt{caption} &  & Optional caption.  A
   reasonable caption is created automatically if left blank\\
 
-  \RP \texttt{discard\_untyped} & \mintinline{python}{None}& Force
-  creation of new dataset.  Untyped columns will be inaccessible.\\
-
-  \RP \texttt{filter\_bad} & \pyFalse & remove rows containing
-  untypeable data.  Will create new dataset.\\
+  \RP \texttt{discard\_untyped} & \pyNone & If set to \pyTrue, force
+  creation of new dataset and make untyped columns inaccessible.  If
+  set to \pyFalse, an error is generated if any columns were not
+  preservable.\\
+  
+  \RP \texttt{filter\_bad} & \pyFalse & If \pyFalse, fail when a value
+  fails to convert and there is no default.  If \pyTrue, filter out
+  the line with the unconvertable value.  This will create a new dataset.\\
 
   \RP \texttt{numeric\_comma} & \mintinline{python}{False}&
   If \mintinline{python}{True}, write decimal number as
@@ -807,4 +815,29 @@ million lines or so.
 \starttable
 \RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\
 \RP \texttt{stop} & chained version only& Stop hashing at this dataset.\\
+\stoptable
+
+
+
+
+
+
+\clearpage
+\section{\texttt{dataset\_merge} -- Merge Several Datasets into One}
+Merge two or more datasets.  The datasets must have the same number of
+lines in each slice and if they do not have a common ancestor you must
+set \texttt{allow\_unrelated}=\pyTrue.  Columns from later datasets
+override columns of the same name from earlier datasets.
+
+
+\subsection*{Options}
+\starttable
+\texttt{allow\_unrelated} & \pyFalse & Must be \pyTrue to join datasets that do not share a common ancestor.\\
+\stoptable
+
+
+\subsection*{Datasets}
+\starttable
+[\texttt{source}] & \textsl{mandatory}& A list of datasets to merge.\\
+\texttt{previous} & \pyNone & Previous for the merged dataset.\\
 \stoptable

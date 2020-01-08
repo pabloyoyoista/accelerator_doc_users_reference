@@ -6,7 +6,6 @@ eBay Tech Blog website.
 
 
 \section{High Level View}
-
 The Accelerator is a client-server based application, and from a high
 level, it can be visualised like in figure~\ref{fig:overview}.
 \begin{figure}[h!]
@@ -28,16 +27,17 @@ store information and results for all jobs executed using the
 In parallel, all jobs covered by a build script may be stored by the
 \texttt{urd} server into the \textsl{job logs} file system database.
 \texttt{urd} is also responsible for finding collections, or lists, of
-related previously executed jobs.  The \texttt{urd} server is very
-capable and helps ensuring reproducibility and transparency, and it
-will be further discussed in section~\ref{}.
+related previously executed jobs.  The \texttt{urd} server ensures
+reproducibility and transparency, and it will be further discussed in
+section~\ref{}.
+
 
 
 \section{Jobs}
 The basic operation of the Accelerator is to execute small Python
-programs called \textsl{methods}.  In a method, some reserved function
-names are used to execute code sequentially or in parallel and to pass
-parameters and results.  A method that has completed execution is
+programs called \textsl{methods}.  In a method, a few special
+functions are used to execute code sequentially or in parallel and to
+pass parameters and results.  A method that has completed execution is
 called a \textsl{job}.
 
 Jobs are stored in \textsl{job directories}.  A dedicated directory
@@ -45,18 +45,15 @@ will be created for each new job, and the directory will contain all
 information regarding the job, such as its input parameters, stored
 files, return values, profiling information, and more.
 
-The Accelerator keeps a record of all jobs that have been run.  It
-turns out that this is very useful for avoiding unnecessary
-re-computing and instead rely on reusing previously computed results.
-This does not only speed up processing and encourage incremental
-design, but also makes it transparent which code and which data was
-used for any particular result, thus reducing uncertainty.
-
-
+The Accelerator has a database that keeps track of all jobs that have
+been run.  This is very useful for avoiding unnecessary re-computing
+and instead rely on reusing previously computed results.  This does
+not only speed up processing and encourage incremental design, but
+also makes it transparent which code and which data was used for any
+particular result, thus minimising uncertainty.
 
 
 \subsection{A Very Simple Job:  ``Hello, World''}
-
 The following example method is very simple.  It does not take any
 input parameters and does almost nothing, it will just return the
 string ``\texttt{hello world}'' and exit.
@@ -69,29 +66,31 @@ In order to get the method to execute, it is called from a
 \begin{python}
 def main(urd)
     job = urd.build('hello_world')
+    print(job.load())
 \end{python}
 The \texttt{urd} object contains functions for job building and
 organisation, and is described in detail in section~\ref{}.  Remember
 that during the job build process, a job directory is created that
 will contain everything associated with the build.
 
-When execution is completed, a job object is returned to the user.  In
-the example above, the variable \texttt{job} will be of type
-\texttt{Job}.  This object provides a convenient interface to the data
-in the corresponding job directory.
+When execution is completed, a job object, of type \texttt{Job}, is
+returned to the user.  This object provides a convenient interface to
+the data in the corresponding job directory, and contains member
+functions such as \texttt{.load()}, that is used in the example to
+read back the returned value from the job.
 
 
-
-\subsection{Trying to Run the Job Again}
-If the build script is executed again, the job will not be re-built,
-simply because the Accelerator remembers that the job has been built
-in the past and its associated information is stored in a job
-directory.  Instead, the Accelerator immediately returns a job object
-representing the previous run.  This means that from a user's
-perspective, there is no difference between job running and job result
-recalling!  In order to have the job executing again, either the
-source code or input parameters have to change.
-
+\subsection{Jobs Can Only be Run Once}
+If the build script is executed again, the \texttt{hello\_world} job
+will not be re-built, simply because the Accelerator remembers that
+the job has been built in the past, and its associated information is
+stored in a job directory.  Instead, the Accelerator immediately
+returns a job object representing the previous run.  This means that
+from a user's perspective, there is no difference between job running
+and job result recalling!  In order to have the method executing
+again, either the source code or input parameters need to change.  If
+there are changes, the method will be re-executed, and a new job will
+be created that reflects these changes.
 
 
 \subsection{Back to the ``Hello, World'' example}
@@ -103,7 +102,7 @@ named by their corresponding \textsl{workdir} plus an integer counter
 value.)  The job directory contains several files, of which the most
 important are
 \begin{itemize}
-\item[] \texttt{setup.json}, containing job information;
+\item[] \texttt{setup.json}, containing job meta information;
 \item[] \texttt{result.pickle}, containing the returned data; and
 \item[] \texttt{method.tar.gz}, containing the method's source code.
 \end{itemize}
@@ -125,6 +124,7 @@ def main(urd)
     job = urd.build('hello_world')
     print(job.load())
 \end{python}
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@22222
 Running this build script will print the string to the \texttt{run}
 program's standard output.
 

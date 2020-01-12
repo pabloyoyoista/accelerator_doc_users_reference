@@ -18,19 +18,14 @@
 
 \label{chap:iterators}
 
-@@@ sharpen
-
-The basic idea of the Accelerator's datasets is to make it really easy
-to create parallel programs that can read or write data at a very high
-speed.  Accessing dataset data is done using \textsl{iterators}.
-
-An iterator yields one \texttt{tuple} at a time containing elements
-from one or more specified data columns, one row at a time.  In case
-of iterating over a single column, the output may optionally be a
-scalar instead of \texttt{tuple} for cleaner code and more efficient
-computing.
-
-
+The basic idea of the Accelerator's datasets is to make it easy to
+create parallel programs that can read and write large amounts of data
+at a very high speed.  High speed data read access is implemented as a
+set of special Python \textsl{iterators}.  Each iterator yields
+one \texttt{tuple} at a time containing elements from one or more
+specified data columns, one row at a time.  In case of iterating over
+a single column, the output may optionally be a scalar instead
+of \texttt{tuple} for cleaner code and more efficient computing.
 
 
 
@@ -196,9 +191,6 @@ corresponds to all datasets in the chain.
 Here is an interesting example of a method that will iterate over all
 chained \texttt{source} datasets that are new since the last
 invocation of the method.
-
-@@@@@  Hmmm, fråga skickad till Carl
-
 \begin{python}
 datasets = ('source',)
 jobs = ('previous',)

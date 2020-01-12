@@ -450,6 +450,16 @@ containing a speficied column.
 
 \clearpage
 \section{The \texttt{DatasetWriter} Class}
+The \texttt{DatasetWriter} class is used to create datasets.  Datasets
+could be stand-alone, part of a chain, or an extension (new columns)
+to an existing dataset.
+
+The class has a number of member functions, described below, that may
+be used for dataset creation.  Alternatively, the new dataset could be
+set up using the \texttt{DatasetWriter} \textsl{constructor}.  The
+constructor approach is currently only documented in the source code,
+see \texttt{dataset.py}.
+
 \starttabletwo
 \texttt{add()} & Add a new column to the dataset under creation.\\
 \texttt{hashcheck()} & Check if value belongs in current slice.\\

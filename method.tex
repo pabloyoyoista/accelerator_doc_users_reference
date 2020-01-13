@@ -575,6 +575,7 @@ filename \texttt{thefile.pickle} into the build script.
 
 
 \subsection{Writing and Reading Serialised Data in Parallel}
+\label{sec:sliced_files}
 If data is read and written in the parallel \analysis-function, the
 argument \texttt{slices=} may be used to write one file for each
 slice.  For example
@@ -588,6 +589,11 @@ Similarly, another job can then read one of these files per slice as follows
 def analysis(sliceno, job):
     data = job.load('filename', sliceno=sliceno)
 \end{python}
+Writing ``sliced'' data results in $n$ files on disk, where $n$ is
+equal to the number of slices set in the configuration file.  Each
+filename is extended with a human readable number that corresponds to
+the slice that the file's data belongs to.
+
 
 
 \subsection{General File Access}
@@ -1134,7 +1140,7 @@ optional arguments: \texttt{sliced} and \texttt{extras}.  The
 \texttt{extras} argument is used to pass any kind of information that
 is helpful when using the specified file, and \texttt{sliced} tells
 that the file is stored in parallel slices.  (Creating sliced files is
-described in section~\ref{sec:create_dataset_in_analysis}.)  In the
+described in section~\ref{sec:sliced_files}.)  In the
 running method, the \texttt{JobWithFile} object is an extension of the
 \texttt{Job} object with the following extra attributes
 \begin{python}

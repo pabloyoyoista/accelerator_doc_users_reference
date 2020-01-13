@@ -253,14 +253,15 @@ for user in datasets.source.iterate(sliceno, 'USER',):
 \begin{figure}[t!]
   \begin{center}
     \input{figures/dsprocchain.pdftex_t}
-    \caption{@@@  Example of import and processing jobs.  Blue text and arrows relate to the \textsl{current job}, \texttt{proc-1}.}
+    \caption{Example of import and processing jobs.  Blue text and
+    arrows relate to the \textsl{current job}, \texttt{proc-1}.}
     \label{fig:dsprocchain}
   \end{center}
 \end{figure}
 
 
 
-\subsection*{An Example}
+\subsection{An Example}
 Consider the case where new files are added to a project in a
 continuous fashion.  These files are imported and chained, so that
 each new imported dataset links to the previously imported dataset,
@@ -268,15 +269,13 @@ and so on.  This is illustrated in the left part of
 figure~\ref{fig:dsprocchain}.
 
 Once in a while, but not necessarily at the same rate as new files are
-added, some processing of the data is performed.  A simple example of
-a processing job could be to count the number of lines added to the
-dataset chain since the last execution of the processing method.  A
-more interesting case could be to \textsl{update} a machine learning
-model with the newly added data imported since the last model update.
+added, some processing of the data is performed.  This processing
+could for example be \textsl{updating} a machine learning model with
+the newly added data imported since the last model update.
 
-In these cases, the processing job should iterate over a part of the
-the dataset chain only, from the first dataset after the last
-processing job up to the most recent imported dataset.  Again, see
+The processing job should then iterate over a part of the the dataset
+chain only, from the first dataset after the last processing job up to
+the most recent imported dataset.  Again, see
 figure~\ref{fig:dsprocchain}.  The right part of the image illustrates
 two builds of the processing method.  The first operates on the
 dataset \texttt{imp-0}, and the last on \texttt{imp-1}

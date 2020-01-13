@@ -116,7 +116,7 @@ method packages:
 urd: http://localhost:9000
 
 result directory: ${HOME}/accelerator/results
-source directory: /zbd/data/backblaze
+input directory: /zbd/data/backblaze
 logfile: ${HOME}/accelerator/daemon.log
 
 # If you want to run methods on different python interpreters you can
@@ -184,12 +184,12 @@ store results, see section~\ref{sec:RESULT_DIR}.  A way to keep
 traceability is to store the file in the job directory as usual, and
 then create a soft link to it in \texttt{result\_directory}.\\[1ex]
 
-\RPtwo \texttt{source directory} & Default root path for
-\texttt{csvimport}.  This is to avoid rebuilds of imports if source
+\RPtwo \texttt{input directory} & Default root path for
+\texttt{csvimport}.  This is to avoid rebuilds of imports if input
 files are moved to another directory.  (This typically happens when
 setting up a similar system on another physical machine.)  See
-section~\ref{sec:SOURCE_DIR} on how to get access to
-\texttt{source\_directory} from any method.\\[1ex]
+section~\ref{sec:INPUT_DIR} on how to get access to
+\texttt{input\_directory} from any method.\\[1ex]
 
 \RPtwo \texttt{logfile} & Location of the Accelerator's log.\\[1ex]
 
@@ -370,22 +370,22 @@ to store the absolute path of the files as a configuration parameter
 and then work only with relative paths in the source code.  This has
 two advantages.
 \begin{itemize}
-\item[] First, it makes it possible to move source files around without
+\item[] First, it makes it possible to move input files around without
 forcing a re-build of the import jobs, and
 \item[] second, absolute paths will not be stored in the source code.
 \end{itemize}
 In order to make use of relative paths, store the ``system dependent''
 left part of the path in the Accelerator's configuration file.  There
 are two variables in the configuration file that can be used for this,
-and they have different purposes.  The \texttt{source\_directory}
-variable is intended for reading source files, and
+and they have different purposes.  The \texttt{input\_directory}
+variable is intended for reading input files, and
 the \texttt{result\_directory} is intended for writing output.  See
 the following subsections for details.
 
 
-\subsection{The \texttt{source\_directory}}
-\label{sec:SOURCE_DIR}
-The \texttt{job.source\_directory} variable is used by the
+\subsection{The \texttt{input\_directory}}
+\label{sec:INPUT_DIR}
+The \texttt{job.input\_directory} variable is used by the
 \texttt{csvimport} method, but could be used by any method reading
 input files, like in this example
 \begin{python}
@@ -393,10 +393,10 @@ import os
 options = dict(filename=Optionstring)
 
 def synthesis(job)
-    fname = os.path.join(job.source_directory, options.filename)
+    fname = os.path.join(job.input_directory, options.filename)
 \end{python}
 here, the \texttt{fname} is a concatenation of the
-\texttt{job.source\_directory} specified in the Accelerator's
+\texttt{job.input\_directory} specified in the Accelerator's
 configuration file (see section ~\ref{sec:symlinking}) and the input
 option \texttt{filename}.
 

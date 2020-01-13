@@ -85,22 +85,25 @@ with the following options
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-  usage: init [-h] [--slices SLICES] [--name NAME] [--directory DIR]
-  [--prefix PREFIX] [--source SOURCE] [--force]
+usage: bd init [-h] [--slices SLICES] [--name NAME] [--prefix PREFIX]
+               [--input INPUT] [--force]
+               [DIR]
 
-  Creates an accelerator project directory. Defaults to the current directory.
-  Creates accelerator.conf and a method directory. Also creates workdirs and
-  result dir (in ~/accelerator by default). Both the method directory and
-  workdir will be named <NAME>, "dev" by default.
+Creates an accelerator project directory. Defaults to the current directory.
+Creates accelerator.conf and a method directory. Also creates workdirs and
+result dir (in ~/accelerator by default). Both the method directory and
+workdir will be named <NAME>, "dev" by default.
 
-  optional arguments:
+positional arguments:
+  DIR              Project directory to create, default "."
+
+optional arguments:
   -h, --help       show this help message and exit
   --slices SLICES  Override slice count detection
   --name NAME      Name of method dir and workdir, default "dev"
-  --directory DIR  project directory to create. default "."
   --prefix PREFIX  Put workdirs and daemon.log here, default
                    "${HOME}/accelerator"
-  --source SOURCE  source directory
+  --input INPUT    Input directory
   --force          Go ahead even though directory is not empty, or workdir
                    exists with incompatible slice count
 \end{verbatim}

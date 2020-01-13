@@ -366,8 +366,9 @@ ax dsgrep . test-0 | less
 
 
 \section{The Urd Job Database Server}
-Urd is run as a stand-alone server.
-\subsection{Invocation}
+By default, a local Urd server is running when the Accelerator server
+is running.  Read more about this in section~\ref{}.
+
 Start Urd by
 \begin{shell}
 ax urd
@@ -387,8 +388,8 @@ optional arguments:
 (default: ./urd.db)
 \end{verbatim}
 \end{snugshade}
-Read about running and configuring Urd on page~\ref{urd_howto_run}
-
+Remember to set matching values in the Accelerator's configuration
+file so that it can find the Urd server.
 
 
 \subsection{Authorization to Urd}

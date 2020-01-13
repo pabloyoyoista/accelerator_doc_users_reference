@@ -208,10 +208,14 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 
 
-\section{Setting up Urd}
+\section{Setting up a Standalone Urd-server}
 \label{sec:urd_setup}
+The main daemon program will start a local Urd server by default.
+This server is for local use only.  If the Urd server should be used
+to share information between users, a standalone server needs to be
+set up.
 
-To run Urd two things are needed
+To run a standalone Urd server, two things are needed
 \begin{itemize}
 \item[] a directory where it can put its database, and
 \item[] a \texttt{passwd} file to store user-password pairs in.
@@ -226,12 +230,12 @@ cd urd.db
 where \texttt{<editor>} should be replaced by the editor of choice.
 
 
-\subsubsection{Starting Urd}
+\subsection{Starting Urd}
 Urd is running as a daemon.  It is started like this
 \begin{shell}
 ax urd --port=<port> --path=<path>
 \end{shell}
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 
 
 \subsection{The Urd Database}
@@ -249,7 +253,7 @@ database_root/
 
 
 
-\subsubsection{The \texttt{passwd} file}
+\subsection{The \texttt{passwd} file}
 The \texttt{passwd} file stores write access authentication.  The file
 format is straightforward, each line is a user--password pair as follows
 \begin{verbatim}
@@ -259,19 +263,14 @@ For example, if the file contains the following line
 \begin{verbatim}
 ab:secret
 \end{verbatim}
-
-
-
-\subsection{}
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-A build script issued like this
+A build script run like this
 \begin{shell}
-URD_AUTH=ab:secret ax run test
+URD_AUTH=ab:secret ax run script
 \end{shell}
 will have write access to all lists belonging to the user \texttt{ab},
 such as for example the \texttt{ab/test} and \texttt{ab/import} lists.
-But it can not write to lists belonging to other users, such
-as \texttt{cd/import}.  It can read all lists, though.
+But it can not write to lists belonging to other users, such as
+\texttt{cd/import}.  It can always read all lists, though.
 
 
 

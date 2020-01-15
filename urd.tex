@@ -582,33 +582,38 @@ section~\ref{sec:equivalent_hashes}.
 
 
 \subsection{Building Chained Jobs: \texttt{urd.build\_chained()}}
-There is a special version of \texttt{build()} that can be used for
+This is a special version of \texttt{build()} that can be used for
 linking a set of dataset-creating jobs.  This function was created for
 the purpose of having build scripts that imported a large set of files
-in a \texttt{for}-loop.  The call looks like this
+in a \texttt{for}-loop.  It is used like this
 \begin{python}
-job = urd.build_chained('method1', name='myjob')
+def main(urd):
+    # Import a list of files
+    for filename, timestamp in listoffiles:
+        urd.begin('import', timestamp)
+        urd.latest('import')
+        job = urd.build_chained('csvimport',
+                                filename=filename,
+                                ...
+                                name='importing')
+        job = urd.build_chained('dataset_type',
+                                source=job,
+                                ...
+                                name='typing')
+        urd.finish('import')
 \end{python}
-and it takes the same options as the standard \texttt{build} method.
-
-For the function to work, the \texttt{name} must be unique, so if
-there are several jobs using the same method, they need to be renamed using the \texttt{name=} option.
-
-with the exception that name is mandatory.  The method must also have
-a ``\texttt{previous}'' key in its \texttt{datasets} parameter.  The
-way it works is that the Accelerator will look up the latest job
-having the same name and the new job to be built will have a link to
-this job inserted in the \texttt{dataset.previous} parameter.
-
-It only works inside an Urd session...
-\begin{python}
-    urd.begin('test', '2020-01-15')
-    urd.latest('test')
-    urd.build('mymethod')
-    urd.finish('test')
-\end{python}
-The call to \texttt{.latest()} is necessary...
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+This example will build a chain of \texttt{csvimport} jobs, and one
+chain of \texttt{dataset\_type} jobs.  Each \texttt{dataset\_type} job
+will have a corresponding \texttt{csvimport} dataset as source.
+The \texttt{build\_chained()} function works, provided that
+\begin{itemize}
+\item[--] the method to build has a dataset named \texttt{previous},
+\item[--] a unique \texttt{name=} is set in \texttt{.build\_chained()}, and
+\item[--] \texttt{urd.latest()} is called inside the Urd session.
+\end{itemize}
+The call to \texttt{urd.latest()} is necessary for the
+dependency-logic to work, but the output from the call can be
+discarded.
 
 
 

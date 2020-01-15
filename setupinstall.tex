@@ -436,8 +436,23 @@ def synthesis(job):
         fh.write(x)
     job.link_result(filename)
 \end{python}
-The \texttt{.link\_result()} function will create a symbolic link
-named \texttt{filename} in the directory pointed to by the
-\texttt{result\_directory} assignment in the Accelerator's
+(Note that the function is a member of the \texttt{CurrentJob} class,
+and not the \texttt{Job} class.  It only works inside running
+methods.)  The \texttt{.link\_result()} function will create a
+symbolic link named \texttt{filename} in the directory pointed to by
+the \texttt{result\_directory} assignment in the Accelerator's
 configuration file.  The link will point to the original file in the
 job directory, and will be replaced if it already exists.
+
+By default, the function will link the file
+``\texttt{result.pickle}'', so it is possible to be lazy and write
+like this
+\begin{python}
+def synthesis(job):
+    data = ....
+    job.save(data)
+    job.link_result()
+\end{python}
+since the same filename is default for \texttt{.save()} as well.  If
+it makes sense to put \texttt{.pickle} files in the result directory
+is another question.

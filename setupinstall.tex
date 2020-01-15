@@ -419,23 +419,25 @@ section~\ref{sec:symlinking}.
 
 
 
-\section{Symlinking}
+\section{Linking a File to the \texttt{result\_directory}}
 \label{sec:symlinking}
-Creating a symlink, for example from the \texttt{result\_directory} to
-current workdir, may be implemented in a simple and safe way like this
+Storing files in job directories is great for transparency, but in
+some cases it is convenient to keep a reference to result files in a
+common place.  This is the purpose of the \texttt{result\_directory}.
+However, storing files in this directory directly would void the
+connection to the job that created it.  A better way is to keep the
+file in the job directory and create a symbolic (soft) link to it in
+the result directory.  This functionality is implemented in the
+\texttt{job.link\_result()} function that is used like this
 \begin{python}
-from accelerator.extras import symlink @@@@@@@@@@@@@@@@@@@@@@@@
-
 def synthesis(job):
-
-    # create file and write it to the job directory
-    ...
+    x = ...some data...
     with job.open(filename, 'wb') as fh:
-        fh.write(...)
-
-    # create a symlink to filename in result_directory
-    symlink(filename, job.result_directory)
+        fh.write(x)
+    job.link_result(filename)
 \end{python}
-The \texttt{extras.symlink} function will write a soft link
-to \texttt{filename} in \texttt{job.result\_directory}, overwriting it if
-it already exists.
+The \texttt{.link\_result()} function will create a symbolic link
+named \texttt{filename} in the directory pointed to by the
+\texttt{result\_directory} assignment in the Accelerator's
+configuration file.  The link will point to the original file in the
+job directory, and will be replaced if it already exists.

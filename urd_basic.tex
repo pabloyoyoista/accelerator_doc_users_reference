@@ -128,31 +128,6 @@ modified, the Accelerator will compute new jobs to reflect the new
 situation.  The result may be different, and the user is notified.
 
 
-
-\subsection{Building Chained Jobs: \texttt{urd.build\_chained()}}
-
-@@@@@@@@@ NEEDS EXTENSION AND WORKING EXAMPLE
-
-There is a special version of \texttt{build()} that can be used for
-linking a set of dataset-creating jobs.  This function was created for
-the purpose of having build scripts that imported a large set of files
-in a \texttt{for}-loop.  The call looks like this
-\begin{python}
-job = urd.build_chained('method1', name='myjob')
-\end{python}
-and it takes the same options as the standard \texttt{build} method,
-with the exception that name is mandatory.  The method must also have
-a ``\texttt{previous}'' key in its \texttt{datasets} parameter.  The
-way it works is that the Accelerator will look up the latest job
-having the same name and the new job to be built will have a link to
-this job inserted in the \texttt{dataset.previous} parameter.
-
-
-
-
-
-
-
 \section{Working with Build History:  \texttt{urd.joblist}}
 \label{sec:joblist}
 

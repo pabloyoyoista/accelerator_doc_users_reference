@@ -581,6 +581,37 @@ section~\ref{sec:equivalent_hashes}.
 
 
 
+\subsection{Building Chained Jobs: \texttt{urd.build\_chained()}}
+There is a special version of \texttt{build()} that can be used for
+linking a set of dataset-creating jobs.  This function was created for
+the purpose of having build scripts that imported a large set of files
+in a \texttt{for}-loop.  The call looks like this
+\begin{python}
+job = urd.build_chained('method1', name='myjob')
+\end{python}
+and it takes the same options as the standard \texttt{build} method.
+
+For the function to work, the \texttt{name} must be unique, so if
+there are several jobs using the same method, they need to be renamed using the \texttt{name=} option.
+
+with the exception that name is mandatory.  The method must also have
+a ``\texttt{previous}'' key in its \texttt{datasets} parameter.  The
+way it works is that the Accelerator will look up the latest job
+having the same name and the new job to be built will have a link to
+this job inserted in the \texttt{dataset.previous} parameter.
+
+It only works inside an Urd session...
+\begin{python}
+    urd.begin('test', '2020-01-15')
+    urd.latest('test')
+    urd.build('mymethod')
+    urd.finish('test')
+\end{python}
+The call to \texttt{.latest()} is necessary...
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
 \section{Changing workdir:  \texttt{set\_workdir()}}
 The target workdir specified in the configuration file is the only
 workdir that is written to by default.  Any other workdir is read

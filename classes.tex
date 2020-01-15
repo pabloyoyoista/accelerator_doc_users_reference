@@ -195,10 +195,6 @@ parallel'' between different jobs.
 
 \subsection{File Persistence}
 \label{sec:debugflag}
-%\begin{leftbar}
-@@@@@@@@@@@@@@ Får inte detta att funka, file verkar aldrig sparas vid
-DEBUG eller DEBUGTEMP.  Via --flags=debug
-
 The \texttt{temp} argument controls persistence of files stored
 using \texttt{.open()}, \texttt{.save()}, or \texttt{.json\_save()}.
 By default it is being set to \pyFalse, which implies that the stored
@@ -208,32 +204,18 @@ the following
 job.save(data, filename, temp=True)
 \end{python}
 will cause the stored file to be deleted upon job completion.  The
-argument takes two additional values, \texttt{DEBUG} and
-\texttt{DEBUGTEMP}, working like this
+functionality can be combined with the \textsl{debug} mode, see below.
 \begin{snugshade}
 \begin{center}
 \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}ll}
   \texttt{temp}      & ``normal'' mode     & debug mode  \\\hline
   \pyFalse           & stored              & stored\\
-  \pyTrue            & stored and removed  & stored and removed\\
-  \texttt{DEBUG}     &                     & stored\\
-  \texttt{DEBUGTEMP}\hspace{4ex} & stored and removed  & stored\\
+  \pyTrue            & stored and removed  & stored\\
 \end{tabular*}
 \end{center}
 \end{snugshade}
-\noindent Debug mode is active if the Accelerator is started with the
-\texttt{--debug} flag.  For example
-\begin{python}
-from accelerator import Temp
-def analysis(sliceno, job):
-    data = ...
-    # save only if --debug
-    job.save(data, filename, sliceno=sliceno, temp=Temp.DEBUG)
-    # save always, but remove unless --debug
-    job.save(data, filename, sliceno=sliceno, temp=Temp.DEBUGTEMP)
-\end{python}
-%\end{leftbar}
-
+\noindent Debug mode is active if the Accelerator \texttt{daemon} is
+started with the \texttt{---debug} flag.
 
 
 \clearpage

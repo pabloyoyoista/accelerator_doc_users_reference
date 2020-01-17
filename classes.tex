@@ -246,8 +246,8 @@ together.
 \texttt{[<method>]} & Same as \texttt{.get} but error if no job with that method or name is in the list.\\
 \texttt{as\_tuples} &  The \texttt{JobList} represented as \texttt{(method, jid)} \texttt{tuple}s.\\
 \texttt{pretty} & Return a prettified string version of the \texttt{JobList}.\\
-\texttt{profile} & Total execution time and execution time per method.\\
-\texttt{print\_profile()} & Print profiling information to \texttt{stdout}.\\
+\texttt{exectime} & Execution times in total as well as per method.\\
+\texttt{print\_exectimes()} & Print execution time information to \texttt{stdout}.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
 
@@ -279,7 +279,7 @@ the \texttt{default} argument.
 %\end{leftbar}
 
 
-\subsection{\texttt{JobList.print\_profile()}}
+\subsection{\texttt{JobList.print\_exectimes()}}
 %\begin{leftbar}
 \starttable
 \texttt{verbose} & \pyTrue & In addition to total time, print execution time for each method in list.\\

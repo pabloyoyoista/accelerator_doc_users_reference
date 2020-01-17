@@ -636,13 +636,14 @@ the \texttt{workdir=} option to \texttt{urd.build}.
 
 
 
-\section{Profiling a Build Script:  \texttt{print\_profile()}}
-There is a helper function in the urd object that can be used to print
-profiling information.  The following example is self-explanatory
+\section{Profiling a Build Script:  \texttt{print\_exectimes()}}
+THe \texttt{JobList} object has a helper function that can be used to
+print profiling information for the joblist.  The following example is
+self-explanatory
 \begin{python}
 def main(urd):
     ...
-    urd.print_profile()
+    urd.joblist.print_exectimes()
 \end{python}
 This will print execution times for all jobs in the session
 to \texttt{stdout}.  It may for example look like this
@@ -675,17 +676,6 @@ The flags will appear in the \texttt{urd}-object like this
 def main(urd):
     if 'verbose' in urd.flags:
        print('verbosity')
-\end{python}
-
-
-
-\section{profile\_jobs}
-Returns a float corresponding to the total execution time (in seconds)
-of an input list of jobs.
-\begin{python}
-from accelerator.automata_common import profile_jobs
-...
-print(profile_jobs(urd.joblist))
 \end{python}
 
 

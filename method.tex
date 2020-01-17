@@ -1014,12 +1014,12 @@ options = dict(name='foo')   # requires string or None, provides default value
 And a string required to be specified and none-empty as
 \index{input options!\texttt{OptionString}}
 \begin{python}
-from accelerator.extras import OptionString
+from accelerator import OptionString
 options = dict(name=OptionString)       # requires non-empty string
 \end{python}
 In some situations, an example string is convenient
 \begin{python}
-from accelerator.extras import OptionString
+from accelerator import OptionString
 options = dict(name=OptionString('bar') # Requires non-empty string,
                                         # provides example (NOT default value)
 \end{python}
@@ -1033,19 +1033,19 @@ Enumerations are convenient in a number of situations.  An option with
 three enumerations is typed as
 \begin{python}
 # Requires one of the strings 'a', 'b' or 'c'
-from accelerator.extras import OptionEnum
+from accelerator import OptionEnum
 options = dict(foo=OptionEnum('a b c'))
 \end{python}
 and there is a flag to have it accept \mintinline{python}/None/ too
 \begin{python}
 # Requires one of the strings 'a', 'b', or 'c'; or None
-from accelerator.extras import OptionEnum
+from accelerator import OptionEnum
 options = dict(foo=OptionEnum('a b c', none_ok=True))
 \end{python}
 A default value may be specified like this
 \begin{python}
 # Requires one of the strings 'a', 'b' or 'c', defaults to 'b'
-from accelerator.extras import OptionEnum
+from accelerator import OptionEnum
 options = dict(foo=OptionEnum('a b c').b)
 \end{python}
 (The \texttt{none\_ok} flag may be combined with a default value.)
@@ -1132,7 +1132,7 @@ def main(urd):
 \end{python}
 Inside the method, the \texttt{option} part is defined like this
 \begin{python}
-from accelerator.job import JobWithFile
+from accelerator import JobWithFile
 options=dict(firstfile=JobWithFile, secondfile=JobWithFile)
 \end{python}
 The \texttt{.withfile()} function requires a filename and takes two
@@ -1150,7 +1150,7 @@ job.extra
 \end{python}
 Loading the file is done using \texttt{.load()}, like this
 \begin{python}
-from accelerator.job import JobWithFile
+from accelerator import JobWithFile
 options=dict(firstfile=JobWithFile, secondfile=JobWithFile)
 
 def analysis(sliceno):

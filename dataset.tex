@@ -335,6 +335,7 @@ type \texttt{DatasetChain}, which supports the followin operations.
 \mintinline{python}|column_counts()| & Counter of occurances per column per dataset in chain.\\
 \mintinline{python}|column_count(<column>)| & Number of datasets in chain containing column \texttt{<column>}\\
 \mintinline{python}|with_column(<column>)| & A \texttt{DatasetChain} object containing only those datasets that has column \texttt{<column>}.\\
+\mintinline{python}|iterate(...)| & Same arguments as \texttt{Dataset.iterate()}.  Will iterate over the whole chain.\\
 \stoptabletwo
 
 

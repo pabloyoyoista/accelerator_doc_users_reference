@@ -29,7 +29,7 @@ In parallel, all jobs covered by a build script may be stored by the
 \texttt{urd} is also responsible for finding collections, or lists, of
 related previously executed jobs.  The \texttt{urd} server ensures
 reproducibility and transparency, and it will be further discussed in
-section~\ref{}.
+chapter~\ref{chap:urd}.
 
 
 
@@ -69,9 +69,10 @@ def main(urd)
     print(job.load())
 \end{python}
 The \texttt{urd} object contains functions for job building and
-organisation, and is described in detail in section~\ref{}.  Remember
-that during the job build process, a job directory is created that
-will contain everything associated with the build.
+organisation, and is described in chapter~\ref{chap:urd} and
+section~\ref{sec:classes:urd}.  Remember that during the job build
+process, a job directory is created that will contain everything
+associated with the build.
 
 When execution is completed, a job object, of type \texttt{Job}, is
 returned to the user.  This object provides a convenient interface to
@@ -140,8 +141,8 @@ configuration files, the workdir and its contents will be shared
 between the users.  Each Accelerator daemon will update its knowledge
 about the contents of all workdirs before executing a build script, to
 make sure that the latest jobs are taken into account.  The Urd
-database, as described in section~\ref{}, is very useful for sharing
-job information between users.
+database, as described in chapter~\ref{chap:urd}, is very useful for
+sharing job information between users.
 
 
 \subsection{Linking Jobs}
@@ -231,7 +232,7 @@ such that rows corresponding to any particular ID is stored in a
 single slice only.  In many practical applications, hash partitioning
 makes parallel processes independent, minimising the need for
 complicated merging operations.  This is explained further in
-chapter~\ref{sec:why_hashing}.
+section~\ref{sec:slicing_and_hashing}.
 
 
 

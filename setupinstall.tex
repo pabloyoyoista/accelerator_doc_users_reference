@@ -81,8 +81,8 @@ which has to be run with root privileges.
 \label{sec:configfile}
 The configuration file specifies which method packages and workdirs
 that are available for a project.  A template configuration file can
-be generated using the \texttt{init} command as described on
-page~\ref{init_command}.  Below is an example of a configuration file.
+be generated using the \texttt{init} command as described in
+section~\ref{sec:initialisation}.  Below is an example of a configuration file.
 %\begin{leftbar}
 \begin{snugshade}
 \begin{verbatim}
@@ -143,7 +143,7 @@ where jobs are written to by default.  All other specified workdirs
 will by default only be used for reading.  Any of the workdirs
 specified could be written to, though, using the
 \texttt{set\_workdir=} option to the \texttt{build} command, as
-described on page~\ref{set_workdir}.
+described on page~\ref{sec:set_workdir}.
 
 Methods packages available for use are the \texttt{standard\_methods} bundled
 with the Accelerator, and methods defined in the
@@ -163,7 +163,7 @@ Unless overridden by the \texttt{target workdir}, the first workdir in
 the list will be the default \textsl{target workdir} that is used for
 all writing.  Other specified workdirs will only be read from, unless
 overrided by the \texttt{build} call as described on
-page~\ref{set_workdir}.\\[1ex]
+page~\ref{sec:set_workdir}.\\[1ex]
 
 \RPtwo \texttt{target workdir} & Name of the \textsl{target workdir}.
 If specified this overrides the first item in the \texttt{workdirs}

@@ -26,7 +26,7 @@
 
 
 
-
+\label{chap:jobs}
 
 \section{Definitions}
 
@@ -141,7 +141,7 @@ In order to simplify access to job directory data, common job data
 operations have been factored into the \texttt{Job} class.  There is
 also an extended version of this, called the \texttt{CurrentJob}
 class, that also contains information and helper functions to a
-running job.  See section~\ref{} for details about these classes.
+running job.  See section~\ref{sec:classes:job} for details about these classes.
 
 
 
@@ -160,7 +160,7 @@ constraints need to be satisfied
 \end{itemize}
 A package is reachable by The Accelerator if it is included in the
 Accelerator's configuration file using the key
-``\mintinline{shell}{method packages}'', see section~\ref{}.
+``\mintinline{shell}{method packages}'', see section~\ref{sec:configfile}.
 
 
 \subsection{Creating a new Package}
@@ -401,8 +401,9 @@ datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
 The input parameters are populated by the builder when the
-\texttt{run} command is executed.  Sections~\ref{} and~\ref{} provide
-detailed descriptions of all parametes.
+\texttt{run} command is executed.  Section~\ref{sec:input_params}
+and~\ref{sec:formal_options} provide detailed descriptions of all
+parametes.
 
 
 
@@ -418,13 +419,14 @@ functions \prepare, \analysis, and \synthesis at run time.
 The \texttt{job} instance contains information and helper functions
 regarding the current job.  The object is of type \texttt{CurrentJob},
 which is an extension of the \texttt{Job} class used for job instances
-that are not in the execution stage.  See section~\ref{} for details.
+that are not in the execution stage.
 
 The \analysis function (and only the \analysis function) takes the
 optional argument \texttt{sliceno}, which is an integer between zero
 and the total number of slices minus one.  This is the unique
-identifier for each \analysis process, and it is discussed further in
-section~\ref{}.
+identifier for each \analysis process, and it is commonly used when
+accessing sliced datasets, see for example
+chapter~\ref{chap:iterators} for its use in dataset iterators.
 
 
 \subsection{Parallel Processing:  The \analysis function, Slices, and Datasets}
@@ -464,7 +466,7 @@ def synthesis(analysis_res, prepare_res):
 Note that when a job completes, it is not possible to retrieve the
 results from \prepare or \analysis anymore.  Only results from
 \synthesis are kept.  Creating permanent files is the topic of
-section~\ref{}.
+section~\ref{sec:debugflag}.
 
 
 \subsection{Merging Results from \analysis}
@@ -528,11 +530,11 @@ No empty files will be created.
 \section{The \texttt{Job} and \texttt{CurrentJob} Classes}
 The \texttt{Job} and \texttt{CurrentJob} classes provide functionality
 for easy access to data and datasets stored in a job directory.
-(Datasets will be covered in section~\ref{}).  The \texttt{CurrentJob}
+(Datasets will be covered in chapter~\ref{chap:datasets}).  The \texttt{CurrentJob}
 is an extension of \texttt{Job} that adds special functions that are
 useful to a method during execution.  \textsl{This section just
   provides a taste of the most common operations that are provided.
-  See section~\ref{} for a complete list of the functionality.}
+  See section~\ref{sec:classes:job} for a complete list of the functionality.}
 
 Instances of these two classes are used extensibly.  In a build script
 every reference to a job, such as the return value of the

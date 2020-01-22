@@ -1,4 +1,5 @@
 \section{The \texttt{Job} and \texttt{CurrentJob} Classes}
+\label{sec:classes:job}
 The \texttt{Job} class is used to represent and operate on existing
 jobs.  An object of this class is returned from job \texttt{build()}
 calls as well as when retreiving jobs from Urd or a \texttt{JobList}
@@ -29,7 +30,7 @@ and \texttt{CurrentJob} classes:
 \noindent In addition, the \texttt{CurrentJob} class has these
 attributes too:
 \starttable
-\texttt{datasetwriter()} && to get a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{}.\\
+\texttt{datasetwriter()} && to get a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{sec:classes:datasetwriter}.\\
 \texttt{open()}&& With extra temp argument.\\
 \texttt{save()} && to store a pickle file\\
 \texttt{json\_save()} && to store a json file\\
@@ -237,6 +238,7 @@ up that slice of the file only.
 
 \clearpage
 \section{The \texttt{JobList} Class}
+\label{sec:classes:joblist}
 Objects of the \texttt{JobList} class are returned by member functions
 to the \texttt{Urd} class.  They are used to group sessions of jobs
 together.
@@ -306,12 +308,12 @@ pickled.
 \texttt{caption} & The dataset's caption.\\
 \texttt{lines} & A \texttt{list} with number of lines per slice.\\
 \texttt{shape} & A tuple containing number of columns and number of lines in dataset.\\
-\texttt{link\_to\_here()} & Used to associate a subjob's dataset with the current job, see section~\ref{sec:linktohere}.\\
-\texttt{merge()} & Merge this dataset with another dataset, see section~\ref{sec:datasetmerge}.\\
-\texttt{chain()} & A \texttt{DatasetChain} object, see section~\ref{sec:dschain}\\
-\texttt{iterate\_chain()} & Iterator over chains, see section~\ref{sec:iterator}.\\
-\texttt{iterate()} & Iterator over dataset see section~\ref{sec:iterator}.\\
-\texttt{iterate\_list()} & Iterator over a list of datasets, see section~\ref{sec:iterator}.\\
+\texttt{link\_to\_here()} & Used to associate a subjob's dataset with the current job, see section~\ref{sec:subjobs}.\\
+\texttt{merge()} & Merge this dataset with another dataset, see section~\ref{sec:classes:dataset_merge}.\\
+\texttt{chain()} & A \texttt{DatasetChain} object, see section~\ref{sec:classes:datasetchain}\\
+\texttt{iterate\_chain()} & Iterator over chains, see chapter~\ref{chap:iterators}.\\
+\texttt{iterate()} & Iterator over dataset see chapter~\ref{chap:iterators}.\\
+\texttt{iterate\_list()} & Iterator over a list of datasets, see chapter~\ref{chap:iterators}.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
 
@@ -340,6 +342,7 @@ the \texttt{override\_previous} parameter.
 
 
 \subsection{\texttt{Dataset.merge()}}
+\label{sec:classes:dataset_merge}
 %\begin{leftbar}
 \starttable
 \texttt{other} & \textsl{Mandatory} & Merge with this dataset.\\
@@ -363,13 +366,14 @@ dataset.
 \texttt{stop\_ds} & \pyNone & If set, chain will start at the dataset after \texttt{stop\_ds}.\\
 \stoptable
 This function will return a \texttt{DatasetChain} object, see
-section~\ref{sec:datasetchain}.
+section~\ref{sec:classes:datasetchain}.
 %\end{leftbar}
 
 
 
 \clearpage
 \section{The \texttt{DatasetChain} Class}
+\label{sec:classes:datasetchain}
 These are lists of datasets returned from Dataset.chain.
 They exist to provide some convenience methods on chains.
 \starttabletwo
@@ -434,6 +438,7 @@ containing a speficied column.
 
 \clearpage
 \section{The \texttt{DatasetWriter} Class}
+\label{sec:classes:datasetwriter}
 The \texttt{DatasetWriter} class is used to create datasets.  Datasets
 could be stand-alone, part of a chain, or an extension (new columns)
 to an existing dataset.
@@ -449,9 +454,9 @@ see \texttt{dataset.py}.
 \texttt{hashcheck()} & Check if value belongs in current slice.\\
 \texttt{set\_slice()} & Set which slice that will receive the next write.\\
 \texttt{enable\_hash\_discard()} & Make the write functions silently discard data that does not hash to the current slice. \\
-\texttt{get\_split\_write()} & Get a writer object, see section~\ref{}.\\
-\texttt{get\_split\_write\_list()} & Get a writer object, see section~\ref{}.\\
-\texttt{get\_split\_write\_dict()} & Get a writer object, see section~\ref{}.\\
+\texttt{get\_split\_write()} & Get a writer object, see section~\ref{sec:create_in_synthesis}.\\
+\texttt{get\_split\_write\_list()} & Get a writer object, see section~\ref{sec:create_in_synthesis}.\\
+\texttt{get\_split\_write\_dict()} & Get a writer object, see section~\ref{sec:create_in_synthesis}.\\
 \texttt{discard()} & Discard the dataset under creation.\\
 \texttt{finish()} & Call this if dataset is to be used before creating job finishes, e.g.\ if the dataset under creation is input to a subjob.\\
 \stoptabletwo
@@ -473,7 +478,7 @@ also be \pyNone.
 \begin{python}
 dw.add('age', 'number', none_support=True)
 \end{python}
-All dataset types are described in section~\ref{}.
+All dataset types are described in chapter~\ref{chap:datasets}.
 %\end{leftbar}
 
 
@@ -509,6 +514,7 @@ not belong to the current slice.
 
 \clearpage
 \section{The \texttt{Urd} Class}
+\label{sec:classes:urd}
 \starttabletwo
 \texttt{get()} & Get an Urd item from a specified list and timetamp.\\
 \texttt{latest()} & Get the latest Urd item for a specified list.\\
@@ -675,7 +681,7 @@ dependencies will be recorded.
 
 \subsection{\texttt{Urd.build\_chained()}}
 Build a chained job.  Same options as \texttt{.build()}. See
-section~\ref{} for more information.
+chapter~\ref{chap:datasets} for more information.
 
 
 \subsection{\texttt{Urd.warn()}}

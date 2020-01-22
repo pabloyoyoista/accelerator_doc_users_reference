@@ -32,8 +32,8 @@ as the argument to the \texttt{main} function.  This \texttt{urd}
 object has a number of member functions and attributes useful for job
 building and tracking.  For tracking purposes, it remembers all jobs
 that are built, together with their input parameters and some other
-meta information.  The \texttt{Urd class} is described on
-page~\ref{}.
+meta information.  The \texttt{Urd class} is described in
+chapter~\ref{chap:urd} and in section~\ref{sec:classes:urd}.
 
 
 
@@ -73,7 +73,7 @@ will return a reference of type \texttt{Job}.  The \texttt{Job} class
 contains member functions and attributes that can be used to extract
 information, such as generated files or text written
 to \texttt{stdout}, from the job.  The \texttt{Job} class is described
-in detail on page~\ref{}.
+in detail in chapter~\ref{chap:jobs} and in section~\ref{sec:classes:job}.
 
 Similarly, if the job to be built already exists in a
 configured \textsl{workdir}, the \texttt{build} function will
@@ -135,7 +135,8 @@ Information about previously executed jobs is stored in
 the \texttt{urd.joblist} variable.  This variable is of
 type \texttt{JobList}, which is basically a standard ordered
 Python \texttt{list} with some additional features for searching,
-profiling and pretty-printing.  The \texttt{JobList} class is explained on page~\ref{pageellersectionreferenceva}
+profiling and pretty-printing.  The \texttt{JobList} class is further
+explained in section~\ref{sec:classes:joblist}.
 
 
 

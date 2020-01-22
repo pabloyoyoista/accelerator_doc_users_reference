@@ -156,7 +156,7 @@ on data with that particular timestamp.  A reference to
 the \texttt{csvimport} job is then extracted from the joblist and fed
 to the \texttt{process} job as an input dataset parameter. (For
 information about the \texttt{joblist} class, see
-section~\ref{sec:clumsy_dot_jobid}.)
+section~\ref{sec:joblist}.)
 
 
 
@@ -618,6 +618,7 @@ discarded.
 
 
 \section{Changing workdir:  \texttt{set\_workdir()}}
+\label{sec:set_workdir}
 The target workdir specified in the configuration file is the only
 workdir that is written to by default.  Any other workdir is read
 only.  This behaviour can be overridden, either

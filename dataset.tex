@@ -479,6 +479,7 @@ are \{\pyTrue, \pyFalse, \mintinline{python}|None|\}.
 
 
 \section{Create a New Dataset}
+\label{sec:datasetwriter}
 Datasets are created by methods using the \texttt{DatasetWriter}
 class.  An instance of this class is available in a running method
 as \texttt{job.datasetwriter} like this
@@ -554,6 +555,7 @@ with different names.
 
 
 \subsection{Create in \synthesis}
+\label{sec:create_in_synthesis}
 Since a dataset is slices in multiple disjoint sets, and \synthesis is
 run only once, data has to be sliced during writing somehow.  There
 are two possible ways to do this.  One is to first set a slice number

@@ -24,7 +24,7 @@
 
 The Accelerator is controlled using the \cmd shell command.  In order
 to run any command, \cmd needs to have access to a configuration file
-(see section~\ref{}).  The \cmd command will look for this file first
+(see section~\ref{sec:configfile}).  The \cmd command will look for this file first
 in the current directory, and then recursively in directories above
 it.
 
@@ -67,6 +67,7 @@ each command will be introduced next.
 
 
 \section{Initialisation}
+\label{sec:initialisation}
 In order to start a new project, a few things need to be set up, in
 particular
 \begin{itemize}
@@ -108,10 +109,6 @@ optional arguments:
                    exists with incompatible slice count
 \end{verbatim}
 \end{snugshade}
-The command help listed above says most of it.  See
-section~\ref{section_on_init} on how to set up a new project from
-scratch.
-
 
 
 
@@ -367,7 +364,7 @@ ax dsgrep . test-0 | less
 
 \section{The Urd Job Database Server}
 By default, a local Urd server is running when the Accelerator server
-is running.  Read more about this in section~\ref{}.
+is running.  Read more about this in section~\ref{chap:urd}.
 
 Start Urd by
 \begin{shell}

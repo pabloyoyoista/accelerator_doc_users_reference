@@ -738,6 +738,36 @@ def main(urd):
 
 
 
+\section{Converting Between Jobs and Datasets}
+Sometimes it is necessary to find the job that created a particular
+dataset, or access one of the other datasets in a job given a certain
+dataset.
+
+
+\subsection{From Dataset to Job}
+\begin{python}
+  job = ds.job
+\end{python}
+
+
+\subsection{From Job to Dataset}
+\begin{python}
+  ds = job.dataset("datasetname")
+\end{python}
+or using the \texttt{Dataset} constructor.
+\begin{python}
+  ds = Dataset(job, "datasetname")
+\end{python}
+
+
+\subsection{From Dataset to Dataset (in same Job)}
+\begin{python}
+  ds = ds.job.dataset("datasetname")
+\end{python}
+
+
+
+
 \section{Method Input Parameters}
 \label{sec:input_params}
 

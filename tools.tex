@@ -40,24 +40,25 @@ Asking for help is always an option.  To begin,
 will print something like
 \begin{snugshade}
 \begin{verbatim}
-  usage: ax [--config CONFIG_FILE] command
+usage: ax [--config CONFIG_FILE] command
 
-  positional arguments:
+positional arguments:
   command
 
-  optional arguments:
+optional arguments:
   --config CONFIG_FILE  Configuration file
 
-  commands:
+commands:
 
-  daemon  Run the main daemon
-  dsgrep  Search for a pattern in one or more datasets
-  dsinfo  Display information about datasets
-  init  Create a project directory
-  run  Run an automata script
-  urd  Run the urd daemon
+    curl  http request (with curl) to urd or the daemon
+  daemon  run the main daemon
+  dsgrep  search for a pattern in one or more datasets
+  dsinfo  display information about datasets
+    init  create a project directory
+     run  run a build script
+     urd  run the urd daemon
 
-  Use ax <command> --help for <command> usage.
+Use ax <command> --help for <command> usage.
 \end{verbatim}
 \end{snugshade}
 each command will be introduced next.
@@ -86,26 +87,22 @@ with the following options
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: bd init [-h] [--slices SLICES] [--name NAME] [--prefix PREFIX]
-               [--input INPUT] [--force]
+usage: ax init [-h] [--slices SLICES] [--name NAME] [--input INPUT] [--force]
                [DIR]
 
 Creates an accelerator project directory. Defaults to the current directory.
-Creates accelerator.conf and a method directory. Also creates workdirs and
-result dir (in ~/accelerator by default). Both the method directory and
-workdir will be named <NAME>, "dev" by default.
+Creates accelerator.conf, a method dir, a workdir and result dir. Both the
+method directory and workdir will be named <NAME>, "dev" by default.
 
 positional arguments:
-  DIR              Project directory to create, default "."
+  DIR              project directory to create. default "."
 
 optional arguments:
   -h, --help       show this help message and exit
-  --slices SLICES  Override slice count detection
-  --name NAME      Name of method dir and workdir, default "dev"
-  --prefix PREFIX  Put workdirs and daemon.log here, default
-                   "${HOME}/accelerator"
-  --input INPUT    Input directory
-  --force          Go ahead even though directory is not empty, or workdir
+  --slices SLICES  override slice count detection
+  --name NAME      name of method dir and workdir, default "dev"
+  --input INPUT    input directory
+  --force          go ahead even though directory is not empty, or workdir
                    exists with incompatible slice count
 \end{verbatim}
 \end{snugshade}
@@ -128,19 +125,17 @@ that makes sense is in place.
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: daemon [-h] [--debug] [--port PORT | --socket SOCKET]
+usage: ax daemon [-h] [--debug]
 
 optional arguments:
-  -h, --help       show this help message and exit
+  -h, --help  show this help message and exit
   --debug
-  --port PORT      Listen on tcp port (default: None)
-  --socket SOCKET  Listen on unix socket (default: socket.dir/default)
 \end{verbatim}%
 \end{snugshade}
 Communication with the Accelerator daemon will take place over an UNIX
 socket by default.  There is no need for any additional configuration
 to make that happen.  It is possible, however, to communicate over a
-TCP port instead if specified.
+TCP port instead if specified in the Accelerator's configuration file.
 
 
 
@@ -161,29 +156,24 @@ ax run --help
 
 \begin{snugshade}
 \begin{verbatim}
-  usage: run [options] [script]
+usage: ax run [options] [script]
 
 positional arguments:
-  script                automata script to run. default "automata".
+  script                build script to run. default "build".
                         searches under all method directories in alphabetical
                         order if it does not contain a dot.
-                        prefixes automata_ to last element unless specified.
+                        prefixes build_ to last element unless specified.
                         package name suffixes are ok.
                         so for example "test_methods.tests" expands to
-                        "accelerator.test_methods.automata_tests".
+                        "accelerator.test_methods.build_tests".
 
 optional arguments:
   -h, --help            show this help message and exit
-  -p PORT, --port PORT  framework listening port
-  -H HOSTNAME, --hostname HOSTNAME
-                        framework hostname
-  -S SOCKET, --socket SOCKET
-                        framework unix socket (default ./socket.dir/default)
   -f FLAGS, --flags FLAGS
                         comma separated list of flags
   -A, --abort           abort (fail) currently running job(s)
   -q, --quick           skip method updates and checking workdirs for new jobs
-  -w, --just_wait       just wait for running job, don't run any automata
+  -w, --just_wait       just wait for running job, don't run any build script
   -F, --fullpath        print full path to jobdirs
   --verbose VERBOSE     verbosity style {no, status, dots, log}
   --quiet               same as --verbose=no
@@ -217,7 +207,23 @@ values, number of rows, and balance of rows between slices.
 
 \subsection{Invocation}
 \begin{shell}
-ax dsinfo [options] [dataset [dataset [...]]]
+  usage: ax dsinfo [options] ds [ds [...]]
+
+  positional arguments:
+  dataset
+
+  optional arguments:
+  -h, --help              show this help message and exit
+  -c, --chain             list all datasets in a chain
+  -C, --non_empty_chain   list all non-empty datasets in a chain
+  -l, --list              list all datasets in a job with number of rows
+  -L, --chainedlist       list all datasets in a job with number of chained rows
+  -m, --suppress_minmax   do not print min/max column values
+  -n, --suppress_columns  do not print columns
+  -q, --suppress_errors   silently ignores bad input datasets/jobids
+  -s, --slices            list relative number of lines per slice in sorted
+  order
+  -S, --chainedslices     same as -s but for full chain
 \end{shell}
 
 The \texttt{dataset} option is either a \textsl{dataset}, when used
@@ -328,7 +334,19 @@ The \texttt{dsgrep} command is a parallel grep for datasets that is
 used to look at data stored in datasets or dataset chains.
 \subsection{Invocation}
 \begin{shell}
-ax dsgrep [options] pattern ds [ds [...]] [column [column [...]]
+  usage: ax dsgrep [options] pattern ds [ds [...]] [column [column [...]]
+
+    positional arguments:
+    pattern
+    dataset
+    columns
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    -c, --chain           follow dataset chains
+    -i, --ignore-case     case insensitive pattern
+    -s SLICE, --slice SLICE
+    grep this slice only, can be specified multiple times
 \end{shell}
 
 The \texttt{pattern} is a regular expression and \texttt{ds} are

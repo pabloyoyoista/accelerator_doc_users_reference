@@ -214,10 +214,11 @@ in a round robin fashion, so iterating over a csvimported dataset does
 not return the lines in the same order as they were written.
 
 By setting the first parameter of any of the iterator functions to
-``\texttt{roundrobin}'', the iterator will internally fetch all slice iterators
-and return one value at a time from each iterator in a round robin
-fashion.  The resulting output is then in the same order as in the
-file imported by \texttt{csvimport}.  There is a preformance penalty
+``\texttt{roundrobin}'', the iterator will internally fetch all slice
+iterators and return one value at a time from each iterator in a round
+robin fashion.  The resulting output is then in the same order as in
+the file imported by \texttt{csvimport}.  In a dataset chain, round
+robin will happen \textsl{per dataset}.  There is a preformance penalty
 associated with this functionality.
 
 

@@ -427,29 +427,15 @@ file in the job directory and create a symbolic (soft) link to it in
 the result directory.  This functionality is implemented in the
 \texttt{job.link\_result()} function that is used like this
 \begin{python}
-def synthesis(job):
-    x = ...some data...
-    with job.open(filename, 'wb') as fh:
-        fh.write(x)
-    job.link_result(filename)
+def main(urd):
+    job = urd.build('somejob')
+    job.link_result()  # links the job's "result.pickle" to result_directory
+    job.link_result('result.txt')
+    job.link_result('result.txt', linkname='result_from_somejob.txt')
 \end{python}
-(Note that the function is a member of the \texttt{CurrentJob} class,
-and not the \texttt{Job} class.  It only works inside running
-methods.)  The \texttt{.link\_result()} function will create a
-symbolic link named \texttt{filename} in the directory pointed to by
-the \texttt{result\_directory} assignment in the Accelerator's
+(Note that this only works in build scripts with the \texttt{Job}
+class.  The \texttt{.link\_result()} function will create a symbolic
+link named \texttt{filename} in the directory pointed to by the
+\texttt{result\_directory} assignment in the Accelerator's
 configuration file.  The link will point to the original file in the
 job directory, and will be replaced if it already exists.
-
-By default, the function will link the file
-``\texttt{result.pickle}'', so it is possible to be lazy and write
-like this
-\begin{python}
-def synthesis(job):
-    data = ....
-    job.save(data)
-    job.link_result()
-\end{python}
-since the same filename is default for \texttt{.save()} as well.  If
-it makes sense to put \texttt{.pickle} files in the result directory
-is another question.

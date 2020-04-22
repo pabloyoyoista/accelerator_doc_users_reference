@@ -103,6 +103,7 @@ slices: 23
 workdirs:
         test /zbd/workdirs/test
         import ${HOME}/workdirs/import
+        live wdirs/live
 
 # Target workdir defaults to the first workdir, but you can override it.
 # target workdir: dev
@@ -131,11 +132,13 @@ input directory: /zbd/data/backblaze
 \end{snugshade}%
 %\end{leftbar}%
 
-The configuration file above specifies 23 slices and two workdirs,
-called \texttt{test} and \texttt{import}.  The \texttt{test} workdir
-is specified using an absolute path, while the \texttt{import} workdir
-is specified relative to the user's home directory using the shell
-environment variable \texttt{\$HOME}.
+The configuration file above specifies 23 slices and three workdirs,
+called \texttt{test}, \texttt{import}, and \texttt{live}.  The
+\texttt{test} workdir is specified using an absolute path, the
+\texttt{import} workdir is specified relative to the user's home
+directory using the shell environment variable \texttt{\$HOME}, and
+the \texttt{live} workdir is specified using a path relative to
+the location of the configuration file itself.
 
 The workdir that is specified first is the \textsl{target workdir},
 where jobs are written to by default.  All other specified workdirs
@@ -156,7 +159,9 @@ directory \texttt{dev} (if defined in \texttt{dev/methods.conf}).
 least one workdir needs to be defined.  All workdirs that are used
 together must have the same number of slices.  It is possible to use
 shell environment variables such as \texttt{\$\{HOME\}} when
-specifying workdirs.
+specifying workdirs.  Path starting with a slash (\texttt{/}) are
+absolute paths, all other paths are relative to the location of the
+configuration file itself.
 
 Unless overridden by the \texttt{target workdir}, the first workdir in
 the list will be the default \textsl{target workdir} that is used for
@@ -176,19 +181,19 @@ Accelerator and is commonly used.\\[1ex]
 \RPtwo \texttt{urd} & If present, an URL to the Urd server.\\[1ex]
 
 \RPtwo \texttt{result directory} & A common path that is available to
-all jobs.  It has been used sparsely by the Accelerator team since it
-voids the possibility to see where a file comes from.  Nevertheless,
-in some projects it is valuable to have a common place where methods
-store results, see section~\ref{sec:RESULT_DIR}.  A way to keep
-traceability is to store the file in the job directory as usual, and
-then create a soft link to it in \texttt{result\_directory}.\\[1ex]
+all jobs.  Use the \texttt{job.link\_result()}-function to create
+symbolic links from files in job directories to this directory.  Just
+like workdirs, this path is either absolute or relative to the
+location of the configuration file.  \\[1ex]
 
 \RPtwo \texttt{input directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if input
 files are moved to another directory.  (This typically happens when
 setting up a similar system on another physical machine.)  See
 section~\ref{sec:INPUT_DIR} on how to get access to
-\texttt{input\_directory} from any method.\\[1ex]
+\texttt{input\_directory} from any method.  Just like workdirs, this
+path is either absolute or relative to the location of the
+configuration file.  \\[1ex]
 
 \RPtwo \texttt{interpreters} & Name and path to python executables.
 These are used in \texttt{methods.conf} to specify specific Python

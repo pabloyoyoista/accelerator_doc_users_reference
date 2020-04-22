@@ -19,6 +19,7 @@ attributes are available on both the \texttt{Job} and
 \texttt{dataset()} & Return a named dataset from the job.\\
 \texttt{datasets} & List of datasets in job.\\
 \texttt{filename()} & Return absolute path to a file in a job.\\
+\texttt{files()} & Return list of files created by job.\\
 \texttt{json\_load()} & Load a json file from the job's directory.\\
 \texttt{link\_result()} & Create a soft link from a file in a job's directory to \texttt{result\_directory}.\\
 \texttt{load()} & Load a pickle file from the job's directory.\\
@@ -50,6 +51,18 @@ attributes are available on both the \texttt{Job} and
 \stoptable
 Get a dataset instance from a job.
 %\end{leftbar}
+
+
+\subsection{\texttt{Job.files()}}
+\starttable
+\texttt{pattern} & \texttt{''} & Return only files matching \texttt{pattern}\\
+\stoptable
+
+This method returns a list of all filenames corresponding to files
+created by the job using the functions \texttt{CurrentJob.open()},
+\texttt{CurrentJob.save()}, or \texttt{CurrentJob.json\_save()}.  The
+list can be filtered using the \texttt{pattern} option.  Filtering is
+based on Python's \texttt{fnmatch}-functionality.
 
 
 \subsection{\texttt{Job.filename()}}

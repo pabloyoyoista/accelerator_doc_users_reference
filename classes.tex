@@ -43,18 +43,13 @@ attributes are available on both the \texttt{Job} and
 \noindent Detailed description of the functions, where neccessary, follows.
 
 
-\subsection{\texttt{Currentjob.link\_result()}}
+\subsection{\texttt{Job.dataset()}}
+%\begin{leftbar}
 \starttable
-\texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
-\texttt{linkname}  & \pyNone & Name of link if set.\\
+\texttt{name} & \texttt{default} & \\
 \stoptable
-Use to create a soft link from a file in a job directory to the
-\texttt{result\_directory}.
-
-\textbf{NOTE}: This only works for \texttt{Job} instances, and not
-\texttt{CurrentJob} instances.  This is for reproducibility reasons.
-Links in \texttt{result\_directory} cannot be recreated if created in
-a job, since jobs can only be executed once.
+Get a dataset instance from a job.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.filename()}}
@@ -68,6 +63,30 @@ If the file is sliced, a particular slice file can be retrieved using
 the \texttt{sliceno} parameter.  Sliced files are described in section~\ref{sec:sliced_files}.
 %\end{leftbar}
 
+
+\subsection{\texttt{Job.json\_load()}}
+%\begin{leftbar}
+\starttable
+\texttt{filename} & \texttt{result.json} & Name of file.\\
+\texttt{sliceno} & \pyNone & \\
+%\texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
+\stoptable
+Load a file from a job, in JSON format.
+%The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
+%to let strings decode as bytes.  Override this for unicode.  In
+%Python3, strings decode as unicode.
+%\end{leftbar}
+
+
+\subsection{\texttt{Job.load()}}
+%\begin{leftbar}
+\starttable
+\texttt{filename} & \texttt{result.pickle} & \hspace{2ex}Name of file.\\
+\texttt{sliceno} & \pyNone & \\
+\texttt{encoding} & \texttt{bytes} & \\
+\stoptable
+Load a file from a job in Python's pickle format.
+%\end{leftbar}
 
 
 \subsection{\texttt{Job.open()}}
@@ -102,6 +121,24 @@ are described in section~\ref{sec:slicedfiles}.
 %\end{leftbar}
 
 
+\subsection{\texttt{Job.output()}}
+%\begin{leftbar}
+\starttable
+\texttt{what} & \pyNone & Which functions to return output from.\\
+\stoptable
+Get everything a job has printed to \texttt{stdout}
+and \texttt{stderr} in a string variable.  The parameter \texttt{what} can be set to
+\begin{itemize}
+\item[] \pyNone, which returns everything,
+\item[] \texttt{prepare}, which returns everything from \texttt{prepare},
+\item[] \texttt{analysis}, which returns everything from \texttt{analysis},
+\item[] \texttt{synthesis}, which returns everything from \texttt{synthesis}, or
+\item[] a number, which returns output from the corresponding \texttt{analysis} slice.
+\end{itemize}
+  
+%\end{leftbar}
+
+
 \subsection{\texttt{Job.withfile()}}
 %\begin{leftbar}
 \starttable
@@ -115,64 +152,18 @@ sliced.
 %\end{leftbar}
 
 
-\subsection{\texttt{Job.load()}}
-%\begin{leftbar}
+\subsection{\texttt{Currentjob.link\_result()}}
 \starttable
-\texttt{filename} & \texttt{result.pickle} & \hspace{2ex}Name of file.\\
-\texttt{sliceno} & \pyNone & \\
-\texttt{encoding} & \texttt{bytes} & \\
+\texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
+\texttt{linkname}  & \pyNone & Name of link if set.\\
 \stoptable
-Load a file from a job in Python's pickle format.
-%\end{leftbar}
+Use to create a soft link from a file in a job directory to the
+\texttt{result\_directory}.
 
-
-\subsection{\texttt{Job.json\_load()}}
-%\begin{leftbar}
-\starttable
-\texttt{filename} & \texttt{result.json} & Name of file.\\
-\texttt{sliceno} & \pyNone & \\
-%\texttt{unicode\_as\_utf8bytes} & \texttt{PY2} & \\
-\stoptable
-Load a file from a job, in JSON format.
-%The \texttt{unicode\_as\_utf8bytes} flag is active in Python2 in order
-%to let strings decode as bytes.  Override this for unicode.  In
-%Python3, strings decode as unicode.
-%\end{leftbar}
-
-
-\subsection{\texttt{Job.dataset()}}
-%\begin{leftbar}
-\starttable
-\texttt{name} & \texttt{default} & \\
-\stoptable
-Get a dataset instance from a job.
-%\end{leftbar}
-
-
-\subsection{\texttt{Job.output()}}
-%\begin{leftbar}
-\starttable
-\texttt{what} & \pyNone & \\
-\stoptable
-Get everything a job has printed to \texttt{stdout}
-and \texttt{stderr} in a string variable.
-%\end{leftbar}
-
-
-\subsection{\texttt{CurrentJob.save()}}
-%\begin{leftbar}
-\starttable
-\texttt{obj} & \textsl{Mandatory} & \\
-\texttt{filename} & \texttt{result.pickle} & \\
-\texttt{sliceno} & \pyNone & \\
-\texttt{temp} & \pyNone & \\
-\stoptable
-For \texttt{CurrentJob} instances only.  Save data into the current
-job's directory in Python's pickle format.
-The \texttt{temp} argument is used to control the persistence of files
-written using \texttt{.save()}.  This is useful mainly for debug
-purposes, and explained in section~\ref{sec:debugflag}.
-%\end{leftbar}
+\textbf{NOTE}: This only works for \texttt{Job} instances, and not
+\texttt{CurrentJob} instances.  This is for reproducibility reasons.
+Links in \texttt{result\_directory} cannot be recreated if created in
+a job, since jobs can only be executed once.
 
 
 \subsection{\texttt{CurrentJob.json\_save()}}
@@ -188,6 +179,22 @@ For \texttt{CurrentJob} instances only.  Save data into the current
 job's directory in JSON format.
 The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.json\_save()}.  This is useful mainly for debug
+purposes, and explained in section~\ref{sec:debugflag}.
+%\end{leftbar}
+
+
+\subsection{\texttt{CurrentJob.save()}}
+%\begin{leftbar}
+\starttable
+\texttt{obj} & \textsl{Mandatory} & \\
+\texttt{filename} & \texttt{result.pickle} & \\
+\texttt{sliceno} & \pyNone & \\
+\texttt{temp} & \pyNone & \\
+\stoptable
+For \texttt{CurrentJob} instances only.  Save data into the current
+job's directory in Python's pickle format.
+The \texttt{temp} argument is used to control the persistence of files
+written using \texttt{.save()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.
 %\end{leftbar}
 

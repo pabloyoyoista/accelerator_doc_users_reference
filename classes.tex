@@ -1,16 +1,20 @@
 \section{The \texttt{Job} and \texttt{CurrentJob} Classes}
 \label{sec:classes:job}
-The \texttt{Job} class is used to represent and operate on existing
-jobs.  An object of this class is returned from job \texttt{build()}
-calls as well as when retreiving jobs from Urd or a \texttt{JobList}
-object.  The \texttt{CurrentJob} class is an extension that provides
-mechanisms for operations performed while a job is executing, such as
-saving files to the job's jobdir.  The classes are derived from
-the \texttt{str} class, and objects of these classes decay to
-(unicode) strings when pickled.
-
-The following attributes are available on both the \texttt{Job}
-and \texttt{CurrentJob} classes:
+The \texttt{Job} and \texttt{CurrentJob} classes are similar, but used
+in different contexts:
+\begin{itemize}
+\item[] The \texttt{Job} class is used to represent and operate on
+  \textsl{existing} jobs.  An object of this class is returned from
+  job \texttt{build()} calls as well as when retreiving jobs from Urd
+  or a \texttt{JobList} object.
+\item[] The \texttt{CurrentJob} class is an extension that provides
+  mechanisms for operations performed while a job is
+  \textsl{executing}, such as saving files to the job's jobdir.
+\end{itemize}
+The classes are derived from the \texttt{str} class, and objects of
+these classes decay to (unicode) strings when pickled.  The following
+attributes are available on both the \texttt{Job} and
+\texttt{CurrentJob} classes:
 \starttabletwo
 \texttt{method} & The job method.  This can be overriden by \texttt{name=} if job instance is output from Urd or a \texttt{build()} call.\\
 \texttt{path} & The filesystem directory where the job is stored.\\
@@ -27,16 +31,20 @@ and \texttt{CurrentJob} classes:
 \texttt{datasets} & List of datasets in this job.\\
 \texttt{output()} & Return what the job printed to \texttt{stdout} and \texttt{stderr}.\\
 \stoptabletwo
-\noindent In addition, the \texttt{CurrentJob} class has these
-attributes too:
-\starttable
-\texttt{datasetwriter()} && to get a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{sec:classes:datasetwriter}.\\
-\texttt{open()}&& With extra temp argument.\\
-\texttt{save()} && to store a pickle file\\
-\texttt{json\_save()} && to store a json file\\
-\stoptable
-\noindent Detailed description of the functions, where neccessary, follows.
 
+\noindent The \texttt{Job} class has this unique attribute:
+\starttabletwo
+\texttt{link\_result()} & Create a soft link from a file in a job's directory to \texttt{result\_directory}.\\
+\stoptabletwo
+
+\noindent The \texttt{CurrentJob} class has these unique attributes:
+\starttabletwo
+\texttt{datasetwriter()} & to get a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{sec:classes:datasetwriter}.\\
+\texttt{open()} & With extra temp argument.\\
+\texttt{save()} & to store a pickle file\\
+\texttt{json\_save()} & to store a json file\\
+\stoptabletwo
+\noindent Detailed description of the functions, where neccessary, follows.
 
 
 \subsection{\texttt{Job.filename()}}

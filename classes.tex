@@ -16,35 +16,45 @@ these classes decay to (unicode) strings when pickled.  The following
 attributes are available on both the \texttt{Job} and
 \texttt{CurrentJob} classes:
 \starttabletwo
-\texttt{method} & The job method.  This can be overriden by \texttt{name=} if job instance is output from Urd or a \texttt{build()} call.\\
-\texttt{path} & The filesystem directory where the job is stored.\\
-\texttt{workdir} & The workdir name (the part before \texttt{-number} in the jobid).\\
-\texttt{number} & The job number as an \texttt{int}.\\
-\texttt{filename()} & Return absolute path to a file in a job.\\
-\texttt{withfile()} & A \texttt{JobWithFile} with this job.\\
-\texttt{params} & Return a dict corresponding to the file \texttt{setup.json} for this job.\\
-\texttt{post} & Return a dict corresponding to \texttt{post.json} for this job.\\
-\texttt{open()} & Similar to standard \texttt{open}, use to open files\\
-\texttt{load()} & Load a pickle file from the job's directory.\\
-\texttt{json\_load()} & Load a json file from the job's directory.\\
 \texttt{dataset()} & Return a named dataset from the job.\\
-\texttt{datasets} & List of datasets in this job.\\
-\texttt{output()} & Return what the job printed to \texttt{stdout} and \texttt{stderr}.\\
-\stoptabletwo
-
-\noindent The \texttt{Job} class has this unique attribute:
-\starttabletwo
+\texttt{datasets} & List of datasets in job.\\
+\texttt{filename()} & Return absolute path to a file in a job.\\
+\texttt{json\_load()} & Load a json file from the job's directory.\\
 \texttt{link\_result()} & Create a soft link from a file in a job's directory to \texttt{result\_directory}.\\
+\texttt{load()} & Load a pickle file from the job's directory.\\
+\texttt{method} & The job's method.  This can be overriden by \texttt{name=} if job instance is output from Urd or a \texttt{build()} call.\\
+\texttt{number} & The job number as an \texttt{int}.\\
+\texttt{open()} & Similar to standard \texttt{open}, use to open files.\\
+\texttt{output()} & Return what the job printed to \texttt{stdout} and \texttt{stderr}.\\
+\texttt{params} & Return a dict corresponding to the file \texttt{setup.json} for this job.\\
+\texttt{path} & The filesystem directory where the job is stored.\\
+\texttt{post} & Return a dict corresponding to the job's \texttt{post.json}.\\
+\texttt{withfile()} & A \texttt{JobWithFile} with this job.\\
+\texttt{workdir} & The workdir name (the part before \texttt{-number} in the jobid).\\
 \stoptabletwo
 
-\noindent The \texttt{CurrentJob} class has these unique attributes:
+\noindent In addition, the \texttt{CurrentJob} class has these unique attributes:
 \starttabletwo
-\texttt{datasetwriter()} & to get a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{sec:classes:datasetwriter}.\\
-\texttt{open()} & With extra temp argument.\\
-\texttt{save()} & to store a pickle file\\
-\texttt{json\_save()} & to store a json file\\
+\texttt{datasetwriter()} & Returns a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{sec:classes:datasetwriter}.\\
+\texttt{json\_save()} & Store a json file in the current job directory.\\
+\texttt{open()} & Added extra \texttt{temp} argument.\\
+\texttt{save()} & Store a pickle file in the current job directory.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
+
+
+\subsection{\texttt{Currentjob.link\_result()}}
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
+\texttt{linkname}  & \pyNone & Name of link if set.\\
+\stoptable
+Use to create a soft link from a file in a job directory to the
+\texttt{result\_directory}.
+
+\textbf{NOTE}: This only works for \texttt{Job} instances, and not
+\texttt{CurrentJob} instances.  This is for reproducibility reasons.
+Links in \texttt{result\_directory} cannot be recreated if created in
+a job, since jobs can only be executed once.
 
 
 \subsection{\texttt{Job.filename()}}
@@ -149,7 +159,7 @@ and \texttt{stderr} in a string variable.
 %\end{leftbar}
 
 
-\subsection{\texttt{Job.save()}}
+\subsection{\texttt{CurrentJob.save()}}
 %\begin{leftbar}
 \starttable
 \texttt{obj} & \textsl{Mandatory} & \\
@@ -165,7 +175,7 @@ purposes, and explained in section~\ref{sec:debugflag}.
 %\end{leftbar}
 
 
-\subsection{\texttt{Job.json\_save()}}
+\subsection{\texttt{CurrentJob.json\_save()}}
 %\begin{leftbar}
 \starttable
 \texttt{obj} & \textsl{Mandatory} & \\

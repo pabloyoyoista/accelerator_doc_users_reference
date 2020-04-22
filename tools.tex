@@ -28,7 +28,7 @@ to run any command, \cmd needs to have access to a configuration file
 in the current directory, and then recursively in directories above
 it.
 
-It is assumed that the Accelerator \texttt{daemon} and build script
+It is assumed that the Accelerator server and build script
 \texttt{run} commands are executed from the same directory.  This will
 work out of the box.  But if set up correctly, they could be run from
 different directories or even from different computers if necessary.
@@ -50,13 +50,13 @@ optional arguments:
 
 commands:
 
-    curl  http request (with curl) to urd or the daemon
-  daemon  run the main daemon
+    curl  http request (with curl) to urd or the server
+  server  run the main server
   dsgrep  search for a pattern in one or more datasets
   dsinfo  display information about datasets
     init  create a project directory
      run  run a build script
-     urd  run the urd daemon
+     urd  run the urd server
 
 Use ax <command> --help for <command> usage.
 \end{verbatim}
@@ -109,30 +109,30 @@ optional arguments:
 
 
 
-\section{Accelerator Server/Daemon}
+\section{Accelerator Server}
 
-The Accelerator server, or daemon needs to be running in order to
+The Accelerator server, or daemon, needs to be running in order to
 execute any commands.
 
 \subsection{Invocation}
 \begin{shell}
-% ax daemon
+% ax server
 \end{shell}
-will start the Accelerator daemon, assuming that a configuration file
+will start the Accelerator server, assuming that a configuration file
 that makes sense is in place.
 \begin{shell}
-% ax daemon --help
+% ax server --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: ax daemon [-h] [--debug]
+usage: ax server [-h] [--debug]
 
 optional arguments:
   -h, --help  show this help message and exit
   --debug
 \end{verbatim}%
 \end{snugshade}
-Communication with the Accelerator daemon will take place over an UNIX
+Communication with the Accelerator server will take place over an UNIX
 socket by default.  There is no need for any additional configuration
 to make that happen.  It is possible, however, to communicate over a
 TCP port instead if specified in the Accelerator's configuration file.
@@ -185,11 +185,7 @@ When the \texttt{run} command starts, it will instruct the Accelerator
 to scan all method directories to see if there are any new or changed
 methods.  Thereafter, the Accelerator will proceed and scan all source
 workdirs to see if any new jobs have been created (by another
-Accelerator daemon).  Thereafter, it will execute the build script.
-
-Is for the \texttt{daemon} command, there is no need to specify any
-socket or port as long as the commands are issued from the same
-directory.
+Accelerator server).  Thereafter, it will execute the build script.
 
 
 

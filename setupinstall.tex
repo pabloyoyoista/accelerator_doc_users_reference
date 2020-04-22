@@ -55,9 +55,9 @@ method packages:
     ...
     accelerator.test_methods
 \end{verbatim}
-start the daemon using
+start the server using
 \begin{python}
-ax daemon
+ax server
 \end{python}
 and in another shell start the test
 \begin{python}
@@ -77,7 +77,7 @@ which has to be run with root privileges.
 
 
 
-\section{Daemon Configuration File}
+\section{Server Configuration File}
 \label{sec:configfile}
 The configuration file specifies which method packages and workdirs
 that are available for a project.  A template configuration file can
@@ -123,7 +123,7 @@ input directory: /zbd/data/backblaze
 # specify names for other interpreters here, and put that name after
 # the method in methods.conf.
 # You automatically get four names for the interpreter that started
-# the daemon: DEFAULT, 3, 3.7 and 3.7.3 (adjusted to the actual
+# the server: DEFAULT, 3, 3.7 and 3.7.3 (adjusted to the actual
 # version used). You can override these here, except DEFAULT.
 # interpreters:
 #       2.7 /path/to/python2.7
@@ -199,7 +199,7 @@ configuration file.  \\[1ex]
 These are used in \texttt{methods.conf} to specify specific Python
 versions (or virtual environments) for individual methods.  If
 unspecified, methods will be executed using the same binary that runs
-the Accelerator's daemon process.\\[1ex]
+the Accelerator's server process.\\[1ex]
 
 \stoptabletwo
 
@@ -212,7 +212,7 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 
 \section{Setting up a Standalone Urd-server}
 \label{sec:urd_setup}
-The main daemon program will start a local Urd server by default.
+The main server program will start a local Urd server by default.
 This server is for local use only.  If the Urd server should be used
 to share information between users, a standalone server needs to be
 set up.
@@ -287,7 +287,7 @@ override this, however, by setting the \mintinline{python}|workdir=|
 option in the \texttt{urd.build()} call, see
 section~\ref{sec:urd_build}.
 
-Jobdirs are stored in the workdir by the daemon, and jobdirs will
+Jobdirs are stored in the workdir by the server, and jobdirs will
 inherit the workdir name and add a suffix that is an incremental job
 counter.  Here is an example of a workdir named \texttt{test}, that
 contains three jobdirs.
@@ -310,8 +310,8 @@ version.
 
 \subsection{Creating a Workdir}
 If a workdir defined in the configuration file does not exist on disk
-at the stated location, the Daemon will exit and print an error
-stating that a directory is missing.  The first time the Daemon
+at the stated location, the server will exit and print an error
+stating that a directory is missing.  The first time the server
 encounters a new directory it will initialise it in accordance with
 the configuration file.  So, new workdirs are created by adding them
 to the configuration file \textsl{and} creating the corresponding

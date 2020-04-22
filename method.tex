@@ -237,7 +237,7 @@ in the configuration file using the key
 
 The default interpreter is selected if this field is left empty, where
 default corresponds to the one that the currently running Accelerator
-daemon is using.  The Accelerator and its \texttt{standard\_methods}
+server is using.  The Accelerator and its \texttt{standard\_methods}
 library are compatible with both Python 2 and Python 3.
 
 Here is an example \texttt{methods.conf}
@@ -304,7 +304,7 @@ depend_extra = (my_python_module, 'mystuff.data',)
 As seen in the example, it is possible to specify either Python module
 objects or filenames relative to the method's location.
 
-The Accelerator daemon will suggest adding modules to a source file in
+The Accelerator server will suggest adding modules to a source file in
 the output log like this:
 \begin{snugshade}
 \begin{verbatim}
@@ -340,7 +340,7 @@ Accelerator helps creating this, if needed.  This is how it works.
 \begin{python}
 equivalent_hashes = {'whatever': (<old_hash>,)}
 \end{python}
-\item Run the build script.  The daemon will print something like
+\item Run the build script.  The server will print something like
 \begin{shell}
 ===========================================================
 WARNING: test_methods.a_test_rechain has equivalent_hashes,
@@ -504,7 +504,7 @@ mergers every time they are needed.
 \label{sec:OUTPUT}
 In a method, anything that is sent to \texttt{stdout} or
 \texttt{stderr} will be sent \textsl{both} to the termininal in which
-the Accelerator daemon was started \textsl{and} to a file in the
+the Accelerator server was started \textsl{and} to a file in the
 current job directory.  This covers, for example, anything output from
 Python's \texttt{print()}-function.
 

@@ -208,7 +208,7 @@ file, there are three limitations that apply to methods:
 \subsection{Creating a New Method}
 In order to create a new method, follow these steps
 \begin{enumerate}
-\item Create the method in a package viewable to the Accelerator
+\item Create the method in a package visible to the Accelerator
   using an editor.  Make sure the filename is \texttt{a\_name.py} if
   the method's name is \texttt{name}.
 \item Add the method name \texttt{name} (without the prefix ``\texttt{a\_}'' and
@@ -290,7 +290,7 @@ job has been built in the past.  This check is based on two things:
 \item  the output of a hash function applied to the method source code, and
 \item  the method's input parameters.
 \end{enumerate}
-The hash value is combined with the input parmeters and compared to
+The hash value is combined with the input parameters and compared to
 all jobs already built.  Only if the hash and input parameter
 combination is unique, i.e.\ it has not been seen before, will the
 method be executed.  The
@@ -399,7 +399,7 @@ options = dict(length=4)
 The input parameters are populated by the builder when the
 \texttt{run} command is executed.  Section~\ref{sec:input_params}
 and~\ref{sec:formal_options} provide detailed descriptions of all
-parametes.
+parameters.
 
 
 \subsection{Functions Reserved for Execution Flow}
@@ -430,7 +430,7 @@ All functions have access to these
 \item[--] \texttt{job}, which is an instance of the current job, and
 \item[--] \texttt{slices}, an integer holding the total number of slices.
 \end{itemize}
-while only \analysis has acces to
+while only \analysis has access to
 \begin{itemize}
 \item[--] \texttt{sliceno}, which provides a unique number to each
   parallel \analysis-process.
@@ -491,13 +491,15 @@ section~\ref{sec:debugflag}, however.
 
 
 \subsection{Merging Results from \analysis}
-Consider this example
+It is common that results from different slices needs to be merged
+together.  The Accelerator provides a relatively general function for
+merging sliced data structures.  Consider this example
 \begin{python}
 # create a set of all users
 datasets = ('source',)
   
 def analysis(sliceno):
-    return(datasets.source.iterate(sliceno, 'user'))
+    return(set(datasets.source.iterate(sliceno, 'user')))
 
 def prepare(analysis_res):
     return analysis_res.merge_auto()
@@ -506,12 +508,12 @@ Here, each \analysis process creates a set of \texttt{user}s seen in
 that \textsl{slice} of the \texttt{source} dataset.  In order to
 create a set of all \texttt{user}s in the dataset, all slice-sets have
 to be merged.  Merging can be implemented using for example a
-\texttt{for}-loop, but the actual merging operation is dependendent of
-the actual data type, and writing merging functions is error prone.
-Therefore, \analysisres has a function called \texttt{merge\_auto()},
-that is recommended for merging.  This function can merge most data
-types, and even merge container variables in a recursive fashion.  For
-example, a variable defined like this
+\texttt{for}-loop, but the actual merging operation is dependent of
+the actual data type, and writing merging functions is error
+prone. (So we've been told!)  Therefore, \analysisres has a function
+called \texttt{merge\_auto()}, that is recommended for merging.  This
+function can merge most data types, and even merge container variables
+in a recursive fashion.  For example, a variable defined like this
 \begin{python}
 h = defaultdict(lambda: defaultdict(set))
 \end{python}
@@ -523,11 +525,12 @@ mergers every time they are needed.
 
 \subsection{Standard Out and Standard Error}
 \label{sec:OUTPUT}
-In a method, anything that is sent to \texttt{stdout} or
-\texttt{stderr} will be sent \textsl{both} to the termininal in which
-the Accelerator server was started \textsl{and} to a file in the
-current job directory.  This covers, for example, anything output from
-Python's \texttt{print()}-function.
+Anything sent to \texttt{stdout} or \texttt{stderr} during job
+execution will be sent \textsl{both} to the terminal in which the
+Accelerator server was started, \textsl{and} to a file in the current
+job directory.  This covers, for example, anything output from
+Python's \texttt{print()}-function.  Thus, the job directory contains
+a complete log of all printed output from the execution phase!
 
 Output is collected in the job directory in a subdirectory named
 \texttt{OUTPUT}, and it is made available using the \texttt{.output()}
@@ -551,36 +554,38 @@ No empty files will be created.
 \section{The \texttt{Job} and \texttt{CurrentJob} Classes}
 The \texttt{Job} and \texttt{CurrentJob} classes provide functionality
 for easy access to data and datasets stored in a job directory.
-(Datasets will be covered in chapter~\ref{chap:datasets}).  The \texttt{CurrentJob}
-is an extension of \texttt{Job} that adds special functions that are
-useful to a method during execution.  \textsl{This section just
-  provides a taste of the most common operations that are provided.
-  See section~\ref{sec:classes:job} for a complete list of the functionality.}
+(Datasets will be covered in chapter~\ref{chap:datasets}).
+The \texttt{CurrentJob} is an extension of \texttt{Job} that adds
+special functions that are useful to a method during execution.  This
+section provides a taste of the most common operations that are
+provided.  See section~\ref{sec:classes:job} for a complete list of
+the functionality.
 
-Instances of these two classes are used extensibly.  In a build script
-every reference to a job, such as the return value of the
-\texttt{.build()} function or any job retreival using the Urd database
+Instances of these two classes are used extensively in Accelerator
+projects.  In a build script every reference to a job, such as the
+return value of the
+\texttt{.build()} function or any job retrieval using the Urd database
 are of type \texttt{Job}.  Any job passed as input parameter to a
 \texttt{.build()}-call will appear as a \texttt{Job} instance inside
-the running method.  There is only one way to get a variable of type
-\texttt{CurrentJob}, though, and that is to ask for a \texttt{job}
-input parameter in one of \prepare, \analysis, or \synthesis.
+the running method.  Instances of the \texttt{CurrentJob} class are
+provided when asking for a \texttt{job} input parameter in
+\prepare, \analysis, or \synthesis.
 
 
 \subsection{Writing and Reading Serialised Data}
-Data structures may be serialsed and written to disk using
+Data structures may be serialised and written to disk using
 \texttt{job.save()} and \texttt{job.json\_save()}, with corresponding
-\texttt{.load()} and \texttt{.json\_load()}, where the first writes a
-Python ``pickle'' file, and the latter uses \texttt{json} encoding.
-Here is an example
+\texttt{.load()} and \texttt{.json\_load()} functions, where the first writes a
+Python ``pickle'' file, and the latter uses \texttt{JSON} encoding.
+Here is an example of how to write files in a running job
 \begin{python}
 def synthesis(job):
    job.save('a string to be written', 'stringfile')
    job.json_save(dict(key='value'), 'jsonfile')
 \end{python}
 The corresponding \texttt{job.load()} and \texttt{job.json\_load()}
-functions that can be called \textsl{both} in methods \textsl{and}
-build scripts.  For example
+functions can be called \textsl{both} in methods \textsl{and} build
+scripts.  For example
 \begin{python}
 jobs = ('anotherjob',)
 
@@ -600,7 +605,7 @@ filename \texttt{thefile.pickle} into the build script.
 \subsection{Writing and Reading Serialised Data in Parallel}
 \label{sec:sliced_files}
 If data is read and written in the parallel \analysis-function, the
-argument \texttt{slices=} may be used to write one file for each
+argument \texttt{sliceno=} may be used to write one file for each
 slice.  For example
 \begin{python}
 def analysis(sliceno, job)
@@ -609,8 +614,9 @@ def analysis(sliceno, job)
 \end{python}
 Similarly, another job can then read one of these files per slice as follows
 \begin{python}
-def analysis(sliceno, job):
-    data = job.load('filename', sliceno=sliceno)
+
+def analysis(sliceno):
+    data = jobs.anotherjob.load('filename', sliceno=sliceno)
 \end{python}
 Writing ``sliced'' data results in $n$ files on disk, where $n$ is
 equal to the number of slices set in the configuration file.  Each
@@ -621,7 +627,7 @@ the slice that the file's data belongs to.
 
 \subsection{General File Access}
 The \texttt{.open()} function corresponds to the built in
-\texttt{open()} with the addition that it cannot write to existing
+\texttt{open()} with the addition that it cannot write to completed
 jobs, and that files written using it are book-kept in the job.  It
 has to be used as a context manager, i.e.\ using the \texttt{with}
 statement, for example like this
@@ -632,7 +638,7 @@ def synthesis(job):
 \end{python}
 
 
-\subsection{Accessing A Job's Return Value}
+\subsection{Accessing a Job's Return Value}
 The default behaviour of a job instance's \texttt{.load()} function is
 to read the return value from the job's \synthesis function, like this
 \begin{python}
@@ -640,10 +646,11 @@ def main(urd):
     job = urd.build('example')
     x = job.load()
 \end{python}
-This works both in build scripts and inside methods.
+This works both in build scripts and inside methods, and is a
+convenient way to access data generated by a job.
 
 
-\subsection{Accessing A Job's Datasets}
+\subsection{Accessing a Job's Datasets}
 Using the \texttt{Job} class, it is straightforward to access datasets
 in other jobs.  For example
 \begin{python}
@@ -653,14 +660,13 @@ def main(urd):
     # This will print a list of all dataset instances in the job.
     print(job.datasets())
 
-    # This will return a dataset instance to the job/training
-    # dataset.
+    # This will return a dataset instance of the job/training dataset.
     ds = job.dataset('training')
 \end{python}
-This works both in running methods and in build scripts.
+This works both in running methods and in build scripts
 
 
-\subsection{Accessing A Job's Options and Parameters}
+\subsection{Accessing a Job's Options and Parameters}
 \label{sec:params}
 There are two sources of parameters to a running method,
 \begin{itemize}
@@ -669,12 +675,9 @@ There are two sources of parameters to a running method,
 \item [] parameters assigned by the Accelerator when the job starts
   building.
 \end{itemize}
-All these parameters are available using the \texttt{job.params}
-function.  This is useful for example in methods that needs to find the
-options to its input jobs.  For example
+All these parameters are available using \texttt{job.params}.  For
+example
 \begin{python}
-import json
-
 jobs = ('anotherjob',)
 
 def synthesis():
@@ -689,23 +692,44 @@ will print the \texttt{options} dictionary that was fed to the
 \end{snugshade}
 \noindent A complete print of a job's \texttt{.params} may look like this
 \begin{json}
-  {
-    "slices": 8,
-    "caption": "fsm_example2",
-    "jobs": {
-      "anotherjob": "dev-695"
+{
+    "starttime": 1602061144.081299,
+    "endtime": 1602061147.2101562,
+    "exectime": {
+        "analysis": 0,
+        "per_slice": [],
+        "prepare": 0,
+        "synthesis": 3.111,
+        "total": 3.111
     },
-    "version": 1,
-    "jobid": "dev-755",
+
+    "caption": "",
+    "hash": "9189b775e190826f3dc6ea85ea252a9e3d647185",
+    "jobid": "beast-325",
+    "method": "plot_walk_narrowbeams",
     "package": "dev",
-    "python": "/home/eaenbrd/accvenv/bin/python",
-    "starttime": 1574239517.6100385,
-    "hash": "0f9f40063568c896244a63e6073d2803a071fc2a",
-    "options": {},
-    "method": "example2",
-    "seed": 7731745544325830724,
-    "datasets": {}
-  }
+    "seed": 3621427863964846452,
+    "slices": 4,
+    "version": 3,
+    "versions": {
+        "accelerator": "2020.10.3.dev1",
+        "python": "3.5.2 (default, Jul 17 2020, 14:04:10) \n[GCC 5.4.0 20160609]",
+        "python_path": "/home/eaenbrd/checkout/project_beast.acc/venv/bin/python3"
+    },
+
+    "options": {
+        "gnbdir": 0.3839724354387525,
+        "gnbpos": [
+            57.71525125357654,
+            12.83168
+        ]
+    },
+    "datasets": {
+        "source": "beast-222"
+    },
+    "jobs": {
+        "background": "beast-4"
+}
 \end{json}
 
 \noindent and a description of its keys
@@ -715,11 +739,13 @@ will print the \texttt{options} dictionary that was fed to the
 \texttt{jobid} & jobid of this job\\
 
 \texttt{starttime}& start time in epoch format\\
+\texttt{endtime}& end time in epoch format\\
+\texttt{exectime}& various exec times\\
 \texttt{caption} & a caption\\
 \texttt{slices} & number of slices of current Accelerator configuration \\
 \texttt{seed} & a random seed available for use$^1$\\
 \texttt{hash} & source code hash value\\
-\texttt{python} & Python interpreter for this job\\
+\texttt{versions} & Accelerator and Python versions\\
 
 \texttt{options} & input parameter\\
 \texttt{datasets} & input parameter\\
@@ -729,6 +755,9 @@ will print the \texttt{options} dictionary that was fed to the
 \multicolumn{2}{l}{\small{$^1$ The Accelerator team recommends \emph{not} using
     \texttt{seed}, unless non-determinism is actually a goal.}}\\
 \stoptabletwo
+
+Note how well covered input parameters and settings are, all the way
+down to the specific Python interpreter.
 
 
 \subsection{Accessing Job Output}
@@ -775,10 +804,6 @@ dataset.
 \begin{python}
   ds = job.dataset("datasetname")
 \end{python}
-or using the \texttt{Dataset} constructor.
-\begin{python}
-  ds = Dataset(job, "datasetname")
-\end{python}
 
 
 \subsection{From Dataset to Dataset (in same Job)}
@@ -801,19 +826,20 @@ jobs = ('accumulated_costs',)
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
-The input parameters are populated by the builder when the
-\texttt{run} command is executed, see~\ref{chap:urd}.
+The input parameters are populated by the builder using name matching
+when the job build is initiated, see chapter~\ref{chap:urd} for more
+information.
 
-The \texttt{jobs} parameter list is used to input references to
-other jobs, while the \datasets parameter list is used to input
-references to datasets.  These parameters must be populated by the
-build call.
+The \texttt{jobs} parameter list is used to input references to other
+jobs, while the \datasets parameter list is used to input references
+to datasets.  These parameters are populated by the build call.
 
 The \options dictionary, on the other hand, is used to input any other
 type of parameters to be used by the method at run time.  Options does
-not necessarily be populated by the build call, and this can be used
-for ``global constants'' in the method.  An option assigned by the
-build call will override the default assignment.
+not necessarily have to be populated by the build call.  Instead,
+``default values'' may be used as ``global constants'' in the method.
+An option assigned by the build call will override the default
+assignment.
 
 Note that \jobs and \datasets are \texttt{tuple}s (or \texttt{list}s
 or \texttt{set}s), and a single entry has to be followed by a comma as
@@ -830,13 +856,14 @@ sections.
 
 
 \subsection{Input Jobs}
-The \jobs parameter is a tuple of job references linking other jobs
-to this job.  In a running method, each item in the \jobs tuple is
-of type \texttt{Job} that is used as a reference to the corresponding
-job.  All items in the \jobs tuple must be assigned by the builder
-to avoid run time errors.
+The \jobs parameter is a tuple of job references linking other jobs to
+this job.  In a running job, each item in the \jobs tuple is of
+type \texttt{Job}, and it is possible to used them directly as
+references to corresponding jobs.  All items in the \jobs tuple must
+be assigned by the builder to avoid run time errors.
 
-It is possible to specify lists of jobs, see this example
+If the number of input jobs is not constant or known beforehand, they
+can be represented as a list, like in this example
 \begin{python}
 jobs = ('source', ['alistofjobs'],)
 \end{python}
@@ -846,12 +873,13 @@ where \texttt{source} is a single job reference, whereas
 
 \subsection{Input Datasets}
 The \datasets parameter is a tuple of links to datasets.  In a running
-method, each item in the \datasets variable is of type
-\texttt{Dataset}.  The \texttt{Dataset} class is described in a
-dedicated chapter~\ref{chap:datasets}.  All items in the \datasets
-tuple must be assigned by the builder to avoid run time errors.
+job, each item in the \datasets variable is of type
+\texttt{Dataset}.  The \texttt{Dataset} class is further described in
+chapter~\ref{chap:datasets}.  All items in the \datasets tuple must be
+assigned by the builder to avoid run time errors.
 
-It is possible to specify lists of datasets, see this example
+Similar to \jobs, one can represent an unknown number datasets using a
+list, like this
 \begin{python}
 datasets = ('source', ['alistofdatasets'],)
 \end{python}
@@ -865,10 +893,10 @@ where \texttt{source} is a single dataset, whereas
 The \options parameter is of type \texttt{dict} and is used to pass
 various information from the builder to a job.  This information could
 be integers, strings, enumerations, sets, lists, and dictionaries in a
-recursive fashion, with or without default values.  Assigning options
-from the build call is not necessary, but an assignment will override
-the ``default'' that is specified in the method.  Options are
-specified like this
+recursive fashion, with or without default values.  Assigning defined
+options from a build call is not necessary, and an assignment will
+override the ``default'' specified, if any.  Options are specified
+like in this example
 \begin{python}
   options = dict(key=value, ... )  # or
   options = {key: value, ...}
@@ -879,35 +907,84 @@ overview is presented in section~\ref{sec:formal_options}.
 
 
 
+\subsection{A Specific File From Another Job:  \texttt{JobWithFile}}
+\index{input options!\texttt{JobWithFile}}
+\label{sec:jobwithfile}
+Any specific file from an existing job can be input to a new job at
+build time using \texttt{job.withfile()}.  Here is an example
+\begin{python}
+def main(urd):
+    job = urd.build('example4')
+    urd.build('example5',
+              firstfile=job.withfile('myfile1', sliced=True),
+              secondfile=job.withfile('myfile2'))
+\end{python}
+Inside the method, the \texttt{option} part is defined like this
+\begin{python}
+from accelerator import JobWithFile
+options=dict(firstfile=JobWithFile, secondfile=JobWithFile)
+\end{python}
+The \texttt{.withfile()} function requires a filename and takes two
+optional arguments: \texttt{sliced} and \texttt{extras}.  The
+\texttt{extras} argument is used to pass any kind of information that
+is helpful when using the specified file, and \texttt{sliced} tells
+that the file is stored in parallel slices.  (Creating sliced files is
+described in section~\ref{sec:sliced_files}.)
+
+Here's how to use the \texttt{JobWithFile} object in a running job.
+First, loading a file is done using \texttt{.load()}, like this
+\begin{python}
+from accelerator import JobWithFile
+options=dict(firstfile=JobWithFile, secondfile=JobWithFile)
+
+def analysis(sliceno):
+    print(options.firstfile.load(sliceno=sliceno))
+
+def synthesis():
+    print(options.secondfile.load())
+\end{python}
+There is also an \texttt{.json\_load()} function
+for \texttt{JSON}-files.  To get the full filename to the file,
+use \texttt{.filename()}
+\begin{python}
+    print(options.firstfile.filename(sliceno=3))
+    print(options.secondfile.filename())
+\end{python}
+And finally, there is also a wrapper around \texttt{open()}, so it is
+possible to do
+\begin{python}
+    with(options.firstfile.open(), 'rb') as fh:
+        data = fh.read()
+\end{python}
+        
+
 \section{Subjobs}
 \index{subjobs}
 \label{sec:subjobs}
-Jobs may launch subjobs, i.e.\ methods may build other methods in a
+Jobs may launch jobs, i.e.\ a running job may build other jobs in a
 recursive manner.  As always, if the jobs have been built already,
-they will immediately be linked in.  If the build of a subjob fails,
-the buiding job will be invalidated.
-
-The syntax for building a job inside a method is as follows, assuming
-we build the jobs in \prepare
+they will be linked in immediately.  If the build of a subjob fails,
+the building job will be invalidated.  Subjobs are built like in this
+example
 \begin{python}
 from accelerator import subjobs
 
 def prepare():
     subjobs.build('count_items', options=dict(length=3))
 \end{python}
-It is possible to build subjobs in \prepare and \synthesis, but not in
+It is possible to build subjobs in \prepare and \synthesis, but \textsl{not} in
 \analysis.  The \texttt{subjobs.build()} call uses the same syntax as
-\texttt{urd.build()} described in chapter~\ref{chap:urd}, so the input
-parameters \options, \datasets, \jobs, and \texttt{caption} are
-available here too.  Similarly, the return value from a subjob
+\texttt{urd.build()} described in chapter~\ref{chap:urd}, so input
+parameters like \options, \datasets, \jobs, and \texttt{caption} are
+available for subjobs too.  Similarly, the return value from a subjob
 \texttt{build()} is a job instance corresponding to the built job.
 
 There are three catches, though.
 \begin{enumerate}
 \item
 Dataset instances to datasets created in subjobs will not be
-explicitly available to the build script.  The workaround is to link
-the dataset to the building method like this
+explicitly available to the ``to level'' build script.  The workaround
+is to link the dataset to the building method like this
 \index{\texttt{link\_to\_here}}
 \begin{python}
 def synthesis():
@@ -918,11 +995,12 @@ def synthesis():
 with the effect that the building job will act like a dataset, even
 though the dataset is actually created and stored in the subjob.  The
 \texttt{name} argument is optional, the name \texttt{default} is used
-if left empty, corresponding to the default dataset.
+if left empty, since this is the default dataset name.
 
-It is possible to override the dataset's previous using the
-\texttt{override\_previous} option, which takes a job reference (or \pyNone)
-to be the new \texttt{previous}.  \index{\texttt{override\_previous}}
+It is also possible to override the dataset's \textsl{previous
+dataset} using the \texttt{override\_previous} option, which takes a
+job reference (or \pyNone) to be the
+new \texttt{previous}.  \index{\texttt{override\_previous}}
 \begin{python}
     ds.link_to_here(name='thename', override_previous=xxx)
 \end{python}
@@ -943,11 +1021,13 @@ def prepare():
 \end{python}
 
 \item
-  Subjobs will not appear in build script in the \texttt{urd.joblist}.
+  Subjobs are not visible in build scripts, and does not show up in
+  for example \texttt{urd.joblist}.
 
 \end{enumerate}
 There is a limit to the recursion depth of subjobs, to avoid creating
-unlimited number of jobs by accident.
+unlimited number of jobs by accident.  The limit can be tweaked by
+modifying the source code, if necessary.
 
 
 
@@ -1171,47 +1251,6 @@ containers.  Otherwise, the specified values are the default contents.
 
 
 
-\subsection{A Specific File From Another Job:  \texttt{JobWithFile}}
-\index{input options!\texttt{JobWithFile}}
-\label{sec:jobwithfile}
-Any specific file from an existing job can be input to a new job at
-build time using \texttt{job.withfile()}.  Here is an example
-\begin{python}
-def main(urd):
-    job = urd.build('example4')
-    urd.build('example5',
-              firstfile=job.withfile('myfile1', sliced=True),
-              secondfile=job.withfile('myfile2'))
-\end{python}
-Inside the method, the \texttt{option} part is defined like this
-\begin{python}
-from accelerator import JobWithFile
-options=dict(firstfile=JobWithFile, secondfile=JobWithFile)
-\end{python}
-The \texttt{.withfile()} function requires a filename and takes two
-optional arguments: \texttt{sliced} and \texttt{extras}.  The
-\texttt{extras} argument is used to pass any kind of information that
-is helpful when using the specified file, and \texttt{sliced} tells
-that the file is stored in parallel slices.  (Creating sliced files is
-described in section~\ref{sec:sliced_files}.)  In the
-running method, the \texttt{JobWithFile} object is an extension of the
-\texttt{Job} object with the following extra attributes
-\begin{python}
-job.filename
-job.sliced
-job.extra
-\end{python}
-Loading the file is done using \texttt{.load()}, like this
-\begin{python}
-from accelerator import JobWithFile
-options=dict(firstfile=JobWithFile, secondfile=JobWithFile)
-
-def analysis(sliceno):
-    print(options.firstfile.load(sliceno=sliceno))
-
-def synthesis():
-    print(options.secondfile.load())
-\end{python}
 
 
 
@@ -1222,7 +1261,7 @@ section provides a shorter summary about the basic concepts.
 \begin{itemize}
 \item[1.]  Data and metadata relating to a job is stored in a
 job directory.
-\item[2.]  Jobs are objects that wraps such job directories.
+\item[2.]  Job objects are wrappers around job directories, providing helper functions.
 \end{itemize}
 The files stored in the job directory at dispatch are complete in the
 sense that they contain all information required to run the job.  So
@@ -1254,9 +1293,9 @@ dependencies).  This hash, together with the input parameters, is used
 to figure out if a result could be re-used instead of re-computed.
 This brings a number of attractive advantages.
 \begin{itemize}
-\item[4.]  Jobs may link to eachother using job references.
+\item[4.]  Jobs may link to each other using job references.
 \end{itemize}
-Which means that jobs may share results and parameters with eachother.
+Which means that jobs may share results and parameters with each other.
 \begin{itemize}
 \item[5.]  Jobs are stored in workdirs.
 \item[6.]  There may be any number of workdirs.
@@ -1264,11 +1303,14 @@ Which means that jobs may share results and parameters with eachother.
 This adds a layer of ``physical separation''.  All jobs relating to
 importing a set of data may be stored in one workdir, perhaps named
 \texttt{import}, and development work may be stored in a workdir
-\texttt{dev}, etc.  Jobids are created by appending a counter to the
+\texttt{dev}, etc.
+\begin{itemize}
+\item[7.] Jobids are created by appending a counter to the
 workdir name, so a job \texttt{dev-42} may access data in
 \texttt{import-37}, and so on, which helps manual inspection.
+\end{itemize}
 \begin{itemize}
-\item[7.] Jobs may dispatch other jobs.
+\item[8.] Jobs may dispatch other jobs.
 \end{itemize}
 It is perfectly fine for a job to dispatch any number of new jobs, and
 these jobs are called \textsl{subjobs}.  A maximum allowed recursion

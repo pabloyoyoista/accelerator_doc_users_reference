@@ -50,10 +50,13 @@ a directory containing
 \begin{itemize}
 \item[--] any number of output files created by the running method, as well as
 \item[--] a number of job meta information files containing all
-  information needed to reproduce the job.
+  information that was needed to run the job in the first place.
 \end{itemize}
 The exact contents of the job directory will be discussed in
-section~\ref{sec:job_directories}.
+section~\ref{sec:job_directories}, but note here that the directory
+contains everything needed to run a specific piece of code with inputs
+and source code, \textsl{as well as} any output generated during
+execution.
 
 Computing a job is denoted job \textsl{building}.
 Jobs are \textbf{built} from methods.  When a job has been built, it
@@ -63,10 +66,10 @@ Accelerator.  Jobs are built either by
 \item[--] a \textsl{build script}, see chapter~\ref{chap:urd}, or
 \item[--] by a method, using \textsl{subjobs}, see~section~\ref{sec:subjobs}
 \end{itemize}
-The following figure illustrates how a job ``\texttt{example-0}'' is
+The following figure illustrates how a job \texttt{example-0} is
 built from the method \texttt{a\_method.py}.  The job is stored in the
 \texttt{example} work directory.  The job identifier (in this case
-\texttt{example-0}) is always unique so that it can be used as a
+\texttt{example-1}) is always unique so that it can be used as a
 reference to that particular job.
 \begin{figure}[h!]
   \begin{center}
@@ -79,20 +82,22 @@ reference to that particular job.
 \end{figure}
 
 
+
 \subsection{Jobids}
 A \textbf{jobid} is a string that can be used as a reference to a job.
-Since all job directories have unique names, the name of the job
-directory is used as the jobid.  In the example above, the job is
-uniquely identified by the string \texttt{example-0}.  Jobids are
-composed by the name of the workdir and an integer that increments by
-one for each new job in that workdir.
+This unique string is created by appending an incrementing integer to
+the name of the work directory in which the job is stored.  In the
+example above, the job is uniquely identified by the
+string \texttt{example-0}.
+
 
 
 \subsection{Work Directories and Job Directories}
 \label{sec:job_directories}
 A successfully build of a method results in a new job directory on
-disk.  The job directory will be stored in the current workdir and
-have a structure as follows, assuming the current workdir is
+disk.  The job directory will be stored in the
+current \textsl{workdir} (i.e.\ work directory) and have a structure
+as follows, assuming the current workdir is
 \texttt{test}, and the current jobid is \texttt{test-0}.
 \begin{verbatim}
 workdirs/test/
@@ -136,12 +141,14 @@ stored in the \texttt{OUTPUT/} directory.\\
 \stoptabletwo
 
 
+
 \subsection{The \texttt{Job} and \texttt{CurrentJob} Convenience Wrappers}
 In order to simplify access to job directory data, common job data
-operations have been factored into the \texttt{Job} class.  There is
+operations are made available by the \texttt{Job} class.  There is
 also an extended version of this, called the \texttt{CurrentJob}
 class, that also contains information and helper functions to a
-running job.  See section~\ref{sec:classes:job} for details about these classes.
+\textsl{running} job.  See section~\ref{sec:classes:job} for details about
+these classes.
 
 
 
@@ -150,17 +157,15 @@ Methods are stored in standard Python packages, i.e.\ in directories
 that are
 \begin{itemize}
 \item[--] reachable by the Python interpreter, and
-\item[--] contain the (perhaps empty) file \texttt{\_\_init\_\_.py}.
+\item[--] contain the (perhaps empty) file ``\texttt{\_\_init\_\_.py}''.
 \end{itemize}
 In addition, for the Accelerator to accept a package, the following
 constraints need to be satisfied
 \begin{itemize}
 \item[--] the package must contain a file named \texttt{methods.conf}, and
-\item[--] the package must be added in the Accelerator's configuration file.
+\item[--] the package must be added to the Accelerator's configuration file under the key ``\texttt{method packages}'', see section~\ref{sec:configfile}.
 \end{itemize}
-A package is reachable by the Accelerator if it is included in the
-Accelerator's configuration file using the key
-``\mintinline{shell}{method packages}'', see section~\ref{sec:configfile}.
+
 
 
 \subsection{Creating a new Package}
@@ -176,7 +181,7 @@ the file \texttt{methods.conf}, which is required by the Accelerator.
 
 For security reasons, the Accelerator only looks for packages
 explicitly specified in the configuration file using the
-\mintinline{shell}{method_directories} assignment.  See
+``\mintinline{shell}{method packages}'' assignment.  See
 chapter~\ref{sec:configfile} for detailed information about the
 configuration file.
 
@@ -184,14 +189,14 @@ configuration file.
 
 \section{Method Source Files}
 Method source files are stored in Python packages as described in the
-previous section.  The Accelerator searches all packages for methods
-to execute, and therefore \textsl{method names need to be globally
-unique}!  In order to reduce risk of executing the wrong file, there
-are three limitations that apply to methods:
+previous section.  The Accelerator searches all reachable packages for
+methods to execute, and therefore \textsl{method names need to be
+globally unique}!  In order to reduce risk of executing the wrong
+file, there are three limitations that apply to methods:
 \begin{enumerate}
 \item For a method file to be accepted by the Accelerator, the
   filename has to start with the prefix ``\texttt{a\_}'';
-\item the method name, without this prefix must be present on a
+\item the method name, \textsl{without this prefix}, must be present on a
   separate line in the \texttt{methods.conf} file for the package, see
   section~\ref{sec:methods_conf}; and
 \item the method name must be \emph{globally} unique, i.e.\ there can
@@ -204,23 +209,25 @@ are three limitations that apply to methods:
 In order to create a new method, follow these steps
 \begin{enumerate}
 \item Create the method in a package viewable to the Accelerator
-  using an editor.  Make sure the filename is \texttt{a\_<name>.py} if
-  the method's name is \texttt{<name>}.
-\item Add the method name \texttt{<name>} (without the prefix ``\texttt{a\_}'' and
+  using an editor.  Make sure the filename is \texttt{a\_name.py} if
+  the method's name is \texttt{name}.
+\item Add the method name \texttt{name} (without the prefix ``\texttt{a\_}'' and
   suffix ``\texttt{.py}'') to the \texttt{methods.conf} file in the
-  same method directory.  See section~\ref{sec:methods_conf}.
-\item (Make sure that the method directory is in the Accelerator's
+  same method directory as where the source file is stored.  See
+  section~\ref{sec:methods_conf}.
+\item (Remember to make sure that the method directory is in the Accelerator's
   configuration file.)
 \end{enumerate}
 
 
-\subsection{Limiting Execution:  \texttt{methods.conf}}
+\subsection{Making Methods Executable:  \texttt{methods.conf}}
 \label{sec:methods_conf}
 The file \texttt{methods.conf} provides an easy way to specify and
-limit which source files that can be executed, which is something that
-makes a lot of sense in any production environment.  Files not
-specified in \texttt{methods.conf} cannot be executed.  It also
-optionally specifies which Python interpreter each method should use.
+limit which methods (source files) that can be executed, and
+optionally, which Python interpreter that should be used for each of
+them.  Methods not specified in \texttt{methods.conf} cannot be
+executed.  (This is something that makes a lot of sense in any
+production environment where control of what is executable is key.)
 
 The \texttt{methods.conf} is a plain text file with one entry per
 line.  Any characters from a hash sign (``\texttt{\#}'') to the end of
@@ -231,14 +238,18 @@ first on a line by stating the name of the method, without the
 
 The method name can optionally be followed by one or more whitespaces
 and a name specifying the actual Python interpreter that will be used
-to execute the method.  A list of valid Python interpreters is defined
-in the configuration file using the key
-\mintinline{shell}{interpreters}, see section~\ref{sec:configfile}.
+to execute the method.  This is particularly useful to have individual
+methods run from individual virtual environments.  Thus, each method
+can run from its own virtual environment, with its own dependencies.
+A list of valid Python interpreters is defined in the configuration
+file using the key ``\mintinline{shell}{interpreters}'', see
+section~\ref{sec:configfile}.
 
-The default interpreter is selected if this field is left empty, where
-default corresponds to the one that the currently running Accelerator
-server is using.  The Accelerator and its \texttt{standard\_methods}
-library are compatible with both Python 2 and Python 3.
+The default interpreter is selected if the second field is left empty,
+where default corresponds to the one that the currently running
+Accelerator server is using.  The Accelerator and
+its \texttt{standard\_methods} library are compatible with both Python
+2 and Python 3.
 
 Here is an example \texttt{methods.conf}
 \begin{shell}
@@ -246,33 +257,31 @@ Here is an example \texttt{methods.conf}
 
 test2                # will use default Python
 test3           py3  # py3 as specified in accelerator.conf
-testx           tf   # the Tensorflow virtual environment Python
+testx           tf   # a Tensorflow virtual env defined in accelerator.conf
 #bogusmethod    py3
 \end{shell}
 This file declares three methods corresponding to the files
 \texttt{a\_test2.py}, \texttt{a\_test3.py}, and \texttt{a\_testx.py}.
 These are the only methods that can be built in this method package.
-Note that it is possible to specify an interpreter from a virtual
-environment.  This makes it straightforward to install any package in
-a dedicated environment and making it accessible only to a set of
-specified mehods.
+Note that some methods are using virtual environments specified in the
+Accelerator's configuration file.
 
 
 
 \section{Job Building or Job Recycling}
 Since the Accelerator keeps track of a job's dependencies and results,
 it can in an instant determine if a job to be built has been built
-before.  If it has been built before, the Acce will immediately return
-a job instance to the existing job.  Otherwise, the job will first be
-built, and then a job instance will be returned.
+before.  If the job has been built before, the Accelerator will
+immediately return a job instance to the existing job.  Otherwise, the
+job will first be built, and then a job instance will be returned.
 
 
 \subsection{Job Already Built Check}
-From chapter~\ref{chap:urd} it is known that a method is built using
-the \texttt{.build()} function in a build script, like this
+As shown in chapter~\ref{chap:urd_basic}, jobs are built using
+the \texttt{.build()} function, like this
 \begin{python}
 def main(urd):
-    urd.build('themethod', options=..., ...)
+    urd.build('themethod', parameter1=..., ...)
 \end{python}
 
 Prior to building a method, the Accelerator checks if an equivalent
@@ -281,9 +290,10 @@ job has been built in the past.  This check is based on two things:
 \item  the output of a hash function applied to the method source code, and
 \item  the method's input parameters.
 \end{enumerate}
-The hash value is combined with the input arguments and compared to
+The hash value is combined with the input parmeters and compared to
 all jobs already built.  Only if the hash and input parameter
-combination is unique will the method be executed.  The
+combination is unique, i.e.\ it has not been seen before, will the
+method be executed.  The
 \texttt{.build()}-function returns an instance of type \texttt{Job}.
 To the caller, it is not apparent if the job was just built or if it
 was built at an earlier time.
@@ -304,8 +314,9 @@ depend_extra = (my_python_module, 'mystuff.data',)
 As seen in the example, it is possible to specify either Python module
 objects or filenames relative to the method's location.
 
-The Accelerator server will suggest adding modules to a source file in
-the output log like this:
+If the Accelerator suspects that a \texttt{depend\_extra}-statement is
+missing, it will suggest adding it by printing a message in the output
+log like this:
 \begin{snugshade}
 \begin{verbatim}
 =================================================================
@@ -330,9 +341,10 @@ re-build.  This happens, for example, when new functionality is added
 to an existing method, and re-computing all jobs is not an option.  If
 functionality remains the same, existing jobs strictly do not need to
 be re-built.  For this situation, there is an
-\texttt{equivalent\_hashes} dictionary that can be used to specify
+\texttt{equivalent\_hashes} dictionary that can be used to \textsl{manually} specify
 which versions of the source code that are equivalent.  The
-Accelerator helps creating this, if needed.  This is how it works.
+Accelerator helps creating this dictionary, if needed.  This is how it
+works.
 \begin{enumerate}
 \item Find the hash \texttt{<old\_hash>} of the existing job in that
   job's \texttt{setup.json}.
@@ -347,7 +359,7 @@ WARNING: test_methods.a_test_rechain has equivalent_hashes,
 but missing verifier <current_hash>
 ===========================================================
 \end{shell}
-\item Enter the \texttt{current\_hash} into the
+\item Copy \texttt{<current\_hash>} into the
   \texttt{equivalent\_hashes}:
 \begin{python}
 equivalent_hashes = {<current_hash>: (<old_hash>,)}
@@ -357,9 +369,10 @@ This line now tells that \texttt{current\_hash} is equivalent to
 \texttt{old\_hash}, so if a job with the old hash exists, the method
 will not be built again.  Note that the right part of the assignment
 is actually a list, so there could be any number of equivalent
-versions of the source code.  This has been used frequently during
-development of the Accelerator's \texttt{standard\_methods}, when new
-features have been added that do not interfere with existing use.
+versions of the source code.  From time to time, this has been used
+during development of the Accelerator's \texttt{standard\_methods},
+when new features have been added that do not interfere with existing
+use.
 
 
 
@@ -369,23 +382,6 @@ Methods are executed using the \texttt{build()} call, either from a
 Methods typically takes input parameters, and they may generate return
 values and produce output files as well as output to \texttt{stdout}
 and \texttt{stderr}.
-
-During execution, methods are not run from top to bottom.  Instead,
-there are three reserved functions that are called by the method
-dispatcher controlling the execution flow.  These functions are
-\begin{itemize}
-\item [] \prepare,
-\item [] \analysis, and
-\item [] \synthesis.
-\end{itemize}
-
-
-\subsection{Execution Order}
-The three functions \prepare, \analysis, and \synthesis are called one
-at a time in that order.  \prepare and \synthesis execute as single
-processes, while \analysis provides parallel execution.  None of them
-is mandatory, but at least one must be present for the method to
-execute.  It is discouraged to use \prepare only.
 
 
 \subsection{Input Parameters}
@@ -406,16 +402,39 @@ and~\ref{sec:formal_options} provide detailed descriptions of all
 parametes.
 
 
+\subsection{Functions Reserved for Execution Flow}
+During execution, methods are not run from top to bottom.  Instead,
+there are three reserved functions that are called by the method
+dispatcher controlling the execution flow.  These functions are
+\begin{itemize}
+\item [] \prepare,
+\item [] \analysis, and
+\item [] \synthesis.
+\end{itemize}
+
+
+\subsection{Execution Order}
+The three functions \prepare, \analysis, and \synthesis are called one
+at a time in that order.  \prepare and \synthesis execute as single
+processes, while \analysis provides parallel execution.  None of them
+is mandatory, but at least one must be present for the method to
+execute.  It is discouraged to use \prepare only.
+
+
 
 \subsection{Function Arguments}
-There are two constants that can be passed into the executing
-functions \prepare, \analysis, and \synthesis at run time.
+There are some optional arguments that can be passed into the
+executing functions \prepare, \analysis, and \synthesis at run time.
+All functions have access to these
 \begin{itemize}
 \item[--] \texttt{job}, which is an instance of the current job, and
+\item[--] \texttt{slices}, an integer holding the total number of slices.
+\end{itemize}
+while only \analysis has acces to
+\begin{itemize}
 \item[--] \texttt{sliceno}, which provides a unique number to each
   parallel \analysis-process.
 \end{itemize}
-
 The \texttt{job} instance contains information and helper functions
 regarding the current job.  The object is of type \texttt{CurrentJob},
 which is an extension of the \texttt{Job} class used for job instances
@@ -425,24 +444,26 @@ The \analysis function (and only the \analysis function) takes the
 optional argument \texttt{sliceno}, which is an integer between zero
 and the total number of slices minus one.  This is the unique
 identifier for each \analysis process, and it is commonly used when
-accessing sliced datasets, see for example
-chapter~\ref{chap:iterators} for its use in dataset iterators.
+accessing sliced datasets or doing other parallel processing tasks,
+see for example chapter~\ref{chap:iterators} for its use in dataset
+iterators.
 
 
-\subsection{Parallel Processing:  The \analysis function, Slices, and Datasets}
+
+\subsection{Parallel Processing:  The \analysis Function and Slices}
 The number of parallel analysis processes is set by the
 \texttt{slices} parameter in the Accelerator's configuration file.
-The idea is that when the Accelerator is processing a dataset, each
-dataset slice should have exactly one corresponding \analysis process,
-so that all the slices in the dataset can be processed in parallel.
 The input parameter \texttt{sliceno} to the \analysis function is the
 unique identifier for each parallel function call, and its value is in
-the range from zero to the number of slices minus one.
+the range from zero to the number of slices minus one.  When
+processing Accelerator \textsl{datasets}, the idea is that each
+dataset slice should have exactly one corresponding \analysis process,
+so that all the slices in the dataset can be processed in parallel.
 
 
 \subsection{Return Values}
 Return values may be passed from one function to any function that
-will execute later.  In particular, what is returned from prepare is
+will execute later.  To be specific, what is returned from prepare is
 called \prepareres, and can be used as input argument to \analysis and
 \synthesis.  Furthermore, the return values from \analysis are
 available as \analysisres in \synthesis.  The \analysisres variable is
@@ -465,8 +486,8 @@ def synthesis(analysis_res, prepare_res):
 \end{python}
 Note that when a job completes, it is not possible to retrieve the
 results from \prepare or \analysis anymore.  Only results from
-\synthesis are kept.  Creating permanent files is the topic of
-section~\ref{sec:debugflag}.
+\synthesis are kept.  Creating persistent intermediate files is the topic of
+section~\ref{sec:debugflag}, however.
 
 
 \subsection{Merging Results from \analysis}

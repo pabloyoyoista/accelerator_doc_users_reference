@@ -339,7 +339,7 @@ reporting, see section~\ref{sec:statusreporting}.
 
 
 
-\section{Generate Progress Messages:  the \texttt{status} Module}
+\section{Generating Progress Messages:  the \texttt{status} Module}
 \label{sec:statusreporting}
 The status module is used by the Accelerator to report processing
 state.  It is also used by various functions to report iterator and
@@ -387,42 +387,27 @@ the following subsections for details.
 
 \subsection{The \texttt{input\_directory}}
 \label{sec:INPUT_DIR}
-The \texttt{job.input\_directory} variable is used by the
-\texttt{csvimport} method, but could be used by any method reading
-input files, like in this example
+Files stored in the \texttt{input\_directory} can be accessed using
+the \texttt{CurrentJob} object either like this
 \begin{python}
-import os
-options = dict(filename=Optionstring)
-
 def synthesis(job)
-    fname = os.path.join(job.input_directory, options.filename)
+    fname = job.input_filename('afile.csv')
 \end{python}
-here, the \texttt{fname} is a concatenation of the
-\texttt{job.input\_directory} specified in the Accelerator's
-configuration file (see section ~\ref{sec:symlinking}) and the input
-option \texttt{filename}.
+or like this
+\begin{python}
+def synthesis(job)
+    with job.open_input('afile.csv', 'rt') as fh:
+        for line in fh:
+            ...
+\end{python}
+Since the \texttt{input\_directory} is defined in the Accelerator's
+configuration file, the input directory can be moved and re-defined
+without having to re-execute any built jobs.
+
 
 
 \subsection{The \texttt{result\_directory}}
 \label{sec:RESULT_DIR}
-It is possible to define a shared directory
-named \texttt{result\_directory} in the Accelerator's configuration
-file.  In a method, this variable may be accessed like in this example
-\begin{python}
-def synthesis(job):
-    print(job.result_directory)
-\end{python}
-Methods could use this for storing for example plots and reports for a
-project in one easy accessible common location.  Note however, that
-tracking these files is not possible, there is no information linking
-back from the result directory to a specific job.  This may be
-overcome using for example soft file links, however, see
-section~\ref{sec:symlinking}.
-
-
-
-\section{Linking a File to the \texttt{result\_directory}}
-\label{sec:symlinking}
 Storing files in job directories is great for transparency, but in
 some cases it is convenient to keep a reference to result files in a
 common place.  This is the purpose of the \texttt{result\_directory}.
@@ -430,7 +415,8 @@ However, storing files in this directory directly would void the
 connection to the job that created it.  A better way is to keep the
 file in the job directory and create a symbolic (soft) link to it in
 the result directory.  This functionality is implemented in the
-\texttt{job.link\_result()} function that is used like this
+\texttt{job.link\_result()} function that is available to
+\textsl{build scripts}, and used like this
 \begin{python}
 def main(urd):
     job = urd.build('somejob')
@@ -438,9 +424,9 @@ def main(urd):
     job.link_result('result.txt')
     job.link_result('result.txt', linkname='result_from_somejob.txt')
 \end{python}
-(Note that this only works in build scripts with the \texttt{Job}
-class.  The \texttt{.link\_result()} function will create a symbolic
-link named \texttt{filename} in the directory pointed to by the
-\texttt{result\_directory} assignment in the Accelerator's
-configuration file.  The link will point to the original file in the
-job directory, and will be replaced if it already exists.
+Note that this only works in build scripts.  The
+\texttt{job.link\_result(filename)} call will create a symbolic link
+named \texttt{filename} in the \texttt{result\_directory} defined in
+the Accelerator's configuration file.  The link will point to the
+original file in the job directory, and will be silently replaced if
+it already exists.

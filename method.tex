@@ -987,6 +987,7 @@ explicitly available to the ``to level'' build script.  The workaround
 is to link the dataset to the building method like this
 \index{\texttt{link\_to\_here}}
 \begin{python}
+from accelerator import subjobs
 def synthesis():
     job = subjobs.build('create_a_dataset')
     ds = job.dataset(<name>)

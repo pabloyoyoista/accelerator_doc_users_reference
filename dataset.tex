@@ -18,31 +18,32 @@
 
 \label{chap:datasets}
 
-The Dataset class provides fast and simple access to data.  It is the
-preferred way to store data using the Accelerator.  Datasets are
-created by methods, and are therefore located inside job directories.
-There can be any number of Datasets in a job.  Datasets are
-lightweight -- adding new columns to a dataset, or appending datasets
-to eachother are instantaneous operations.
+The \textsl{dataset} is the preferred way to store row-column data
+using the Accelerator.  The dataset provides fast parallel streaming
+access to data, and strict typing with many supported types.
+Furthermore, datasets are lightweight -- adding new columns to a
+dataset, or appending datasets to eachother are instantaneous
+operations.  Using datasets in a program is simple, since all
+operations are avai through the \texttt{Dataset} class.
 
-The most obvious way to generate a dataset is using the
+Datasets are created by methods, and are therefore located inside job
+directories.  There can be any number of datasets in a job.  The most
+obvious way to generate a dataset is using the
 \texttt{cvsimport} method that creates a dataset from an input file.
-But much more advanced use is possible since a job may contain more
-than one Dataset.  Being able to create several Datasets at once
-allows for efficient storage and access of data in some common
-practical situations.  For example, a filtering job may split the
-input Dataset into two or more output Datasets that can be accessed
-independently.
+But the fact that a job can create and hold many datasets opens up for
+a lot of possibilities.  The \texttt{csvimport} method, for example,
+creates a dataset from the input data, and it can be instructed to put
+unparsable lines of input data into a second ``bad'' dataset.
 
-For performance reasons, datasets are split into several slices, where
+For performance reasons, datasets are split into several slices, and
 each data row exists in exactly one of the slices.  The actual slicing
 may be carried out in different ways, like round robin, or randomly,
 but an interesting approach is to slice according to the hash value of
 a certain column.  Slicing according to a hashed column ensures that
 all rows with a certain column value always ends up in the same slice.
-Hash-based slicing often makes completely parallel processing of the
+Hash-based slicing often makes completely parallel processing of a
 dataset possible, since related data is not spread over different
-slices.
+slices, and thus no merge or ``reduce'' stage is required.
 
 
 
@@ -57,19 +58,19 @@ Typing will be introduced in section~\ref{sec:dataset_typing}.
 The dataset is further split into disjoint slices, where each slice
 holds a unique subset of the dataset's rows.  Slicing makes simple but
 efficient parallel processing possible.  See Figure~\ref{fig:slices}.
-The number of slices is set initially by the user, and all workdirs
-that are used together in a project must use the same number of
-slices.
+The number of slices is set initially by the user in the Accelerator's
+configuration file, and all workdirs that are used together in a
+project must use the same number of slices.
 
 On a low level, there is one file stored on disk for each slice and
 column.  A job that needs to read only a subset of the total number of
 columns may open and read from the relevant files only.
 
 A technical note: If the number of slices is large and files are
-small, there will be a significant overhead from disk \texttt{seek()}
-if using rotating disks.  The Accelerator mitigates this by changing
-the storage model to using single files with offset-indexing when
-appropriate.
+small, there will be a significant overhead from disk \texttt{seek()},
+especially if using rotating disks.  The Accelerator mitigates this by
+changing the storage model to using single files with offset-indexing
+when appropriate.
 
 \begin{figure}[b!]
   \begin{center}
@@ -81,64 +82,45 @@ appropriate.
 \end{figure}
 
 
-\section{Chaining}
-When a dataset is created, it is optional to input a link to another
-dataset using the parameter \texttt{previous}.  This is called
-\emph{chaining}.  Chaining provides a lightweight way to append rows
-to datasets, simply by linking datasets together.  A typical use case
-is the import of log files.  A new dataset is created from each new
-log file, and each dataset chains to the previous.  Reading the full
-chain will access all log rows.  This has effect on the dataset
-\emph{iterators} (see chapter~\ref{chap:iterators}), which may continue iterating
-over the next dataset in the chain when the current dataset is
-exhausted.  Here is a an example of how \texttt{csvimport} jobs can be
-chained
-\begin{python}
-job1 = urd.build('csvimport', filename='file1.txt')
-job2 = urd.build('csvimport', filename='file2.txt', previous=job1)
-\end{python}
-
-In order to maintain high speed when processing long chains, the
-Accelerator caches chain metadata every 64th dataset.  This reduces
-seek times significantly on rotating disks.
-
-
-
 \section{Slicing and Hashing}
 \label{sec:slicing_and_hashing}
 
-Datasets are by default sliced into a number of slices specified by
-the Accelerator's configuration file~\ref{sec:configfile}.  Slicing means that the
-rows of data in the dataset are distributed into different sets,
-called slices.  Typically, there is one file on disk for each slice
-\textsl{and} column.  The main reason for doing this is performance.  All files
-could be read in parallel, and only files relevant to the task at hand
-are read.
+As shown in the previous section and in figure~\ref{fig:slices},
+datasets are \textsl{sliced} into disjoint sets,
+called \textsl{slices}, that can be accessed independently.
+Typically, in a dataset, there is one file on disk for each slice
+\textsl{and} column.  The main reason for doing this is performance.
+All files could be read in parallel, and only files relevant to the
+task at hand are read.
 
-Datasets can be sliced in a number of different ways.  A simple method
-is to use round-robin, which cycles through the slices when writing.
+How to slice a dataset is not unique.  There are many ways to carry
+out slicing.  Perhaps the most simple way is to use round-robin, which
+cycles through the slices when writing, one data item at a time.
 Round-robin will balance the number of rows per slice as equal as
-possible, which is a good thing in many scenarios.  In semi-mathematical
-terms, round robin would be
+possible, which is a good thing in many scenarios.  In
+semi-mathematical terms, round robin would be
 \begin{equation*}
   n \longrightarrow n~\textrm{mod}~N
 \end{equation*}
 Meaning that input data row $n$ is stored in slice $n~\textrm{mod}~N$.
+
 Another way is to slice by looking at the values of a fixed single
-column and put all rows with equal values in the same column.  This
-way, data will be sliced ``by content'', and the number of rows per
-slice may vary significantly.  In the context of the Accelerator, this
-is called \emph{hashing}, and a dataset can be hashed on any single
-column.  Written as an equation, it will look like this
+column and put all rows with equal ``property'' in the same column.
+This way, data will be sliced ``by content'', and the number of rows
+per slice may vary significantly.  In the context of the Accelerator,
+the ``property'' is a hash function, and the process is
+called \emph{hash partitioning}. A dataset can be hashed on any single
+column, as long as its contents is hashable.  Written as an equation,
+it will look like this
 \begin{equation*}
   n \longrightarrow \textrm{hash}(\textrm{data})~\textrm{mod}~N
 \end{equation*}
 where ``data'' is the value of row $n$ in the hashing column.
 
 In many practical applications, data may be sliced using a hashing
-function so that data in each slice is \textsl{independent}.
-Independent data means that processing of the dataset can be carried
-out in a completely parallel fashion.
+function so that data in each slice becomes \textsl{independent} for
+the application at hand.  Independent data means that processing of
+the dataset can be carried out in a completely parallel fashion.
 
 The hash function used by the Accelerator is a well-known function
 called siphash-2-4 that is available from the
@@ -152,27 +134,56 @@ This function is normally only used ``under the hood'', there should
 be no need to call it explicitly.
 
 
-\section{Dataset as Input Parameter}
+
+\section{Chaining}
+When a dataset is created, it is optional to attach a link to another
+dataset using the parameter \texttt{previous}.  This is called
+\emph{chaining}.  Chaining provides a lightweight way to append rows
+to datasets, simply by linking datasets together.  A typical use case
+is the import of log files.  A new dataset is created from each new
+log file, and each dataset chains to the previous.  Reading the full
+chain will access all log rows.  As will be discussed in detail later,
+this relates to dataset \emph{iterators} (see
+chapter~\ref{chap:iterators}), that may continue iterating over the
+next dataset in the chain when the current dataset is exhausted.  Here
+is a an example of how \texttt{csvimport} jobs can be chained
+\begin{python}
+job1 = urd.build('csvimport', filename='file1.txt')
+job2 = urd.build('csvimport', filename='file2.txt', previous=job1)
+\end{python}
+In order to maintain high speed when processing long chains, the
+Accelerator caches chain metadata every 64th dataset.  This reduces
+seek times significantly on rotating disks.
+
+
+
+\section{Dataset as Job Input Parameter}
 Datasets may be input to a method using the \texttt{datasets} input
 parameter list.  In a running job, the items in this list are object
-of the \texttt{Dataset} class.  This class has a number of member
-functions, for example
+of the \texttt{Dataset} class.  See the following example
 \begin{python}
 datasets = ('source',)
-
 def synthesis():
-    print(datasets.source.shape)
+    print(datasets.source.columns)
 \end{python}
-will print the number of rows and columns of the \texttt{source}
-Dataset.
+Note the comma used to indicate that this is in fact a
+Python \texttt{tuple} of dataset(s).
+
+It is also possible to input a list or set of datasets, like this
+\begin{python}
+datasets = (['source',])
+def synthesis():
+    for ds in datasets.source:
+        print(ds.columns)
+\end{python}
 
 
-\section{Datasets from Jobs}
 
+\section{Datasets from Job Objects}
 Information about a job instance's datasets is provided using
-the \texttt{.dataset()} function and the \texttt{.datasets} attribute.
-To find all datasets in a job, use \texttt{.datasets} like in this
-example
+the \texttt{job.dataset()} function and the \texttt{job.datasets}
+attribute.  To find all datasets in a job, use \texttt{job.datasets}
+like in this example
 \begin{python}
 def main(urd):
     job = urd.build('create_datasets')
@@ -180,9 +191,8 @@ def main(urd):
         print(ds.name)
 \end{python}
 To work on a specific dataset, just ask for it using its name as input
-parameter to \texttt{.dataset()},
+parameter to \texttt{job.dataset()},
 \begin{python}
-    ...
     ds_first = job.dataset('first')
     ds_default = job.dataset()
 \end{python}
@@ -192,9 +202,10 @@ is issued if the dataset does not exist.
                       
 
 \section{Dataset Properties}
-The Dataset class has a number of member functions and attributes that
-is intended to make it simple to work with.  These functions will be
-described in the next sections.  But first a note on naming datasets.
+The \texttt{Dataset} class has a number of member functions and
+attributes that is intended to make it simple to work with.  These
+functions will be described in the next sections.  But first a note on
+naming datasets.
 
 
 \subsection{Dataset Name}
@@ -203,7 +214,6 @@ attribute, like this
 \begin{python}
     print(ds_first.name)
 \end{python}
-
 The Accelerator is designed to handle various string encodings with
 ease, and in most situations the naming rules are very liberal.  The
 dataset name, however, should preferably be \textsl{limited to ASCII
@@ -266,7 +276,7 @@ print(datasets.source.lines)
 #  6418, 6437, 6360, 6106, 6878]
 \end{python}
 The first item in the list is the number of rows in slice 0, and so
-fourth.  The total number of rows in the Dataset is the sum of these
+fourth.  The total number of rows in the dataset is the sum of these
 numbers.
 
 
@@ -282,8 +292,8 @@ slice from above.
 
 
 \subsection{Hashlabel}
-If the dataset is hashed on a particular column, the name of this
-column is stored in the hashlabel attribute
+If the dataset is hash partitioned on a particular column, the name of
+this column is stored in the hashlabel attribute
 \begin{python}
 print(datasets.source.hashlabel)
 # GTIN
@@ -311,11 +321,11 @@ print(datasets.source.caption)
 
 
 \section{Operations on Chains}
-The \texttt{chain} function is used to operate on dataset chains.  It
+The \texttt{.chain} function is used to operate on dataset chains.  It
 takes a dataset as input, some options that will be discussed next,
 and returns a \texttt{DatasetChain} object.
 \begin{python}
-# return the chain object from the 'default' dataset in job
+# return a chain object for dataset "ds"
 chain = ds.chain()
 \end{python}
 The \texttt{chain()}-function takes the following optional arguments
@@ -325,15 +335,14 @@ The \texttt{chain()}-function takes the following optional arguments
 \texttt{reverse} & \pyFalse & Return the datasets in reverse order.  Default \pyFalse.\\
 \texttt{stop\_ds} & \pyNone & Return datasets \textsl{from} \texttt{stop\_ds} to current dataset.  Do not mix with \texttt{length}.\\
 \stoptable
-
-Now, the returned value, \texttt{chain} in the previous example, is of
-type \texttt{DatasetChain}, which supports the followin operations.
+\noindent The returned value, \texttt{chain} in the previous example, is of
+type \texttt{DatasetChain}, which supports the following operations.
 \starttabletwo
 \mintinline{python}|min(<column>)| & Minimum value of column, or \pyNone if column does not exist or is not sortable.\\
 \mintinline{python}|max(<column>)| & Return minimum value of column, or \pyNone if column does not exist or is not sortable.\\
 \mintinline{python}|lines(sliceno=None)| & Default is number of lines in chain.  With option \texttt{sliceno=x}, number of lines in slice \texttt{x}.\\
-\mintinline{python}|column_counts()| & Counter of occurances per column per dataset in chain.\\
 \mintinline{python}|column_count(<column>)| & Number of datasets in chain containing column \texttt{<column>}\\
+\mintinline{python}|column_counts()| & Counter of occurances per column per dataset in chain.\\
 \mintinline{python}|with_column(<column>)| & A \texttt{DatasetChain} object containing only those datasets that has column \texttt{<column>}.\\
 \mintinline{python}|iterate(...)| & Same arguments as \texttt{Dataset.iterate()}.  Will iterate over the whole chain.\\
 \stoptabletwo
@@ -345,11 +354,11 @@ type \texttt{DatasetChain}, which supports the followin operations.
 \section{Column Data Types}
 \label{sec:dataset_typing}
 
-The dataset columns are typed.  This means, for example, that if a
+Dataset columns are typed.  This means, for example, that if a
 column's type is \texttt{date}, each value read from the column will
 be in Python's \texttt{date} format, ready for processing.  The same
-goes for all types, including \texttt{json}, which may return rather
-complex datatypes.
+goes for all supported types, including \texttt{json}
+and \texttt{pickle}, that may return rather complex datatypes.
 
 By default, a typed column does not allow the storage of \pyNone
 values.  This can be changed by setting the \texttt{none\_support}
@@ -362,8 +371,6 @@ follow in the next sections.
 
 
 \starttabletwo
-\RPtwo   \texttt{bytes}     &  raw data \\[1ex]
-
 \RPtwo   \texttt{number}     &  float or int\\[1ex]
    
 \RPtwo   \texttt{float64}   &  64 bit (double) float\\
@@ -375,20 +382,27 @@ follow in the next sections.
 \RPtwo   \texttt{bits64}     &  64 bit bitmask\\
 \RPtwo   \texttt{bits32}     &  32 bit bitmask\\[1ex]
 
+\RPtwo   \texttt{complex64}     &  64 bit complex number\\
+\RPtwo   \texttt{complex32}     &  32 bit complex number\\[1ex]
+
 \RPtwo   \texttt{bool}      &  True or False\\[1ex]
    
 \RPtwo   \texttt{date}      &  date\\
 \RPtwo   \texttt{time}      &  time\\
 \RPtwo   \texttt{datetime}  &  complete date and time object\\[1ex]
    
+\RPtwo   \texttt{bytes}     &  raw data \\
 \RPtwo   \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
 \RPtwo   \texttt{unicode}   &  use for strings\\[1ex]
    
-\RPtwo   \texttt{json}            &  a datastructure that is jsonable\\[1ex]
+\RPtwo   \texttt{json}            &  a datastructure that is jsonable\\
+\RPtwo   \texttt{pickle}          &  a datastructure that is pickle-able!\\[1ex]
    
 \RPtwo   \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
 \RPtwo   \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
 \RPtwo   \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
+\RPtwo   \texttt{parsed:complex64}  & int, float or string parsing into \texttt{complex64} \\
+\RPtwo   \texttt{parsed:complex32}  & int, float or string parsing into \texttt{complex32} \\
 \RPtwo   \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
 \RPtwo   \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\
 \RPtwo   \texttt{parsed:json}     &  string containing parseable json\\[1ex]
@@ -442,11 +456,16 @@ its output dataset.
 
 \subsection{Bitmasks}
 The bitmask types, \texttt{bits32} and \texttt{bits64}, are stored as
-32 or 64 bits of data in a dataset, and is represented by unisgned
+32 or 64 bits of data in a dataset, and is represented by unsigned
 integers in the Python code.
 
 
-\subsection{JSON Type}
+\subsection{Complex Numbers}
+There are two complex number types, \texttt{complex32}
+and \texttt{complex64}.
+
+
+\subsection{JSON}
 The JSON type makes it possible to store and load more complex data
 structures in a dataset.  Anything that is JSONable works as input.
 Conversion between JSON and Python data types is done by the writers
@@ -461,6 +480,14 @@ see the actual JSON, for example
 
 
 
+\subsection{Pickle}
+The Python Pickle type is the most flexible type of all.  It supports
+any pickle-able object, and encoding and decoding is done on-the-fly
+under the hood.  This means that \textsl{it is possible to write almost
+anything into a dataset column}!
+
+
+
 \subsection{\texttt{parsed} Types}
 In addition, there are a few types prefixed with \texttt{parsed:} that
 allow for a more flexible assignment of values.  For example,
@@ -472,13 +499,16 @@ number, such as \texttt{'3.14'}.
 
 \subsection{\pyNone-Handling}
 The value \pyNone is valid input for all types that support \pyNone,
-i.e.\ all types except the bitmask-types.  For example, valid
-values for a \texttt{bool} type column
-are \{\pyTrue, \pyFalse, \mintinline{python}|None|\}.
+i.e.\ all types except the bitmask-types.  For example, valid values
+for a \texttt{bool} type column are \{\pyTrue, \pyFalse\}
+without \texttt{none\_support},
+and \{\pyTrue, \pyFalse, \mintinline{python}|None|\}
+with \texttt{none\_support}.  See section~\ref{sec:datasetwriter_add}
+for more information on \texttt{none\_support}.
 
 
 
-\section{Create a New Dataset}
+\section{Creating a New Dataset}
 \label{sec:datasetwriter}
 Datasets are created by methods using the \texttt{DatasetWriter}
 class.  An instance of this class is available in a running method
@@ -511,9 +541,9 @@ The most common arguments to \texttt{DatasetWriter} are
 \subsection{Create in \prepare + \analysis}
 \label{sec:create_dataset_in_analysis}
 The following example will use \texttt{DatasetWriter} to create a
-Dataset with three columns of different types.  The name of the
+dataset with three columns of different types.  The name of the
 dataset will be \texttt{firstset}.  The writer will be initialised
-in \prepare(), and data will be written to the Dataset in \analysis.
+in \prepare, and data will be written to the dataset in \analysis.
 Note that the example actually creates a dataset \emph{chain}, since
 it links the dataset under creation to the dataset
 named \texttt{previous} from the input parameters.
@@ -554,16 +584,18 @@ Several datasets can be created simultaneously using multiple writers
 with different names.
 
 
+
 \subsection{Create in \synthesis}
 \label{sec:create_in_synthesis}
-Since a dataset is slices in multiple disjoint sets, and \synthesis is
+Since a dataset is sliced in multiple disjoint sets, and \synthesis is
 run only once, data has to be sliced during writing somehow.  There
 are two possible ways to do this.  One is to first set a slice number
 \begin{python}
-dw.set_slice(sliceno)
+    dw.set_slice(sliceno)
 \end{python}
-before writing data into that slice.  The other is to use one of
-the \texttt{split\_write} functions
+before writing data into that slice.  Note that this can only be done
+once per slice.  The other is to use one of the \texttt{split\_write}
+functions
 \begin{python}
     # use a dict-writer
     writer = dw.get_split_write_dict()
@@ -578,7 +610,19 @@ the \texttt{split\_write} functions
     writer(value, value, ...)
 \end{python}
 These writers will write round-robin if the dataset is not hashed, and
-to the ``right'' slice if the dataset is hashed.
+to the ``matching'' slice if the dataset is hash partitioned.
+
+
+
+\subsection{Creating a Dataset Chain in one Job}
+It is possible to create a chain of datasets by inserting a writer
+object as previous to another writer, like this.
+\begin{python}
+def prepare(job):
+    dw1 = job.datasetwriter(name='ds1')
+    dw2 = job.datasetwriter(name='ds2', previous=dw1)
+\end{python}
+
 
 
 \subsection{Completing Dataset Creation}
@@ -591,12 +635,11 @@ This is done by calling \texttt{finish()} as shown below
 \begin{python}
 dw.finish()
 \end{python}
-The \texttt{finish()}-call returns a dataset object, so it is possible
-to start using the finished dataset immediately like this
+The \texttt{finish()}-call returns a dataset object, so the just
+finished dataset could be put in use immediately, like this
 \begin{python}
 ds = dw.finish()
 it = ds.iterate(None, 'user')
-...
 \end{python}
 
 
@@ -605,20 +648,43 @@ it = ds.iterate(None, 'user')
 If a dataset is created in a subjob, it is not visible from the build
 scripts.  This is solved by linking dataset meta-information to the
 job calling the subjob, using the \texttt{.link\_to\_here()} function.
-This is explained in detail in section~\ref{sec:subjobs}.
+This is explained in detail in section~\ref{sec:subjobs}, but the
+basic idea is as follows
+\begin{python}
+from accelerator import subjobs
+def synthesis():
+    job = subjobs.build('dataset_creator')
+    ds = job.dataset('ds1')
+    ds.link_to_here('first_dataset')
+\end{python}
+Here, the subjob creates a dataset named \texttt{ds1}.  This dataset
+resides in the subjob's job directory, but a link to it from
+the \textsl{current} job is created using the \texttt{link\_to\_here}
+function, which also allows the dataset to be renamed.  The current
+job will now claim that it contains a dataset \texttt{first\_dataset}.
+
+In the same call, the subjob's dataset's previous can also be
+overridden:
+\begin{python}
+    ds.link_to_here('first_dataset', override_previous=anotherds)
+\end{python}
+This might sound complicated, but is simply means that the current job
+can export a set of datasets created by its subjobs, and that it can
+manipulate these datasets so that they may appear to be chained in any
+way the user finds fit.
+
 
 
 \subsection{Creating Hash Partitioned Datasets}
 A hash partitioned dataset is created by setting
-the \texttt{hashlabel} argument when creating
-the \texttt{DatasetWriter}.  Note that for a hashed dataset, only data
-fulfilling the hashing requirement for a slice may be written to that
-slice, and an exception will be rised if the data written does not
-belong to the current slice.
+the \texttt{hashlabel} argument to \texttt{job.datasetwriter}.  For a
+hash partitioned dataset, only data fulfilling the hashing requirement
+for a slice may be written to that slice, and an exception will be
+rised if the data to be written does not belong to the current slice.
 
-A simple way to filter the data written is to call
+A simple way to filter the data to be written is to call
 \begin{python}
-dw.enable_hash_discard()
+    dw.enable_hash_discard()
 \end{python}
 first in each slice or after each \texttt{.set\_slice()}.  Then,
 writes that belongs to another slice are silently ignored, while
@@ -662,7 +728,7 @@ The table below shows some examples.
 \RP \texttt{"a b"}    &  \texttt{"a\_b"}     & Converting to valid python identifier.\\
 \RP \texttt{"42"}     &  \texttt{"\_42"}     & Converting to valid python identifier.\\
 \RP \texttt{"print"}  &  \texttt{"print\_"}  & \texttt{print} is a keyword (in py2).\\
-\RP \texttt{"print@"} & \texttt{"print\_\_"} & \texttt{print\_} is taken.\\
+\RP \texttt{"print@"} & \texttt{"print\_\_"} & \texttt{print\_} was just taken.\\
 \RP \texttt{"None"}   &  \texttt{"None\_"}   & \texttt{None} is a keyword (in py3).\\
 \stoptable
 
@@ -689,7 +755,8 @@ is input to the writer constructor.  Columns can be appended either
 in \texttt{analysis} or \texttt{synthesis}, as shown in the two
 following sections.  Note that appending a column does only apply to
 one single dataset, and not to the complete chain of datasets, if
-present.
+present.  See the blog at \texttt{exax.org} for several examples of
+how to append columns to a dataset chain.
 
 
 \subsection{Appending New Columns in Analysis}
@@ -711,13 +778,15 @@ def prepare(job):
 
 def analysis(sliceno, prepare_res):
     dw = prepare_res
-    ...
-    dw.write(value)
+    for data in datasets.source.iterate(sliceno, ... )
+        ...
+        dw.write(value)
 \end{python}
 The \texttt{DatasetWriter} will automatically check that the number of
 appended rows does match the number of rows in the parent dataset.
 Otherwise, an error will be issued and execution will terminate.
-
+Typically new columns are derived from existing ones, so this is
+usually not a problem.
 
 \subsection{Appending New Columns in Synthesis}
 
@@ -738,4 +807,5 @@ def synthesis(job):
 \end{python}
 Note that the \texttt{for}-loop over all slices is
 controlling \textsl{both} the reading iterator \textsl{and} the
-dataset writer.
+dataset writer.  Note also that \texttt{.set\_slice()} can only be
+called once per slice.

@@ -238,7 +238,7 @@ any other type.
 The method will also hash partition the output dataset if the
 \texttt{hashlabel} input paramter is set, causing a new dataset to be
 created.  For additional information about hash partitioning, see the
-\texttt{dateset\_rehash} method in section~\ref{sec:dataset_rehash}.
+\texttt{dateset\_hash_partition} method in section~\ref{sec:dataset_hash_partition}.
 
 The default behaviour is to append new columns with typed data to the
 existing source dataset.  These columns will have the same name as the
@@ -589,10 +589,10 @@ urd.build(csvexport',
 
 
 \clearpage
-\section{\texttt{dataset\_rehash} -- Hash Partition a Dataset}
-\label{sec:dataset_rehash}
+\section{\texttt{dataset\_hash\_partition} -- Hash Partition a Dataset}
+\label{sec:dataset_hash_partition}
 
-The \texttt{dataset\_rehash} method will create a new dataset based on
+The \texttt{dataset\_hash\_partition} method will create a new dataset based on
 its \texttt{source} dataset.  The new dataset will be hash partitioned
 on a column specified in the options.
 
@@ -618,7 +618,7 @@ on a column specified in the options.
 
 \subsection*{Datasets}
 \starttable
-  \RP \texttt{source} & \textsl{mandatory} & Source dataset to rehash\\
+  \RP \texttt{source} & \textsl{mandatory} & Source dataset to hash partition\\
   \RP \texttt{previous} & \mintinline{python}/None/ & Previous dataset to chain  to.\\
 \stoptable
 
@@ -626,7 +626,7 @@ on a column specified in the options.
 \subsection{Example Invocation}
 An example invocation is the following
 \begin{python}
-urd.build('dataset_rehash',
+urd.build('dataset_hash_partition',
           datasets=dict(source=jid,), 
           options=dict(hashlabel='start_date',))
 \end{python}
@@ -648,17 +648,18 @@ target_sliceno = siphash24(cols[hashlabel]) % params.slices
 
 \subsection{Notes on Chains}
 \begin{enumerate}
-  \item[1.]  The default operation is to rehash a complete chain of
-    datasets from \texttt{source} back to \texttt{previous.source}.
-    This is controlled by the \texttt{length} option.
+  \item[1.]  The default operation is to hash partition a complete
+    chain of datasets from \texttt{source} back to
+    \texttt{previous.source}.  This is controlled by the
+    \texttt{length} option.
 
-  \item[2.]  Internally, \texttt{dataset\_rehash} always generates one
-    dataset per slice in a chain.  This is also what is returned if
-    \mintinline{python}/as_chain == True/.  Otherwise, all datasets
-    will be concatenated into one.  Thus, there is a choice of either
-    having the output as a chain of datasets -- or as a single dataset.
-    The chain will execute faster, since the concatenation step is
-    omitted.
+  \item[2.]  Internally, \texttt{dataset\_hash\_partition} always
+    generates one dataset per slice in a chain.  This is also what is
+    returned if \mintinline{python}/as_chain == True/.  Otherwise, all
+    datasets will be concatenated into one.  Thus, there is a choice
+    of either having the output as a chain of datasets -- or as a
+    single dataset.  The chain will execute faster, since the
+    concatenation step is omitted.
 \end{enumerate}
 
 %% \clearpage
@@ -693,11 +694,11 @@ target_sliceno = siphash24(cols[hashlabel]) % params.slices
 The \texttt{dataset\_filter\_columns} method removes columns from a
 dataset.  It is typically run before applying methods that operate on
 all columns of a dataset and only a subset of the columns are
-required.  A typical example is \texttt{dataset\_rehash} that operates
+required.  A typical example is \texttt{dataset\_hash\_partition} that operates
 on all columns of a dataset.  If not all columns are needed, time and
 storage can be saved by removing columns using this method prior to
 applying
-\texttt{dataset\_rehash}.
+\texttt{dataset\_hash_partition}.
 
 Note that this method only updates soft links, and no data is actually
 copied.  So execution time is typically a fraction of a second and no

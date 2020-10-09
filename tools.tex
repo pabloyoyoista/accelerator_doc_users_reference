@@ -375,6 +375,19 @@ ax grep . test-0 | less
 
 
 
+\subsection{Information about Methods}
+Use \texttt{ax method} to print a list of available methods.
+\begin{shell}
+ax method
+\end{shell}
+The method description is shown by specifying a method name
+\begin{shell}
+ax method csvimport
+\end{shell}
+Descriptions are added using the \texttt{description="some string"}
+statement in a method.
+
+
 
 \section{The Urd Job Database Server}
 By default, a local Urd server is running when the Accelerator server

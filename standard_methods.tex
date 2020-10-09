@@ -238,7 +238,7 @@ any other type.
 The method will also hash partition the output dataset if the
 \texttt{hashlabel} input paramter is set, causing a new dataset to be
 created.  For additional information about hash partitioning, see the
-\texttt{dateset\_hash_partition} method in section~\ref{sec:dataset_hash_partition}.
+\texttt{dateset\_hash\_partition} method in section~\ref{sec:dataset_hash_partition}.
 
 The default behaviour is to append new columns with typed data to the
 existing source dataset.  These columns will have the same name as the
@@ -698,7 +698,7 @@ required.  A typical example is \texttt{dataset\_hash\_partition} that operates
 on all columns of a dataset.  If not all columns are needed, time and
 storage can be saved by removing columns using this method prior to
 applying
-\texttt{dataset\_hash_partition}.
+\texttt{dataset\_hash\_partition}.
 
 Note that this method only updates soft links, and no data is actually
 copied.  So execution time is typically a fraction of a second and no
@@ -706,10 +706,11 @@ redundant data is written to disk.
 
 \subsection*{Options}
 \starttable
-  \RP \texttt{columns} & \mintinline{python}/[]/ & A list of columns to
-  keep.\\
+  \RP \texttt{keep\_columns} & \mintinline{python}/[]/ & A list of columns to keep.\\
+  \RP \texttt{discard\_columns} & \mintinline{python}/[]/ & A list of columns to remove.\\
 \stoptable
-
+Only one of \texttt{keep\_columns} and \texttt{discard\_columns} may
+be populated.
 
 
 \clearpage

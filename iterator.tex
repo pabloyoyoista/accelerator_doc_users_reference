@@ -38,7 +38,10 @@ or \synthesis.  There are three iterators available:
 \item [] \texttt{iterate\_chain()} for iterating over dataset chains, and
 \item [] \texttt{iterate\_list()} for iterating over a specified list of datasets.
 \end{itemize}
-And each of them will be discussed later in this chapter.
+And each of them will be discussed later in this chapter.  For
+completeness, it should also be mentioned that
+the \texttt{DatasetChain} class also has an \texttt{.iterate()}
+function, and it works similar to \texttt{iterate\_chain()}.
 
 In many common use cases it is sufficient to provide only two
 arguments to the iterator: \texttt{sliceno}, which is mandatory,
@@ -57,6 +60,18 @@ a \texttt{dict}.
 \begin{python}
 n2d = dict(dataset.source.iterate(sliceno, ('name', 'date',)))
 \end{python}
+or this example
+\begin{python}
+from collections import Counter
+...
+    c = Counter(dataset.source.iterate(sliceno, 'user')))
+\end{python}
+that will create a counter of how many times each \texttt{user} is
+present in the dataset.
+
+
+
+\subsection{Iterator Arguments}
 
 All three iterators share these arguments
 \starttable
@@ -67,17 +82,17 @@ All three iterators share these arguments
 
   \RP \texttt{columns} & \pyNone & Tuple of column labels or a single
   name if iterating over one column.  \pyNone selects all columns in
-  alphabetic order.\\[1ex]
+  alphabetical order.\\[1ex]
 
   \RP \texttt{hashlabel} & \pyNone & Name of hash column.  If the code
   relies on a dataset being hashed on a particular column, set this to
-  make the iterator verify that this is actually the case.  Execution
-  will terminate if the hashlabel is incorrect.\\[1ex]
+  make the iterator \texttt{assert} that this is actually the case.
+  Execution will terminate if the hashlabel is incorrect.\\[1ex]
 
   \RP \texttt{rehash} & \pyFalse & Setting this
-  to \mintinline{python}/True/ will rehash the dataset on-the-fly
-  based on the \texttt{hashlabel} column.  (Rehashing on-the-fly is
-  slower, so ideally datasets should be rehashed using
+  to \mintinline{python}/True/ will hash partition the dataset
+  on-the-fly based on the \texttt{hashlabel} column.  (Rehashing
+  on-the-fly is slower, so ideally datasets should be rehashed using
   the \texttt{dataset\_rehash}
   method~\ref{sec:dataset_rehash}.)\\[1ex]
   
@@ -88,9 +103,10 @@ All three iterators share these arguments
 %  include.  Explained in section~\ref{sec:filters}\\[1ex]
 
   \RP \texttt{status\_reporting} & \pyTrue & Give status when
-  pressing \texttt{C-t}.  Unless manually \texttt{zip}ing iterators,
-  this should be set to default \mintinline{python}/True/.
-  See \texttt{dataset.py} source code for full information.\\
+  pressing \texttt{C-t}.  Unless manually \texttt{zip}ing several
+  iterators together, this should be set to
+  default \mintinline{python}/True/.  See \texttt{dataset.py} source
+  code for full information.\\
 \stoptable
 
 \noindent In addition, \texttt{iterate\_chain} takes these arguments too
@@ -104,15 +120,16 @@ All three iterators share these arguments
   section~\ref{sec:iterate_sloppy_range}\\[1ex]
 
   \RP \texttt{sloppy\_range}& \pyFalse & Used with \texttt{range}, but
-  will iterate over full datasets for those datasets that have values
-  within range, see section~\ref{sec:iterate_sloppy_range}.\\[1ex]
+  will iterate over full datasets for those datasets i a chain that
+  have values within range, see
+  section~\ref{sec:iterate_sloppy_range}.\\[1ex]
   
   \RP \texttt{reverse}& \pyFalse & Iterate chain backwards.  Default
   is to iterate forward, i.e.\ from oldest to newest dataset.\\[1ex]
 
   \RP \texttt{stop\_ds}& \pyNone & Iterate back to this dataset.
   Actually, setting this will iterate from the dataset
-  following \texttt{stop\_ds} to the newest dataset in the
+  \textsl{following} \texttt{stop\_ds} to the newest dataset in the
   chain.\\[1ex]
 
   \RP \texttt{pre\_callback}& \pyNone & A function that will be called
@@ -136,90 +153,58 @@ a chain of datasets.
 
 \subsection{Parallel Iterator Invocation}
 For parallel iteration in \analysis, the iterator needs to know the
-number of the current slice.  This information is fed to the \analysis
-function in the \texttt{sliceno} variable. The following is an example
-of iteration that happens independently in each slice.
+number of the current slice.  This information can be fed to
+the \analysis function in the \texttt{sliceno} variable. The following
+is an example of iteration that happens independently in each slice.
 \begin{python}
+from collections import defaultdict
 datasets = ('source',)
 
 def analysis(sliceno):
     h = defaultdict(set)
-    for user, item in datasets.source.iterate(
-                           sliceno, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(sliceno, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 The program creates dictionaries mapping \texttt{user}s to sets of
-\texttt{item}s for the \texttt{source} dataset.  (Assuming that
+\texttt{item}s for the \texttt{source} dataset.  Assuming that
 the dataset is hash partitioned (see ~\ref{sec:slicing_and_hashing}),
 this operation is entirely parallel and there is no need to merge all
-the results from the analysis processes later.
+the results from the analysis processes afterwards, since the
+different slices do not share any keys with each other.
 
 
 
 \subsection{Sequential Iterator Invocation}
 Setting the \texttt{sliceno} parameter to
 \pyNone will cause the iterator to run through all slices of
-the dataset, one at a time, like in this example
+the dataset, one slice at a time, like in this example
 \begin{python}
 def synthesis():
     h = defaultdict(set)
-    for user, item in datasets.source.iterate(
-                           None, columns=('user', 'item',)):
+    for user, item in datasets.source.iterate(None, columns=('user', 'item',)):
         h[user].add(item)
 \end{python}
 Dataset slices will be iterated in increasing order.
 
 
-\subsection{Iterate Over Chains}
-The \texttt{iterate\_chain()} iterator is used to iterate over one or
-more datasets in a chain, starting at the ``oldest'' dataset.  The
-following example will iterate over the last three datasets in the
-chain, oldest dataset first.
-\begin{python}
-datasets = ('source',)
-
-def analysis(sliceno):
-    h = defaultdict(set)
-    for user, item in datasets.source.iterate_chain(
-                           sliceno, columns=('user', 'item',), length=3):
-        h[user].add(item)
-\end{python}
-Using \texttt{iterate\_chain()} without explicitly specifying
-\texttt{length} will default to a \texttt{length} of $-1$, which
-corresponds to all datasets in the chain.
-
-Here is an interesting example of a method that will iterate over all
-chained \texttt{source} datasets that are new since the last
-invocation of the method.
-\begin{python}
-datasets = ('source',)
-jobs = ('previous',)
-
-def analysis(sliceno):
-    h = defaultdict(set)
-    for user, item in datasets.source.iterate_chain(
-                           sliceno, columns=('user', 'item',),
-                           stop_ds=jobs.previous.source,):
-        h[user].add(item)
-\end{python}
-
-
 
 \subsection{Special Case, Round Robin Iteration}
 By default, the iterators stream slices of data.  This is almost
-always exactly what is needed.  There is, however, a special iterator
-case when the order of rows imported by \texttt{csvimport} matters.
-For maximum performance, the \texttt{csvimport} method writes datasets
-in a round robin fashion, so iterating over a csvimported dataset does
-not return the lines in the same order as they were written.
+always exactly what is needed.  But sometimes, for example when the
+order of rows imported by \texttt{csvimport} matters, there is a need
+for a row-wise iteration order.  For maximum performance,
+the \texttt{csvimport} method writes datasets in a round robin
+fashion, so iterating over a csvimported dataset does not return the
+lines in the same order as they were written.
 
 By setting the first parameter of any of the iterator functions to
 ``\texttt{roundrobin}'', the iterator will internally fetch all slice
 iterators and return one value at a time from each iterator in a round
 robin fashion.  The resulting output is then in the same order as in
 the file imported by \texttt{csvimport}.  In a dataset chain, round
-robin will happen \textsl{per dataset}.  There is a preformance penalty
-associated with this functionality.
+robin will happen \textsl{per dataset}.  There is a performance
+penalty associated with this functionality, but it is handy for
+time-series-like data.
 
 
 
@@ -251,62 +236,100 @@ for user in datasets.source.iterate(sliceno, 'USER',):
 
 
 
-\begin{figure}[t!]
-  \begin{center}
-    \hspace{2.5cm}\input{figures/dsprocchain.pdftex_t}
-    \caption{Example of import and processing jobs.  Blue text and
-    arrows relate to the \textsl{current job}, \texttt{proc-1}.}
-    \label{fig:dsprocchain}
-  \end{center}
-\end{figure}
-
-
-
-\subsection{An Example}
-Consider the case where new files are added to a project in a
-continuous fashion.  These files are imported and chained, so that
-each new imported dataset links to the previously imported dataset,
-and so on.  This is illustrated in the left part of
-figure~\ref{fig:dsprocchain}.
-
-Once in a while, but not necessarily at the same rate as new files are
-added, some processing of the data is performed.  This processing
-could for example be \textsl{updating} a machine learning model with
-the newly added data imported since the last model update.
-
-The processing job should then iterate over a part of the the dataset
-chain only, from the first dataset after the last processing job up to
-the most recent imported dataset.  Again, see
-figure~\ref{fig:dsprocchain}.  The right part of the image illustrates
-two builds of the processing method.  The first operates on the
-dataset \texttt{imp-0}, and the last on \texttt{imp-1}
-and \texttt{imp-2}.  The input parameters to the first processing
-job, \texttt{proc-0}, are
-\begin{itemize}
-\item[] \mintinline{python}|jobs.previous = None|
-\item[] \mintinline{python}|datasets.source = 'imp-0'|
-\end{itemize}
-and the input parameters for the second processing
-job, \texttt{proc-1}, are
-\begin{itemize}
-\item[] \mintinline{python}|jobs.previous = 'proc-0'|
-\item[] \mintinline{python}|datasets.source = 'imp-2'|
-\end{itemize}
-
-The processing job should iterate on the \texttt{datasets.source}
-dataset, and set the \texttt{stop\_id=} parameter to
-the \texttt{previous} job's \texttt{source} dataset, and the code may
-look something like this
+\subsection{Iterate Over Chains}
+The \texttt{iterate\_chain()} iterator is used to iterate over one or
+more datasets in a chain, starting at the ``oldest'' dataset.  The
+following example will iterate over the last three datasets in the
+chain, oldest dataset first.
 \begin{python}
 datasets = ('source',)
-jobs = ('previous',)
 
 def analysis(sliceno):
-    for ... in datasets.source.iterate_chain(
-            ...
-            stop_ds={jobs.previous: 'source',}):
-    ...
+    h = defaultdict(set)
+    for user, item in datasets.source.iterate_chain(
+                           sliceno, columns=('user', 'item',), length=3):
+        h[user].add(item)
 \end{python}
+Using \texttt{iterate\_chain()} without explicitly specifying
+\texttt{length} will default to a \texttt{length} of $-1$, which
+corresponds to all datasets in the chain.
+
+%% Here is an interesting example of a method that will iterate over all
+%% chained \texttt{source} datasets that are new since the last
+%% invocation of the method.
+%% \begin{python}
+%% datasets = ('source',)
+%% jobs = ('previous',)
+
+%% def analysis(sliceno):
+%%     h = defaultdict(set)
+%%     for user, item in datasets.source.iterate_chain(
+%%                            sliceno, columns=('user', 'item',),
+%%                            stop_ds=jobs.previous.source,):
+%%         h[user].add(item)
+%% \end{python}
+
+
+
+
+
+
+%% \begin{figure}[t!]
+%%   \begin{center}
+%%     \hspace{2.5cm}\input{figures/dsprocchain.pdftex_t}
+%%     \caption{Example of import and processing jobs.  Blue text and
+%%     arrows relate to the \textsl{current job}, \texttt{proc-1}.}
+%%     \label{fig:dsprocchain}
+%%   \end{center}
+%% \end{figure}
+
+
+
+%% \subsection{An Example}
+%% Consider the case where new files are added to a project in a
+%% continuous fashion.  These files are imported and chained, so that
+%% each new imported dataset links to the previously imported dataset,
+%% and so on.  This is illustrated in the left part of
+%% figure~\ref{fig:dsprocchain}.
+
+%% Once in a while, but not necessarily at the same rate as new files are
+%% added, some processing of the data is performed.  This processing
+%% could for example be \textsl{updating} a machine learning model with
+%% the newly added data imported since the last model update.
+
+%% The processing job should then iterate over a part of the the dataset
+%% chain only, from the first dataset after the last processing job up to
+%% the most recent imported dataset.  Again, see
+%% figure~\ref{fig:dsprocchain}.  The right part of the image illustrates
+%% two builds of the processing method.  The first operates on the
+%% dataset \texttt{imp-0}, and the last on \texttt{imp-1}
+%% and \texttt{imp-2}.  The input parameters to the first processing
+%% job, \texttt{proc-0}, are
+%% \begin{itemize}
+%% \item[] \mintinline{python}|jobs.previous = None|
+%% \item[] \mintinline{python}|datasets.source = 'imp-0'|
+%% \end{itemize}
+%% and the input parameters for the second processing
+%% job, \texttt{proc-1}, are
+%% \begin{itemize}
+%% \item[] \mintinline{python}|jobs.previous = 'proc-0'|
+%% \item[] \mintinline{python}|datasets.source = 'imp-2'|
+%% \end{itemize}
+
+%% The processing job should iterate on the \texttt{datasets.source}
+%% dataset, and set the \texttt{stop\_id=} parameter to
+%% the \texttt{previous} job's \texttt{source} dataset, and the code may
+%% look something like this
+%% \begin{python}
+%% datasets = ('source',)
+%% jobs = ('previous',)
+
+%% def analysis(sliceno):
+%%     for ... in datasets.source.iterate_chain(
+%%             ...
+%%             stop_ds={jobs.previous: 'source',}):
+%%     ...
+%% \end{python}
 
 
 
@@ -320,7 +343,7 @@ def analysis(sliceno):
 
 \section{Halting Iteration}
 
-Iteration over a dataset chain will continue until all data is
+Iteration over a dataset chain will continue until all datasets are
 exhausted or a stop criteria is fulfilled.  There are several
 mechanisms for stopping, and they may be combined in a single iterator
 call.  If so, iteration will be over the shortest range of the
@@ -404,8 +427,8 @@ for user, item in datasets.source.iterate_chain(
 
 
 
-\section{Hash Partitioned Datasets and on-the-fly Rehash}
-Hash partitioning a dataset on a particular columns, see
+\section{Hash Partitioned Datasets and on-the-fly Partitioning}
+Hash partitioning a dataset on a particular column, see
 section~\ref{sec:slicing_and_hashing}, may really simplify the
 parallel programming of methods using the dataset.  However, the
 parallel code will not work properly if it turns out that the input
@@ -418,8 +441,8 @@ s = {user: item for user, item datasets.source.iterate_chain(
 \end{python}
 so that execution will terminate if the \texttt{hashlabel} is not correct.
 
-It is possible to rehash the dataset on-the-fly.  This is done by
-setting the \texttt{rehash} argument to the iterator to
+It is possible to hash partition the dataset on-the-fly.  This is done
+by setting the \texttt{rehash} argument to the iterator to
 \mintinline{python}/True/, like this
 \begin{python}
 for user, item in datasets.source.iterate_chain(
@@ -441,9 +464,9 @@ scenarios will be more efficient.
 \section{Callbacks}
 \label{sec:callback}
 The iterator may be assigned callback functions that are called before
-starting iterating a new dataset, and after the current dataset is
+starting iterating a new dataset, and/or after the current dataset is
 exhausted.  Callbacks are useful for example to aggregate data by
-dataset when iterating over a dataset chain.
+dataset when iterating over a large dataset chain.
 
 There are two independent callbacks for these two cases,
 called \texttt{pre\_callback} and \texttt{post\_callback}.
@@ -458,7 +481,7 @@ prior to iterating over it.
 def prefun(dataset):
     print(dataset.name)
 
-for user, item in datasets.source.iterate(
+for user, item in datasets.source.iterate_chain(
                        sliceno, ('user', 'item',),
                        pre_callback=prefun):
     ...

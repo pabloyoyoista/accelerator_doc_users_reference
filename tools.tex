@@ -52,8 +52,8 @@ commands:
 
     curl  http request (with curl) to urd or the server
   server  run the main server
-  dsgrep  search for a pattern in one or more datasets
-  dsinfo  display information about datasets
+    grep  search for a pattern in one or more datasets
+      ds  display information about datasets
     init  create a project directory
      run  run a build script
      urd  run the urd server
@@ -191,7 +191,7 @@ Accelerator server).  Thereafter, it will execute the build script.
 
 
 \section{Dataset Information}
-The \texttt{dsinfo} command gives a compact, but easy to read,
+The \texttt{ds} command gives a compact, but easy to read,
 overview of either
 \begin{itemize}
 \item[] a dataset,
@@ -203,7 +203,7 @@ values, number of rows, and balance of rows between slices.
 
 \subsection{Invocation}
 \begin{shell}
-  usage: ax dsinfo [options] ds [ds [...]]
+  usage: ax ds [options] ds [ds [...]]
 
   positional arguments:
   dataset
@@ -236,7 +236,7 @@ Here are all options
   \texttt{-q}\hspace{3cm}\texttt{---quiet} & Silently ignore any error.\\
 \end{tabular}
 \end{snugshade}
-When \texttt{dsinfo} is fed with dataset(s)
+When \texttt{ds} is fed with dataset(s)
 \begin{snugshade}
 \begin{tabular}{p{4cm}p{9cm}}
   \texttt{-c}\hspace{3cm}\texttt{---chain} & Print name and number of
@@ -247,7 +247,7 @@ When \texttt{dsinfo} is fed with dataset(s)
   data is for the whole chain of datasets.\\
 \end{tabular}
 \end{snugshade}
-When \texttt{dsinfo} is fed with jobid(s)
+When \texttt{ds} is fed with jobid(s)
 \begin{snugshade}
 \begin{tabular}{p{4cm}p{9cm}}
   \texttt{-l}\hspace{3cm}\texttt{---list} & Print the name and number
@@ -257,11 +257,11 @@ When \texttt{dsinfo} is fed with jobid(s)
 
 \subsubsection*{Example invocation 1}
 \begin{shell}
-ax dsinfo test-20 -S
+ax ds test-20 -S
 \end{shell}
 or
 \begin{shell}
-ax dsinfo test-20/badlines
+ax ds test-20/badlines
 \end{shell}
 
 The argument can be one or more jobids or dataset ids.  If the
@@ -270,19 +270,19 @@ argument is a jobid, it is assumed that the dataset name is
 list of dataset names will be returned.
 
 \subsubsection*{Example invocation 2}
-Combining \texttt{dsinfo} will shell features can be an elegant way to
+Combining \texttt{ds} will shell features can be an elegant way to
 extract information from a workdir.  For example
 \begin{shell}
-ax dsinfo -l -q test-{0..99}
+ax ds -l -q test-{0..99}
 \end{shell}
 will scan for datasets in the 100 first jobs of \texttt{test}.
-Adding the \texttt{-q} option will make \texttt{dsinfo} suppress the
+Adding the \texttt{-q} option will make \texttt{ds} suppress the
 warning messages for those jobs that do not contain any datasets.
 
 \subsubsection*{Example invocation 3}
 Find all datasets in \texttt{test-20}
 \begin{shell}
-ax dsinfo -l test-20
+ax ds -l test-20
 \end{shell}
 
 
@@ -326,11 +326,11 @@ slices are not of the same size.
 
 
 \section{Look at Data in a Dataset}
-The \texttt{dsgrep} command is a parallel grep for datasets that is
+The \texttt{grep} command is a parallel grep for datasets that is
 used to look at data stored in datasets or dataset chains.
 \subsection{Invocation}
 \begin{shell}
-  usage: ax dsgrep [options] pattern ds [ds [...]] [column [column [...]]
+  usage: ax grep [options] pattern ds [ds [...]] [column [column [...]]
 
     positional arguments:
     pattern
@@ -348,7 +348,7 @@ used to look at data stored in datasets or dataset chains.
 The \texttt{pattern} is a regular expression and \texttt{ds} are
 datasets.  For example
 \begin{shell}
-ax dsgrep Alice test-0 test-1/special name
+ax grep Alice test-0 test-1/special name
 \end{shell}
 Will look for the string \texttt{Alice} in the \texttt{name} column of
 the two datasets \texttt{text-0} and \texttt{test-1/special}.
@@ -365,11 +365,11 @@ Strings and columns with special characters have to be quoted.
 
 
 
-\subsection{Abuse dsgrep to show datasets}
+\subsection{Abuse grep to Show Datasets}
 The data in a dataset may be printed to \texttt{stdout} by
 \texttt{grep}ing using a regexp that always matches, like this
 \begin{shell}
-ax dsgrep . test-0 | less
+ax grep . test-0 | less
 \end{shell}
 (The regexp \texttt{.} will match any string that is at least one character long.)
 

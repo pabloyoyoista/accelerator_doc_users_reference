@@ -1,6 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                          %
 % Copyright (c) 2018 eBay Inc.                                             %
+% Modifications copyright (c) 2018-2019 Anders Berkeman                    %
 %                                                                          %
 % Licensed under the Apache License, Version 2.0 (the "License");          %
 % you may not use this file except in compliance with the License.         %
@@ -19,73 +20,106 @@
 \label{chap:urd}
 
 This chapter is the continuation of chapter~\ref{chap:urd_basic},
-``Basic Build Scripting''.  Please read about build script and
+``Basic Build Scripting''.  Please read about builds script and
 joblists before proceeding.
 
 
 \section{Introduction to Urd}
 
-Urd comes into play when simple build scripting is not enough.  A wide
-variety of advanced tasks can be handled without it, but the
-capabilities added by Urd in terms of job organisation, storage, and
-retrieval makes it possible to handle much larger and more advanced
-projects while maintaining in full control.
+Urd is a transaction log-based database and server used to group, tag,
+and keep track of jobs.  Urd comes into play when simple build
+scripting is not enough.  Build scripts are capable of a large variety
+of complicated tasks, and on top of that Urd adds the capabilities of
+job organisation, storage, and retrieval.  This makes it possible to
+handle much larger and more advanced projects while the process is
+fully transparent and under control.
 
-Using Urd, a project could be separated into functionally independent
-parts, and all dependencies between jobs inside as well as between
-these parts is tracked by a \textsl{transaction log}.  It is possible
-to re-construct the state of any project part the way it was at any
-instance in time.
+Using Urd, a project can be separated into functionally independent
+parts, or \textsl{sessions}, and all dependencies between jobs inside
+as well as between these sessions are tracked by a \textsl{transaction
+log}.  Even though there is no need to, since all previous results are
+stored, any part or session of a project can be re-constructed the way
+it looked at any instance in time.
 
 More formally, Urd provides two things:
 \begin{itemize}
 \item[1.] Separation between build scripts,
-        and a way to share information about built jobs between
-        different scripts (or the same script at different points in
-        time).
-\item[2.] A searchable transaction log database of all jobs built
-          together with their dependencies.  A timestamp, date,
-          integer, or combination thereof can be used as key.
+          and a way to share information about existing jobs between
+          different scripts (or the same script at different points in
+          time).
+\item[2.] A searchable transaction log database of all jobs,
+          together with their dependencies on other jobs.  A
+          timestamp, date, integer, or combination thereof can be used
+          as key.
 \end{itemize}
-The interesting transaction log database and many other aspects of Urd
-will be explained in the rest of this chapter.
+Due to its transaction log, there is no way using the provided API to
+accidentally modify or destroy data stored in the Urd database.  The
+interesting transaction log database and many other aspects of Urd
+will be explained in this chapter.
 
 
 
 \section{A Simple Use case}
-Assume a project where, say, movie recommendation data is to be
-analysed.  Every hour, recommendations generated during the last hour
-will appear in the shape of a new log file.  The project is using two
-build scripts:
-\begin{itemize}
-\item[] The first build script is used to look for new files, and
-  import and chain them as they appear.  For each new file imported,
-  the build script will tell the Urd server the timestamp of the file
-  as well as a list of all created jobs associated with that file.
 
-\item[] The second build script is used for the data analysis work,
-  and is perhaps run less regularly.  This script needs to know the
-  job for the latest imported file, and this is a straightforward
-  thing to ask Urd.  All analysis jobs are also stored in Urd together
-  with a corresponding timestamp.
-\end{itemize}
-Here, Urd is used to forward information about executed jobs from
-first build script to the second.  In this sense, Urd
-provides \textsl{isolation} by message passing.
+%@@@ kanske kortare och i introt??
 
-Urd can also be used to tell which input data that was used for a
-particular data analysis job.  When querying Urd about a data analysis
-job, it will respond with information about those jobs \textsl{as well
-as} information about all Urd queries that was necessary for the jobs
-to run.  This information is stored automatically in the build script
-and it is there to ensure transparency and reproducibility.
+A simple use case is used here to illustrate the basic Urd features.
+
+Assume a project where movie recommendation data is to be analysed.
+Every hour, new data corresponding to the last hour's activity is
+added to the project in the shape of log files.  The project is based
+on two build scripts, an \textsl{import} script, and
+an \textsl{analysis} build script.
+
+\subsection{The Import Build Script}
+The import scrip is used to look for new data files, and import and
+chain them as they become available.  For each new file that is
+imported, the build script will tell the Urd server
+the \textsl{timestamp} of the file as well as a \textsl{list of all
+jobs} that have been built based on that file.  Typically, this
+includes \texttt{csvimport}, \texttt{dataset\_type}, perhaps
+a \texttt{dataset\_hash\_partition}, and similar data pre-processing
+jobs.
+
+\subsection{The Analysis Build Script}
+The analysis build scrip is used for the data analysis work, and is
+perhaps run less regularly.  This script needs to know which jobs that
+correspond for the most recently imported file, and this is a
+straightforward thing to ask Urd.  When all processing is done, all
+the analysis jobs are also stored in Urd together with a corresponding
+timestamp.
+
+\subsection{Urd Provides Separation}
+In the example, Urd is used to forward information about executed jobs
+from the first build script (the import script) to the second (the
+analysis script).  In this sense, Urd provides \textsl{isolation} by
+``message passing'' between build scripts.  The import scripts could
+be modified or even removed, but as long as no workdirs are cleared
+and the Urd database is intact, it is still possible to fetch
+references to the existing import jobs from Urd.  Thus, it is always
+possible to go back and see what things looked like at any previous
+point in time.
+
+\subsection{Transparency}
+Urd also provides \textsl{transparency}, since it can tell which input
+files that were used by any analysis job.  In this way, it will never
+happen that there is any uncertainty about which data that was used
+for a particular analysis.
+
+To investigare the result of an analysis, Urd can be asked to return
+the jobs corresponding to, say, the most recent analysis jobs.  The
+query response from Urd will contain these jobs, \textsl{as well as}
+the results from any Urd queries that were carried out for the jobs to
+run.  This information will contain the import jobs, since these were
+queried in order to perform the analysis.
+
 
 
 
 \section{Local or External Urd Server}
 By default, Urd is run as a \textsl{local} server, which means that it
 is not externally accessible.  A non-local Urd server that can share
-information between several users straightforward to set up, see
+information between several users is straightforward to set up, see
 section~\ref{sec:urd_setup}.
 
 
@@ -94,7 +128,7 @@ section~\ref{sec:urd_setup}.
 A simple file import script will be used as example in this section:
 \begin{python}
 def main(urd):
-    urd.build('csvimport', options=dict(filename='txn1.txt'))
+    urd.build('csvimport', filename='txn1.txt')
 \end{python}
 In order to use this import job in a future context,
 a \textsl{session} is created by wrapping the code by
@@ -105,8 +139,8 @@ def main(urd):
     urd.build('csvimport', filename='txn1.txt')
     urd.finish('import/txn')
 \end{python}
-Everything that happens between \texttt{begin()} and \texttt{finish()}
-makes up the session.  The \texttt{finish()} function makes sure that
+Everything that happens between \texttt{.begin()} and \texttt{.finish()}
+makes up the session.  The \texttt{.finish()} function makes sure that
 the session is stored permanently to disk for future reference.  In
 this case, the session can be retrieved knowing its \textsl{list} name
 \begin{verbatim}
@@ -118,18 +152,16 @@ and its \textsl{timestamp}
 \end{verbatim}
 The list identifier is composed of two parts, \texttt{<user>/<list>}, where
 \texttt{<user>} is for authorisation purposes.  Each user can
-have any number of lists, but only the correct user may write to them,
-as will be explained later.
-
-The next sections will explain how to search the Urd database for
-matching sessions in various ways.
+have any number of lists that are globally readable, but only the
+authorised user can write to them, as will be explained later.
 
 
 
 \section{A First Urd Query}
-The list created in the previous section can now be used by other
-build scripts.  For example, here is a build script that does some
-processing on the previously imported file
+The list created in the previous section is stored in the Urd database
+and therefore ready to be used by other build scripts.  For example,
+here is a build script that does some processing on the previously
+imported file
 \begin{python}
 def main(urd):
     urd.begin('process/test')
@@ -137,38 +169,37 @@ def main(urd):
     import_session = urd.latest('import/txn')
 
     import_timestamp = import_session.timestamp
-    import_job       = import_session.joblist['dataset_type']
+    import_job       = import_session.joblist['csvimport']
 
     urd.build('process', source=import_job)
 
     urd.finish('process/test', import_timestamp)
 \end{python}
 The first thing that happens is that all processing is covered in a
-session named \texttt{process/text}.  At \texttt{begin()}, the
-timestamp is still unknown, it is to be set to the same timestamp as
-the import job has.
+session named \texttt{process/text}.  The timestamp can be set
+in \textsl{either} \texttt{.begin()} or \texttt{.finish()}.
 
-The script is then retrieving the recently created urd session stored
-in list \texttt{import/txn}.  Two things are extracted from this data,
-the \textsl{timestamp} and the \textsl{joblist}.  The timestamp will
-be used for this session as well, to indicate that processing is based
-on data with that particular timestamp.  A reference to
-the \texttt{csvimport} job is then extracted from the joblist and fed
-to the \texttt{process} job as an input dataset parameter. (For
-information about the \texttt{joblist} class, see
+The script is then retrieving the most recently created urd session
+stored in list \texttt{import/txn}.  Two things are extracted from
+this data, the \textsl{timestamp} and the \textsl{joblist}.  The
+timestamp will be used for this session as well, to indicate that
+processing is based on data with that particular timestamp.  A
+reference to the \texttt{csvimport} job is then extracted from the
+joblist and fed to the \texttt{process} job as an input dataset
+parameter. (For information about the \texttt{joblist} class, see
 section~\ref{sec:joblist}.)
 
 
 
-\section{The Contents of the Stored Session}
+\section{The Contents of a Stored Session}
 \label{sec:urd_item}
 Calling \texttt{urd.finish()} will update the Urd database with the
 contents of the current \textsl{session}.  Each session is addressable
 using a \textsl{list} name (in the format \texttt{<user>/<list>}) and
-a \textsl{timestamp}.  Session data is stored internally in
-the JSON format, and in build scripts it appears as
-Python \texttt{dict}s.  The example presented earlier in this chapter
-may have been recorded similarly to this
+a \textsl{timestamp}.  Session data is stored internally in the JSON
+format, and in build scripts it will appear as a Python \texttt{dict}.
+The example presented earlier in this chapter may have been recorded
+similarly to this
 \begin{json}
 {
     "user": "processing",
@@ -246,21 +277,27 @@ and the following applies
 \stoptabletwo
 
 The Urd transaction database will be written to only when
-the \texttt{finish()} function is called.  Before
-calling \texttt{finish()}, nothing is stored, and it is perfectly okay
-to omit \texttt{finish()} to avoid storage or during development work.
+the \texttt{.finish()} function is called.  Nothing is stored before
+calling \texttt{.finish()}, and it is perfectly okay to
+omit \texttt{finish()} to avoid storage or during development work.
 
 
 
 
 \subsection{What if a Build Script is Run Again?}
-Running a build script for the first time will cause jobs to be built.
-The second time the same script is run, the Accelerator will look up
-already built jobs and immediately return job references instead of building
-anything.  As long as there are no changes, re-defining Urd sessions
-that already exists is not a problem - they will be silently ignored.
-But if there are any discrepancies, such as a job being rebuilt, Urd
-will complain and refuse to store the differing session.
+The Urd database is based on transaction log files.  There is no way
+to modify or remove information in the database using the Urd API.
+The first time a build script is run, it will cause jobs to be built,
+and if a session is set up using \texttt{begin()} and \texttt{finish},
+this session will be stored in the Urd database.  The second time the
+same script is run, the Accelerator will look up already built jobs
+and immediately return job references instead of building anything.
+As long as there are no changes, the session will look identical to
+the one stored in the Urd database, and it is possible to
+execute \texttt{finish()} without errors.  But if there are any
+discrepancies, such as a job being rebuilt, Urd will refuse to store
+the differing session and instead cause an exception to notify the
+user.
 
 Normally, a build script can be written in such a way that re-running
 it will be consistent will the Urd database and everything is fine.  A
@@ -307,30 +344,45 @@ Note that
 
 
 
-\section{Finding Items in Urd}
-There are several ways to find stored sessions.  This section will
-describe the \texttt{get()}, \texttt{first()}, and \texttt{latest()}
-function calls.  For any of these calls to work, they have to be
-issued from \textsl{within} a session, i.e.\ after a \texttt{begin()}
-call.  Otherwise Urd would not be able to record all session
-dependencies.
+\section{Retrieving an Urd Session}
+A specific session can be retrieved from the Urd database using its
+\textsl{key} and \textsl{timestamp}.  There are two sets of functions
+assigned for this, one that will \textsl{record} the lookup to
+the \textsl{ongoing} session, and one that will not.  The reason for
+recording lookups is to provide the possibility for a session to
+contain references to all other sessions used to create it, and
+thereby ensuring transparency.
 
-More ways to find sessions is described in
-section~\ref{sec:more_urd_search}.
+This section is devoted to the function calls that are recorded, and
+these are \texttt{get()}, \texttt{first()}, and \texttt{latest()}.
+For any of these calls to work, they have to be issued
+from \textsl{within} a session, i.e.\ after a \texttt{begin()} call.
+Otherwise Urd would not be able to record session dependencies.
+Section~\ref{sec:avoid_recording_urd_deps} describes the non-recording
+versions, and more ways to find sessions and inspect Urd database
+contents is described in section~\ref{sec:more_urd_search}.
 
 
 
 \subsection{Finding an Exact or Closest Match:  \texttt{get()}}
 \label{sec:urd_get}
 
+
 The \texttt{get()} function will return the single session, if
-available, corresponding to a specified list and timestamp, like this
+available, corresponding to a specified list and timestamp, see the
+following example
 \begin{python}
 urd.begin('ab/anotherlist')
 urd.get("ab/test", "2018-01-01T23")
 \end{python}
-The timestamp must match exactly for an item to be returned.  This
-strict behaviour can be relaxed by prefixing the timestamp with one of
+The timestamp must match exactly for an item to be returned.  If there
+is no matching item, the \texttt{get()}-call will return
+an \textsl{empty session}, i.e.\ something like this
+\begin{python}
+{'deps': {}, 'joblist': JobList([]), 'caption': '', 'timestamp': '0'}
+\end{python}
+The strict matching behaviour can be relaxed by prefixing the
+timestamp with one of
 \begin{itemize}
 \item[] ``\texttt{<}'', ``\texttt{<=}'', ``\texttt{>}'', or ``\texttt{>=}''.
 \end{itemize}
@@ -349,36 +401,46 @@ will match the first recorded session in a year starting with
 urd.get("ab/test", "<=2018-05")
 \end{python}
 will match the latest timestamp starting with ``\texttt{2018-05}'' or less,
-such as ``\texttt{2018-04-01}'' or ``\texttt{2018-05-31T23:59:59}''.
-
-If there is no matching item, the \texttt{get()}-call will return
-an \textsl{empty session}, i.e.\ something like this
-\begin{python}
-{'deps': {}, 'joblist': JobList([]), 'caption': '', 'timestamp': '0'}
-\end{python}
-
+such as ``\texttt{2018-04-01}'' or ``\texttt{2018-05-31T23:59:59.999999}''.
 
 
 
 \subsection{Finding the Latest Session:  \texttt{latest()}}
-The \texttt{latest()} call will return the session with most recent
-timestamp.  Example
+The \texttt{latest()} call will, for a given \textsl{key}, return the
+session with most recent timestamp.  For example
 \begin{python}
 urd.begin('ab/anothertestlist')
 urd.latest('ab/test')
 \end{python}
-will return a complete item like this
-\begin{shell}
-{'automata': 'test', 'caption': '', 'user': 'ab', 'deps': {}, \
- 'joblist': JobList([('example', 'TEST-34')]), 'timestamp': '2018-05-06'}
-\end{shell}
-If the list is non-existing or empty, an \textsl{empty session} will be returned.
+will return a complete session, assuming that the list is exists and
+is populated.  Otherwise, an \textsl{empty session} will be returned.
 
 
 
 \subsection{Finding the first item:  \texttt{first()}}
 The \texttt{first()} function works similarly to \texttt{latest}, but
-will instead return the session with the \textsl{oldest} timestamp.
+will instead return the session with the \textsl{oldest} timestamp,
+i.e.\ the first session stored using the \textsl{key}.
+
+
+
+\section{Retrieving an Urd Session without Recording}
+\label{sec:avoid_recording_urd_deps}
+As pointed out in the previous secrtion, dependencies will be recorded
+when the \texttt{get()}, \texttt{latest()}, and \texttt{first}
+functions are used.  If, for some reason, the point is to just have a
+look at the database to see for example if something is already there
+and in that case what that is, it can be done using the
+``\textsl{peek}'' functions: \texttt{peek()}, \texttt{peek\_first()},
+and
+\texttt{peek\_latest()}, like this:
+\begin{python}
+urd.peek('test', '2016-10-25')
+urd.peek_latest('test')
+urd.peek_first('test')
+\end{python}
+There are some good use cases for this, but it is not recommended for
+general use, they may cause a loss of continuity and visibility.
 
 
 
@@ -386,12 +448,23 @@ will instead return the session with the \textsl{oldest} timestamp.
 
 \section{Aborting an Urd Session:  \texttt{abort()}}
 
-When an Urd session is initiated, a new session cannot be started
-until the current session has finished.  A session may therefore be
-aborted, and the \texttt{abort()} function is used for this, like so
+There can only be one ongoing Urd session.  A new session cannot be
+started until the current one has finished.  There are three ways to
+end an urd session
+\begin{itemize}
+\item[-] execute the \texttt{finish()} call and have the session recorded.
+(Or rejected, if a session with the same key and timestamp already
+exists but with different contents.)
+\item[-] end the build script ``prematurely'' before the
+\texttt{finish()}-call.  No data will be stored in Urd.
+\item[-] issue an \texttt{abort()} call.
+\end{itemize}
+The \texttt{abort()} function is used like this
 \begin{python}
 urd.begin('test')
 urd.abort()
+# execution continues here, a new session can be initiated
+urd.begin('newtest')
 \end{python}
 Similar to unfinished sessions, aborted sessions will not be stored in
 the Urd transaction log.
@@ -400,19 +473,20 @@ the Urd transaction log.
 
 \section{Truncating and Updating}
 \label{sec:trunc-update}
-Since the Urd database is designed using log files, it will always
-keep a consistent history of all events taken place.  It is not
+Since the Urd database is based on transaction log files, it will
+always keep a consistent history of all events taken place.  It is not
 possible to erase or modify old entries, but it is okay to update the
 latest item, or set a marker in the log indicating that the list is
 starting over from a certain date and everything before this marker
 should not be considered anymore.  This makes it possible to both
 keeping the full history \textsl{and} being able to rewrite it.  There
 is full transparency and reproducibility -- all sessions before an
-update or restart marker are always kept in the Urd log file.
+update or restart marker are always kept in the Urd log file,
+transaction data is always \textsl{appended} to the log files.
 
 
 
-\subsection{Updating the last item}
+\subsection{Updating the Last Item}
 To update the last item in a list, set the \texttt{update} argument
 to \pyTrue
 \begin{python}
@@ -422,14 +496,21 @@ If update is \pyTrue, the entry in the test list at '2016-10-25' will
 be updated, unless the new information is equivalent.
 The \texttt{update()} call will simply add a new line to the Urd log
 database, and if the timstamp is the same as the previous entry, the
-new entry will be selected.
+new entry will be selected.  Note that this only works for
+the \textsl{last} entry in the database, and that the previous version
+is not erased, it still exists in the log file.
 
 
 
-\subsection{Truncating a list}
-In order to insert a marker in the database indicating that everything
-before a certain timestamp should be discarded, use
-the \texttt{truncate()} function like this
+\subsection{Truncating a List}
+Sometimes there is a need to wipe all history or at least start over
+from an earlier time instance.  Since data can not be erased from a
+transaction log, re-winding to an earlier timestamp is implemented
+using inserting a ``truncation'' marker in the log.  Any data more
+recent than what is indicated by the marker is wiped from memory, and
+sessions with timestamps more recent than the marker can be stored
+again.  The \texttt{truncate()} function is used to insert these
+markers, and it is used like this
 \begin{python}
 urd.truncate(ab/'test', '2016-09-30')
 \end{python}
@@ -440,10 +521,10 @@ special case,
 urd.truncate('ab/test', 0)
 \end{python}
 that will erase all items from memory and cause the list to start over
-again.  Remember, internally Urd stores the complete history in a log
-file in plain text.  Files can only be appended to, nothing is ever
-removed.  It is always possible to recover any old result or
-processing state.
+again.  Again, remember that Urd is using plain text transaction log
+that can only be appended to.  It is always possible to recover any
+old result or processing state from these logs.
+
 
 
 \subsection{Truncation Consequences:  Ghosts}
@@ -451,27 +532,8 @@ When a list is truncated, all items after a specified timestamp are
 made invisible.  Assuming that another list has stored a dependency of
 an item that is truncated, the jobs in this list are now without
 dependencies that can be looked up.  We call them ``ghosts''.  Ghosts
-cannot be looked up in Urd, but they are still in the database, marked
-as ghosts.
-
-
-
-\section{Avoiding Recording Dependency}
-Dependency-recording will be activated on use of the \texttt{get()},
-\texttt{latest()}, and \texttt(){first} functions.  If, for some reason,
-the point is to just have a look at the database to see what is in
-there, it can be done using the \textsl{peek}
-functions, \texttt{peek()}, \texttt{peek\_first()}, and
-\texttt{peek\_latest()}, like this:
-\begin{python}
-urd.peek('test', '2016-10-25')
-urd.peek_latest('test')
-urd.peek_first('test')
-\end{python}
-Note that this is in general not recommended.  These functions will
-look up Urd lists containing jobs that may be used to build new jobs, but
-these dependencies will not be stored in the current Urd session,
-causing a loss of continuity and visibility.
+cannot be looked up in Urd, but they are still in the database, where
+they are marked as ghosts.
 
 
 
@@ -482,7 +544,8 @@ There are two more functions for finding information in the Urd
 database: \texttt{list} and \texttt{since}.
 
 
-\subsection{Listing all urd lists:  \texttt{list()}}
+
+\subsection{Listing all Urd Lists:  \texttt{list()}}
 The \texttt{list()} function will return a list of all lists recorded in
 the database:
 \begin{python}
@@ -490,14 +553,14 @@ print(urd.list())
 \end{python}
 may show something like
 \begin{shell}
-['ab/test', 'ab/live']
+['ab/test', 'ab/live', 'production/import', 'production/live']
 \end{shell}
 
 
 \subsection{Listing all Items After a Specific Timestamp:  \texttt{since()}}
-The \texttt{since()} function is used to extract lists of \textsl{timestamps}
-corresponding to recorded session.  In its most basic form, it is called
-with a timestamp like this
+The \texttt{since()} function is used to extract lists
+of \textsl{timestamps} corresponding to recorded sessions.  In its
+most basic form, it is called with a timestamp like this
 \begin{python}
 urd.since('ab/test', '2016-10-05')
 \end{python}
@@ -506,10 +569,10 @@ one provided
 \begin{shell}
 ['2016-10-06', '2016-10-07', '2016-10-08', '2016-10-09', '2016-10-09T20']
 \end{shell}
-The \texttt{since} is rather relaxed with respect to the resolution of
-the input.  The input timestamp may be truncated from the right down
-to only one digits.  An input of zero is also valid.  For example,
-these are all valid
+The \texttt{since()} function is rather relaxed with respect to the
+resolution of the input.  The input timestamp may be truncated from
+the right down to only one digits.  An input of zero is also valid.
+For example, these are all valid
 \begin{python}
 urd.since('ab/test', '0')
 urd.since('ab/test', '2016')
@@ -531,38 +594,44 @@ job = urd.build(
     method,
     options={},    datasets={},    jobs={},
     name='',       caption='',
-    workdir=None
+    workdir=None,
+    **kw
 )
 \end{python}
 If \options, \datasets, and \jobs are uniquely defined in the method,
 they could be entered just as plain keyword arguments.  If there are
-ambiguities, the full \texttt{options=} etc.\ must be used.
-
-Explanation of \texttt{build} parameters:
+ambiguities, the full \texttt{options=} etc.\ must be used.  Here is
+an explanation of \texttt{build} parameters:
 \starttabletwo
 \RPtwo \texttt{method} & Name of method to build.  Enter \texttt{test}
-    here if the method filename is \texttt{a\_test.py}.\\
+    here if the method filename is \texttt{a\_test.py}.  The
+    Acclerator will look for this file in all method directories
+    specified in the Accelerator's configuration file.\\
+
+\RPtwo \texttt{kw} & Use to specify any unique options, jobs, and datasets
+    without the more elaborate dictionaries described next.\\
     
-\RPtwo \texttt{options=\{\}} & a \texttt{dict} of options to the method.
+\RPtwo \texttt{options=\{\}} & A \texttt{dict} of options to the method.
     This overrides options defined in the method itself, but adding
     options not prototyped in the method is \textsl{not} allowed.\\
 
-\RPtwo \texttt{jobs=\{\}} & a \texttt{dict} of jobs to the method.
+\RPtwo \texttt{jobs=\{\}} & A \texttt{dict} of jobs to the method.
     It is possible to specify a list of jobs like this
 \begin{python}
 jobs=dict{alljobs=[job1, job2,...]}
 \end{python}
 \\
 
-\RPtwo \texttt{datasets=\{\}} & a \texttt{dict} of datasets to the method.
+\RPtwo \texttt{datasets=\{\}} & A \texttt{dict} of datasets to the method.
     Datasets may be lists too, just like \texttt{jobs} above.\\
 
 \RPtwo \texttt{workdir=None} & If specified, the job will be built in
     this workdir, assuming the workdir is specified in the
-    configuration file as either source or target.\\
+    configuration file as \textsl{either} source or target.\\
 
 \RPtwo \texttt{name} & A string associated with the job.  Use it
-    to distinguish several jobs created from the same method.\\
+    to distinguish several jobs created from the same method in
+    joblists.\\
     
     \texttt{caption} & A caption string.  For decorative purposes
     only, this has no practical use.\\
@@ -638,7 +707,7 @@ the \texttt{workdir=} option to \texttt{urd.build}.
 
 
 \section{Profiling a Build Script:  \texttt{print\_exectimes()}}
-THe \texttt{JobList} object has a helper function that can be used to
+The \texttt{JobList} object has a helper function that can be used to
 print profiling information for the joblist.  The following example is
 self-explanatory
 \begin{python}
@@ -667,8 +736,8 @@ The methods are sorted by execution time, top to bottom.
 
 
 \section{Passing Flags from the Command Line}
-It is possible to add a comma separated list of flags to the run command
-like this
+Flags can be added to a build script ut run time using a comma
+separated list like this
 \begin{python}
 ax run [script] --flags=verbose,skiptest
 \end{python}
@@ -684,8 +753,8 @@ def main(urd):
 \section{The Urd HTTP-API}
 Urd can be accessed directly without using the Accelerator by calling
 its HTTP API.  These calls are easy to use and adds transparency since
-the database contents can be peeked without writing any programs.
-Here is a list of all API endpoints
+the database contents can be peeked from the command line without
+writing any programs.  Here is a list of all API endpoints
 \begin{verbatim}
   list
   <user>/<list>/first
@@ -764,7 +833,7 @@ the request if these characters are used in a call from the shell.}
 
 
 
-\section{Urd Internals}
+\section{Multi-Used Urd Consistency}
 Urd can be accessed by a large number of clients.  Each client may add
 to or truncate any list at any time.  In order to avoid race
 conditions and make the database deterministic, all \texttt{add}-

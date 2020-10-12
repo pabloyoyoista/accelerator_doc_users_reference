@@ -24,31 +24,30 @@ This chapter is the continuation of chapter~\ref{chap:urd_basic},
 joblists before proceeding.
 
 
+
 \section{Introduction to Urd}
 
 Urd is a transaction log-based database and server used to group, tag,
-and keep track of jobs.  Urd comes into play when simple build
-scripting is not enough.  Build scripts are capable of a large variety
+and keep track of jobs.  Build scripts are capable of a large variety
 of complicated tasks, and on top of that Urd adds the capabilities of
 job organisation, storage, and retrieval.  This makes it possible to
 handle much larger and more advanced projects while the process is
-fully transparent and under control.
+fully transparent and reproducible.
 
 Using Urd, a project can be separated into functionally independent
-parts, or \textsl{sessions}, and all dependencies between jobs inside
-as well as between these sessions are tracked by a \textsl{transaction
-log}.  Even though there is no need to, since all previous results are
-stored, any part or session of a project can be re-constructed the way
-it looked at any instance in time.
-
-More formally, Urd provides two things:
+parts, or \textsl{sessions}, each containing at least one job, and all
+dependencies between jobs inside as well as between these sessions are
+tracked by a \textsl{transaction log}.  Sufficient information is
+stored so that any part or session of a project could theoretically be
+re-constructed the way it looked at any instance in time.  More
+formally, Urd provides two things:
 \begin{itemize}
 \item[1.] Separation between build scripts,
-          and a way to share information about existing jobs between
-          different scripts (or the same script at different points in
-          time).
-\item[2.] A searchable transaction log database of all jobs,
-          together with their dependencies on other jobs.  A
+          and a way to share information about existing sessions
+          between different scripts (or the same script at different
+          points in time).
+\item[2.] A searchable transaction log database of all sessions,
+          together with their dependencies on other session.  A
           timestamp, date, integer, or combination thereof can be used
           as key.
 \end{itemize}
@@ -59,27 +58,28 @@ will be explained in this chapter.
 
 
 
+
+
 \section{A Simple Use case}
 
-%@@@ kanske kortare och i introt??
-
-A simple use case is used here to illustrate the basic Urd features.
-
-Assume a project where movie recommendation data is to be analysed.
-Every hour, new data corresponding to the last hour's activity is
-added to the project in the shape of log files.  The project is based
-on two build scripts, an \textsl{import} script, and
-an \textsl{analysis} build script.
+A simple use case is presented here to illustrate the basic Urd
+features.  Assume a project where movie recommendation data is to be
+analysed.  Every hour, new data corresponding to the last hour's
+activity is added to the project in the shape of a log file.  The
+project is based on two build scripts, one \textsl{import} script, and
+one \textsl{analysis} script.
 
 \subsection{The Import Build Script}
 The import scrip is used to look for new data files, and import and
 chain them as they become available.  For each new file that is
 imported, the build script will tell the Urd server
 the \textsl{timestamp} of the file as well as a \textsl{list of all
-jobs} that have been built based on that file.  Typically, this
-includes \texttt{csvimport}, \texttt{dataset\_type}, perhaps
-a \texttt{dataset\_hash\_partition}, and similar data pre-processing
-jobs.
+jobs}, i.e.\ the Urd session, that have been built based on that file.
+Typically, this includes \texttt{csvimport}, \texttt{dataset\_type},
+perhaps a \texttt{dataset\_hash\_partition}, and similar data
+pre-processing jobs.
+
+
 
 \subsection{The Analysis Build Script}
 The analysis build scrip is used for the data analysis work, and is
@@ -87,26 +87,29 @@ perhaps run less regularly.  This script needs to know which jobs that
 correspond for the most recently imported file, and this is a
 straightforward thing to ask Urd.  When all processing is done, all
 the analysis jobs are also stored in Urd together with a corresponding
-timestamp.
+timestamp so that they can be retrieved later.
+
+
 
 \subsection{Urd Provides Separation}
 In the example, Urd is used to forward information about executed jobs
 from the first build script (the import script) to the second (the
 analysis script).  In this sense, Urd provides \textsl{isolation} by
-``message passing'' between build scripts.  The import scripts could
-be modified or even removed, but as long as no workdirs are cleared
-and the Urd database is intact, it is still possible to fetch
-references to the existing import jobs from Urd.  Thus, it is always
-possible to go back and see what things looked like at any previous
-point in time.
+``message passing'' between build scripts.  The import scripts can be
+modified or even removed, but as long as no workdirs are cleared and
+the Urd database is intact, it is still possible to fetch references
+to the existing import jobs from Urd.  Thus, it is always possible to
+go back and see what things looked like at any previous point in time.
+
+
 
 \subsection{Transparency}
 Urd also provides \textsl{transparency}, since it can tell which input
 files that were used by any analysis job.  In this way, it will never
-happen that there is any uncertainty about which data that was used
-for a particular analysis.
+happen that there is uncertainty about which data that was used for a
+particular analysis.
 
-To investigare the result of an analysis, Urd can be asked to return
+To investigate the result of an analysis, Urd can be asked to return
 the jobs corresponding to, say, the most recent analysis jobs.  The
 query response from Urd will contain these jobs, \textsl{as well as}
 the results from any Urd queries that were carried out for the jobs to
@@ -116,11 +119,14 @@ queried in order to perform the analysis.
 
 
 
+
 \section{Local or External Urd Server}
 By default, Urd is run as a \textsl{local} server, which means that it
 is not externally accessible.  A non-local Urd server that can share
 information between several users is straightforward to set up, see
 section~\ref{sec:urd_setup}.
+
+
 
 
 
@@ -245,6 +251,7 @@ The most important keys are
 
 
 
+
 \section{Urd Sessions:  \texttt{begin()} and \texttt{finish()}}
 
 There are a number of options associated with a session, as shown
@@ -283,7 +290,6 @@ omit \texttt{finish()} to avoid storage or during development work.
 
 
 
-
 \subsection{What if a Build Script is Run Again?}
 The Urd database is based on transaction log files.  There is no way
 to modify or remove information in the database using the Urd API.
@@ -304,8 +310,6 @@ it will be consistent will the Urd database and everything is fine.  A
 mismatch with Urd is then an indication of some error.  But there are
 cases when re-writing Urd history is the desired option, and this will
 be discussed in section~\ref{sec:trunc-update}.
-
-
 
 
 
@@ -344,6 +348,8 @@ Note that
 
 
 
+
+
 \section{Retrieving an Urd Session}
 A specific session can be retrieved from the Urd database using its
 \textsl{key} and \textsl{timestamp}.  There are two sets of functions
@@ -366,7 +372,6 @@ contents is described in section~\ref{sec:more_urd_search}.
 
 \subsection{Finding an Exact or Closest Match:  \texttt{get()}}
 \label{sec:urd_get}
-
 
 The \texttt{get()} function will return the single session, if
 available, corresponding to a specified list and timestamp, see the
@@ -424,9 +429,11 @@ i.e.\ the first session stored using the \textsl{key}.
 
 
 
+
+
 \section{Retrieving an Urd Session without Recording}
 \label{sec:avoid_recording_urd_deps}
-As pointed out in the previous secrtion, dependencies will be recorded
+As pointed out in the previous section, dependencies will be recorded
 when the \texttt{get()}, \texttt{latest()}, and \texttt{first}
 functions are used.  If, for some reason, the point is to just have a
 look at the database to see for example if something is already there
@@ -468,6 +475,8 @@ urd.begin('newtest')
 \end{python}
 Similar to unfinished sessions, aborted sessions will not be stored in
 the Urd transaction log.
+
+
 
 
 
@@ -537,6 +546,8 @@ they are marked as ghosts.
 
 
 
+
+
 \section{More Search Functions}
 \label{sec:more_urd_search}
 
@@ -555,6 +566,7 @@ may show something like
 \begin{shell}
 ['ab/test', 'ab/live', 'production/import', 'production/live']
 \end{shell}
+
 
 
 \subsection{Listing all Items After a Specific Timestamp:  \texttt{since()}}
@@ -584,6 +596,8 @@ urd.since('ab/test', '2016-10-05T20:00:00')
 
 
 
+
+
 \section{Building Jobs: \texttt{build()}}
 \label{sec:urd_build}
 
@@ -605,7 +619,7 @@ an explanation of \texttt{build} parameters:
 \starttabletwo
 \RPtwo \texttt{method} & Name of method to build.  Enter \texttt{test}
     here if the method filename is \texttt{a\_test.py}.  The
-    Acclerator will look for this file in all method directories
+    Accelerator will look for this file in all method directories
     specified in the Accelerator's configuration file.\\
 
 \RPtwo \texttt{kw} & Use to specify any unique options, jobs, and datasets
@@ -686,6 +700,8 @@ discarded.
 
 
 
+
+
 \section{Changing workdir:  \texttt{set\_workdir()}}
 \label{sec:set_workdir}
 The target workdir specified in the configuration file is the only
@@ -703,6 +719,8 @@ def main(urd):
 will set the workdir for all coming \texttt{build} calls in the
 current build script.  It can still be overridden using
 the \texttt{workdir=} option to \texttt{urd.build}.
+
+
 
 
 
@@ -735,8 +753,10 @@ The methods are sorted by execution time, top to bottom.
 
 
 
+
+
 \section{Passing Flags from the Command Line}
-Flags can be added to a build script ut run time using a comma
+Flags can be added to a build script at run time using a comma
 separated list like this
 \begin{python}
 ax run [script] --flags=verbose,skiptest
@@ -747,6 +767,8 @@ def main(urd):
     if 'verbose' in urd.flags:
        print('verbosity')
 \end{python}
+
+
 
 
 
@@ -775,6 +797,7 @@ too, for example like this
 \end{shell}
 
 
+
 \subsection{The \texttt{list} endpoint}
 To show all stored lists issue
 \begin{shell}
@@ -782,6 +805,7 @@ To show all stored lists issue
 ["ab/test"]
 \end{shell}
 All available lists are returned in a typed JSON list.
+
 
 
 \subsection{The \texttt{since} endpoint}
@@ -797,6 +821,7 @@ after \texttt{2016-10-24}, do
 []
 \end{shell}
 Results are in JSON list format.
+
 
 
 \subsection{The \texttt{first} and \texttt{latest} endpoints}
@@ -815,6 +840,7 @@ works similarly.  The returned data is an Urd item, described in
 section~\ref{sec:urd_item}, in JSON format.
 
 
+
 \subsection{The \texttt{get} endpoint}
 Actually, there is no explicit \texttt{get} endpoint.  Instead, the
 API is just called by the name of the list and a timestamp.  For
@@ -830,6 +856,8 @@ The timestamp may be truncated to the right, and prefixed
 by \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=}, just as
 described in section~\ref{sec:urd_get}.  \textsl{Make sure to quote
 the request if these characters are used in a call from the shell.}
+
+
 
 
 

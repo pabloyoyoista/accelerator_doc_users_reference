@@ -802,6 +802,9 @@ Note that sorting uses about 64 bytes per row, upper limiting the size
 of hashable datasets.  This corresponds to about 1GB of RAM per 20
 million lines or so.
 
+Note also that \texttt{pickle}-columns cannot be used for
+checksumming, since the order of the pickled data stricture is not
+defined.
 
 \subsection*{Options}
 \starttable

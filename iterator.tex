@@ -94,7 +94,7 @@ All three iterators share these arguments
   on-the-fly based on the \texttt{hashlabel} column.  (Rehashing
   on-the-fly is slower, so ideally datasets should be rehashed using
   the \texttt{dataset\_rehash}
-  method~\ref{sec:dataset_rehash}.)\\[1ex]
+  method~\ref{sec:dataset_hash_partition}.)\\[1ex]
   
 %  \RP \texttt{translators} & \pyNone & Translators transform data
 %  values.  Explained in section~\ref{sec:translators}\\[1ex]
@@ -452,7 +452,7 @@ for user, item in datasets.source.iterate_chain(
     # has(item) % slices == sliceno here
 \end{python}
 While this works, the preferred way to rehash is to use the
-\texttt{dataset\_rehash} method~\ref{sec:dataset_rehash},
+\texttt{dataset\_rehash} method~\ref{sec:dataset_hash_partition},
 since it will store the rehashed dataset for later use, which in most
 scenarios will be more efficient.
 

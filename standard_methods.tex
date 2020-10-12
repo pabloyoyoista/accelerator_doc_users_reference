@@ -20,38 +20,41 @@
 
 \section{\texttt{csvimport} -- Importing Data Files}
 The \texttt{csvimport} method is used to import a text files into a
-dataset.  The method can be chained, so any number of text files can
-be connected in a dataset chain.  Input data is assumed to be in a
-tabular format, i.e.\ it is composed of a number of rows, each having
-the same number of columns separated by a separator token.  A common
-format of this type is the Comma Separated Values (CSV) format, but
-\texttt{csvimport} is much more flexible, as seen in the table of
-options below.  For example, \texttt{csvimport} can handle any
-separator character, skip or parse labels on the first line, and
-supports advanced quote support.  It also deals with ``broken'' input
-data in a predicted and user controlled way.
+dataset.  Data is imported one row per slice in a round robin fashion.
+Input data is assumed to be in a tabular format, i.e.\ it is composed
+of a number of rows, each having the same number of columns separated
+by a separator token.  A common format of this type is the Comma
+Separated Values (CSV) format, but \texttt{csvimport} is much more
+flexible, as seen in the table of options below.  For example,
+\texttt{csvimport} can handle any separator character, skip or parse
+labels on the first line, and supports advanced quote support.  It
+also deals with ``broken'' input data in a predicted and user
+controllable way.  \texttt{csvimport} jobs can be chained, so any
+number of input files can be connected in a dataset chain.
+
 
 
 \subsection{Options}
 \starttable
-  \RP \texttt{filename} & \emph{mandatory} & Name of file to import.  The
-  filename is mandatory and the file may either be a plain text file
-  or a gzipped file.  It is also possible to specify a filename
-  including a path.  If the path begins with a slash, it is absolute.
-  Otherwise, the path is relative to the \texttt{input\_directory}
-  configuration parameter specified in the configuration
-  file, see section~\ref{sec:configfile}.  A relative path makes it
-  possible to relocate files to a different directory without trigging
-  job remake.\\
 
- \RP \texttt{separator} & \texttt{,} & Field separator character.  Accepts a
- single \texttt{iso-8859-1} character.  Leave this empty to import
- each line of the input file into a single column.  \\
+\RP \texttt{filename} & \emph{mandatory} & Name of file to import.
+The filename is mandatory and the file may either be a \textsl{plain
+  text} file or a \textsl{gzipped} file.  It is also possible to
+specify a filename including a path.  If the path begins with a slash,
+it is absolute.  Otherwise, the path is relative to the
+``\texttt{input directory}'' configuration parameter specified in the
+Accelerator's configuration file, see section~\ref{sec:configfile}.  A
+relative path makes it possible to relocate files to a different
+directory without trigging job remake.\\
 
- \RP \texttt{comment} & \texttt{''} & Lines beginning with this
- character are ignored.  Accepts a single \texttt{iso-8859-1}
- character, or the empty string for no comments. Commented lines are
- stored in the \texttt{skipped} dataset.\\
+\RP \texttt{separator} & \texttt{,} & Field separator character.
+Accepts a single \texttt{iso-8859-1} character.  Leave this empty to
+import each line of the input file into a single column.  \\
+
+\RP \texttt{comment} & \texttt{''} & Lines beginning with this
+character are ignored.  Accepts a single \texttt{iso-8859-1}
+character, or the empty string for no comments. Commented lines are
+stored in the \texttt{skipped} dataset.\\
 
 \RP \texttt{newline} & \texttt{''} & Newline character.  Empty means
 "\texttt{\textbackslash{}n}" or "\texttt{\textbackslash{}r\textbackslash{}n}".
@@ -82,8 +85,8 @@ Renaming happens first.  It accepts a dictionary of type
 Line numbers start at one (1), and corresponds to line numbers in the
 input file.  \\
 
-\RP \texttt{discard} & \mintinline{python}/set()/ & Labels in the discard set will
-not be stored in the dataset.\\
+\RP \texttt{discard} & \mintinline{python}/set()/ & Labels in the
+discard set will not be stored in the dataset.\\
 
 \RP \texttt{allow\_bad} &\mintinline{python}{False} & By default, this is
 set to \pyFalse and an error will be asserted if there are problems
@@ -203,14 +206,13 @@ the \texttt{zip} file.
 \RP \texttt{exclude\_re}       & \texttt{''}  & Regexp of files to exclude, takes priority over \texttt{include\_re}.\\
 \RP \texttt{strip\_dirs}       & \pyFalse     & Strip directories from filename (\texttt{a/b/c} $\rightarrow$ \texttt{c}.)\\
 \stoptable
+\noindent If chaining is enabled, the last dataset will be the \texttt{default}
+dataset.  Note that naming a non-last dataset ``\texttt{default}'' is
+an error.  If \texttt{strip\_dirs} is set, the filename (as used for
+both sorting and naming datasets, but not when matching regexes) will
+not include directories. The default is to include directories.
 
-If you chain you will also get the last dataset as
-the \texttt{default} dataset, to make it easy to find. Naming a
-non-last dataset ``\texttt{default}'' is an error.
 
-If you set \texttt{strip\_dirs} the filename (as used for both sorting
-and naming datasets, but not when matching regexes) will not include
-directories. The default is to include directories.
 
 \subsection{Example invocation}
 
@@ -238,7 +240,7 @@ any other type.
 The method will also hash partition the output dataset if the
 \texttt{hashlabel} input paramter is set, causing a new dataset to be
 created.  For additional information about hash partitioning, see the
-\texttt{dateset\_hash\_partition} method in section~\ref{sec:dataset_hash_partition}.
+\texttt{dateset\_hashpart} method in section~\ref{sec:dataset_hash_partition}.
 
 The default behaviour is to append new columns with typed data to the
 existing source dataset.  These columns will have the same name as the
@@ -271,9 +273,14 @@ over all the typed datasets will be discarded.
 
 \subsection{Options}
 \starttable
-  \RP \texttt{column2type} & \texttt{\{\}} & A dictionary from column
-  label to type, for example \mintinline{python}/{'movie': 'unicode:UTF-8',}/.\\
 
+  \RP \texttt{column2type} & \texttt{\{\}} & A dictionary from column
+  label to type, for example \mintinline{python}/{'movie':
+    'unicode:UTF-8',}/.\\
+
+  \RP \texttt{timezone} & \pyNone & Set input timezone for
+  \texttt{datetime} columns.  Output will be in UTC.  See text.\\
+  
   \RP \texttt{hashlabel} & \pyNone & Hash partition dataset based on
   this column.  Leave as \pyNone to inherit hashlabel, set to
   \texttt{''} to not have a hashlabel.  Hashing causes a new dataset
@@ -315,7 +322,20 @@ over all the typed datasets will be discarded.
 
   \RP \texttt{compression} & \texttt{6} & \texttt{gzip} compression level.\\
 \stoptable
-  
+
+\noindent The \texttt{timezone} option is used to specify which input
+timezone a \texttt{datetime} column is in.  It does not work for
+\texttt{date} or \texttt{time} columns.  It can be set to anything
+accepted by the system's \texttt{\$TZ}.  Note
+\begin{itemize}
+\item[-] It does not work for \texttt{\%s} (which is always in UTC).
+\item[-] No error checking can be done on this (\texttt{tzset(3)} can not return failure).
+\item[-] On most 32bit systems this will break dates outside about 1970 - 2037.
+\item[-] Setting this will mask most bad dates (\texttt{mktime(3)} ``fixes'' them).
+\item[-] Do not set this to 'UTC', leaving it as None is faster and safer.
+\end{itemize}
+
+
 
 \subsection{Example Invocation}
 An example invocation is the following
@@ -425,8 +445,9 @@ strings and floats.
 \subsubsection{Time and Date}
 There are three types relating to time available, \texttt{date},
 \texttt{time}, and \texttt{datetime}.  Each of these has a
-corresponding version that ignores trailing garbage characters.
-All time types require a format specification as described below\\
+corresponding version that ignores trailing garbage characters.  All
+time types require a format specification (represented here by an
+asterisk) as described below\\
 \starttablenotitle
 \RPnotitle  \texttt{date:*}      && a date with format specifier\\
 \RPnotitle    \texttt{datei:*}     && same + \emph{ignore}\\
@@ -435,7 +456,8 @@ All time types require a format specification as described below\\
 \RPnotitle    \texttt{datetime:*}  && a date + time with format specifier\\
 \RPnotitle    \texttt{datetimei:*} && same + \emph{ignore}\\
 \stoptablenotitle
-\noindent The format is standard Python time formats, like shown in these examples
+\noindent The format is standard Python time formats, like shown in
+these examples
 \begin{python}
 # will match for example '2017-03-22'
 auct_start_dt='date:%Y-%m-%d'  
@@ -521,9 +543,9 @@ ASCII is similar, there are two types
 \section{\texttt{csvexport} -- Exporting Text Files}
 The \texttt{dataset\_export} method is used to export datasets to
 column based text files (CSV, Comma Separated Values).  It can export
-plain files and gzip-compressed files, export a chain of datasets,
-export one output file per slice, and more.  Read the Options section
-for full details.
+plain files and \texttt{gzip}-compressed files, export a chain of
+datasets, export one output file per slice, and more.  Read the
+Options section for full details.
 
 \subsection*{Options}
 \starttable
@@ -559,7 +581,7 @@ for full details.
 \subsection*{Datasets}
 \starttable
   \RP \mintinline{python}{[source,]} & \textsl{mandatory} & Either A
-  textsl{single} dataset or a \textsl{list} of datasets.\\
+  \textsl{single} dataset or a \textsl{list} of datasets.\\
 \stoptable
 
 
@@ -589,10 +611,10 @@ urd.build(csvexport',
 
 
 \clearpage
-\section{\texttt{dataset\_hash\_partition} -- Hash Partition a Dataset}
+\section{\texttt{dataset\_hashpart} -- Hash Partition a Dataset}
 \label{sec:dataset_hash_partition}
 
-The \texttt{dataset\_hash\_partition} method will create a new dataset based on
+The \texttt{dataset\_hashpart} method will create a new dataset based on
 its \texttt{source} dataset.  The new dataset will be hash partitioned
 on a column specified in the options.
 
@@ -626,7 +648,7 @@ on a column specified in the options.
 \subsection{Example Invocation}
 An example invocation is the following
 \begin{python}
-urd.build('dataset_hash_partition',
+urd.build('dataset_hashpart',
           datasets=dict(source=jid,), 
           options=dict(hashlabel='start_date',))
 \end{python}
@@ -653,7 +675,7 @@ target_sliceno = siphash24(cols[hashlabel]) % params.slices
     \texttt{previous.source}.  This is controlled by the
     \texttt{length} option.
 
-  \item[2.]  Internally, \texttt{dataset\_hash\_partition} always
+  \item[2.]  Internally, \texttt{dataset\_hashpart} always
     generates one dataset per slice in a chain.  This is also what is
     returned if \mintinline{python}/as_chain == True/.  Otherwise, all
     datasets will be concatenated into one.  Thus, there is a choice
@@ -694,11 +716,10 @@ target_sliceno = siphash24(cols[hashlabel]) % params.slices
 The \texttt{dataset\_filter\_columns} method removes columns from a
 dataset.  It is typically run before applying methods that operate on
 all columns of a dataset and only a subset of the columns are
-required.  A typical example is \texttt{dataset\_hash\_partition} that operates
-on all columns of a dataset.  If not all columns are needed, time and
-storage can be saved by removing columns using this method prior to
-applying
-\texttt{dataset\_hash\_partition}.
+required.  A typical example is \texttt{dataset\_hashpart} that
+operates on all columns of a dataset.  If not all columns are needed,
+time and storage can be saved by removing columns using this method
+prior to applying \texttt{dataset\_hashpart}.
 
 Note that this method only updates soft links, and no data is actually
 copied.  So execution time is typically a fraction of a second and no
@@ -734,6 +755,11 @@ meaning that things with equal sorting keys will keep their order.
   \RP \texttt{sort\_across\_slices} & \mintinline{python}/False/& If
   \mintinline{python}/False/, only sort within slices.  Otherwise sort
   across slices.\\
+
+  \RP \texttt{trigger\_column} & \texttt{''} & If
+  \texttt{sort\_across\_slices} is set, use this to delay the slice
+  switches to the next line where the value in this column changes.\\
+
 \stoptable
 
 
@@ -754,7 +780,7 @@ The special values \mintinline{python}|None| and \mintinline{python}|NaN| follow
 \end{itemize}
 
 
-\subsection*{Spreading of Left Over Values}
+\subsection{Spreading of Left Over Values}
 If the number of rows in a dataset is not even divisible by the number
 of slices, some slices will have one more row than others.  Instead of
 putting this data in, say, the first slices, \texttt{dataset\_sort}
@@ -766,16 +792,25 @@ the first slices will be picked, but it is stable, which is the most
 important thing.
 
 
+
+\subsection{The Trigger Column}
+If sorting across slices, i.e.\ the full dataset will be sorted from
+the first to the last slice, the \texttt{trigger\_column} could be
+used to delay the slice switching so that it does not appear unless
+the value in the column is changing.  This is beneficial in parallel
+processing tasks, because it localises values to single slices.
+
+
+
 \subsection{A Practical Limitation}
 Internally, the method works by reading the columns to sort by, and
 create an indexing column that stipulates the sorting order.  Each
 column is then read in turn and sorted according to the sorting
-column.
-
-Therefore, the method has limited sorting capability.  Internally, it
-sorts one column at a time, and it needs to hold that complete column
-plus an indexing column in memory simultaneously.  Still, a standard
-computer can sort very large datasets without trouble.
+column.  Therefore, the method has limited sorting capability.
+Internally, it sorts one column at a time, and it needs to hold that
+complete column plus an indexing column in memory simultaneously.
+Still, a standard computer can sort very large datasets without
+trouble.
 
 
 
@@ -806,6 +841,9 @@ Note also that \texttt{pickle}-columns cannot be used for
 checksumming, since the order of the pickled data stricture is not
 defined.
 
+The checksum will be printed to \texttt{stdout} as well as written to
+\texttt{result.pickle}.
+
 \subsection*{Options}
 \starttable
 \RP \texttt{columns} & \texttt{set()} & A set of columns to base the checksum on.  Leave blank for all columns\\
@@ -818,8 +856,8 @@ defined.
 
 \subsection*{Datasets}
 \starttable
-\RP \texttt{source} & \textsl{mandatory}& A dataset to sort.\\
-\RP \texttt{stop} & chained version only& Stop hashing at this dataset.\\
+\RP \texttt{source} & \textsl{mandatory}& A dataset to checksum.\\
+\RP \texttt{stop} & \pyNone & Stop hashing at this dataset.  Only for \texttt{dataset\_checksum\_chain}.\\
 \stoptable
 
 
@@ -832,7 +870,8 @@ defined.
 Merge two or more datasets.  The datasets must have the same number of
 lines in each slice and if they do not have a common ancestor you must
 set \texttt{allow\_unrelated}=\pyTrue.  Columns from later datasets
-override columns of the same name from earlier datasets.
+override columns of the same name from earlier datasets.  Note that
+merging is a very fast constant time operation.
 
 
 \subsection*{Options}
@@ -843,7 +882,7 @@ override columns of the same name from earlier datasets.
 
 \subsection*{Datasets}
 \starttable
-[\texttt{source}] & \textsl{mandatory}& A list of datasets to merge.\\
+\mintinline{python}/[source]/ & \textsl{mandatory}& A list of datasets to merge.\\
 \texttt{previous} & \pyNone & Previous for the merged dataset.\\
 \stoptable
 

@@ -433,7 +433,8 @@ All functions have access to these
 while only \analysis has access to
 \begin{itemize}
 \item[--] \texttt{sliceno}, which provides a unique number to each
-  parallel \analysis-process.
+  parallel \analysis-process.  This is also a \textbf{mandatory}
+  argument to \analysis.
 \end{itemize}
 The \texttt{job} instance contains information and helper functions
 regarding the current job.  The object is of type \texttt{CurrentJob},
@@ -441,7 +442,7 @@ which is an extension of the \texttt{Job} class used for job instances
 that are not in the execution stage.
 
 The \analysis function (and only the \analysis function) takes the
-optional argument \texttt{sliceno}, which is an integer between zero
+mandatory argument \texttt{sliceno}, which is an integer between zero
 and the total number of slices minus one.  This is the unique
 identifier for each \analysis process, and it is commonly used when
 accessing sliced datasets or doing other parallel processing tasks,

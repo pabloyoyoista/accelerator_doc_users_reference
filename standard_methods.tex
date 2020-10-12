@@ -843,3 +843,37 @@ override columns of the same name from earlier datasets.
 [\texttt{source}] & \textsl{mandatory}& A list of datasets to merge.\\
 \texttt{previous} & \pyNone & Previous for the merged dataset.\\
 \stoptable
+
+
+
+
+
+\clearpage
+\section{\texttt{dataset\_unroundrobin} -- Transpose a Dataset}
+
+This method will transpose the dataset so that first row from slices
+0, 1, 2, \dots will end up in slice 0 rows 0, 1, 2 \dots.  It always
+creates a new dataset.  If \texttt{trigger\_column} is set to the name
+of a column, slice switching is delayed until the data in the
+specified column changes.  Otherwise, the new dataset will have the
+same number of rows per slice as the source dataset.
+
+The \texttt{trigger\_column} will ensure that no value is spread over
+more than one slice, assuming that all occurances of the same value
+are grouped together, which is helpful in many parallel processing
+cases.
+
+
+
+\subsection*{Options}
+\starttable
+\texttt{trigger\_column} & \pyNone & Set to delay slice switching based on content.\\
+\stoptable
+
+
+
+\subsection*{Datasets}
+\starttable
+\texttt{source} & \textsl{mandatory}& An input dataset.\\
+\texttt{previous} & \pyNone & Previous for the created dataset.\\
+\stoptable

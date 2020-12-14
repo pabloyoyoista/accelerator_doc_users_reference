@@ -16,6 +16,7 @@ these classes decay to (unicode) strings when pickled.  The following
 attributes are available on both the \texttt{Job} and
 \texttt{CurrentJob} classes:
 \starttabletwo
+\texttt{chain()} & Job chain\\
 \texttt{dataset()} & Return a named dataset from the job.\\
 \texttt{datasets} & List of datasets in job.\\
 \texttt{filename()} & Return absolute path to a file in a job.\\
@@ -37,11 +38,23 @@ attributes are available on both the \texttt{Job} and
 \noindent In addition, the \texttt{CurrentJob} class has these unique attributes:
 \starttabletwo
 \texttt{datasetwriter()} & Returns a DatasetWriter object.  See documentation for \texttt{Dataset.DatasetWriter()}, section~\ref{sec:classes:datasetwriter}.\\
+\texttt{input\_filename()} & Full filename of file in \texttt{input\_directory}.\\
 \texttt{json\_save()} & Store a json file in the current job directory.\\
 \texttt{open()} & Added extra \texttt{temp} argument.\\
+\texttt{open\_input()} & Open a file in \texttt{input\_directory}.\\
+\texttt{register\_file()} & Record a file produced by this job.\\
 \texttt{save()} & Store a pickle file in the current job directory.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
+
+
+\subsection{\texttt{Job.chain()}}
+This works like \texttt{dataset.chain()}, but for chains of \texttt{job}s.
+\starttable
+\texttt{length} & \texttt{-1} & Length of chain.\\
+\texttt{reverse} & \pyFalse & Reverse direction of chain.\\
+\texttt{stop\_job} & \pyNone & Chain to here.\\
+\stoptable
 
 
 \subsection{\texttt{Job.dataset()}}
@@ -75,6 +88,23 @@ Return the absolute (full path) filename to a file stored in the job.
 If the file is sliced, a particular slice file can be retrieved using
 the \texttt{sliceno} parameter.  Sliced files are described in section~\ref{sec:sliced_files}.
 %\end{leftbar}
+
+
+\subsection{\texttt{Job.input\_filename()}}
+Return the full filename of a file stored in the \texttt{input\_directory}.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\stoptable
+
+
+\subsection{\texttt{Job.open\_input()}}
+Open a file in the \texttt{input\_directory}.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
+\texttt{encoding} & \pyNone & Same as Python's \texttt{open()}\\
+\texttt{errors} & \pyNone & Same as Python's \texttt{open()}\\
+\stoptable
 
 
 \subsection{\texttt{Job.json\_load()}}
@@ -126,16 +156,17 @@ with job.open(...) as fh:
 \end{python}
 \item[--]  \texttt{CurrentJob.open()} can use the \texttt{temp} flag to
 modify the persistence of written files.
+\item[--] \texttt{CurrentJob.open()} will register the file to the
+  current \texttt{job}.
 \end{itemize}
 The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.open()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.  Sliced files
 are described in section~\ref{sec:slicedfiles}.
-%\end{leftbar}
+
 
 
 \subsection{\texttt{Job.output()}}
-%\begin{leftbar}
 \starttable
 \texttt{what} & \pyNone & Which functions to return output from.\\
 \stoptable
@@ -149,7 +180,16 @@ and \texttt{stderr} in a string variable.  The parameter \texttt{what} can be se
 \item[] a number, which returns output from the corresponding \texttt{analysis} slice.
 \end{itemize}
   
-%\end{leftbar}
+
+
+\subsection{\texttt{Job.register\_file()}}
+Register a file to the running \texttt{job}.  This happens
+automatically when using \texttt{Job.open()}, but if the file was
+produced in a way where that is not practical this can be used to
+manually register the file.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\stoptable
 
 
 \subsection{\texttt{Job.withfile()}}

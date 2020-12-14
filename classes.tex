@@ -302,16 +302,16 @@ with the \texttt{---debug} flag.
 The \texttt{JobWithFile} class is used to create a job input parameter
 from a file stored in a job.
 \starttabletwo
-\texttt{resolve()} & Return filename. \\
-\texttt{load()} & load file contents. \\
-\texttt{json\_load()} & load JSON file contents.\\
+\texttt{filename()} & Return filename.\\
+\texttt{load()} & Load file contents. Takes an \texttt{encoding=}-parameter.\\
+\texttt{json\_load()} & Load JSON file contents.\\
+\texttt{open()} & Returns a filehandle to the open file.  Takes \texttt{encoding=}-  and \texttt{errors=}-parameters.\\
 \stoptabletwo
-All three functions take the argument \texttt{sliceno}, which default
+All above functions take the argument \texttt{sliceno}, which default
 is set to \pyNone, indicating that it is actually a single file on
 disk.  If \texttt{sliceno} is set, it is assumed that the file is
 sliced, see section~\ref{sec:slicedfiles}, and the function will look
 up that slice of the file only.
-
 
 
 \clearpage

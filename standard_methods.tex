@@ -101,6 +101,13 @@ This is useful for data files that starts with a header, for
 example.  Skipped lines will be stored in the \texttt{skipped} dataset.\\
 
 \RP \texttt{compression} & 6 & Compression level for the \texttt{gzip} compressor.\\
+
+\RP \texttt{allow\_extra\_empty} & \pyFalse & Still consider a line good if it has extra empty fields at the end.\\
+
+\RP \texttt{skip\_empty\_lines} & \pyFalse & Ignore empty lines.\\
+
+\RP \texttt{strip\_labels} & \pyFalse & Do .strip() on all labels (happens before rename).\\
+
 \stoptable
 
 
@@ -575,6 +582,10 @@ Options section for full details.
   exported in a separate file when \mintinline{python}/True/.  If so,
   use \mintinline{python}/"%02d"/ or similar in filename as
   placeholder for the slice number.\\
+
+  \RP \texttt{compression} & \texttt{6} & gzip level\\
+
+  \RP \texttt{line\_separator} & \mintinline{python}|'\n'| & Line separator.\\
 \stoptable
 
 
@@ -601,8 +612,7 @@ urd.build(csvexport',
     ),
     options=dict(
         filename='output.txt.gz',
-        separator=' ',
-        quote_fields="\'",
+        separator=' ', quote_fields="\'",
         ),
     )
 )
@@ -734,6 +744,13 @@ Only one of \texttt{keep\_columns} and \texttt{discard\_columns} may
 be populated.
 
 
+\subsection*{Datasets}
+\starttable
+\RP \mintinline{python}{source} & \textsl{mandatory} & Source dataset to filter.\\
+\RP \mintinline{python}{previous} & \pyNone & Previous dataset to chain to.\\
+\stoptable
+
+
 \clearpage
 \section{\texttt{dataset\_sort} -- Sorting a Dataset}
 The method \texttt{dataset\_sort} is used to sort relatively large
@@ -850,7 +867,7 @@ The checksum will be printed to \texttt{stdout} as well as written to
 
 \RP \texttt{sort} & \texttt{True} & Sort dataset before hashing, see text. \\
 
-\RP \texttt{chain\_length} & \texttt{-1} & Number of datasets in chain to hash. \\
+\RP \texttt{chain\_length} & \texttt{-1} & Number of datasets in chain to hash. Only for \texttt{dataset\_checksum\_chain}.\\
 \stoptable
 
 
@@ -882,7 +899,7 @@ merging is a very fast constant time operation.
 
 \subsection*{Datasets}
 \starttable
-\mintinline{python}/[source]/ & \textsl{mandatory}& A list of datasets to merge.\\
+\mintinline{python}/[source,]/ & \textsl{mandatory}& A list of datasets to merge.\\
 \texttt{previous} & \pyNone & Previous for the merged dataset.\\
 \stoptable
 

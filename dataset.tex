@@ -331,7 +331,7 @@ chain = ds.chain()
 The \texttt{chain()}-function takes the following optional arguments
 
 \starttable
-\texttt{length} & \texttt{-1} & Number of datasets to include, default is \texttt{-1}, meaning all datasets in chain.  Do not mix with \texttt{stop\_ds}.\\
+\texttt{length} & \texttt{-1} & Number of datasets to include, default is \texttt{-1}, meaning all datasets in chain.  Do not confuse with \texttt{stop\_ds}.\\
 \texttt{reverse} & \pyFalse & Return the datasets in reverse order.  Default \pyFalse.\\
 \texttt{stop\_ds} & \pyNone & Return datasets \textsl{from} \texttt{stop\_ds} to current dataset.  Do not mix with \texttt{length}.\\
 \stoptable
@@ -472,7 +472,7 @@ Conversion between JSON and Python data types is done by the writers
 and iterators, so the user can just work on the data and never has to
 see the actual JSON, for example
 \begin{python}
-    dw = DatasetWriter(...)
+    dw = job.datasetwriter(...)
     ...
     a = dict(x=3, y=dict(z=5, w=[1,2,3]))
     dw.write(a)

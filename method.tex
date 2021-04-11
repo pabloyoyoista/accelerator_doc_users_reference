@@ -66,7 +66,7 @@ Accelerator.  Jobs are built either by
 \item[--] a \textsl{build script}, see chapter~\ref{chap:urd}, or
 \item[--] by a method, using \textsl{subjobs}, see~section~\ref{sec:subjobs}
 \end{itemize}
-The following figure illustrates how a job \texttt{example-0} is
+The following figure illustrates how a job \texttt{example-1} is
 built from the method \texttt{a\_method.py}.  The job is stored in the
 \texttt{example} work directory.  The job identifier (in this case
 \texttt{example-1}) is always unique so that it can be used as a
@@ -789,7 +789,7 @@ def main(urd):
 
 
 
-\section{Converting Between Jobs and Datasets}
+\section{From Jobs to Datasets and Back}
 Sometimes it is necessary to find the job that created a particular
 dataset, or access one of the other datasets in a job given a certain
 dataset.

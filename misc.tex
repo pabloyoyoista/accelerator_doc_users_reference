@@ -171,3 +171,31 @@ the Accelerator's configuration file.  The link will point to the
 original file in the job directory, and will be silently replaced if
 it already exists.
 
+
+
+\section{Concurrency}
+\label{sec:concurrency}
+By default, a job containing the \texttt{analysis()} function will be
+forked into \texttt{slices} parallel processes, where \texttt{slices}
+is specified in the Accelerator's configuration file.  A standard
+method like \texttt{dataset\_sort} will sort in parallel in all slices
+for maximum performance, but for large datasets and systems with
+little RAM, this could lead to running out of memory.  A solution to
+this problem is to limit the number of allowed parallel processes.
+
+This could be done either in the \texttt{build} call, using the
+\texttt{concurrency=} parameter, or on the command line as an option
+to the \texttt{ax run} command.  In both cases, the limit could be set
+to all methods, or it could be set to a specific method only.
+
+If \texttt{concurrency} is set to a number, like this
+\begin{python}
+  concurrency=3
+\end{python}
+the number of parallel processes is limited to this number for all
+methods.  Alternatively, concurrency can be specified for a single
+method like this
+\begin{python}
+  concurrency="dataset_sort=3"
+\end{python}
+

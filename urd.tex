@@ -608,8 +608,8 @@ job = urd.build(
     method,
     options={},    datasets={},    jobs={},
     name='',       caption='',
-    workdir=None,
-    **kw
+    why_build=False,          workdir=None,
+    concurrency=None,         **kw
 )
 \end{python}
 If \options, \datasets, and \jobs are uniquely defined in the method,
@@ -647,8 +647,12 @@ jobs=dict{alljobs=[job1, job2,...]}
     to distinguish several jobs created from the same method in
     joblists.\\
     
-    \texttt{caption} & A caption string.  For decorative purposes
+\RPtwo \texttt{caption} & A caption string.  For decorative purposes
     only, this has no practical use.\\
+
+\RPtwo \texttt{concurrency} & Specify max number of parallel processes.
+       This can be used to save memory, see section~\ref{sec:concurrency}
+       for more information.\\
 \stoptabletwo
 
 The \texttt{build()} function will only build a job when it has to,

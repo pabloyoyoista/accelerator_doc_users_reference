@@ -205,7 +205,7 @@ the \texttt{zip} file.
   Can be one of \texttt{off}, \texttt{on}, \texttt{by\_filename},
   or \texttt{by\_dsname}.
   \begin{itemize}
-  \item[]\texttt{off} -- Don't chain the imports.
+  \item[]\texttt{off} -- Do not chain the imports.  Use \texttt{datasets.previous} on all datasets.
   \item[]\texttt{on} -- Chain the imports in the order the files are in the zip file.
   \item[]\texttt{by\_filename} -- Chain in filename order.
   \item[]\texttt{by\_dsname} -- Chain in dataset name order. Since \texttt{inside\_filenames} is a dict this is your only way of controlling its order.

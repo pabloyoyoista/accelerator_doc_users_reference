@@ -945,7 +945,8 @@ def analysis(sliceno):
 def synthesis():
     print(options.secondfile.load())
 \end{python}
-There is also an \texttt{.json\_load()} function
+The \texttt{.load()} function assumes that the file is in Python
+Pickle format.  There is also an \texttt{.json\_load()} function
 for \texttt{JSON}-files.  To get the full filename to the file,
 use \texttt{.filename()}
 \begin{python}

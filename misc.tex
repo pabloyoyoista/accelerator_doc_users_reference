@@ -1,0 +1,155 @@
+\section{Workdirs}
+Jobs are stored in \textsl{workdirs}.  Workdirs are defined in the
+Accelerator's configuration file, where at least one workdir must be
+specified.
+
+By default, the only workdir that is written to is the target workdir,
+while all other defined workdirs are for reading.  It is possible to
+override this, however, by setting the \mintinline{python}|workdir=|
+option in the \texttt{urd.build()} call, see
+section~\ref{sec:urd_build}.
+
+Jobdirs are stored in the workdir by the server, and jobdirs will
+inherit the workdir name and add a suffix that is an incremental job
+counter.  Here is an example of a workdir named \texttt{test}, that
+contains three jobdirs.
+\begin{shell}
+test/
+    .slices.conf
+    test-0/
+    test-1/
+    test-2/
+    test-LATEST -> test-2
+\end{shell}
+The \texttt{.slices.conf} file contains the number of slices used for
+the workdir.  The link \texttt{<workdir>-LATEST} is always pointing to
+the last jobdir created.  This is useful for example when iteratively
+testing a method and accessing its data for example for plotting
+purposes.  Each new build of the (modified) method will create a new
+job, and the link will always point to the most recent
+version.
+
+
+\subsection{Creating a Workdir}
+If a workdir defined in the configuration file does not exist on disk
+at the stated location, the server will exit and print an error
+stating that a directory is missing.  The first time the server
+encounters a new directory it will initialise it in accordance with
+the configuration file.  So, new workdirs are created by adding them
+to the configuration file \textsl{and} creating the corresponding
+directories.  The Accelerator will then initiate these directories on
+the next startup.
+
+The initiation process creates a file named \texttt{.slices.conf} that
+indicates that the directory is now a workdir.  This file contains the
+number of slices that is used for the workdir.
+
+
+
+\section{Status (Progress) Reporting}
+During job building, it is possible to press \texttt{C-t},
+i.e.\ \texttt{Ctrl} + \texttt{t} simultaneously, in the \texttt{run}
+shell to get status information.  The built in status will report the
+processing state, if it is in \prepare, \analysis, or \synthesis.
+Iterators report which dataset (perhaps in a chain) that is currently
+being iterated, and the \texttt{blob} functions report status of file
+pickling.
+
+The \texttt{status} module makes it possible to insert
+status reporting into any method.  For more information about status
+reporting, see section~\ref{sec:statusreporting}.
+
+
+
+\section{Generating Progress Messages:  the \texttt{status} Module}
+\label{sec:statusreporting}
+The status module is used by the Accelerator to report processing
+state.  It is also used by various functions to report iterator and
+file access progress.  Status messages are presented in
+the \texttt{run} shell by pressing \texttt{C-t}, i.e.\
+the \texttt{Ctrl} and \texttt{t} keys simultaneously.
+
+The status module can be used to write progress and status messages
+for any function.  Here is an example of how to use the status module
+\begin{python}
+from accelerator import status
+...
+def analysis(sliceno):
+    msg = "reached line %d already!"
+    with status(msg % (0,) as update:
+        for ix, data in enumerate(datasets.source.iterate(sliceno, 'data')):
+            if ix % 1000000 == 0:
+                update(msg % (ix,))
+\end{python}
+In the example above, the status message will be updated once every
+million iteration.  By pressing \texttt{C-t} during its execution, the
+user will get a message telling how many lines the iterator has
+reached.
+
+
+
+\section{Working with Relative Paths}
+In some situations, like importing data from files, it is convenient
+to store the absolute path of the files as a configuration parameter
+and then work only with relative paths in the source code.  This has
+two advantages.
+\begin{itemize}
+\item[] First, it makes it possible to move input files around without
+forcing a re-build of the import jobs, and
+\item[] second, absolute paths will not be stored in the source code.
+\end{itemize}
+In order to make use of relative paths, store the ``system dependent''
+left part of the path in the Accelerator's configuration file.  There
+are two variables in the configuration file that can be used for this,
+and they have different purposes.  The \texttt{input\_directory}
+variable is intended for reading input files, and
+the \texttt{result\_directory} is intended for writing output.  See
+the following subsections for details.
+
+
+\subsection{The \texttt{input\_directory}}
+\label{sec:INPUT_DIR}
+Files stored in the \texttt{input\_directory} can be accessed using
+the \texttt{CurrentJob} object either like this
+\begin{python}
+def synthesis(job)
+    fname = job.input_filename('afile.csv')
+\end{python}
+or like this
+\begin{python}
+def synthesis(job)
+    with job.open_input('afile.csv', 'rt') as fh:
+        for line in fh:
+            ...
+\end{python}
+Since the \texttt{input\_directory} is defined in the Accelerator's
+configuration file, the input directory can be moved and re-defined
+without having to re-execute any built jobs.
+
+
+
+\subsection{The \texttt{result\_directory}}
+\label{sec:RESULT_DIR}
+Storing files in job directories is great for transparency, but in
+some cases it is convenient to keep a reference to result files in a
+common place.  This is the purpose of the \texttt{result\_directory}.
+However, storing files in this directory directly would void the
+connection to the job that created it.  A better way is to keep the
+file in the job directory and create a symbolic (soft) link to it in
+the result directory.  This functionality is implemented in the
+\texttt{job.link\_result()} function that is available to
+\textsl{build scripts}, and used like this
+\begin{python}
+def main(urd):
+    job = urd.build('somejob')
+    job.link_result()  # links the job's "result.pickle" to result_directory
+    job.link_result('result.txt')
+    job.link_result('result.txt', linkname='result_from_somejob.txt')
+\end{python}
+Note that this only works in build scripts.  The
+\texttt{job.link\_result(filename)} call will create a symbolic link
+named \texttt{filename} in the \texttt{result\_directory} defined in
+the Accelerator's configuration file.  The link will point to the
+original file in the job directory, and will be silently replaced if
+it already exists.
+

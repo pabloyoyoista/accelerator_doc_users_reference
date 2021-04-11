@@ -555,10 +555,13 @@ plain files and \texttt{gzip}-compressed files, export a chain of
 datasets, export one output file per slice, and more.  Read the
 Options section for full details.
 
+
+
+
 \subsection*{Options}
 \starttable
 
-  \RP \texttt{filename} & \textsl{mandatory} & Name of output file.
+  \RP \texttt{filename} & \texttt{result.csv} & Name of output file.
   File will by default be stored in the job's job directory.  The
   filename has to end with ``\texttt{.csv}'' for plain text files, and
   ``\texttt{.gz}'' for gzipped output.\\
@@ -568,6 +571,9 @@ Options section for full details.
   \RP \texttt{labelsonfirstline} & \mintinline{python}{True} & If
   \mintinline{python}/True/, write column names on first row.\\
   
+  \RP \texttt{labels} & \mintinline{python}/[]/ & Specify which labels to
+  export.  An empty list corresponds to all labels in dataset.\\
+  
   \RP \texttt{chain\_source} & \mintinline{python}{False} & If
   \mintinline{python}/True/, read a dataset chain from
   \mintinline{python}/datasets.source/ back to
@@ -575,18 +581,21 @@ Options section for full details.
 
   \RP \texttt{quote\_fields} & \textsl{empty string} & Export quoted fields.  Must be empty
   (no quote character, default), ``\texttt{'}``, or ``\texttt{"}``.\\
-  
-  \RP \texttt{labels} & \mintinline{python}/[]/ & Specify which labels to
-  export.  An empty list corresponds to all labels in dataset.\\
-  
+
+  \RP \texttt{lazy\_quotes} & \pyTrue & Only quote field if value needs quoting.\\
+
+  \RP \texttt{line\_separator} & \texttt{'\textbackslash{}n'} & Line separator.\\
+
+  \RP \texttt{none\_as} & \pyNone & A string or
+  \mintinline{Python}/{label: string}/ to use for \pyNone-values. Default
+  \texttt{'None'} (\texttt{'null'} for json).\\
+
   \RP \texttt{sliced} & \mintinline{python}/False/ & Each slice is
   exported in a separate file when \mintinline{python}/True/.  If so,
   use \mintinline{python}/"%02d"/ or similar in filename as
   placeholder for the slice number.\\
 
   \RP \texttt{compression} & \texttt{6} & gzip level\\
-
-  \RP \texttt{line\_separator} & \mintinline{python}|'\n'| & Line separator.\\
 \stoptable
 
 

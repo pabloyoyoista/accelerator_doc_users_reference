@@ -70,9 +70,99 @@ cat = grep ""
 use ax <command> --help for <command> usage
 \end{verbatim}
 \end{snugshade}
-\noindent each command will be introduced next.
+\noindent All commands accept the option \texttt{--help} to display
+more detailed information about its useage.
+
+Next, a quick summary will be presented before going into
+the details of each command.
 
 
+\section{Quick Summary of Commands}
+To start with, a new project is initiated using the \texttt{init}
+command,
+\begin{shell}
+ax init
+\end{shell}
+This command creates everything required to starting a project,
+including directories for input data and workdir storage.  It even
+sets up an empty \texttt{git} repository for the project's source
+files.  All this can be overridden or specified in detail using the
+command's switches.
+
+Next, an Accelerator server is started using
+\begin{shell}
+ax server
+\end{shell}
+The server is configured using the configuration file that is
+typically set up by the \texttt{init} command.
+
+A build script is run using
+\begin{shell}
+ax run
+\end{shell}
+The idea is that the \textsl{main} project build script is run just
+like that, but it is possible to specify specific scripts to run as
+arguments.  For systems with limited memory, and interesting idea is
+the possibility to set the \textsl{concurrency} for all or some
+methods using a switch.  This will save memory resources, since only a
+subset of all parallel processes will be run at once.
+
+At any point in time, it is possible to abort the server processing
+using
+\begin{shell}
+ax abort
+\end{shell}
+
+When coding, it is useful to have access to the list of available
+methods and their interfaces, this is provided using the
+\begin{shell}
+ax method
+\end{shell}
+command.  It can either provide a list of methods per package,
+together with an optional description, or given a specific method name
+it will print its documentation + interface.
+
+When a script has been run, any job can be inspected using
+\begin{shell}
+ax job <jobid>
+\end{shell}
+that will print execution times, input parameters, output file names
+etc for jobs.  It takes either jobids or paths as input.
+
+Similarly,
+\begin{shell}
+ax ds <dataset>
+\end{shell}
+holds the key for a lot of information about datasets.  Everything
+from column names, max/min-values, and types to distribution of
+elements per slice is available.  If the input is a job, it will look
+for the job's default dataset, but it can also show the name of all
+dataset in a job, and more.
+
+To look at the data in a dataset, use
+\begin{shell}
+ax grep <pattern> <dataset>
+\end{shell}
+or just
+\begin{shell}
+ax cat <dataset>
+\end{shell}
+to stream the data to \texttt{stdout}.  Using switches data can be
+output per slice or ``in parallel'', it can print header labels and
+more.
+
+To learn about available workdirs, and which jobs that exists in workdirs,
+\begin{shell}
+ax workdir
+\end{shell}
+is used to either list all available workdirs, or list all jobs in a
+workdir.
+
+Finally,
+\begin{shell}
+ax version
+\end{shell}
+will print the current version of the Accelerator.
 
 
 

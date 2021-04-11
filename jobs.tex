@@ -471,8 +471,9 @@ called \prepareres, and can be used as input argument to \analysis and
 available as \analysisres in \synthesis.  The \analysisres variable is
 an iterator, yielding the results from each slice in turn.  Finally,
 the return value from \synthesis is stored permanently in the job
-directory using the name ``\texttt{result.pickle}''.  Here is an
-example of return value passing
+directory using the name ``\texttt{result.pickle}''.  Note
+that \prepareres and \analysisres are set to \pyNone if nothing is
+returned.  Here is an example of return value passing
 \begin{python}
 options = dict(length=4)
 

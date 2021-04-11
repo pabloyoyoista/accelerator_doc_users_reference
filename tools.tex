@@ -35,39 +35,47 @@ different directories or even from different computers if necessary.
 
 Asking for help is always an option.  To begin,
 \begin{shell}
-  ax --help
+ax --help
 \end{shell}
 will print something like
 \begin{snugshade}
 \begin{verbatim}
-usage: ax [--config CONFIG_FILE] command
-
-positional arguments:
-  command
+usage: ax [--config CONFIG_FILE] command [args]
 
 optional arguments:
-  --config CONFIG_FILE  Configuration file
+  -h, --help            show this help message and exit
+  --config CONFIG_FILE  configuration file
+  --version             alias for the version command
 
 commands:
 
-    curl  http request (with curl) to urd or the server
-  server  run the main server
-    grep  search for a pattern in one or more datasets
-      ds  display information about datasets
-    init  create a project directory
-     run  run a build script
-     urd  run the urd server
+    abort  abort running job(s)
+    board  runs a webserver for displaying results
+     curl  http request (with curl) to urd or the server
+       ds  display information about datasets
+     grep  search for a pattern in one or more datasets
+     init  create a project directory
+      job  information about a job
+   method  information about methods
+      run  run a build script
+   server  run the main server
+      urd  run the urd server
+  version  show installed accelerator version
+  workdir  information about workdirs
 
-Use ax <command> --help for <command> usage.
+aliases:
+cat = grep ""
+
+use ax <command> --help for <command> usage
 \end{verbatim}
 \end{snugshade}
-each command will be introduced next.
+\noindent each command will be introduced next.
 
 
 
 
 
-\section{Initialisation}
+\section{Initialisation: \texttt{ax init}}
 \label{sec:initialisation}
 In order to start a new project, a few things need to be set up, in
 particular
@@ -79,49 +87,54 @@ particular
 This can be done manually, but a simple way to start from scratch is
 to use the \texttt{init} command
 \begin{shell}
-  ax init
+ax init
 \end{shell}
 with the following options
 \begin{shell}
-  ax init --help
+ax init --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
 usage: ax init [-h] [--slices SLICES] [--name NAME] [--input INPUT] [--force]
-               [DIR]
+                    [--tcp [HOST/PORT]] [--no-git] [DIR]
 
-Creates an accelerator project directory. Defaults to the current directory.
-Creates accelerator.conf, a method dir, a workdir and result dir. Both the
-method directory and workdir will be named <NAME>, "dev" by default.
+creates an accelerator project directory.
+defaults to the current directory.
+creates accelerator.conf, a method dir, a workdir and result dir.
+both the method directory and workdir will be named <NAME>,
+"dev" by default.
 
 positional arguments:
-  DIR              project directory to create. default "."
+  DIR                project directory to create. default "."
 
 optional arguments:
-  -h, --help       show this help message and exit
-  --slices SLICES  override slice count detection
-  --name NAME      name of method dir and workdir, default "dev"
-  --input INPUT    input directory
-  --force          go ahead even though directory is not empty, or workdir
-                   exists with incompatible slice count
+  -h, --help         show this help message and exit
+  --slices SLICES    override slice count detection
+  --name NAME        name of method dir and workdir, default "dev"
+  --input INPUT      input directory
+  --force            go ahead even though directory is not empty, or workdir
+                     exists with incompatible slice count
+  --tcp [HOST/PORT]  listen on TCP instead of unix sockets.
+                     specify HOST (can be IP) to listen on that host
+                     specify PORT to use range(PORT, PORT + 3)
+                     specify both as HOST:PORT
+  --no-git           don't create git repository
 \end{verbatim}
 \end{snugshade}
 
 
 
-\section{Accelerator Server}
+\section{Accelerator Server: \texttt{ax server}}
 
 The Accelerator server, or daemon, needs to be running in order to
 execute any commands.
-
-\subsection{Invocation}
 \begin{shell}
-% ax server
+ax server
 \end{shell}
 will start the Accelerator server, assuming that a configuration file
 that makes sense is in place.
 \begin{shell}
-% ax server --help
+ax server --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
@@ -141,10 +154,8 @@ TCP port instead if specified in the Accelerator's configuration file.
 
 
 
-\section{Running Build Scripts}
+\section{Running Build Scripts: \texttt{ax run}}
 \label{sec:exec_runner}
-
-\subsection{Invocation}
 Build scripts are executed using
 \begin{python}
 ax run <script>
@@ -171,9 +182,14 @@ optional arguments:
   -h, --help            show this help message and exit
   -f FLAGS, --flags FLAGS
                         comma separated list of flags
-  -A, --abort           abort (fail) currently running job(s)
   -q, --quick           skip method updates and checking workdirs for new jobs
-  -w, --just_wait       just wait for running job, don't run any build script
+  -c SPEC, --concurrency SPEC
+                        set max concurrency for methods, either method=N
+                        or just N to set for all other methods
+  -w WORKDIR, --workdir WORKDIR
+                        build in this workdir
+                        set_workdir() and workdir= override this.
+  -W, --just_wait       just wait for running job, don't run any build script
   -F, --fullpath        print full path to jobdirs
   --verbose VERBOSE     verbosity style {no, status, dots, log}
   --quiet               same as --verbose=no
@@ -190,7 +206,7 @@ Accelerator server).  Thereafter, it will execute the build script.
 
 
 
-\section{Dataset Information}
+\section{Dataset Information: \texttt{ax ds}}
 The \texttt{ds} command gives a compact, but easy to read,
 overview of either
 \begin{itemize}
@@ -200,26 +216,32 @@ overview of either
 \end{itemize}
 it provides information about column names and types, max and min
 values, number of rows, and balance of rows between slices.
-
-\subsection{Invocation}
 \begin{shell}
   usage: ax ds [options] ds [ds [...]]
 
   positional arguments:
-  dataset
+  dataset               the job part of the dataset name can be specified in
+                        the same ways as for ``ax job''. you can use ds~ or
+                        ds~N to follow the chain N steps backwards, or ^ to
+                        follow .parent. this requires specifying the ds-name,
+                        so wd-1~ will not do this, but wd-1/default~ will.
 
   optional arguments:
-  -h, --help              show this help message and exit
-  -c, --chain             list all datasets in a chain
-  -C, --non_empty_chain   list all non-empty datasets in a chain
-  -l, --list              list all datasets in a job with number of rows
-  -L, --chainedlist       list all datasets in a job with number of chained rows
-  -m, --suppress_minmax   do not print min/max column values
-  -n, --suppress_columns  do not print columns
-  -q, --suppress_errors   silently ignores bad input datasets/jobids
-  -s, --slices            list relative number of lines per slice in sorted
-  order
-  -S, --chainedslices     same as -s but for full chain
+  -h, --help            show this help message and exit
+  -c, --chain           list all datasets in a chain
+  -C, --non-empty-chain
+  list all non-empty datasets in a chain
+  -l, --list            list all datasets in a job with number of rows
+  -L, --chainedlist     list all datasets in a job with number of chained rows
+  -m, --suppress-minmax
+  do not print min/max column values
+  -n, --suppress-columns
+  do not print columns
+  -q, --suppress-errors
+  silently ignores bad input datasets/jobids
+  -s, --slices          list relative number of lines per slice in sorted order
+  -S, --chainedslices   same as -s but for full chain
+  -w, --location        show where (ds/filename) each column is stored
 \end{shell}
 
 The \texttt{dataset} option is either a \textsl{dataset}, when used
@@ -285,7 +307,6 @@ Find all datasets in \texttt{test-20}
 ax ds -l test-20
 \end{shell}
 
-
 \subsubsection*{Example Output}
 \begin{snugshade}
 \begin{verbatim}
@@ -317,66 +338,52 @@ import-2340/default
 The \texttt{max to average ratio} shows the ratio between the slice
 with most rows and the average number of rows.  This can be
 interpreted as the execution time overhead for a dataset where all
-slices are not of the same size.
+slices are not of the same size.  When the ratio is close to one, the
+dataset is perfectly balanced.
 
 
-
-
-
-
-
-\section{Look at Data in a Dataset}
+\section{Look at Specific Data in a Dataset: \texttt{ax grep}}
 The \texttt{grep} command is a parallel grep for datasets that is
 used to look at data stored in datasets or dataset chains.
-\subsection{Invocation}
 \begin{shell}
   usage: ax grep [options] pattern ds [ds [...]] [column [column [...]]
 
     positional arguments:
     pattern
-    dataset
+    dataset               can be specified in the same ways as for ``ax ds''
     columns
 
     optional arguments:
     -h, --help            show this help message and exit
     -c, --chain           follow dataset chains
+    -C, --color           color matched text
     -i, --ignore-case     case insensitive pattern
+    -H, --headers         print column names before output (and on each change)
+    -o, --ordered         output in order (one slice at a time)
+    -g COLUMN, --grep COLUMN
+    grep this column only, can be specified multiple times
     -s SLICE, --slice SLICE
     grep this slice only, can be specified multiple times
+    -t SEPARATOR, --separator SEPARATOR
+    field separator (default tab)
+    -D, --show-dataset    show dataset on matching lines
+    -S, --show-sliceno    show sliceno on matching lines
+    -L, --show-lineno     show lineno (per slice) on matching lines
 \end{shell}
-
-The \texttt{pattern} is a regular expression and \texttt{ds} are
+\noindent The \texttt{pattern} is a regular expression and \texttt{ds} are
 datasets.  For example
 \begin{shell}
 ax grep Alice test-0 test-1/special name
 \end{shell}
 Will look for the string \texttt{Alice} in the \texttt{name} column of
 the two datasets \texttt{text-0} and \texttt{test-1/special}.
-Optional arguments are
-\begin{snugshade}
-  \begin{tabular}{p{4cm}p{9cm}}
-      \texttt{-h}\hspace{3cm}\texttt{---help} & show help message and exit\\[4ex]
-      \texttt{-c}\hspace{3cm}\texttt{---chain} & follow dataset chains\\[4ex]
-      \texttt{-i}\hspace{3cm}\texttt{---ignore-case} & Case insensitive pattern\\[4ex]
-      \texttt{-s N}\hspace{3cm}\texttt{---slice N} & Grep in slice \texttt{N} only\\
-  \end{tabular}
-\end{snugshade}
+
 Strings and columns with special characters have to be quoted.
 
 
-
-\subsection{Abuse grep to Show Datasets}
-The data in a dataset may be printed to \texttt{stdout} by
-\texttt{grep}ing using a regexp that always matches, like this
-\begin{shell}
-ax grep . test-0 | less
-\end{shell}
-(The regexp \texttt{.} will match any string that is at least one character long.)
-
-
-
-\subsection{Information about Methods}
-Use \texttt{ax method} to print a list of available methods.
+\section{Information about Methods: \texttt{ax method}}
+Use \texttt{ax method} to print a list of available methods together
+with an optional description.
 \begin{shell}
 ax method
 \end{shell}
@@ -389,7 +396,25 @@ statement in a method.
 
 
 
-\section{The Urd Job Database Server}
+\section{Aliases}
+It is possible to create aliases for common tasks.
+@@@@HOWTO?
+
+
+\section{Show Dataset Contents: \texttt{ax cat}}
+The data in a dataset may be printed to \texttt{stdout} using the
+\texttt{cat} alias, for example like this
+\begin{shell}
+ax cat test-0 | less
+\end{shell}
+This is an alias for \texttt{ax grep ""}, which greps a dataset for the
+empty regexp, which matches every line.
+
+
+
+
+
+\section{The Urd Job Database Server: \texttt{ax urd}}
 By default, a local Urd server is running when the Accelerator server
 is running.  Read more about this in section~\ref{chap:urd}.
 
@@ -421,8 +446,93 @@ Authorisation to Urd could be set in the \texttt{URD\_AUTH}
 environment variable.  A common way to invoke the run command with Urd
 authorisation is like this
 \begin{shell}
-% URD_AUTH=user:passwd ax run [script]
+URD_AUTH=user:passwd ax run [script]
 \end{shell}
 Note that the purpose of the authentication is
 actually \textsl{identification}.  It is used to get write access to
 certain Urd lists.  Nothing more.
+
+
+\section{Aborting a Running Job: \texttt{ax abort}}
+The command \texttt{ax abort} will abort any running job.  To abort an
+entire build script, first type \texttt{Ctrl-C} followed by \texttt{ax
+  abort}.
+\begin{snugshade}
+\begin{verbatim}
+usage: ax abort [-h] [-q]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -q, --quiet  no output
+\end{verbatim}
+\end{snugshade}
+
+
+\section{Current Version: \texttt{ax version}}
+Use \texttt{ax version} to find the currently running version.  The
+Accelerator will complain if the \texttt{ax} command version does not
+match the currently running server.
+
+
+\section{Workdir Information: \texttt{ax workdir}}
+By itself, \texttt{ax workdir} will print a list of all current
+workdirs.  By specifying a workdir, all jobs in that workdir, together
+with execution time and information if it is \textsl{old} or
+\textsl{current} will be listed.  All jobs in all workdirs will be
+listed using the \texttt{-a} option.
+\begin{snugshade}
+\begin{verbatim}
+usage: ax workdir [-a | [workdir [workdir [...]]]
+
+  positional arguments:
+  workdirs
+
+  optional arguments:
+  -h, --help  show this help message and exit
+  -a, --all   list all workdirs
+\end{verbatim}
+\end{snugshade}
+
+
+\section{The Urd Server: \texttt{ax urd}}
+The Urd server is started by \texttt{ax server} by default.  It is
+possible to set up a separate Urd server, for example for a larger
+project with several participants, see section~\ref{sec:urd_setup}.
+\begin{snugshade}
+\begin{verbatim}
+usage: ax abort [-h] [-q]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  -q, --quiet  no output
+[eaenbrd][13:56:46][~/beast] ax urd --help                                                                                                                                                                                                     (git)-[master] 
+usage: ax urd urd [-h] [--path PATH] [--allow-passwordless] [--quiet]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --path PATH           database directory (can be relative to project directory) (default: urd.db)
+  --allow-passwordless  accept any pass for users not in passwd.
+  --quiet               less chatty.
+\end{verbatim}
+\end{snugshade}
+
+
+\section{The Board Web Server: \texttt{ax board}}
+The Board server is a web server that exposes information about jobs
+and results through the use of a standard web browser.  This is
+started by default by the \texttt{ax server} command, but it can be
+started separately using \texttt{ax board}.
+\begin{snugshade}
+\begin{verbatim}
+usage: ax board [listen_on]
+runs a web server on listen_on (default localhost:8520, can be socket path)
+for displaying results (result_directory)
+\end{verbatim}
+\end{snugshade}
+
+
+\section{Displaying Urd Database Content: \texttt{ax curl}}
+The \texttt{ax curl} command is just a shorthand for the general
+\texttt{curl} tool.  It is used to query information from the Urd
+transactional database.  See section~\ref{sec:urd-api} for infomation
+on how to use it.

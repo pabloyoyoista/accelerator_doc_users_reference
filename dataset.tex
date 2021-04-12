@@ -810,3 +810,59 @@ Note that the \texttt{for}-loop over all slices is
 controlling \textsl{both} the reading iterator \textsl{and} the
 dataset writer.  Note also that \texttt{.set\_slice()} can only be
 called once per slice.
+
+
+
+\section{Standard Methods on Datasets}
+Figure~\ref{fig:ds_ops} shows an example of how the standard
+methods \texttt{csvimport}, \texttt{csvexport}, \texttt{dataset\_sort}, \texttt{dataset\_hashpart},
+and \texttt{dataset\_unroundrobin} can be used to change the storage
+of a dataset.
+
+In the upper part of the figure, a file \texttt{data.csv} in a column
+storage format is imported using the \texttt{csvimport} method.  This
+method reads one line at a time and writes to the a new dataset's
+slices in a round robin fashion.
+
+In many applications, this round robin reorder does not matter, but in
+some cases, such as when the input data is a time series, it is
+critical to keep the order of the data intact.  In those situations,
+the \texttt{dataset\_unroundrobin} is be used to ``transpose'' the
+dataset.  One can think of is as if the method reads data row by row,
+but writes it slice by slice.  If the \texttt{csvexport} method is
+applied to an ``unroundrobined'' dataset, the output CSV file will be
+in the same order as the original input file.
+
+The \texttt{dataset\_unroundrobin} method talkes a
+parameter \texttt{trigger\_column} which is used to make sure that a
+slice switch does not appear as long as the data in that column is a
+constant value.  If the data is sorted, this ensures that all rows
+with a particular value is not spread along several slices.  In
+figure~\ref{fig:ds_ops}, the transition from slice~1 to slice~2
+appears while the method is writing the value ``10''.  If
+\texttt{trigger\_column} is enabled, switching is delayed until all ``10''s
+are written.
+
+The \texttt{dataset\_hashpart} method is used to partition the data
+into disjoint slices based on the content of a single column.
+Depending on the distribution of the data, the generated dataset will
+be more or less balanced.
+
+Finally, the \texttt{dataset\_sort} method is used to sort data.  It
+can sort data independently per slice, or sort all the data in a
+dataset across all slices.  In the latter case, there is
+a \texttt{trigger\_column} option similar to the one
+in \texttt{dataset\_unroundrobin} that ensures that slice switches
+appear only when the value of a particular column is changing.  This
+is the reason for the first column in the bottom right dataset in
+figure~\ref{fig:ds_ops} to be so long.  Slice switching should happen
+while writing the ``10'' value, but since the \texttt{trigger\_column}
+is set, switching is delayed until all ``10''s are written.
+
+\begin{figure}
+  \begin{center}
+     \input{figures/dataset_standard_ops.pdftex_t}
+     \caption{An example of how a dataset is modified by some common standard methods.}
+     \label{fig:ds_ops}
+  \end{center}
+\end{figure}

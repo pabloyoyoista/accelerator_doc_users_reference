@@ -776,103 +776,110 @@ def main(urd):
 
 
 
-\section{The Urd HTTP-API}
-\label{sec:urd-api}
-Urd can be accessed directly without using the Accelerator by calling
-its HTTP API.  These calls are easy to use and adds transparency since
-the database contents can be peeked from the command line without
-writing any programs.  Here is a list of all API endpoints
-\begin{verbatim}
-  list
-  <user>/<list>/first
-  <user>/<list>/latest
-  <user>/<list><timestamp>
-  <user>/<list>/since/<timestamp>
-\end{verbatim}
-All calls return data in the JSON format.  The Accelerator comes with
-a built in ``\texttt{curl}'' command that is designed for these calls,
-and it is used like this
-\begin{shell}
-% ax curl <endpoint>
-\end{shell}
-But any standard tool such as the famous \texttt{curl} program works
-too, for example like this
-\begin{shell}
-% curl http://localhost:8123/list
-\end{shell}
+\section{The \texttt{ax urd} Command and the Board}
+In later versions of the Accelerator, the \texttt{ax urd} command
+provides a simple way to visualise what is stored in the Urd database.
+
+In addition, the Accelerator \textsl{board} server will render a link
+``urd'' in the top right corner of the web page that can be used to
+explore the Urd database in a web browser.
+
+%\label{sec:urd-api}
+%% Urd can be accessed directly without using the Accelerator by calling
+%% its HTTP API.  These calls are easy to use and adds transparency since
+%% the database contents can be peeked from the command line without
+%% writing any programs.  Here is a list of all API endpoints
+%% \begin{verbatim}
+%%   list
+%%   <user>/<list>/first
+%%   <user>/<list>/latest
+%%   <user>/<list><timestamp>
+%%   <user>/<list>/since/<timestamp>
+%% \end{verbatim}
+%% All calls return data in the JSON format.  The Accelerator comes with
+%% a built in ``\texttt{curl}'' command that is designed for these calls,
+%% and it is used like this
+%% \begin{shell}
+%% % ax curl <endpoint>
+%% \end{shell}
+%% But any standard tool such as the famous \texttt{curl} program works
+%% too, for example like this
+%% \begin{shell}
+%% % curl http://localhost:8123/list
+%% \end{shell}
 
 
 
-\subsection{The \texttt{list} endpoint}
-To show all stored lists issue
-\begin{shell}
-% ax curl list
-["ab/test"]
-\end{shell}
-All available lists are returned in a typed JSON list.
+%% \subsection{The \texttt{list} endpoint}
+%% To show all stored lists issue
+%% \begin{shell}
+%% % ax curl list
+%% ["ab/test"]
+%% \end{shell}
+%% All available lists are returned in a typed JSON list.
 
 
 
-\subsection{The \texttt{since} endpoint}
-The \texttt{since} endpoint is used to get a list of all entries more
-recent than a timestamp.  For example, to see information added
-after \texttt{2016-10-24}, do
-\begin{shell}
-% ax curl ab/test/since/2016-10-24
-["2016-10-25"]
-\end{shell}
-\begin{shell}
-% ax curl ab/test/since/2016-10-26
-[]
-\end{shell}
-Results are in JSON list format.
+%% \subsection{The \texttt{since} endpoint}
+%% The \texttt{since} endpoint is used to get a list of all entries more
+%% recent than a timestamp.  For example, to see information added
+%% after \texttt{2016-10-24}, do
+%% \begin{shell}
+%% % ax curl ab/test/since/2016-10-24
+%% ["2016-10-25"]
+%% \end{shell}
+%% \begin{shell}
+%% % ax curl ab/test/since/2016-10-26
+%% []
+%% \end{shell}
+%% Results are in JSON list format.
 
 
 
-\subsection{The \texttt{first} and \texttt{latest} endpoints}
-Looking up the latest stored job in the \texttt{ab/test} list
-\begin{shell}
-% ax curl ab/test/latest
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-And see the first stored job in the test list
-\begin{shell}
-% ax curl ab/test/first
-\end{shell}
-works similarly.  The returned data is an Urd item, described in
-section~\ref{sec:urd_item}, in JSON format.
+%% \subsection{The \texttt{first} and \texttt{latest} endpoints}
+%% Looking up the latest stored job in the \texttt{ab/test} list
+%% \begin{shell}
+%% % ax curl ab/test/latest
+%% {"caption": "", "automata": "test", "user": "ab", "deps": {},
+%%   "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
+%%   ["method2", "test-59"], ["method3", "test-60"]]}
+%% \end{shell}
+%% And see the first stored job in the test list
+%% \begin{shell}
+%% % ax curl ab/test/first
+%% \end{shell}
+%% works similarly.  The returned data is an Urd item, described in
+%% section~\ref{sec:urd_item}, in JSON format.
 
 
 
-\subsection{The \texttt{get} endpoint}
-Actually, there is no explicit \texttt{get} endpoint.  Instead, the
-API is just called by the name of the list and a timestamp.  For
-example, to see what is inside the test list stored
-at \texttt{2016-10-25}
-\begin{shell}
-% ax curl ab/test/2016-10-25
-{"caption": "", "automata": "test", "user": "ab", "deps": {},
-  "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
-  ["method2", "test-59"], ["method3", "test-60"]]}
-\end{shell}
-The timestamp may be truncated to the right, and prefixed
-by \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=}, just as
-described in section~\ref{sec:urd_get}.  \textsl{Make sure to quote
-the request if these characters are used in a call from the shell.}
+%% \subsection{The \texttt{get} endpoint}
+%% Actually, there is no explicit \texttt{get} endpoint.  Instead, the
+%% API is just called by the name of the list and a timestamp.  For
+%% example, to see what is inside the test list stored
+%% at \texttt{2016-10-25}
+%% \begin{shell}
+%% % ax curl ab/test/2016-10-25
+%% {"caption": "", "automata": "test", "user": "ab", "deps": {},
+%%   "timestamp": "2016-10-25", "joblist": [["method1", "test-56"],
+%%   ["method2", "test-59"], ["method3", "test-60"]]}
+%% \end{shell}
+%% The timestamp may be truncated to the right, and prefixed
+%% by \texttt{>}, \texttt{>=}, \texttt{<}, and \texttt{<=}, just as
+%% described in section~\ref{sec:urd_get}.  \textsl{Make sure to quote
+%% the request if these characters are used in a call from the shell.}
 
 
 
 
 
-\section{Multi-Used Urd Consistency}
+\section{Multi-User Urd Consistency}
 Urd can be accessed by a large number of clients.  Each client may add
 to or truncate any list at any time.  In order to avoid race
 conditions and make the database deterministic, all \texttt{add}-
 and \texttt{truncate}-requests appears in a sequential manner to the
-Urd server.  Each request is assigned with an unique timestamp, and
-stored in the requested list.
+Urd server.  Each request is assigned a unique timestamp, and stored
+in the requested list.
 
 When Urd is restarted, it reads all the database files, and sorts all
 rows in order of the receive timestamp.  Thereafter, each row is

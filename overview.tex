@@ -544,7 +544,7 @@ the \texttt{user} column, so that each user appears in exactly one slice.
 This will make later merging (if necessary) much easier.
 
 It is also possible to iterate over all columns by specifying an empty
-list of columns or by using the value \texttt{None}.
+list of columns or by using the value \pyNone.
 \begin{python}
 ...
 def analysis(sliceno):
@@ -578,7 +578,7 @@ The \texttt{range} options is based on the max/min values stored for
 each column in the dataset.  Assuming that the chain is sorted, one
 can for example set
 \begin{python}
-  range={timestamp, ('2016-01-01', '2016-01-31')}
+range={timestamp, ('2016-01-01', '2016-01-31')}
 \end{python}
 in order to get rows within the specified range only.  Using
 \texttt{range=} is quite costly, since it requires each row in the

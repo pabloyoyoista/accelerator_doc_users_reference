@@ -70,17 +70,18 @@
 \usepackage{mdframed}
 \usepackage{minted, xcolor}
 
-\usemintedstyle{lovelace}
-%\usemintedstyle{friendly}
+%\usemintedstyle{lovelace}
+\usemintedstyle{friendly}
 
 \definecolor{tablecol1}{rgb}{0.95,0.95,0.95}
 \definecolor{tablecol2}{rgb}{0.93,0.96,0.99}
 
 \definecolor{bg}{rgb}{0.95,0.95,0.95}
+\definecolor{mintedbg}{rgb}{0.99,0.99,0.99}
 \definecolor{bg_shell}{rgb}{0.95,0.95,1.00}
 \definecolor{hl}{rgb}{1.00,1.00,0.80}
 
-\BeforeBeginEnvironment{minted}{\begin{mdframed}[backgroundcolor=bg,hidealllines=true,innerleftmargin=0pt,innerrightmargin=0pt,innertopmargin=3pt,innerbottommargin=3pt]}
+\BeforeBeginEnvironment{minted}{\begin{mdframed}[backgroundcolor=mintedbg,hidealllines=true,innerleftmargin=0pt,innerrightmargin=0pt,innertopmargin=3pt,innerbottommargin=3pt]}
 \AfterEndEnvironment{minted}{\end{mdframed}}
 
 \newminted[python]{python}{escapeinside=||}

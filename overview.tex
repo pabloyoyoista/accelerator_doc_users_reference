@@ -27,6 +27,7 @@ eBay Tech Blog website.
 \section{High Level View}
 The Accelerator is a client-server based application, and from a high
 level, it can be visualised like in figure~\ref{fig:overview}.
+
 \begin{figure}[h!]
   \begin{center}
     \input{figures/overview.pdftex_t}
@@ -36,68 +37,72 @@ level, it can be visualised like in figure~\ref{fig:overview}.
   \end{center}
 \end{figure}
 
-On the left side there is the \texttt{run} program.  To the right, there
-are two servers, called \texttt{daemon} and \texttt{urd}.  The
-\texttt{run} program runs what is called \texttt{build scripts}, that
-execute jobs on the \texttt{daemon} server.  This server will load and
-store information and results for all jobs executed using the
-\textsl{workdirs} file system based database.
-
-In parallel, all jobs covered by a build script may be stored by the
-\texttt{urd} server into the \textsl{job logs} file system database.
-\texttt{urd} is also responsible for finding collections, or lists, of
-related previously executed jobs.  The \texttt{urd} server ensures
-reproducibility and transparency, and it will be further discussed in
-chapter~\ref{chap:urd}.
+In the figure, the client side, with shell commands and web interface,
+is on the left, and the server side, with job databases is to the
+right.  The Accelerator executes \textsl{build scripts}, that issue
+\textsl{jobs} on the server.  These jobs are stored in the server's
+job databases for later retreival.  There are two databases, one for
+storing everything related to a job's execution, called the
+\textsl{workdir}, and one transaction log used for storing
+meta-information about built jobs.  The workdir will contain all
+inputs, source code, parameters, and outputs of all executed jobs,
+whereas the job log database ensures reproducibility and transparency,
+and it will be further discussed in chapter~\ref{chap:urd}.
 
 
 
 \section{Jobs}
 The basic operation of the Accelerator is to execute small Python
-programs called \textsl{methods}.  In a method, a few special
-functions are used to execute code sequentially or in parallel and to
-pass parameters and results.  A method that has completed execution is
-called a \textsl{job}.
+programs called \textsl{methods}.  A method is nothing but a Python
+program with one or a few special functions that are used to execute
+code sequentially or in parallel and to pass parameters and results.
+A method that has completed execution is called a \textsl{job}.
 
-Jobs are stored in \textsl{job directories}.  A dedicated directory
-will be created for each new job, and the directory will contain all
-information regarding the job, such as its input parameters, stored
-files, return values, profiling information, and more.
+Jobs are stored in \textsl{job directories}.  A dedicated directory in
+the workdir will be created for each new job, and this directory will
+contain all information regarding the job, such as its input
+parameters, stored files, return values, profiling information, Python
+interpreter version and path, and more.
 
-The Accelerator has a database that keeps track of all jobs that have
-been run.  This is very useful for avoiding unnecessary re-computing
-and instead rely on reusing previously computed results.  This does
-not only speed up processing and encourage incremental design, but
-also makes it transparent which code and which data was used for any
-particular result, thus minimising uncertainty.
+The Accelerator has a database that keeps track of all jobs that has
+been run.  This avoids unnecessary re-computing in favour of re-using
+previously computed results.  Re-using jobs does not only speed up
+processing and encourage incremental design, but also makes it
+transparent which code and which data that was used for any particular
+result, minimising these kind of uncertainties to zero.
 
 
 \subsection{A Very Simple Job:  ``Hello, World''}
-The following example method is very simple.  It does not take any
-input parameters and does almost nothing, it will just return the
-string ``\texttt{hello world}'' and exit.
+Here's an example of a very simple method.  It does not take any input
+parameters and does almost nothing, it will just return the string
+``\texttt{hello world}'' and exit.
 \begin{python}
 def synthesis():
     return "hello world"
 \end{python}
-In order to get the method to execute, it is called from a
-\textsl{build script} looking something like this
+Everything inside the \texttt{synthesis()}-function is run once
+without any parallelisation.  In order to get this method to execute,
+it is called from a \textsl{build script} looking something like this
 \begin{python}
 def main(urd)
     job = urd.build('hello_world')
     print(job.load())
 \end{python}
-The \texttt{urd} object contains functions for job building and
-organisation, and is described in chapter~\ref{chap:urd} and
-section~\ref{sec:classes:urd}.  Remember that during the job build
-process, a job directory is created that will contain everything
-associated with the build.
-
-When execution is completed, a job object, of type \texttt{Job}, is
-returned to the user.  This object provides a convenient interface to
-the data in the corresponding job directory, and contains member
-functions such as \texttt{.load()}, that is used in the example to
-read back the returned value from the job.
+The \texttt{urd} object made available by the \texttt{main()}-function
+contains functions for job building and organisation, and is described
+in chapter~\ref{chap:urd} and section~\ref{sec:classes:urd}.  This
+build script is then run by a shell command like this
+\begin{shell}
+ax run
+\end{shell}
+The \texttt{build()}-call will instruct the server to execute the
+\texttt{hello\_world} method.  During its execution, a job directory
+will be created that contains everyting associated with the build
+process.  When the \texttt{build()}-call is completed, a job object, of type
+\texttt{Job}, is returned to the program.  This object provides a
+convenient interface to the data in the corresponding job directory,
+and contains member functions such as \texttt{.load()}, that is used
+in the example to read back the returned value from the job.
 
 
 \subsection{Jobs Can Only be Run Once}
@@ -106,14 +111,15 @@ will not be re-built, simply because the Accelerator remembers that
 the job has been built in the past, and its associated information is
 stored in a job directory.  Instead, the Accelerator immediately
 returns a job object representing the previous run.  This means that
-from a user's perspective, there is no difference between job running
-and job result recalling!  In order to have the method executing
-again, either the source code or input parameters need to change.  If
-there are changes, the method will be re-executed, and a new job will
-be created that reflects these changes.
+from a user's perspective, there is no visible difference between
+running a job for the first time or re-using results from an existing
+run!  In order to have the method executing again, either the source
+code or input parameters has to change.  If there are changes, the
+method will be re-executed, and a new job will be created that
+reflects these changes.
 
 
-\subsection{Back to the ``Hello, World'' example}
+\subsection{Back to the ``Hello, World'' Example}
 Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
 \texttt{hello\_world} method.  The created job gets the \textsl{jobid}
 \texttt{test-0}, and parts of the corresponding job directory
@@ -127,7 +133,7 @@ important are
 \item[] \texttt{method.tar.gz}, containing the method's source code.
 \end{itemize}
 
-\begin{figure}[h!]
+\begin{figure}[b]
   \begin{center}
     \input{figures/job0.pdftex_t}
     \caption{A simple hello world program, represented as graph and
@@ -136,32 +142,28 @@ important are
   \end{center}
 \end{figure}
 
-The \texttt{Job} class provides a convenient way to access important
-files in this directory.  For example, the job's return value can be
-loaded into a variable using the \texttt{.load()} function, like this
-\begin{python}
-def main(urd)
-    job = urd.build('hello_world')
-    print(job.load())
-\end{python}
-Running this build script will print the string to the \texttt{run}
-program's standard output.
+The \texttt{Job} object provides a convenient way to access files and
+data stored in this directory.  For example, as we've already seen,
+the job's return value can be loaded into a variable using the
+\texttt{.load()} function.
 
 
 
 \subsection{Workdirs and Sharing Jobs}
 
-Workdirs are used to separate jobs into different physical locations.
-The Accelerator can be set up to have any number of workdirs
-associated, but only one is used for writing.
+Workdirs are used to store jobs.  There can be more than one workdir,
+and different workdirs can be used separate jobs into different
+physical locations.  The Accelerator can be set up to have any number
+of workdirs associated, but only one is used for writing.
 
 If the same workdir is entered into two or more different user's
 configuration files, the workdir and its contents will be shared
 between the users.  Each Accelerator server will update its knowledge
 about the contents of all workdirs before executing a build script, to
-make sure that the latest jobs are taken into account.  The Urd
-database, as described in chapter~\ref{chap:urd}, is very useful for
-sharing job information between users.
+make sure that the latest jobs are taken into account.  In addition,
+the job log database, as described in chapter~\ref{chap:urd}, is
+designed for efficient re-use and sharing of particularly interesting
+jobs.
 
 
 \subsection{Linking Jobs}
@@ -170,21 +172,22 @@ Using jobs, complex tasks can be split into several smaller
 operations.  Jobs can be connected so that the next job will depend on
 the result of a previous job or set of jobs, and so on.
 
-To continue the simple example, assume for a second that the ``hello
-world''-job is computationally expensive, and that it returns a result
-that is to be used as input to further processing.  To keep things
-simple, this further processing is represented by printing the result
-to standard output.  A new method \texttt{print\_result} is created,
-and it goes like this
+To continue the simple hello world example, assume for a second that
+the \texttt{hello\_world}-job is computationally expensive, and that
+it returns a result that is to be used as input to further processing.
+To keep things simple, this further processing is represented by
+printing the result to standard output.  A new method
+\texttt{print\_result} is created, and it goes like this
 \begin{python}
-jobs = {'hello_world_job',}
+jobs = ('hello_world_job',)
 
 def synthesis():
-    print(jobs.hello_world_job.load())
+    data = jobs.hello_world_job.load() 
+    print(data)
 \end{python}
 This method expects the \texttt{hello\_world\_job} input parameter to
-be provided at execution time, and this is accomplished by the
-following build script
+be provided at execution time, and it is accomplished by the following
+extended build script
 \begin{python}
 def main(urd):
     job1 = urd.build('hello_world')
@@ -199,7 +202,7 @@ Figure~\ref{fig:execflow-print-result} illustrates the situation.
 \texttt{test-0} as input parameter, but \texttt{test-0} does not know
 of any jobs run in the future.  Hence, arrows point to previous jobs.)
 
-\begin{figure}[h!]
+\begin{figure}[b]
   \begin{center}
     \input{figures/job0job1.pdftex_t}
     \caption{Job \texttt{test-0}, is used as input to the
@@ -213,9 +216,9 @@ each reading intermediate results from previous jobs.  The Accelerator
 will keep track of all job dependencies, so there is no doubt which
 jobs that are run when and on which data.  Furthermore, since the
 Accelerator remembers if a job has been executed before, it will link
-and ``recycle'' previous jobs.  This may bring a significant
-improvement in execution speed.  Furthermore, a recycled job is a
-proof of that the code, input- and output data is connected.
+and re-use previous jobs when possible.  This may bring a significant
+improvement in execution speed.  Furthermore, a re-used job is a proof
+of that the code, input- and output data is unchanged and connected.
 
 
 \section{Datasets: Storing Data}
@@ -230,7 +233,8 @@ Internally, data in a dataset is stored in a row-column format, and is
 typically \emph{sliced} into a fixed number of slices to allow
 efficient parallel access, see figure~\ref{fig:dataset}. Columns are
 accessed independently, so there is no overhead in reading a single or
-a set of columns.
+a set of columns.  Only the data relevant for a task is read from
+disk.
 
 
 \begin{figure}[h!]
@@ -245,12 +249,12 @@ a set of columns.
 \end{figure}
 
 Furthermore, datasets may be \textsl{hash partitioned}, so that
-slicing is based on the hash value of a given column.  Slicing on, for
-example, a column containing some ID string will partition all rows
-such that rows corresponding to any particular ID is stored in a
-single slice only.  In many practical applications, hash partitioning
-makes parallel processes independent, minimising the need for
-complicated merging operations.  This is explained further in
+slice-membership is based on the hash value of a given column.
+Partitioning base on, for example, a column containing some ID string
+will puy all rows corresponding to any particular ID in a single slice
+only.  In many practical applications, hash partitioning makes
+parallel processes independent, minimising the need for complicated
+merging operations.  This is explained further in
 section~\ref{sec:slicing_and_hashing}.
 
 
@@ -261,7 +265,7 @@ A project typically starts with \textsl{importing} some data from a
 file on disk.  The bundled method \texttt{csvimport} is designed to
 parse a plethora of ``comma separated values''-file formats and store
 the data as a dataset.  See figure~\ref{fig:dataset_csvimport}.
-\begin{figure}[h!]
+\begin{figure}[b]
   \begin{center}
     \input{figures/import_file1.pdftex_t}
     \caption{Importing \texttt{file0.txt}.}
@@ -270,7 +274,7 @@ the data as a dataset.  See figure~\ref{fig:dataset_csvimport}.
 \end{figure}
 The method takes several input options in addition to the mandatory
 filename to control the import process.  Here is an example
-(non-simplified) invocation
+invocation
 \begin{python}
 def main(urd):
     jid = urd.build('csvimport', filename='file0.txt')
@@ -281,8 +285,8 @@ plus the string \texttt{default}.  For example, if the
 \texttt{csvimport} jobid is \texttt{imp-0}, the dataset will be
 referenced by \texttt{imp-0/default}.  In this case, and always when
 there is no ambiguity, the jobid alone (\texttt{imp-0}) could be used
-too.  In general, a job could contain any number of datasets, but a
-single dataset is a common case.
+too, for simplicity.  In general, a job could contain any number of
+datasets, but a single dataset is a common case.
 
 
 
@@ -296,7 +300,7 @@ dataset \texttt{imp-0/default}, and that there is more data like it
 stored in the file \texttt{file1.txt}.  The second file is imported
 with a link to the first dataset, see
 figure~\ref{fig:dataset_csvimport_chain}.
-\begin{figure}[h!]
+\begin{figure}[t]
   \begin{center}
     \input{figures/import_file0file1.pdftex_t}
     \caption{Chaining the import of \texttt{file1.txt} to the previous
@@ -320,9 +324,10 @@ constant time operation.
 In the previous section it was shown that datasets can be chained and
 thereby grow in number of rows.  A dataset chain is created simply by
 linking one dataset to the other, so the overhead is minimal.  In this
-section it is shown that it is equally simple to add new columns to
-existing datasets.  Adding columns is a common operation and the
-Accelerator handles this situation efficiently using links.
+section it is shown that by the same principles, it is equally simple
+to add new columns to existing datasets.  Adding columns is a common
+operation and the Accelerator handles this situation efficiently using
+links.
 
 The idea is very simple.  Assume a ``source'' dataset to which one or
 more new columns should be added.  A new dataset is created containing
@@ -337,7 +342,7 @@ both the new and the source dataset in parallel, making it
 indistinguishable from a single dataset.  See
 Figure~\ref{fig:dep_dataset_append_column}.
 
-\begin{figure}[h!]
+\begin{figure}[b]
   \begin{center}
     \input{figures/dataset_append_column.pdftex_t}
     \caption{Adding one new column to the source dataset.}
@@ -377,12 +382,6 @@ column.  See Figure~\ref{fig:dep_dataset_csvimport_chain}.
   \label{fig:dep_dataset_csvimport_chain}
 \end{figure}
 
-%% The figure shows how \texttt{job-1} has created two datasets,
-%% \texttt{job-1/train} and \texttt{job-1/test}, based on the input
-%% dataset \texttt{job-0/default}.  A third job, \texttt{job-2} is then
-%% accessing the \texttt{job-1/train} dataset.  (Note that \texttt{job-1}
-%% does not have a \texttt{default} dataset.)
-
 In the setup of figure~\ref{fig:dep_dataset_csvimport_chain} we have
 full tracking from either \texttt{train} or \texttt{test} datasets.
 If we want to know the source of one of these sets, we just follow the
@@ -400,53 +399,39 @@ following method may iterate over \textsl{both} datasets in
 
 
 
-\subsection{Parallel Dataset Access and Hashing}
+\subsection{Parallel Dataset Access and Hash Partitioning}
 As shown earlier in this chapter, data in datasets is stored in
-multiple files for two reasons.  One reason is that we can read only
-the columns that we need, without overhead, and the other is to allow
-fast parallel reads.  The parameter \texttt{slices} determines how
-many slices that the dataset should be partitioned into, and it also
-sets the number of parallel process that may be used for processing
-the dataset.  There is always one process for each slice of the
-dataset, and each process operates on a unique part of the dataset.
+multiple files for two reasons.  The first reason is that we can read
+only the columns that we need, without overhead, and the second reason
+is that it allows fast parallel reads.  The parameter \texttt{slices}
+determines how many slices that the dataset should be partitioned
+into, and it also sets the number of parallel process that is used for
+processing the dataset.  There is always one process for each slice of
+the dataset, and each process operates on a unique part of the
+dataset.
 
-Datasets can be partitioned, sliced, in different ways.  One obvious
-way is to use round robin, where each consecutive data row is written
-to the next slice, modulo the number of slices.  This leads to ``well
-balanced'' datasets with approximately equal number of rows per slice.
-Another alternative to slicing is to slice based on the hash value of
-a particular column's values.  Using this method, all rows with the
-same value in the hash column end up in the same slice.  This is
-efficient for many parallel processing tasks, and we'll talk more
-about it later on.
-
-Methods may be designed simpler and more efficient using hash
-partitioning, since the partitioning ensures some kind of data
-independence between slices and processes.  If, however, the same
-method is used on data that is not partitioned in the expected way, it
-will not process the data correctly.  To ensure that an assumption
-about hash partitioning is correct, there is an optional
-\texttt{hashlabel} parameter to the iterators that will cause a
-failure if the supplied column name does not correspond to the
-dataset's hashlabel.
-
-On the other hand it is also possible to have the iterator re-hash
-on-the-fly.  In general this is not recommended, since there is a
-\texttt{dataset\_rehash} method that does the same and stores the
-result for immediate re-use.  Using \texttt{dataset\_rehash} will be
-much more efficient.
+Datasets can be partitioned, or sliced, in different ways.  One
+obvious way is to use round robin, where each consecutive data row is
+written to the next slice, modulo the number of slices.  This leads to
+``well balanced'' datasets with approximately equal number of rows per
+slice.  Another alternative to slicing is to slice based on the hash
+value of a particular column's values.  Using this method, all rows
+with the same value in the hash column end up in the same slice.  This
+is efficient for many parallel processing tasks, and will be described
+in detail later on.
 
 
 
 
 \subsection{Dataset Column Types}
 
-There are a number of useful types available for dataset columns.
-They include \textsl{floating} and \textsl{integer point numbers},
-\textsl{Booleans}, \textsl{timestamps}, several \textsl{string types}
-(handling all kinds of encodings), and \textsl{json} types for storing
-arbitrary data collections.  Most of these types come with advanced
-parsers, making importing data from text files straightforward with
+There are large a number of useful types available for dataset
+columns.  They include \textsl{floating} and \textsl{integer point
+  numbers}, \textsl{Booleans}, \textsl{timestamps}, several
+\textsl{string types} (handling all kinds of string encodings), and
+\textsl{json} as well as \textsl{pickle} types for storing arbitrary
+data collections.  Most of these types come with advanced parsers,
+making importing data from text files straightforward with
 deterministic handling of errors, overflows, and so on.
 
 
@@ -472,72 +457,80 @@ Data in a dataset is typically accessed using an \emph{iterator} that
 reads and streams one dataset slice at a time to a CPU core.  The
 parallel processing capabilities of the Accelerator makes it possible
 to dispatch a set of parallel iterators, one for each slice, in order
-to have efficient parallel processing of the dataset.
+to have efficient parallel processing of the whole dataset.
 
 This section shows how iterators are used for reading data, how to
 take advantage of slicing to have parallel processing, and how to
 efficiently create new datasets.
 
+
 \subsection{Iterator Basics}
 
+Basic iterator functionality is introduced here using an example.
 Assume a dataset that has a column containing movie titles named
-\texttt{movie}, and the problem is to extract the ten most frequent
-movies.  Consider the following complete example
+\texttt{movie}, and the problem is to extract the ten most frequently
+occuring movies.  Here's a complete method solving this problem
 \begin{python}
 from collections import Counter
 datasets = ('source',)
 
 def synthesis():
     c = Counter(datasets.source.iterate(None, 'movie'))
-    print(c.most_common(10))
+    top10 = c.most_common(10)
+    print(top10)
+    return top10
 \end{python}
 This will print the ten most common movie titles and their
 corresponding counts in the \texttt{source} dataset.  The code will
 run on a single CPU core, because we use the single-process
-\texttt{synthesis} function, which is called and executed only once.
-The \texttt{.iterate} (class-)method therefore has to read through all
-slices, one at a time, in a serial fashion, and this is reflected by
-the first argument to the iterator being \texttt{None}.
+\texttt{synthesis()} function, which is called and executed only once.
+The \texttt{dataset.iterate()} (class-)method therefore has to read
+through all slices, one at a time, in a serial fashion, and this is
+reflected by the first argument to the iterator being \pyNone.  The
+method also returns the variable \texttt{top10} so that it can be used
+by other methods.
 
 
 
 \subsection{Parallel Execution}
-The Accelerator is much about parallel processing, and since datasets
-are sliced, the program can be  modified to execute in parallel by
-doing the following modification
+It is easy to write parallel programs using the Accelerator.  The fact
+that data in a dataset is sliced into disjoint sets and files makes
+parallel processing of data straightforward.  Here's a slightly
+modified version of the program from the previous section that will
+now execute in parallel
 \begin{python}
 def analysis(sliceno):
     return Counter(datasets.source.iterate(sliceno, 'movie'))
 
 def synthesis(analysis_res)
     c = analysis_res.merge_auto()
-    print(c.most_common(10))
+    top10 = c.most_common(10)
+    return top10
 \end{python}
-Here, \texttt{.iterate} is run inside the \texttt{analysis()}
-function.  This function is forked once for each slice, and the
-argument \texttt{sliceno} will contain an integer between zero and the
-number of slices minus one.  The returned value from the analysis
-functions will be available as input to the synthesis function in the
-\texttt{analysis\_res} Python iterable.  It is possible to merge the
-results explicitly, but the iterator comes with a rather magic method
-\texttt{merge\_auto()}, which merges the results from all slices into
-one based on the data type.  It can for example merge
-\texttt{Counter}s, \texttt{set}s, and composed types like
-\texttt{set}s of \texttt{Counter}s, and so on.  For larger datasets,
-this version will run much faster.
-
+For larger datasets, this parallel version of the movie title counter
+will run much faster.  Here, \texttt{.iterate()} is moved inside the
+\texttt{analysis()} function.  This function is forked once for each
+slice, and the argument \texttt{sliceno} will contain an integer
+between zero and the number of slices minus one.  The returned value
+from the analysis functions will be available as input to the
+synthesis function in the \texttt{analysis\_res} Python iterable.  It
+is possible to merge the results explicitly, but the this iterable
+comes with a rather magic method \texttt{merge\_auto()}, that merges
+the results from all slices into one based on the data type.  It can
+for example merge \texttt{Counter}s, \texttt{set}s, and composed types
+like \texttt{set}s of \texttt{Counter}s, and so on.
 
 
 \subsection{Iterating over Several Columns}
 Since each column is stored independently in a dataset, there is no
 overhead from reading a subset of a dataset's columns.  In the
 previous section we've seen how to iterate over a single column using
-\texttt{iterate}.  Iterating over more columns is straightforward by
-feeding a list of column names to \texttt{iterate}, like in this
+\texttt{.iterate()}.  Iterating over more columns is straightforward
+by feeding a list of column names to \texttt{.iterate()}, like in this
 example
 \begin{python}
 from collections import defaultdict
-datasets = {'source',}
+datasets = ('source',)
 
 def analysis(sliceno):
     user2movieset = defaultdict(set)
@@ -559,7 +552,7 @@ def analysis(sliceno):
         ...
 \end{python}
 Here, \texttt{columns} will be a list of values, one for each column
-in the dataset.
+in the dataset, in sorted column name order.
 
 
 \subsection{Iterating over Dataset Chains}
@@ -592,27 +585,9 @@ in order to get rows within the specified range only.  Using
 dataset chain with dates within the range to be checked against the
 range criterion.  Therefore, there is a \texttt{sloppy} version that
 iterates over complete datasets in the chain that contains at least
-one row with a date within the range.  This is useful, for example, to
-very quickly produce histograms or plots of subsets of the data.
-
-
-
-%% \subsection{Dataset Translators and Filters}
-
-%% The iterator may perform data translation and filtering on-the-fly
-%% using the \texttt{translators} and \texttt{filters} options.  Here is
-%% an example of how a dictionary can be fed into the iterator to map a
-%% column
-%% \begin{python}
-%% mapper = {2: "HUMANLIKE", 4: "LABRADOR", 5: "STARFISH",}
-%% for animal in datasets.source.iterate_chain(sliceno, \
-%%   "NUM_LEGS", translator={"NUM_LEGS": mapper,}):
-%%     ...
-%% \end{python}
-%% This will iterate over the \texttt{NUM\_LEGS} column, and map numbers
-%% to strings according to the \texttt{mapper} dict.
-
-%% Filters work similarly.
+one row with a date within the range.  This runs at full speed, and is
+useful, for example, to very quickly produce histograms or plots of
+subsets of a huge dataset.
 
 
 
@@ -629,11 +604,11 @@ executes, they are called one after the other.
 \item[] \texttt{prepare()} is executed first.  The returned value is
   available in the variable \texttt{prepare\_res}.
 \item[] \texttt{analysis()} is run in parallel processes, one for each
-  slice.  It is called after completion of \texttt{prepare()}.  Common
-  input parameters are \texttt{sliceno}, holding the number of the
-  current process instance, and \texttt{prepare\_res}.  The return
-  value for each process becomes available in the
-  \texttt{analysis\_res} variable.
+  slice.  It is called after completion of, and actually forked from
+  \texttt{prepare()}.  Common input parameters are \texttt{sliceno},
+  holding the number of the current process instance, and
+  \texttt{prepare\_res}.  The return value for each process becomes
+  available in the \texttt{analysis\_res} variable.
 \item[] \texttt{synthesis()} is called after the last
   \texttt{analysis()}-process is completed.  It is typically used to
   aggregate parallel results created by \texttt{analysis()} and takes
@@ -654,7 +629,7 @@ Return values from any of the three functions may be stored in the
 job's directory making them available to other jobs.
 
 
-\begin{figure}[h!]
+\begin{figure}[t]
   \begin{center}
     \input{figures/prepanasyn.pdftex_t}
     \caption{Execution flow and result propagation in a method.}
@@ -670,15 +645,15 @@ We've seen how completed jobs can be used as input to new
 jobs.  Jobs are one of three kinds of input parameters that
 a job can take.  Here the input parameters are summarised:
 \begin{itemize}
-\item[] \texttt{jobs}, a set of identifiers to previously executed jobs;
+\item[] \texttt{jobs}, a set, or list, of identifiers to previously executed jobs;
 \item[] \texttt{options}, a dictionary of options; and
-\item[] \texttt{datasets}, a set of input \textsl{datasets}.
+\item[] \texttt{datasets}, a set, or list, of input \textsl{datasets}.
 \end{itemize}
 See Figure~\ref{fig:execflow}.  Parameters are entered as global
 variables early in the method's source.
 
 
-\begin{figure}[h!]
+\begin{figure}[b]
   \begin{center}
     \input{figures/execflow.pdftex_t}
     \caption{Execution flow of a method.  The method takes optionally
@@ -693,22 +668,7 @@ variables early in the method's source.
 
 
 \section{A Class Based Programming Model}
-See figure~\ref{fig:classes}.
-\begin{figure}[h!]
-  \begin{center}
-    \input{figures/classes.pdftex_t}
-    \caption{Most important relations between classes.}
-    \label{fig:classes}
-  \end{center}
-\end{figure}
-
-
-
-\section{Accelerator Exceptions}
-There are a number of custom defined \texttt{Exception}s in the
-Accelerator code in order to simplify debugging.
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+The Accelerator is based on an class based paradigm.  Access the the
+Accelerator's build in functions and parameters are typically done
+through a few \textsl{objects} that are populated by the running
+Accelerator.

@@ -282,7 +282,7 @@ always appear to work on single files.  For example
 \begin{python}
 def analysis(sliceno, job):
     data = ...
-    job.date(data, "mydata", sliceno=sliceno, temp=False)
+    job.save(data, "mydata", sliceno=sliceno, temp=False)
 \end{python}
 will create a set of files \texttt{mydata.\%d}, where \texttt{\%d} is
 replaced by the slice number.  In this way, data can be passed ``in

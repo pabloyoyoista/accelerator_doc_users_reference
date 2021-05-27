@@ -462,14 +462,13 @@ used to look at data stored in datasets or dataset chains.
     -L, --show-lineno     show lineno (per slice) on matching lines
 \end{shell}
 \noindent The \texttt{pattern} is a regular expression and \texttt{ds} are
-datasets.  For example
+datasets.  Strings and columns with special characters have to be quoted.
+For example
 \begin{shell}
 ax grep Alice test-0 test-1/special name
 \end{shell}
 Will look for the string \texttt{Alice} in the \texttt{name} column of
 the two datasets \texttt{text-0} and \texttt{test-1/special}.
-
-Strings and columns with special characters have to be quoted.
 
 
 \section{Information about Methods: \texttt{ax method}}
@@ -516,9 +515,8 @@ empty regexp, which matches every line.
 
 \section{The Urd Job Database Server: \texttt{ax urd}}
 By default, a local Urd server is running when the Accelerator server
-is running.  Read more about this in section~\ref{chap:urd}.
-
-Start Urd by
+is running.  Read more about this in section~\ref{chap:urd}.  A
+stand-alone Urd server is started by
 \begin{shell}
 ax urd
 \end{shell}

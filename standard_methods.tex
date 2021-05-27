@@ -165,12 +165,7 @@ constant to a larger value.
 An example invocation is the following
 
 \begin{python}
-urd.build(csvimport',
-    options=dict(
-        filename='inputfile.txt',
-        separator='\0',
-    )
-)
+urd.build(csvimport', filename='inputfile.txt', separator='\0')
 \end{python}
 this will import the file \texttt{inputfile.txt} assuming that there
 are labels on the first line and the column separator is a null
@@ -225,14 +220,11 @@ not include directories. The default is to include directories.
 \subsection{Example invocation}
 
 \begin{python}
-    jid = urd.build("csvimport_zip",
-        options=dict(
-            filename="data_Q2_2019.zip",
-            exclude_re=r"(__MACOSX|\.DS_Store)",
-            chaining="by_filename",
-            strip_dirs=True,
-        ),
-    )
+urd.build("csvimport_zip",
+    filename="data_Q2_2019.zip",
+    exclude_re=r"(__MACOSX|\.DS_Store)",
+    chaining="by_filename",
+    strip_dirs=True)
 \end{python}
 
 
@@ -349,18 +341,14 @@ accepted by the system's \texttt{\$TZ}.  Note
 An example invocation is the following
 \begin{python}
 urd.build('dataset_type',
-    datasets=dict(
-        source=...,
-        previous=...,
+    source=...,
+    previous=...,
+    column2type=dict(
+        auct_start_dt='datetime:%Y-%m-%d',
+        brand='json',
+        item_id='number',
+        comp='unicode:utf-8',
     ),
-    options=dict(
-        column2type=dict(
-            auct_start_dt='datetime:%Y-%m-%d',
-            brand='json',
-            item_id='number',
-            comp='unicode:utf-8',
-        ),
-    )
 )
 \end{python}
 
@@ -617,15 +605,10 @@ Options section for full details.
 An example invocation is the following
 \begin{python}
 urd.build(csvexport',
-    datasets=dict(
-        source='test-3/foo',
-    ),
-    options=dict(
-        filename='output.txt.gz',
-        separator=' ', quote_fields="\'",
-        ),
-    )
-)
+    source='test-3/foo',
+    filename='output.txt.gz',
+    separator=' ',
+    quote_fields="\'")
 \end{python}
 
 
@@ -668,9 +651,7 @@ on a column specified in the options.
 \subsection{Example Invocation}
 An example invocation is the following
 \begin{python}
-urd.build('dataset_hashpart',
-          datasets=dict(source=jid,), 
-          options=dict(hashlabel='start_date',))
+urd.build('dataset_hashpart', source=jid, hashlabel='start_date')
 \end{python}
 
 

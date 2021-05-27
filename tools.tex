@@ -488,8 +488,17 @@ statement in a method.
 
 
 \section{Aliases}
-It is possible to create aliases for common tasks.
-@@@@HOWTO?
+It is possible to create aliases for common tasks.  Aliases are
+inserted in the file \texttt{config} in the \texttt{\$XDG\_CONFIG\_HOME}
+directory.  By default, this corresponds to the file \texttt{\$HOME/.config/config}.
+In this file, aliases are entered in the \texttt{[alias]} section like this
+\begin{verbatim}
+[alias]
+  jo = job -O
+\end{verbatim}
+This will create the alias \texttt{ax jo} that is equivalent to
+\texttt{ax job -O}.
+
 
 
 \section{Show Dataset Contents: \texttt{ax cat}}

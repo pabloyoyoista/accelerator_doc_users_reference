@@ -654,7 +654,18 @@ job's directory making them available to other jobs.
 \end{figure}
 
 
+\begin{figure}[b]
+  \begin{center}
+    \input{figures/execflow.pdftex_t}
+    \caption{Execution flow of a method.  The method takes optionally
+      three kinds of parameters: \texttt{options}, \texttt{jobs},
+      and \texttt{datasets}.}
+    \label{fig:execflow}
+  \end{center}
+\end{figure}
 
+
+\clearpage
 \subsection{Job Parameters}
 \label{sec:jobparams}
 We've seen how completed jobs can be used as input to new
@@ -667,20 +678,6 @@ a job can take.  Here the input parameters are summarised:
 \end{itemize}
 See Figure~\ref{fig:execflow}.  Parameters are entered as global
 variables early in the method's source.
-
-
-\begin{figure}[b]
-  \begin{center}
-    \input{figures/execflow.pdftex_t}
-    \caption{Execution flow of a method.  The method takes optionally
-      three kinds of parameters: \texttt{options}, \texttt{jobs},
-      and \texttt{datasets}.}
-    \label{fig:execflow}
-  \end{center}
-\end{figure}
-
-
-
 
 
 \section{A Class Based Programming Model}

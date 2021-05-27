@@ -76,14 +76,15 @@ job = urd.build(method,
                 options={}, datasets={}, jobs={},
                 name='', caption='', workdir=None, **kw)
 \end{python}
-All parameters, except the name of the method, are optional and
-typically not used very often in practice.  Any arguments to a job
-build can be added as simple \textsl{keyword arguments}, and the build
-process will automatically assign them by name to the corresponding
+In practive, only a few parameters are given at a time, and the only
+mandatory argument is the \texttt{method}.  Any arguments to a job
+build can be added as simple \textsl{keyword arguments}
+(\mintinline{python}{key=value}), and the build process will
+automatically assign them by name to the corresponding
 \texttt{options}, \texttt{datasets}, or \texttt{jobs} parameter
-sets, assuming the naming is unique.  Otherwise the argument has to be
-specified explicitly.  Examples will be present in the following
-sections.
+sets, assuming the naming is unique.  If the key name is not unique,
+the argument has to be specified explicitly.  Examples will be present
+in the following sections.
 
 When the job is completed, Urd will record it using the name of the
 method as key, unless the \texttt{name=} is specified.

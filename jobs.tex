@@ -376,6 +376,25 @@ use.
 
 
 
+\section{Invoking the Python Debugger}
+Although the Accelerator is a client-server application, it is
+possible to invoke the Python Debugger at any time.  The only thing
+needed is to start the server with a flag like this
+\begin{shell}
+ax server --debuggable
+\end{shell}
+When this flag is set, methods will be executed in the same session as
+the server with that terminal as \texttt{stdin}.  This means that it
+is possible to write for example
+\begin{python}
+breakpoint()
+\end{python}
+anywhere in a method and communicate with the debugger in the server
+terminal window.  Note that using this flag will kill the server if
+the method fails.  See section~\ref{sec:axserver}
+
+
+
 \section{Method Execution}
 Methods are executed using the \texttt{build()} call, either from a
 \texttt{build script}, or from another method as a \texttt{subjob}.
@@ -549,8 +568,6 @@ job-x/
       3          #                                       3
 \end{verbatim}
 No empty files will be created.
-
-
 
 
 \section{The \texttt{Job} and \texttt{CurrentJob} Classes}

@@ -216,7 +216,7 @@ optional arguments:
 
 
 \section{Accelerator Server: \texttt{ax server}}
-
+\label{sec:axserver}
 The Accelerator server, or daemon, needs to be running in order to
 execute any commands.
 \begin{shell}
@@ -229,11 +229,13 @@ ax server --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: ax server [-h] [--debug]
+usage: ax server [-h] [--debug] [--debuggable]
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help    show this help message and exit
   --debug
+  --debuggable  make breakpoint() work in methods. note that this
+                makes a failing method kill the whole server.
 \end{verbatim}%
 \end{snugshade}
 Communication with the Accelerator server will take place over an UNIX
@@ -241,7 +243,10 @@ socket by default.  There is no need for any additional configuration
 to make that happen.  It is possible, however, to communicate over a
 TCP port instead if specified in the Accelerator's configuration file.
 
-
+The \texttt{debuggable}-flag will make methods execute in the same
+session as the server, and use that terminal as \texttt{stdin}.  This
+way methods can be debugged using the Python Debugger.  Note that a
+failing method will kill the server if this flag is used.
 
 
 

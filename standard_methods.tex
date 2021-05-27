@@ -236,7 +236,7 @@ column of type \texttt{bytes}, \texttt{ascii}, or \texttt{unicode} to
 any other type.
 
 The method will also hash partition the output dataset if the
-\texttt{hashlabel} input paramter is set, causing a new dataset to be
+\texttt{hashlabel} input parameter is set, causing a new dataset to be
 created.  For additional information about hash partitioning, see the
 \texttt{dateset\_hashpart} method in section~\ref{sec:dataset_hash_partition}.
 
@@ -666,6 +666,8 @@ from accelerator.gzutil import siphash24
 
 target_sliceno = siphash24(cols[hashlabel]) % params.slices
 \end{python}
+The \texttt{hashlabel} column can be of any type \textsl{except} \texttt{json}
+and \texttt{pickle}!
 
 
 \subsection{Notes on Chains}

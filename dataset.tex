@@ -149,8 +149,8 @@ chapter~\ref{chap:iterators}), that may continue iterating over the
 next dataset in the chain when the current dataset is exhausted.  Here
 is a an example of how \texttt{csvimport} jobs can be chained
 \begin{python}
-job1 = urd.build('csvimport', filename='file1.txt')
-job2 = urd.build('csvimport', filename='file2.txt', previous=job1)
+job = urd.build('csvimport', filename='file1.txt')
+job = urd.build('csvimport', filename='file2.txt', previous=job)
 \end{python}
 In order to maintain high speed when processing long chains, the
 Accelerator caches chain metadata every 64th dataset.  This reduces

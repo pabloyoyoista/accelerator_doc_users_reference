@@ -160,7 +160,10 @@ that are
 \item[--] reachable by the Python interpreter, and
 \item[--] contain the (perhaps empty) file ``\texttt{\_\_init\_\_.py}''.
 \end{itemize}
-In addition, for the Accelerator to accept a package, the following
+Packages are by default located in the same directory as the
+Accelerator's configuration file.  This location can be changed by
+setting the \texttt{package directory} configuration option.  In
+addition, for the Accelerator to accept a package, the following
 constraints need to be satisfied
 \begin{itemize}
 \item[--] the package must contain a file named \texttt{methods.conf}, and

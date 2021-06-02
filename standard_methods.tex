@@ -905,9 +905,10 @@ merging is a very fast constant time operation.
 \section{\texttt{dataset\_unroundrobin} -- Transpose a Dataset}
 
 This method will transpose the dataset so that first row from slices
-0, 1, 2, \dots will end up in slice 0 rows 0, 1, 2 \dots.  It always
-creates a new dataset.  If \texttt{trigger\_column} is set to the name
-of a column, slice switching is delayed until the data in the
+0, 1, 2, \dots will end up in slice 0 rows 0, 1, 2 \dots.  See
+figure~\ref{fig:ds_ops} on page~\pageref{fig:ds_ops}.  The method
+always creates a new dataset.  If \texttt{trigger\_column} is set to
+the name of a column, slice switching is delayed until the data in the
 specified column changes.  Otherwise, the new dataset will have the
 same number of rows per slice as the source dataset.
 

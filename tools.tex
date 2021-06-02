@@ -50,19 +50,20 @@ optional arguments:
 
 commands:
 
-    abort  abort running job(s)
-    board  runs a webserver for displaying results
-     curl  http request (with curl) to urd or the server
-       ds  display information about datasets
-     grep  search for a pattern in one or more datasets
-     init  create a project directory
-      job  information about a job
-   method  information about methods
-      run  run a build script
-   server  run the main server
-      urd  run the urd server
-  version  show installed accelerator version
-  workdir  information about workdirs
+         abort  abort running job(s)
+  board-server  runs a webserver for displaying results
+          curl  http request (with curl) to urd or the server
+            ds  display information about datasets
+          grep  search for a pattern in one or more datasets
+          init  create a project directory
+           job  information about a job
+        method  information about methods
+           run  run a build script
+        server  run the main server
+           urd  inspect urd contents
+    urd-server  run the urd server
+       version  show installed accelerator version
+       workdir  information about workdirs
 
 aliases:
 cat = grep ""
@@ -316,28 +317,24 @@ values, number of rows, and balance of rows between slices.
   usage: ax ds [options] ds [ds [...]]
 
   positional arguments:
-  dataset               the job part of the dataset name can be specified in
-                        the same ways as for ``ax job''. you can use ds~ or
-                        ds~N to follow the chain N steps backwards, or ^ to
-                        follow .parent. this requires specifying the ds-name,
-                        so wd-1~ will not do this, but wd-1/default~ will.
+  dataset                the job part of the dataset name can be specified in
+                         the same ways as for ``ax job''. you can use ds~ or
+                         ds~N to follow the chain N steps backwards, or ^ to
+                         follow .parent. this requires specifying the ds-name,
+                         so wd-1~ will not do this, but wd-1/default~ will.
 
   optional arguments:
-  -h, --help            show this help message and exit
-  -c, --chain           list all datasets in a chain
-  -C, --non-empty-chain
-  list all non-empty datasets in a chain
-  -l, --list            list all datasets in a job with number of rows
-  -L, --chainedlist     list all datasets in a job with number of chained rows
-  -m, --suppress-minmax
-  do not print min/max column values
-  -n, --suppress-columns
-  do not print columns
-  -q, --suppress-errors
-  silently ignores bad input datasets/jobids
-  -s, --slices          list relative number of lines per slice in sorted order
-  -S, --chainedslices   same as -s but for full chain
-  -w, --location        show where (ds/filename) each column is stored
+  -h, --help             show this help message and exit
+  -c, --chain            list all datasets in a chain
+  -C, --non-empty-chain  list all non-empty datasets in a chain
+  -l, --list             list all datasets in a job with number of rows
+  -L, --chainedlist      list all datasets in a job with number of chained rows
+  -m, --suppress-minmax  do not print min/max column values
+  -n, --suppress-columns do not print columns
+  -q, --suppress-errors  silently ignores bad input datasets/jobids
+  -s, --slices           list relative number of lines per slice in sorted order
+  -S, --chainedslices    same as -s but for full chain
+  -w, --location         show where (ds/filename) each column is stored
 \end{shell}
 
 The \texttt{dataset} option is either a \textsl{dataset}, when used
@@ -446,26 +443,23 @@ used to look at data stored in datasets or dataset chains.
 
     positional arguments:
     pattern
-    dataset               can be specified in the same ways as for ``ax ds''
+    dataset                   can be specified in the same ways as for ``ax ds''
     columns
 
     optional arguments:
-    -h, --help            show this help message and exit
-    -c, --chain           follow dataset chains
-    -C, --color           color matched text
-    -i, --ignore-case     case insensitive pattern
-    -H, --headers         print column names before output (and on each change)
-    -o, --ordered         output in order (one slice at a time)
-    -g COLUMN, --grep COLUMN
-    grep this column only, can be specified multiple times
-    -s SLICE, --slice SLICE
-    grep this slice only, can be specified multiple times
-    -t SEPARATOR, --separator SEPARATOR
-    field separator (default tab)
-    -D, --show-dataset    show dataset on matching lines
-    -S, --show-sliceno    show sliceno on matching lines
-    -L, --show-lineno     show lineno (per slice) on matching lines
-\end{shell}
+    -h, --help                show this help message and exit
+    -c, --chain               follow dataset chains
+    -C, --color               color matched text
+    -i, --ignore-case         case insensitive pattern
+    -H, --headers             print column names before output (and on each change)
+    -o, --ordered             output in order (one slice at a time)
+    -g COLUMN, --grep COLUMN  grep this column only, can be specified multiple times
+    -s SLICE, --slice SLICE   grep this slice only, can be specified multiple times
+    -t SEPARATOR, --separator SEPARATOR   field separator (default tab)
+    -D, --show-dataset        show dataset on matching lines
+    -S, --show-sliceno        show sliceno on matching lines
+    -L, --show-lineno         show lineno (per slice) on matching lines
+ end{shell}
 \noindent The \texttt{pattern} is a regular expression and \texttt{ds} are
 datasets.  Strings and columns with special characters have to be quoted.
 For example
@@ -488,6 +482,14 @@ ax method csvimport
 \end{shell}
 Descriptions are added using the \texttt{description="some string"}
 statement in a method.
+
+
+\section{Information about Jobs: \texttt{ax job}}
+
+
+
+\section{Starting the Board Web Server: \texttt{ax board-server}}
+
 
 
 
@@ -514,24 +516,29 @@ ax cat test-0 | less
 This is an alias for \texttt{ax grep ""}, which greps a dataset for the
 empty regexp, which matches every line.
 
+A common usage is to do
+\begin{shell}
+ax cat -Ho text-0 column1 column2
+\end{shell}
+to list a set of columns (or all, if omitted) row by row in order with
+a header showing label names.
 
 
 
-
-\section{The Urd Job Database Server: \texttt{ax urd}}
+\section{The Urd Job Database Server: \texttt{ax urd-server}}
 By default, a local Urd server is running when the Accelerator server
 is running.  Read more about this in section~\ref{chap:urd}.  A
 stand-alone Urd server is started by
 \begin{shell}
-ax urd
+ax urd-server
 \end{shell}
 These are the options
 \begin{shell}
-ax urd --help
+ax urd-server --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: urd [-h] [--port PORT] [--path PATH]
+usage: urd-server [-h] [--port PORT] [--path PATH]
 
 optional arguments:
 -h, --help   show this help message and exit
@@ -597,29 +604,6 @@ usage: ax workdir [-a | [workdir [workdir [...]]]
 \end{snugshade}
 
 
-\section{The Urd Server: \texttt{ax urd}}
-The Urd server is started by \texttt{ax server} by default.  It is
-possible to set up a separate Urd server, for example for a larger
-project with several participants, see section~\ref{sec:urd_setup}.
-\begin{snugshade}
-\begin{verbatim}
-usage: ax abort [-h] [-q]
-
-optional arguments:
-  -h, --help   show this help message and exit
-  -q, --quiet  no output
-[eaenbrd][13:56:46][~/beast] ax urd --help                                                                                                                                                                                                     (git)-[master] 
-usage: ax urd urd [-h] [--path PATH] [--allow-passwordless] [--quiet]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --path PATH           database directory (can be relative to project directory) (default: urd.db)
-  --allow-passwordless  accept any pass for users not in passwd.
-  --quiet               less chatty.
-\end{verbatim}
-\end{snugshade}
-
-
 \section{The Board Web Server: \texttt{ax board}}
 The Board server is a web server that exposes information about jobs
 and results through the use of a standard web browser.  This is
@@ -634,8 +618,31 @@ for displaying results (result_directory)
 \end{snugshade}
 
 
-\section{Displaying Urd Database Content: \texttt{ax curl}}
-The \texttt{ax curl} command is just a shorthand for the general
-\texttt{curl} tool.  It is used to query information from the Urd
-transactional database.  See section~\ref{sec:urd-api} for infomation
-on how to use it.
+\section{Displaying Urd Database Content: \texttt{ax urd}}
+\begin{snugshade}
+\begin{verbatim}
+usage: ax urd path [path [...]]
+
+path is an optionally shortened path to an urd list.
+one element is a list name, two elements are list and timestamp.
+(and three elements are the whole thing, user/list/timestamp.)
+
+use "path/since/ts" or just "path/" to list timestamps
+use "/" (or nothing) to list all lists
+
+you can also use :urdlist:[entry] job specifiers. urdlist follows the same
+path rules as above, entry is an optional argument to joblist.get() printing
+just the resultant jobid.
+
+in job specifiers you can use ~ to move to forwards (later, down) along a
+list of timestamps and ^ to move backwards (earlier, up).
+
+examples:
+  "ax urd example" is "ax urd eaenbrd/example/latest"
+  "ax urd :example:" is also "ax urd eaenbrd/example/latest"
+  "ax urd example/2021-04-14" is "ax urd eaenbrd/example/2021-04-14"
+  "ax urd :foo/bar/first:" is "ax urd foo/bar/first"
+  "ax urd :bar/first~:" is the second timestamp in eaenbrd/bar
+  "ax urd example/" is "ax urd eaenbrd/example/since/0"
+\end{verbatim}
+\end{snugshade}

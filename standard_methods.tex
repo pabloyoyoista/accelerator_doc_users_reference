@@ -382,7 +382,7 @@ below for all alternatives
 \starttablenotitle
 \RPnotitle \texttt{float32} & \texttt{float64} & \emph{default}\\
 \RPnotitle \texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
-\RPnotitle \texttt{float32e} & \texttt{float64e} & \emph{exact}, error if parsed number does not fit in type \\
+\RPnotitle \texttt{float32e} & \texttt{float64e} & \emph{exact}, raise error if parsed number does not fit in type \\
 \RPnotitle \texttt{float32s} & \texttt{float64s} & \emph{saturate}, saturate to min/max if number does not fit in type \\
 \RPnotitle \texttt{float32ei} & \texttt{float64ei} & \emph{exact} + \emph{ignore} \\
 \RPnotitle \texttt{float32si} & \texttt{float64si} & \emph{saturate} + \emph{ignore} \\
@@ -395,8 +395,8 @@ account, so in addition to decimal numbers, it is also straightforward
 to parse octal and hexadecimal numbers.  The \emph{ignore} option
 causes parsing to ignore trailing garbage characters.
 \starttablenotitle
-\RPnotitle   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{auto}, avoid and use a deterministic type if possible \\
-\RPnotitle   \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{auto}, ignore trailing garbage \\
+\RPnotitle   \texttt{int32\_0}   & \texttt{int64\_0}   & \emph{automatic base detection}, consider avoiding this in favor of a deterministic type \\
+\RPnotitle   \texttt{int32\_0i}  & \texttt{int64\_0i}  & \emph{automatic base detection}, ignore trailing garbage \\
 \RPnotitle   \texttt{int32\_8}   & \texttt{int64\_8}   & \emph{octal} \\
 \RPnotitle   \texttt{int32\_8i}  & \texttt{int64\_8i}  & \emph{octal}, ignore trailing garbage \\
 \RPnotitle   \texttt{int32\_10}  & \texttt{int64\_10}  & \emph{decimal} \\
@@ -408,15 +408,16 @@ causes parsing to ignore trailing garbage characters.
 
 \subsubsection{Integers Stored as Floats}
 There are also a parsing options for integers that are represented in
-a floating point format in the source data.  This is useful if integer
-data is stored with decimals, such as \texttt{5.0}.  In pseudocode,
-the parsing basically runs \texttt{int(float(value))} for each such
-value.
+a floating point format in the source data.  These are useful when
+integer data is stored with decimals, such as \texttt{5.0}.  In
+pseudocode, the parsing basically runs \texttt{int(float(value))} for
+each such value.  Unless saturation and/or removal of trailing garbage
+is required, the \texttt{number} should be used.
 \starttablenotitle
-\RPnotitle   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, error if parsed number does not fit in type\\
+\RPnotitle   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, raise error if parsed number does not fit in type\\
 \RPnotitle   \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
-\RPnotitle   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore}\\
-\RPnotitle   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore}\\
+\RPnotitle   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore} trailing garbage\\
+\RPnotitle   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore} trailing garbage\\
 \stoptablenotitle
 
 
@@ -433,7 +434,7 @@ strings and floats.
 \RPnotitle  \texttt{floatbool} && \mintinline{python}{True} when float has
   bits set. Is \mintinline{python}{False} otherwise.\\
 
-\RPnotitle  \texttt{floatbooli} && same + \emph{ignore}\\
+\RPnotitle  \texttt{floatbooli} && same + \emph{ignore} trailing garbage\\
 \stoptablenotitle
 
 
@@ -445,11 +446,11 @@ time types require a format specification (represented here by an
 asterisk) as described below\\
 \starttablenotitle
 \RPnotitle  \texttt{date:*}      && a date with format specifier\\
-\RPnotitle    \texttt{datei:*}     && same + \emph{ignore}\\
+\RPnotitle    \texttt{datei:*}     && same + \emph{ignore} trailing garbage\\
 \RPnotitle    \texttt{time:*}      && a time with format specifier\\
-\RPnotitle    \texttt{timei:*}     && same + \emph{ignore}\\
+\RPnotitle    \texttt{timei:*}     && same + \emph{ignore} trailing garbage\\
 \RPnotitle    \texttt{datetime:*}  && a date + time with format specifier\\
-\RPnotitle    \texttt{datetimei:*} && same + \emph{ignore}\\
+\RPnotitle    \texttt{datetimei:*} && same + \emph{ignore} trailing garbage\\
 \stoptablenotitle
 \noindent The format is standard Python time formats, like shown in
 these examples
@@ -470,7 +471,7 @@ shown first, and the more advanced variations and options will be
 described below.
 \starttablenotitle
 \RPnotitle  \texttt{bytes}      && list of bytes\\
-\RPnotitle    \texttt{bytesstrip} && list of bytes, strip characters 8-13, 32 from start and end\\
+\RPnotitle    \texttt{bytesstrip} && list of bytes, strip ASCII characters 8-13, 32 from start and end\\
 \RPnotitle    \texttt{ascii}      && list of ASCII characters\\
 \RPnotitle    \texttt{asciistrip} && list of ASCII characters, strip characters 8-13, 32 from start and end\\
 \stoptablenotitle

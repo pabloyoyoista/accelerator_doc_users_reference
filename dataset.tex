@@ -509,6 +509,16 @@ for more information on \texttt{none\_support}.
 
 
 
+\subsection{Does Hash Partitioning Depend on the Data Type?}
+Hash partitioning is independent of type where possible.  The hashing
+function is designed so that, for example, the floating point
+value \texttt{4.0} has the same hash value as the integer
+value \texttt{4}.  So for integers, the result is the same independent
+of floating point of integer representation.  But note that hashing is
+different for strings, the hash of the string \texttt{"4"}
+is \textsl{not} the same as the hash of the integer \texttt{4}.
+
+
 \section{Creating a New Dataset}
 \label{sec:datasetwriter}
 Datasets are created by methods using the \texttt{DatasetWriter}

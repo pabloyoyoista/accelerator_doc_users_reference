@@ -17,7 +17,7 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The Accelerator is a tool for fast reproducible data processing,
+ExAx, or the Accelerator, is a tool for fast reproducible data processing,
 capable of working at high speed with terabytes of data with billions
 of rows on a single computer.  The speed in combination with its
 unique capabilites to ensure reproducibility makes the Accelerator a
@@ -31,58 +31,56 @@ servers.
 The Accelerator was first used in 2012, and has been continuously developed and
 improved since.  It has been in use in projects for companies like
 \textsl{Safeway}, \textsl{Starbucks}, \textsl{eBay}, \textsl{Ericsson},
-and \textsl{Vodafone}.  Most project have been related to data
+and \textsl{Vodafone}, among others.  Most projects have been related to data
 analysis, some to optimisation, and some projects have been
-recommendation systems running live for years.  The Accelerator has
+recommender systems running live for years.  The Accelerator has
 been the core of these projects.  In 2016, the Accelerator was
 acquired by Ebay, who contributed it to the open source community
 early 2018.
 
-Data set sizes in these projects range from a few hundred lines up to
-several tens of billions rows and many columns.  The number of
-items in a dataset used in a live system was well above $10^{11}$, and
-this was handled with ease on a \emph{single} 32 core computer.
+The sizes of typical data sets used in these projects range from a few
+hundred lines up to several tens of billions rows and many columns.
+The number of items in a dataset used in a live system was well above
+$10^{11}$, and this was handled with ease on a \emph{single} 32 core
+computer.
 
 The authors are Anders Berkeman, Carl Drougge, and Sofia H\"orberg.
 More than 1600 commits have been removed to clean up the open version
-of the code base, and about 1000 new commits have been created since
-the Accelerator was open sourced.  Extensive testing has been done by
-Stefan H{\aa}konsson.  The Accelerator is written in Python, with the
-exception of some critical parts that are written in the C programming
-language.
+of the code base, and about 1300 new commits have been created since
+the Accelerator was open sourced.  The Accelerator is written in
+Python, with the exception of some critical parts that are written in
+the C programming language.  Extensive testing has been done by Stefan
+Weiland.
 
 
 
 \section{Main Design Goals}
-The Accelerator is designed to process log-files in ``CSV''-like
-formats\footnote{CSV is short for Comma Separated Values, but any
-separator character can be used.  CSV files store data into rows and
-columns of text.  Classical ``databases'' could be generated from, and
-dumped to, CSV-files.}.  Log files bring determinism (i.e.\
-reproducibility) and transparency, and most data can be represented in
-this format.  The Accelerator is developed bottom up for high
-performance and simplicity, and the main design goals are:
+The Accelerator was originally developed for reproducible,
+transparent, and maximally fast data processing using all available
+CPU cores.  It is designed bottom up for high performance and
+simplicity, and the main design goals are:
 \begin{itemize}
 
 \item[] \textsl{Parallel processing} should be made simple.  Modern computers
-  come with several cores, it should be straightforward to make use of
-  them.
-
+  come with several CPU cores.  It should be straightforward to use
+  them to speed up computations.
+  
 \item[] Data rates should be as fast as possible, i.e.\ close to the hardware
-bounds.  It should be possible to process \textsl{large datasets},
-  even on commodity hardware.
+  bounds.  It should be possible to process \textsl{large datasets} on
+  inexpensive hardware, including laptops.
 
-\item[] Any processing step should be \textsl{reproducible}.
-The Accelerator maps any output result to its corresponding input data and
-processing source code.
+\item[] All processing steps should be \textsl{reproducible}.
+  The Accelerator maps any generated result to its corresponding input
+  data and processing source code.
 
 \item[] Never recompute old results, always ``recycle'' old jobs, when
-  possible.  Also, \textsl{sharing results} between multiple users should be
-  effortless.
+  possible.  \textsl{Sharing} computed results between multiple users
+  should be effortless.
 
-\item[] \textsl{Organise} and keep track of all jobs, files, and results in
-  order to work with projects having 100.000s of input files and lots
-  of programs and scripts processing them.
+\item[] \textsl{Organise} and keep track of all jobs, input files,
+  intermediate files, and results in order to work with projects having
+  100.000s of input files and lots of programs and scripts processing
+  them.
   
 \end{itemize}
 In addition, the Accelerator is originally designed to be used at all

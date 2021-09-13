@@ -813,17 +813,23 @@ processing tasks, because it localises values to single slices.
 
 
 \subsection{A Practical Limitation}
-Internally, the method works by reading the columns to sort by, and
-create a soring indexing column that stipulates the sorting order.
-Each column is then read, one at a time, and written according to the
-sorting column.  All columns except the sorting columns are read as
-raw data, meaning that no de-serialising into Python's internal format
-is required.  This makes sorting fast and relatively low on memory
-useage.  However, since it has to hold the index as well as one full
-column of data in memory, the method has in theory limited sorting
-capability.  Still, a standard computer can sort very large datasets
-without trouble.
+\texttt{dataset\_sort} may run out of memory, depending on the amount
+of RAM, number of parallel processes, and the input dataset.  If this
+should happen, one simple solution is to use the \texttt{CONCURRENCY}
+option to reduce the number of concurrent parallel processes, for the
+\texttt{dataset\_sort} method only.  See
+section~\ref{sec:concurrency}.
 
+Discussion: internally, the method works by reading the columns to
+sort by, and create a soring indexing column that stipulates the
+sorting order.  Each column is then read, one at a time, and written
+according to the sorting column.  All columns except the sorting
+columns are read as raw data, meaning that no de-serialising into
+Python's internal format is required.  This makes sorting very fast
+and relatively low on memory useage.  However, since it has to hold
+the index as well as one full column of data in memory, the method has
+in theory limited sorting capability.  Still, a standard computer can
+sort very large datasets without trouble.
 
 
 \clearpage

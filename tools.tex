@@ -125,20 +125,22 @@ it will print its documentation + interface.
 
 When a script has been run, any job can be inspected using
 \begin{shell}
-ax job <jobid>
+ax job <jobid/job-spec>
 \end{shell}
 that will print execution times, input parameters, output file names
-etc for jobs.  It takes either jobids or paths as input.
+etc for jobs.  See section~\ref{sec:jobspec} for alternative ways to
+specify a job.
 
 Similarly,
 \begin{shell}
-ax ds <dataset>
+ax ds <dataset/dataset-spec>
 \end{shell}
-holds the key for a lot of information about datasets.  Everything
-from column names, max/min-values, and types to distribution of
-elements per slice is available.  If the input is a job, it will look
-for the job's default dataset, but it can also show the name of all
-dataset in a job, and more.
+holds the key for a lot of information about datasets.  See
+section~\ref{sec:jobspec} for alternative ways to specify a dataset.
+Everything from column names, max/min-values, and types to
+distribution of elements per slice is available.  If the input is a
+job, it will look for the job's default dataset, but it can also show
+the name of all dataset in a job, and more.
 
 To look at the data in a dataset, use
 \begin{shell}
@@ -164,6 +166,55 @@ Finally,
 ax version
 \end{shell}
 will print the current version of the Accelerator.
+
+
+
+\section{Job and Dataset References for Command Line Tools}
+For commands such as \texttt{ax job} and \texttt{ax ds}, there are
+several convenient ways to specify the input jobs or datasets.
+
+\begin{itemize}
+\item[] by \textbf{jobid}, like this
+  \begin{shell}
+    ax job dev-12
+  \end{shell}
+\item[] by \textbf{method name}, like this
+  \begin{shell}
+    ax job csvimport
+  \end{shell}
+  This will look up the \textsl{latest} and \textsl{current} job
+  created by the \texttt{csvimport} method, i.e.\ the latest finished
+  job with current (unmodified) source code.
+\item[] by \textbf{urdlist} key/timestamp, for example like this
+  \begin{shell}
+    ax job :import/2021-09-09:
+  \end{shell}
+  Here are examples of to use this:
+  \begin{itemize}
+    \item[] \texttt{:import:} latest job in joblist with latest timestamp in \texttt{import}.
+    \item[] \texttt{:import/2021-09-09:} latest job in joblist with given timestamp.
+    \item[] \texttt{:import/2021-09-09:csvimport} latest \texttt{csvimport} job in joblist with timestamp.
+    \item[] \texttt{:import/2021-09-09:-2} second to last job in joblist with timestamp.
+  \end{itemize}
+
+  In addition, the \texttt{\textasciitilde} and \texttt{\texttt{\^{}}}
+  can be used to ``follow'' the history of jobs in a similar fashion
+  as is provided by the \texttt{git} version control tool.  Here are
+  some examples of how to use it
+  \begin{itemize}
+  \item[] \texttt{:import/2021-09-09:\textasciitilde\textasciitilde} corresponds to the
+    latest job in \texttt{import} that is two timestamps back.
+  \item[] \texttt{:import/2021-09-09:\textasciitilde 2} is the same thing
+  \item[] \texttt{:import/2021-09-09:\^{}} looks up the
+    \texttt{.previous} to latest job in joblist with timestamp.
+  \end{itemize}
+\end{itemize}
+
+Note that for specifying \textsl{datasets}, the
+\texttt{\textasciitilde} and \texttt{\^{}} must be suffixed to a
+dataset speficer, and not a job specifier.  In practice, this means
+that a dataset name has to be given explicitly, i.e.\ write
+\texttt{job-42/default\textasciitilde} and \textsl{not} \texttt{job-42/\textasciitilde}.
 
 
 

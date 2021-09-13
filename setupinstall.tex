@@ -58,11 +58,13 @@ project setup will look like this
 myproject/
     accelerator.conf
     dev/
-        methods.conf
+        (methods.conf)
         a_method.py
         build.py
 \end{shell}
 where methods are stored in the \texttt{dev} directory.
+\texttt{methods.conf} is only required when not using
+\texttt{auto-discover}, see section{sec:configfile}.
 
 
 
@@ -130,7 +132,7 @@ workdirs:
 # (this is where jobs without a workdir override are built)
 
 method packages:
-        dev
+        dev auto-discover
         accelerator.standard_methods
 #       accelerator.test_methods   
 
@@ -196,7 +198,17 @@ list.\\[1ex]
 \RPtwo \texttt{method packages} & A list of directories containing
 methods.  These will be the only directories where the Accelerator can
 ``see'' methods.  \texttt{standard\_methods} is bundled with the
-Accelerator and is commonly used.\\[1ex]
+Accelerator and is commonly used.
+
+A package specified alone on a row indicates that its corresponding
+directory contains a file named \texttt{methods.conf} that speficy
+which methods in the package that can be executed.
+
+If the package is specified with the string \texttt{auto-discover},
+like in the example above, any method in the package can be executed
+by the Accelerator, and no \texttt{methods.conf} file is required.  It
+can still be present in order to specify which interpreters to use on
+a method level though.\\[1ex]
 
 \RPtwo \texttt{urd} & If present, an URL to the Urd server.\\[1ex]
 
@@ -205,6 +217,8 @@ all jobs.  Use the \texttt{job.link\_result()}-function to create
 symbolic links from files in job directories to this directory.  Just
 like workdirs, this path is either absolute or relative to the
 location of the configuration file.  \\[1ex]
+
+\pagebreak
 
 \RPtwo \texttt{input directory} & Default root path for
 \texttt{csvimport}.  This is to avoid rebuilds of imports if input

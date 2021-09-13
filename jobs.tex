@@ -161,31 +161,52 @@ that are
 \item[--] contain the (perhaps empty) file ``\texttt{\_\_init\_\_.py}''.
 \end{itemize}
 Packages are by default located in the same directory as the
-Accelerator's configuration file.  This location can be changed by
-setting the \texttt{package directory} configuration option.  In
-addition, for the Accelerator to accept a package, the following
-constraints need to be satisfied
-\begin{itemize}
-\item[--] the package must contain a file named \texttt{methods.conf}, and
-\item[--] the package must be added to the Accelerator's configuration file under the key ``\texttt{method packages}'', see section~\ref{sec:configfile}.
-\end{itemize}
+Accelerator's configuration file, but can be changed by setting
+the \texttt{package directory} configuration option in the
+Accelerator's configuration file.
+
+There are two ways, to define a package, either
+using \texttt{auto-discover}, or using \texttt{methods.conf} files,
+where the first is recommended for new users and the latter strongly
+recommended for production systems and projects with more strict
+requirements.
 
 
+\subsection{A New Package using \texttt{auto-discover}}
+In \texttt{auto-discover}, methods are automatically detected by the
+Accelerator, and anything detected can be executed.  Create a new
+directory and make it a Python package like this
+\begin{shell}
+% mkdir <dirname>
+% touch <dirname>/__init__.py
+\end{shell}
+Then, add the string
+\begin{shell}
+<dirname> auto-discover
+\end{shell}
+to the \mintinline{shell}{method packages} section of the
+configuration file, see section~\ref{sec:configfile}
 
-\subsection{Creating a new Package}
-The following shell commands illustrate how to create a new package
-directory
+
+\subsection{A New Package using \texttt{methods.conf}}
+Create a new package directory
 \begin{shell}
 % mkdir <dirname>
 % touch <dirname>/__init__.py
 % touch <dirname>/methods.conf
 \end{shell}
-The first two lines create a Python package, and the third line adds
-the file \texttt{methods.conf}, which is required by the Accelerator.
+and add the string
+\begin{shell}
+<dirname>
+\end{shell}
+to the \mintinline{shell}{method packages} section of the
+configuration file, see section~\ref{sec:configfile}.  The first two
+lines create a Python package, and the third line adds the
+file \texttt{methods.conf}, which is required in ``strict'' mode.
 
-For security reasons, the Accelerator only looks for packages
+For security reasons, the Accelerator now only looks for packages
 explicitly specified in the configuration file using the
-``\mintinline{shell}{method packages}'' assignment.  See
+``\mintinline{shell}{method packages}'' assignment.  Again, see
 chapter~\ref{sec:configfile} for detailed information about the
 configuration file.
 
@@ -196,21 +217,25 @@ Method source files are stored in Python packages as described in the
 previous section.  The Accelerator searches all reachable packages for
 methods to execute, and therefore \textsl{method names need to be
 globally unique}!  In order to reduce risk of executing the wrong
-file, there are three limitations that apply to methods:
+file, these limitations apply to methods:
 \begin{enumerate}
-\item For a method file to be accepted by the Accelerator, the
-  filename has to start with the prefix ``\texttt{a\_}'';
-\item the method name, \textsl{without this prefix}, must be present on a
-  separate line in the \texttt{methods.conf} file for the package, see
-  section~\ref{sec:methods_conf}; and
 \item the method name must be \emph{globally} unique, i.e.\ there can
   not be a method with the same name in any other method directory
-  visible to the Accelerator.
+  visible to the Accelerator;
+\item for a method file to be accepted by the Accelerator, the
+  filename has to start with the prefix ``\texttt{a\_}''; and
+\item \textsl{unless} \texttt{auto-discover} is enabled (see previous section),
+  the method name, \textsl{without this prefix}, must be present on a
+  separate line in the \texttt{methods.conf} file for the package, see
+  section~\ref{sec:methods_conf}.
 \end{enumerate}
 
 
 \subsection{Creating a New Method}
-In order to create a new method, follow these steps
+In \texttt{auto-discover} mode, it is straightforward.  Any file named
+\texttt{a\_name.py} will correspond to a method named \texttt{name}.
+
+Here are all details
 \begin{enumerate}
 \item Create the method in a package visible to the Accelerator
   using an editor.  Make sure the filename is \texttt{a\_name.py} if
@@ -218,7 +243,10 @@ In order to create a new method, follow these steps
 \item Add the method name \texttt{name} (without the prefix ``\texttt{a\_}'' and
   suffix ``\texttt{.py}'') to the \texttt{methods.conf} file in the
   same method directory as where the source file is stored.  See
-  section~\ref{sec:methods_conf}.
+  section~\ref{sec:methods_conf}.  This is \textsl{not} needed
+  if \texttt{auto-discover} is enabled, but it can still be used to
+  specify a particular Python interpreter for the method, see next
+  section.
 \item (Remember to make sure that the method directory is in the Accelerator's
   configuration file.)
 \end{enumerate}

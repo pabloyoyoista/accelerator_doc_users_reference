@@ -396,6 +396,8 @@ datasets stored on disk.  It decays to a (unicode) string when
 pickled.
 
 \starttabletwo
+\texttt{min()} & Min value for a specified column over the whole chain.\\
+\texttt{max()} & Max value for a specified column over the whole chain.\\
 \texttt{columns} & A \texttt{dict} from column to properties, such as type, min, and max values.\\
 \texttt{previous} & The dataset's previous dataset, if it exists, \pyNone otherwise.\\
 \texttt{parent} & The dataset's parent dataset, if it exists, \pyNone otherwise.\\
@@ -412,6 +414,15 @@ pickled.
 \texttt{iterate\_list()} & Iterator over a list of datasets, see chapter~\ref{chap:iterators}.\\
 \stoptabletwo
 \noindent Detailed description of the functions, where neccessary, follows.
+
+
+\subsection{\texttt{Dataset.min()}, \texttt{Dataset.max()}}
+%\begin{leftbar}
+\starttable
+\texttt{column} & \textsl{Mandatory} & Min/max value of column\\
+\stoptable
+Minimum or maximum value for column over the dataset.
+%\end{leftbar}
 
 
 \subsection{\texttt{Dataset.link\_to\_here()}}

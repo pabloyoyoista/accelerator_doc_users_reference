@@ -406,6 +406,24 @@ when new features have been added that do not interfere with existing
 use.
 
 
+\subsection{Forcing a Rebuild}
+\label{sec:force_rebuild}
+It is possible to force build a job, i.e.\ build a job that already
+exists.  This is mainly implemented for test code purposes, and should
+be avoided in most development methodologies.  This is how to do a
+force build
+\begin{python}
+urd.build(method, force_build=True)
+\end{python}
+Without forcing a re-build, all jobs in a work directory are unique.
+But it is still possible to have duplicate jobs by adding/removing
+workdirs and building the same job to different workdirs.  There are
+no inherent problems with multiple job instances, but there is
+typically no need for it, unless in testing.  Another way to force a
+job to be re-built is by supplying a timestamp as input option.
+
+
+
 
 \section{Invoking the Python Debugger}
 Although the Accelerator is a client-server application, it is

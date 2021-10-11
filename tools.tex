@@ -97,16 +97,23 @@ ax server
 The server is configured using the configuration file that is
 typically set up by the \texttt{init} command.
 
+To see a list of available build scripts and their description, type
+\begin{shell}
+ax script
+\end{shell}
+
 A build script is run using
 \begin{shell}
 ax run
 \end{shell}
 The idea is that the \textsl{main} project build script is run just
 like that, but it is possible to specify specific scripts to run as
-arguments.  For systems with limited memory, and interesting idea is
-the possibility to set the \textsl{concurrency} for all or some
-methods using a switch.  This will save memory resources, since only a
-subset of all parallel processes will be run at once.
+arguments.  To run a script named \texttt{build\_name.py}, type
+\texttt{ax run name}.  For systems with limited memory, and
+interesting idea is the possibility to set the \textsl{concurrency}
+for all or some methods using a switch.  This will save memory
+resources, since only a subset of all parallel processes will be run
+at once.
 
 At any point in time, it is possible to abort the server processing
 using
@@ -535,12 +542,21 @@ Descriptions are added using the \texttt{description="some string"}
 statement in a method.
 
 
-\section{Information about Jobs: \texttt{ax job}}
+\section{List all build scripts: \texttt{ax script}}
+List all available build scripts using
+\begin{shell}
+ax script
+\end{shell}
 
+
+\section{Information about Jobs: \texttt{ax job}}
+Get information about a job by typing
+\begin{shell}
+ax job <jobname>
+\end{shell}
 
 
 \section{Starting the Board Web Server: \texttt{ax board-server}}
-
 
 
 

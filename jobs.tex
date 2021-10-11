@@ -225,7 +225,7 @@ file, these limitations apply to methods:
 \item for a method file to be accepted by the Accelerator, the
   filename has to start with the prefix ``\texttt{a\_}''; and
 \item \textsl{unless} \texttt{auto-discover} is enabled (see previous section),
-  the method name, \textsl{without this prefix}, must be present on a
+  the method name, \textsl{without} the ``\texttt{a\_}'' prefix, must be present on a
   separate line in the \texttt{methods.conf} file for the package, see
   section~\ref{sec:methods_conf}.
 \end{enumerate}
@@ -234,8 +234,8 @@ file, these limitations apply to methods:
 \subsection{Creating a New Method}
 In \texttt{auto-discover} mode, it is straightforward.  Any file named
 \texttt{a\_name.py} will correspond to a method named \texttt{name}.
+Here's how to add a method:
 
-Here are all details
 \begin{enumerate}
 \item Create the method in a package visible to the Accelerator
   using an editor.  Make sure the filename is \texttt{a\_name.py} if
@@ -247,7 +247,7 @@ Here are all details
   if \texttt{auto-discover} is enabled, but it can still be used to
   specify a particular Python interpreter for the method, see next
   section.
-\item (Remember to make sure that the method directory is in the Accelerator's
+\item (Remember to make sure that the method directory is defined in the Accelerator's
   configuration file.)
 \end{enumerate}
 
@@ -258,8 +258,9 @@ The file \texttt{methods.conf} provides an easy way to specify and
 limit which methods (source files) that can be executed, and
 optionally, which Python interpreter that should be used for each of
 them.  Methods not specified in \texttt{methods.conf} cannot be
-executed.  (This is something that makes a lot of sense in any
-production environment where control of what is executable is key.)
+executed, unless \texttt{auto\_discover} is enabled.  (Exection
+control is a must in production environments to prevent accidental
+execution of ``forgotten'' test files etc.)
 
 The \texttt{methods.conf} is a plain text file with one entry per
 line.  Any characters from a hash sign (``\texttt{\#}'') to the end of
@@ -486,7 +487,8 @@ The three functions \prepare, \analysis, and \synthesis are called one
 at a time in that order.  \prepare and \synthesis execute as single
 processes, while \analysis provides parallel execution.  None of them
 is mandatory, but at least one must be present for the method to
-execute.  It is discouraged to use \prepare only.
+execute.  It is discouraged to use \prepare only.  Use \synthesis for
+single-process execution.
 
 
 
@@ -560,7 +562,7 @@ results from \prepare or \analysis anymore.  Only results from
 section~\ref{sec:debugflag}, however.
 
 
-\subsection{Merging Results from \analysis}
+\subsection{Automatically Merging Results from \analysis}
 It is common that results from different slices needs to be merged
 together.  The Accelerator provides a relatively general function for
 merging sliced data structures.  Consider this example

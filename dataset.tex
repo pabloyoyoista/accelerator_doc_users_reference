@@ -316,7 +316,7 @@ The caption is entirely user-defined and has no function in the
 Accelerator.  The caption is accessible like this
 \begin{python}
 print(datasets.source.caption)
-# rehash_of_raw_data
+# hash_partitioned_data
 \end{python}
 
 
@@ -371,6 +371,7 @@ follow in the next sections.
 
 
 
+\newpage
 \starttabletwo
 \RPtwo   \texttt{number}     &  float or int\\[1ex]
    
@@ -473,10 +474,10 @@ Conversion between JSON and Python data types is done by the writers
 and iterators, so the user can just work on the data and never has to
 see the actual JSON, for example
 \begin{python}
-    dw = job.datasetwriter(...)
-    ...
-    a = dict(x=3, y=dict(z=5, w=[1,2,3]))
-    dw.write(a)
+dw = job.datasetwriter(...)
+...
+a = dict(x=3, y=dict(z=5, w=[1,2,3]))
+dw.write(a)
 \end{python}
 
 
@@ -582,14 +583,14 @@ The order of the variables in the \texttt{.write()} function call is
 the same as the order of the \texttt{.add()} calls in prepare.  There
 are a few alternative ways of writing data, as shown here
 \begin{python}
-    # write a dict with keys corresponding to column names
-    dw.write_dict({column: value})
+# write a dict with keys corresponding to column names
+dw.write_dict({column: value})
 
-    # write a list with items in same order as dw.add() calls
-    dw.write_list([value, value, ...])
+# write a list with items in same order as dw.add() calls
+dw.write_list([value, value, ...])
 
-    # one parameter for each .add() call, in same order
-    dw.write(value, value, ...)
+# one parameter for each .add() call, in same order
+dw.write(value, value, ...)
 \end{python}
 Several datasets can be created simultaneously using multiple writers
 with different names.
@@ -602,23 +603,23 @@ Since a dataset is sliced in multiple disjoint sets, and \synthesis is
 run only once, data has to be sliced during writing somehow.  There
 are two possible ways to do this.  One is to first set a slice number
 \begin{python}
-    dw.set_slice(sliceno)
+dw.set_slice(sliceno)
 \end{python}
 before writing data into that slice.  Note that this can only be done
 once per slice.  The other is to use one of the \texttt{split\_write}
 functions
 \begin{python}
-    # use a dict-writer
-    writer = dw.get_split_write_dict()
-    writer({column: value})
+# use a dict-writer
+writer = dw.get_split_write_dict()
+writer({column: value})
 
-    # use a list-writer
-    writer = dw.get_split_write_list()
-    writer([value, value, ...])
+# use a list-writer
+writer = dw.get_split_write_list()
+writer([value, value, ...])
 
-    # use a parameterised writer
-    writer = dw.get_split_write()
-    writer(value, value, ...)
+# use a parameterised writer
+writer = dw.get_split_write()
+writer(value, value, ...)
 \end{python}
 These writers will write round-robin if the dataset is not hashed, and
 to the ``matching'' slice if the dataset is hash partitioned.
@@ -677,7 +678,7 @@ job will now claim that it contains a dataset \texttt{first\_dataset}.
 In the same call, the subjob's dataset's previous can also be
 overridden:
 \begin{python}
-    ds.link_to_here('first_dataset', override_previous=anotherds)
+ds.link_to_here('first_dataset', override_previous=anotherds)
 \end{python}
 This might sound complicated, but is simply means that the current job
 can export a set of datasets created by its subjobs, and that it can
@@ -695,7 +696,7 @@ rised if the data to be written does not belong to the current slice.
 
 A simple way to filter the data to be written is to call
 \begin{python}
-    dw.enable_hash_discard()
+dw.enable_hash_discard()
 \end{python}
 first in each slice or after each \texttt{.set\_slice()}.  Then,
 writes that belongs to another slice are silently ignored, while

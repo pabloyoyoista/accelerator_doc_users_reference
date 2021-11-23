@@ -249,35 +249,33 @@ assignment is \texttt{\$\{VAR=DEFAULT\}}.
 The main server program will start a local Urd server by default.
 This server is for local use only.  If the Urd server should be used
 to share information between users, a standalone server needs to be
-set up.  This is how to set up a standalone Urd server:
+set up.
 
-\begin{enumerate}
-\item First, create a new directory for the Urd-server.
-\item Run \texttt{ax init} in this directory.
-\item Copy existing (or create new \texttt{accelerator.conf} to this directory.
-\item Modify the \texttt{urd server} line like this
-\begin{verbatim}
-  urd: localhost:30025
-\end{verbatim}
-This will setup a server listening on port 30025.  This is only an example.
-\item Edit the \texttt{urd.db/passwd file} according to
-  section~\ref{sec:urdpasswd} if password write protection is wanted.
-\item Start the server by
-  \begin{shell}
-    ax urd-server
-  \end{shell}
-  or, if no passwords are required
-  \begin{shell}
-    ax urd-server --allow-passwordless
-  \end{shell}
-\item Done!
-\end{enumerate}
+To run a standalone Urd server, two things are needed
+\begin{itemize}
+\item[] a directory where it can put its database, and
+\item[] a \texttt{passwd} file to store user-password pairs in.
+\end{itemize}
+The \texttt{passwd} file is stored in the urd database directory.  The
+default name of the database directory is \texttt{urd.db}, so
+\begin{shell}
+mkdir urd.db
+cd urd.db
+<editor> passwd
+\end{shell}
+where \texttt{<editor>} should be replaced by the editor of choice.
+
+
+\subsection{Starting Urd}
+Urd is running as a daemon.  It is started like this
+\begin{shell}
+ax urd --port=<port> --path=<path>
+\end{shell}
 
 
 
 \subsection{The Urd Database}
-The Urd database is stored in the directory \texttt{urd.db} and has
-the following structure
+The Urd database has the following structure
 \begin{verbatim}
 database_root/
     passwd
@@ -288,13 +286,10 @@ database_root/
         user2/
             list3
 \end{verbatim}
-Each list is a transaction log.  Nothing is ever deleted or modified.
-New information is appended.
 
 
 
 \subsection{The \texttt{passwd} file}
-\label{sec:urdpasswd}
 The \texttt{passwd} file stores write access authentication.  The file
 format is straightforward, each line is a user--password pair as follows
 \begin{verbatim}

@@ -518,7 +518,7 @@ now execute in parallel
 def analysis(sliceno):
     return Counter(datasets.source.iterate(sliceno, 'movie'))
 
-def synthesis(analysis_res)
+def synthesis(analysis_res):
     c = analysis_res.merge_auto()
     top10 = c.most_common(10)
     return top10
@@ -594,7 +594,7 @@ The \texttt{range} options is based on the max/min values stored for
 each column in the dataset.  Assuming that the chain is sorted, one
 can for example set
 \begin{python}
-range={'timestamp': ('2016-01-01', '2016-01-31')}
+range={'ts_column': ('2016-01-01', '2016-01-31')}
 \end{python}
 in order to get rows within the specified range only.  Using
 \texttt{range=} is quite costly, since it requires each row in the
@@ -682,6 +682,6 @@ variables early in the method's source.
 
 \section{A Class Based Programming Model}
 The Accelerator is based on an class based paradigm.  Access the the
-Accelerator's build in functions and parameters are typically done
+Accelerator's built in functions and parameters are typically done
 through a few \textsl{objects} that are populated by the running
 Accelerator.

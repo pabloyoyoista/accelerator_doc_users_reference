@@ -209,7 +209,7 @@ time-series-like data.
 
 
 
-\subsection{Special Cases, Iterating Over All or a Singe Column}
+\subsection{Special Cases, Iterating Over All or a Single Column}
 It is possible to iterate over all columns in a dataset by specifying
 an empty list of column names, like this
 \begin{python}
@@ -393,7 +393,7 @@ on the specified column.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
            sliceno, ('user', 'item',),
-           range={timestamp, datetime(2016, 1, 1), datetime(2016, 3, 31),}):
+	   range={'ts_column': (datetime(2016, 1, 1), datetime(2016, 3, 31))}):
 \end{python}
 This example will limit the iterator to exactly the range of lines
 that fulfill the range condition.  It is relatively costly to filter

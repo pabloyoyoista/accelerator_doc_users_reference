@@ -62,7 +62,7 @@ execution of scripts, listing data in datasets, showing content of
 databases, and more.
 
 The web interface, called \textsl{Accelerator Board}, is used to
-inspect jobs, datasets, and more.  Resulting files sucn as images,
+inspect jobs, datasets, and more.  Resulting files such as images,
 text files, pdfs, video files and so on are rendered in the web
 browser.
 
@@ -100,7 +100,7 @@ Everything inside the \texttt{synthesis()}-function is run once
 without any parallelisation.  In order to get this method to execute,
 it is called from a \textsl{build script} looking something like this
 \begin{python}
-def main(urd)
+def main(urd):
     job = urd.build('hello_world')
     print(job.load())
 \end{python}
@@ -113,7 +113,7 @@ ax run
 \end{shell}
 The \texttt{build()}-call will instruct the server to execute the
 \texttt{hello\_world} method.  During its execution, a job directory
-will be created that contains everyting associated with the build
+will be created that contains everything associated with the build
 process.  When the \texttt{build()}-call is completed, a job object, of type
 \texttt{Job}, is returned to the program.  This object provides a
 convenient interface to the data in the corresponding job directory,
@@ -129,7 +129,7 @@ stored in a job directory.  Instead, the Accelerator immediately
 returns a job object representing the previous run.  This means that
 from a user's perspective, there is no visible difference between
 running a job for the first time or re-using results from an existing
-run!  In order to have the method executing again, either the source
+run!  In order to have the method execute again, either the source
 code or input parameters has to change.  If there are changes, the
 method will be re-executed, and a new job will be created that
 reflects these changes.
@@ -267,7 +267,7 @@ disk.
 Furthermore, datasets may be \textsl{hash partitioned}, so that
 slice-membership is based on the hash value of a given column.
 Partitioning base on, for example, a column containing some ID string
-will puy all rows corresponding to any particular ID in a single slice
+will put all rows corresponding to any particular ID in a single slice
 only.  In many practical applications, hash partitioning makes
 parallel processes independent, minimising the need for complicated
 merging operations.  This is explained further in
@@ -310,7 +310,7 @@ datasets, but a single dataset is a common case.
 \subsection{Linking Datasets, Chaining}
 
 Just like jobs can be linked to each other, datasets can link to each
-other too.  Since datasets are build on top of jobs, this is
+other too.  Since datasets are built on top of jobs, this is
 straightforward.  Assume the file \texttt{file0.txt} is imported into
 dataset \texttt{imp-0/default}, and that there is more data like it
 stored in the file \texttt{file1.txt}.  The second file is imported
@@ -421,7 +421,7 @@ multiple files for two reasons.  The first reason is that we can read
 only the columns that we need, without overhead, and the second reason
 is that it allows fast parallel reads.  The parameter \texttt{slices}
 determines how many slices that the dataset should be partitioned
-into, and it also sets the number of parallel process that is used for
+into, and it also sets the number of parallel processes that are used for
 processing the dataset.  There is always one process for each slice of
 the dataset, and each process operates on a unique part of the
 dataset.
@@ -530,7 +530,7 @@ slice, and the argument \texttt{sliceno} will contain an integer
 between zero and the number of slices minus one.  The returned value
 from the analysis functions will be available as input to the
 synthesis function in the \texttt{analysis\_res} Python iterable.  It
-is possible to merge the results explicitly, but the this iterable
+is possible to merge the results explicitly, but the iterable
 comes with a rather magic method \texttt{merge\_auto()}, that merges
 the results from all slices into one based on the data type.  It can
 for example merge \texttt{Counter}s, \texttt{set}s, and composed types
@@ -681,7 +681,7 @@ variables early in the method's source.
 
 
 \section{A Class Based Programming Model}
-The Accelerator is based on an class based paradigm.  Access the the
+The Accelerator is based on an class based paradigm. Access to the
 Accelerator's built in functions and parameters are typically done
 through a few \textsl{objects} that are populated by the running
 Accelerator.

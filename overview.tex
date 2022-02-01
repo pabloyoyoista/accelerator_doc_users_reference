@@ -135,20 +135,6 @@ method will be re-executed, and a new job will be created that
 reflects these changes.
 
 
-\subsection{Back to the ``Hello, World'' Example}
-Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
-\texttt{hello\_world} method.  The created job gets the \textsl{jobid}
-\texttt{test-0}, and parts of the corresponding job directory
-information is shown in green.  (Jobids are job identifiers, that are
-named by their corresponding \textsl{workdir} plus an integer counter
-value.)  The job directory contains several files, of which the most
-important are
-\begin{itemize}
-\item[] \texttt{setup.json}, containing job meta information;
-\item[] \texttt{result.pickle}, containing the returned data; and
-\item[] \texttt{method.tar.gz}, containing the method's source code.
-\end{itemize}
-
 \begin{figure}[b]
   \begin{center}
     \input{figures/job0.pdftex_t}
@@ -157,6 +143,24 @@ important are
     \label{fig:execflow-hello-world}
   \end{center}
 \end{figure}
+
+
+\subsection{Back to the ``Hello, World'' Example}
+Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
+\texttt{hello\_world} method.  The created job gets the \textsl{jobid}
+\texttt{test-0}, and parts of the corresponding job directory
+information is shown in green.  (Jobids are job identifiers, that are
+named by their corresponding \textsl{workdir} plus an integer counter
+value.)
+
+\clearpage
+The job directory contains several files, of which the most
+important are
+\begin{itemize}
+\item[] \texttt{setup.json}, containing job meta information;
+\item[] \texttt{result.pickle}, containing the returned data; and
+\item[] \texttt{method.tar.gz}, containing the method's source code.
+\end{itemize}
 
 The \texttt{Job} object provides a convenient way to access files and
 data stored in this directory.  For example, as we've already seen,
@@ -213,11 +217,6 @@ The \texttt{print\_result} method then loads the result from the
 provided job and prints its contents to \texttt{stdout}.  Note that
 this method does not return anything.
 
-Figure~\ref{fig:execflow-print-result} illustrates the situation.
-(Note the direction of the arrow: the second job, \texttt{test-1} has
-\texttt{test-0} as input parameter, but \texttt{test-0} does not know
-of any jobs run in the future.  Hence, arrows point to previous jobs.)
-
 \begin{figure}[b]
   \begin{center}
     \input{figures/job0job1.pdftex_t}
@@ -226,6 +225,13 @@ of any jobs run in the future.  Hence, arrows point to previous jobs.)
     \label{fig:execflow-print-result}
   \end{center}
 \end{figure}
+
+\clearpage
+Figure~\ref{fig:execflow-print-result} illustrates the situation.
+(Note the direction of the arrow: the second job, \texttt{test-1} has
+\texttt{test-0} as input parameter, but \texttt{test-0} does not know
+of any jobs run in the future.  Hence, arrows point to previous jobs.)
+
 
 The example shows how a complex task may be split into several jobs,
 each reading intermediate results from previous jobs.  The Accelerator

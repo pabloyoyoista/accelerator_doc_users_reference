@@ -94,7 +94,7 @@ from accelerator import status
 ...
 def analysis(sliceno):
     msg = "reached line %d already!"
-    with status(msg % (0,) as update:
+    with status(msg % (0,)) as update:
         for ix, data in enumerate(datasets.source.iterate(sliceno, 'data')):
             if ix % 1000000 == 0:
                 update(msg % (ix,))

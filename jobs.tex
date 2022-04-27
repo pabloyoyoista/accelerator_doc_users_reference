@@ -97,8 +97,13 @@ string \texttt{example-0}.
 \label{sec:job_directories}
 A successfully build of a method results in a new job directory on
 disk.  The job directory will be stored in the
-current \textsl{workdir} (i.e.\ work directory) and have a structure
-as follows, assuming the current workdir is
+current \textsl{workdir} (i.e.\ work directory).  \emph{This section
+is for reference only, since jobs and datasets are much more
+conveniently inspected using the} \texttt{ax job} \emph{and} \texttt{ax ds}
+\emph{shell commands.}
+
+The structure of a job directory is similar to the following, assuming
+the current workdir is
 \texttt{test}, and the current jobid is \texttt{test-0}.
 \begin{verbatim}
 workdirs/test/
@@ -108,7 +113,6 @@ workdirs/test/
         result.pickle
         post.json
         OUTPUT/
-        datasets.txt
         default/
 \end{verbatim}
 The following table shows examples of files commonly found in a job

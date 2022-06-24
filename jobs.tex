@@ -803,6 +803,7 @@ will print the \texttt{options} dictionary that was fed to the
     },
     "jobs": {
         "background": "beast-4"
+    }
 }
 \end{json}
 
@@ -989,9 +990,11 @@ build time using \texttt{job.withfile()}.  Here is an example
 \begin{python}
 def main(urd):
     job = urd.build('example4')
-    urd.build('example5',
-              firstfile=job.withfile('myfile1', sliced=True),
-              secondfile=job.withfile('myfile2'))
+    urd.build(
+        'example5',
+        firstfile=job.withfile('myfile1', sliced=True),
+        secondfile=job.withfile('myfile2'),
+    )
 \end{python}
 Inside the method, the \texttt{option} part is defined like this
 \begin{python}
@@ -1117,10 +1120,10 @@ This section covers the formal rules for the \options parameter.
   number 3).  See this example
   \begin{python}
 options = dict(
-    a = 3,     # typed to int
-    b = int,   #          int
-    c = 3.14,  #          float
-    d = '',    #          str
+    a=3,     # typed to int
+    b=int,   #          int
+    c=3.14,  #          float
+    d='',    #          str
 )
   \end{python}
   Values will be default values, and this is described thoroughly in
@@ -1176,8 +1179,8 @@ options = dict(
   Otherwise the specified values are the default contents.  Example
   \begin{python}
 options = dict(
-    x = dict,           # will be empty dict as default
-    y = {'foo': 'bar'}  # will be {'foo': 'bar'} as default
+    x=dict,           # will be empty dict as default
+    y={'foo': 'bar'}, # will be {'foo': 'bar'} as default
 )
   \end{python}
 \end{enumerate}

@@ -229,7 +229,7 @@ similarly to this
                 ]
             ],
         }
-    },
+    }
 }
 \end{json}
 
@@ -606,10 +606,12 @@ Here is the complete call with all possible parameters.
 \begin{python}
 job = urd.build(
     method,
-    options={},    datasets={},    jobs={},
-    name='',       caption='',
-    why_build=False,          workdir=None,
-    concurrency=None,         **kw
+    options={}, datasets={}, jobs={},
+    name=None, caption=None,
+    why_build=False,
+    workdir=None,
+    concurrency=None,
+    **kw
 )
 \end{python}
 If \options, \datasets, and \jobs are uniquely defined in the method,
@@ -632,7 +634,7 @@ an explanation of \texttt{build} parameters:
 \RPtwo \texttt{jobs=\{\}} & A \texttt{dict} of jobs to the method.
     It is possible to specify a list of jobs like this
 \begin{python}
-jobs=dict{alljobs=[job1, job2,...]}
+jobs=dict{alljobs=[job1, job2, ...]}
 \end{python}
 \\
 
@@ -679,14 +681,18 @@ def main(urd):
     for filename, timestamp in listoffiles:
         urd.begin('import', timestamp)
         urd.latest('import')
-        job = urd.build_chained('csvimport',
-                                filename=filename,
-                                ...
-                                name='importing')
-        job = urd.build_chained('dataset_type',
-                                source=job,
-                                ...
-                                name='typing')
+        job = urd.build_chained(
+            'csvimport',
+            filename=filename,
+            ...
+            name='importing',
+        )
+        job = urd.build_chained(
+            'dataset_type',
+            source=job,
+            ...
+            name='typing',
+        )
         urd.finish('import')
 \end{python}
 This example will build a chain of \texttt{csvimport} jobs, and one
@@ -769,7 +775,7 @@ The flags will appear in the \texttt{urd}-object like this
 \begin{python}
 def main(urd):
     if 'verbose' in urd.flags:
-       print('verbosity')
+        print('verbosity')
 \end{python}
 
 

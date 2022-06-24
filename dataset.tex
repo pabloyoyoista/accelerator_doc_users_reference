@@ -564,8 +564,8 @@ datasets = ('previous',)
 
 def prepare(job):
     dw = job.datasetwriter(
-        previous = datasets.previous,
-        name = 'firstset'
+        previous=datasets.previous,
+        name='firstset',
     )
     dw.add('X', 'number')
     dw.add('Y', 'unicode')
@@ -783,7 +783,7 @@ def prepare(job):
     dw = job.datasetwriter(
         parent=datasets.source,
         previous=datasets.previous,
-        caption='with the new column'
+        caption='with the new column',
     )
     dw.add('newcolname', 'unicode')
     return dw

@@ -218,11 +218,13 @@ not include directories. The default is to include directories.
 \subsection{Example invocation}
 
 \begin{python}
-urd.build("csvimport_zip",
+urd.build(
+    "csvimport_zip",
     filename="data_Q2_2019.zip",
     exclude_re=r"(__MACOSX|\.DS_Store)",
     chaining="by_filename",
-    strip_dirs=True)
+    strip_dirs=True,
+ )
 \end{python}
 
 
@@ -604,11 +606,13 @@ Options section for full details.
 \subsection{Example Invocation}
 An example invocation is the following
 \begin{python}
-urd.build('csvexport',
+urd.build(
+    'csvexport',
     source='test-3/foo',
     filename='output.txt.gz',
     separator=' ',
-    quote_fields="\'")
+    quote_fields="\'",
+)
 \end{python}
 
 

@@ -84,19 +84,6 @@ Get a dataset instance from a job.
 %\end{leftbar}
 
 
-\subsection{\texttt{Job.files()}}
-\starttable
-\texttt{pattern} & \texttt{*} & Return only files matching \texttt{pattern}\\
-\stoptable
-
-This method returns a list of all filenames corresponding to files
-created by the job using the functions \texttt{CurrentJob.open()},
-\texttt{CurrentJob.save()}, \texttt{CurrentJob.json\_save()} or
-registered using \texttt{CurrentJob.register\_file()}.
-The list can be filtered using the \texttt{pattern} option.
-Filtering is based on Python's \texttt{fnmatch}-functionality.
-
-
 \subsection{\texttt{Job.filename()}}
 %\begin{leftbar}
 \starttable
@@ -109,21 +96,17 @@ the \texttt{sliceno} parameter.  Sliced files are described in section~\ref{sec:
 %\end{leftbar}
 
 
-\subsection{\texttt{Job.input\_filename()}}
-Return the full filename of a file stored in the \texttt{input\_directory}.
+\subsection{\texttt{Job.files()}}
 \starttable
-\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\texttt{pattern} & \texttt{*} & Return only files matching \texttt{pattern}\\
 \stoptable
 
-
-\subsection{\texttt{Job.open\_input()}}
-Open a file in the \texttt{input\_directory}.
-\starttable
-\texttt{filename} & \textsl{Mandatory} & Name of file.\\
-\texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
-\texttt{encoding} & \pyNone & Same as Python's \texttt{open()}\\
-\texttt{errors} & \pyNone & Same as Python's \texttt{open()}\\
-\stoptable
+This method returns a list of all filenames corresponding to files
+created by the job using the functions \texttt{CurrentJob.open()},
+\texttt{CurrentJob.save()}, \texttt{CurrentJob.json\_save()} or
+registered using \texttt{CurrentJob.register\_file()}.
+The list can be filtered using the \texttt{pattern} option.
+Filtering is based on Python's \texttt{fnmatch}-functionality.
 
 
 \subsection{\texttt{Job.json\_load()}}
@@ -138,6 +121,20 @@ Load a file from a job, in JSON format.
 %to let strings decode as bytes.  Override this for unicode.  In
 %Python3, strings decode as unicode.
 %\end{leftbar}
+
+
+\subsection{\texttt{Job.link\_result()}}
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
+\texttt{linkname}  & \pyNone & Name of link if set.\\
+\stoptable
+Use to create a soft link from a file in a job directory to the
+\texttt{result\_directory}.
+
+\textbf{NOTE}: This only works for \texttt{Job} instances, and not
+\texttt{CurrentJob} instances.  This is for reproducibility reasons.
+Links in \texttt{result\_directory} cannot be recreated if created in
+a job, since jobs can only be executed once.
 
 
 \subsection{\texttt{Job.load()}}
@@ -201,16 +198,6 @@ and \texttt{stderr} in a string variable.  The parameter \texttt{what} can be se
   
 
 
-\subsection{\texttt{Job.register\_file()}}
-Register a file to the running \texttt{job}.  This happens
-automatically when using \texttt{Job.open()}, but if the file was
-produced in a way where that is not practical this can be used to
-manually register the file.
-\starttable
-\texttt{filename} & \textsl{Mandatory} & Name of file.\\
-\stoptable
-
-
 \subsection{\texttt{Job.withfile()}}
 %\begin{leftbar}
 \starttable
@@ -224,18 +211,11 @@ sliced.
 %\end{leftbar}
 
 
-\subsection{\texttt{Currentjob.link\_result()}}
+\subsection{\texttt{CurrentJob.input\_filename()}}
+Return the full filename of a file stored in the \texttt{input\_directory}.
 \starttable
-\texttt{filename} & \textsl{Mandatory} & Name of file in job directory.\\
-\texttt{linkname}  & \pyNone & Name of link if set.\\
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
 \stoptable
-Use to create a soft link from a file in a job directory to the
-\texttt{result\_directory}.
-
-\textbf{NOTE}: This only works for \texttt{Job} instances, and not
-\texttt{CurrentJob} instances.  This is for reproducibility reasons.
-Links in \texttt{result\_directory} cannot be recreated if created in
-a job, since jobs can only be executed once.
 
 
 \subsection{\texttt{CurrentJob.json\_save()}}
@@ -253,6 +233,26 @@ The \texttt{temp} argument is used to control the persistence of files
 written using \texttt{.json\_save()}.  This is useful mainly for debug
 purposes, and explained in section~\ref{sec:debugflag}.
 %\end{leftbar}
+
+
+\subsection{\texttt{CurrentJob.open\_input()}}
+Open a file in the \texttt{input\_directory}.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\texttt{mode} & \texttt{r} & Open file in this mode, see Python's \texttt{open()}\\
+\texttt{encoding} & \pyNone & Same as Python's \texttt{open()}\\
+\texttt{errors} & \pyNone & Same as Python's \texttt{open()}\\
+\stoptable
+
+
+\subsection{\texttt{CurrentJob.register\_file()}}
+Register a file to the running \texttt{job}.  This happens
+automatically when using \texttt{Job.open()}, but if the file was
+produced in a way where that is not practical this can be used to
+manually register the file.
+\starttable
+\texttt{filename} & \textsl{Mandatory} & Name of file.\\
+\stoptable
 
 
 \subsection{\texttt{CurrentJob.save()}}

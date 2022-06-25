@@ -1086,20 +1086,6 @@ new \texttt{previous}.  \index{\texttt{override\_previous}}
 The \texttt{link\_to\_here} call returns a dataset instance.
 
 \item
-Currently there is no dependency checking on subjobs, so if a subjob
-method is changed, the calling method will not be updated.  The
-current remedy is to use \texttt{depend\_extra} in the building
-method, like this
-\begin{python}
-from accelerator import subjobs
-
-depend_extra = ('a_childjob.py',)
-
-def prepare():
-    subjobs.build('childjob')
-\end{python}
-
-\item
   Subjobs are not visible in build scripts, and does not show up in
   for example \texttt{urd.joblist}.
 

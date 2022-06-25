@@ -1061,7 +1061,7 @@ There are three catches, though.
 \begin{enumerate}
 \item
 Dataset instances to datasets created in subjobs will not be
-explicitly available to the ``to level'' build script.  The workaround
+explicitly available to the ``top level'' build script.  The workaround
 is to link the dataset to the building method like this
 \index{\texttt{link\_to\_here}}
 \begin{python}
@@ -1078,15 +1078,15 @@ if left empty, since this is the default dataset name.
 
 It is also possible to override the dataset's \textsl{previous
 dataset} using the \texttt{override\_previous} option, which takes a
-job reference (or \pyNone) to be the
+dataset reference (or \pyNone) to be the
 new \texttt{previous}.  \index{\texttt{override\_previous}}
 \begin{python}
     ds.link_to_here(name='thename', override_previous=xxx)
 \end{python}
-The \texttt{link\_to\_here} call returns a dataset instance.
+The \texttt{link\_to\_here} call returns the new dataset instance.
 
 \item
-  Subjobs are not visible in build scripts, and does not show up in
+  Subjobs are not visible in build scripts, and do not show up in
   for example \texttt{urd.joblist}.
 
 \end{enumerate}

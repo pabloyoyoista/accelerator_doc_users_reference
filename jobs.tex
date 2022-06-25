@@ -1115,9 +1115,9 @@ modifying the source code, if necessary.
 This section covers the formal rules for the \options parameter.
 \begin{enumerate}
 
-\item Typing may be specified using the class name (i.e.\ \texttt{int}), or as
-  a value that will construct into such a class object (i.e.\ the
-  number 3).  See this example
+\item Typing may be specified using the class name
+  (e.g.\ \py{int}), or as a value of the desired type
+  (e.g.\ the number \py{3}).  See this example
   \begin{python}
 options = dict(
     a=3,     # typed to int
@@ -1136,7 +1136,7 @@ options = dict(
 
 \item An input may be left unassigned, unless
   \begin{itemize}
-  \item the option is typed to \mintinline{python}/RequiredOptions()/, or
+  \item the option is typed to \mintinline{python}/RequiredOption()/, or
   \item the option is typed to \mintinline{python}/OptionEnum()/ without a default.
   \end{itemize}
   So, except for the two cases above, it is not necessary to supply
@@ -1150,12 +1150,12 @@ options = dict(
 
 \item \mintinline{python}/None/ is always a valid input unless
   \begin{itemize}
-  \item RequiredOptions() and not none\_ok set
-    \index{input options!\texttt{RequiredOptions}}
-  \item OptionEnum() and not none\_ok set
+  \item \py{RequiredOption()} without \py{none_ok=True}
+    \index{input options!\texttt{RequiredOption}}
+  \item \py{OptionEnum()} without \py{none_ok=True}
     \index{input options!\texttt{OptionEnum}}
   \end{itemize}
-  This means that for example something typed to \texttt{int} can be
+  This means that for example something typed to \py{int} can be
   overridden by the builder by assigning it to
   \mintinline{python}/None/.  Also, \mintinline{python}/None/ is also
   accepted in typed containers, so a type defined as
@@ -1163,7 +1163,7 @@ options = dict(
   \mintinline{python}/[1, 2, None]/.
 
 \item All containers can be specified as empty, for example
-  \mintinline{python}/{}/ which expects a \texttt{dict}.
+  \py{{}} which expects a \py{dict}.
 
 \item Complex types (like \texttt{dict}s, \texttt{dict}s of
   \texttt{list}s of \texttt{dict}s, \dots) never enforce specific
@@ -1172,12 +1172,13 @@ options = dict(
   \mintinline{python}/{'foo': 'bar'}/ is a valid
   assignment.
 
-\item Containers with a type in the values default to empty containers.
+\item Containers with a type in the values default to \pyNone.
   Otherwise the specified values are the default contents.  Example
   \begin{python}
 options = dict(
-    x=dict,           # will be empty dict as default
-    y={'foo': 'bar'}, # will be {'foo': 'bar'} as default
+    x=dict,        # will be None as default, accepts any dict
+    y={'a': 'b'},  # will be {'a': 'b'} as default, accepts dict of str
+    z={str: str},  # will be {} as default, accepts dict of str
 )
   \end{python}
 \end{enumerate}

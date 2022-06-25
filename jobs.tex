@@ -1148,9 +1148,6 @@ options = dict(
 \item If typing is specified as a class name, default is
   \mintinline{python}/None/.
 
-\item Values are accepted if they are valid input to the type's
-  constructor, i.e.\ 3 and '3' are valid input for an integer.
-
 \item \mintinline{python}/None/ is always a valid input unless
   \begin{itemize}
   \item RequiredOptions() and not none\_ok set
@@ -1201,16 +1198,13 @@ Here, \texttt{length} could be set to anything.
 \subsection{Scalar Options}
 Scalars are either explicitly typed, as
 \begin{python}
-options = dict(length=int)   # Requires an intable value or None
+options = dict(length=int)   # Requires an int value or None
 \end{python}
 or implicitly with default value like
 \begin{python}
-options = dict(length=3)     # Requires an intable value or None,
+options = dict(length=3)     # Requires an int value or None,
                              # default is 3 if left unassigned
 \end{python}
-In these examples, intable means that the value provided should be
-valid input to the \texttt{int} constructor, for example the number~3
-or the string \texttt{'3'} both yield the integer number 3.
 
 
 

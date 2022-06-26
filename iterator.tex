@@ -399,20 +399,23 @@ within a certain range.  This works best on datasets that are sorted
 on the specified column.
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-           sliceno, ('user', 'item',),
-	   range={'ts_column': (datetime(2016, 1, 1), datetime(2016, 3, 31))}):
+    sliceno,
+    ('user', 'item',),
+    range={'ts_column': (datetime(2016, 1, 1), datetime(2016, 3, 31))},
+):
 \end{python}
 This example will limit the iterator to exactly the range of lines
 that fulfill the range condition.  It is relatively costly to filter
-each line, and there is a speed advantage by instead specifying
-\texttt{sloppy\_range}, which will iterate over all datasets that
+each line, and there is a speed advantage to specifying
+\py{sloppy_range=True}, which will iterate over all datasets that
 contain part of the range:
 \begin{python}
 for user, item in datasets.source.iterate_chain(
-           sliceno, ('user', 'item',),
-           sloppy_range={timestamp,
-                         datetime(2016, 1, 1),
-                         datetime(2016, 3, 31),}):
+    sliceno,
+    ('user', 'item',),
+    range={'ts_column': (datetime(2016, 1, 1), datetime(2016, 3, 31))},
+    sloppy_range=True,
+):
 \end{python}
 Here, all datasets that \textsl{contain} any line containing values
 within the range will be included in the iteration.  Still, if the

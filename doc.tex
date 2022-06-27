@@ -100,9 +100,9 @@
 % minted json
 \newminted[json]{json}{}
 
-% not highlighted, just verbatim text on gray
+% not highlighted, just verbatim text on gray and \small so 80 columns will fit (84 actually)
 \newenvironment{shelloutput}
-  {\snugshade\verbatim}
+  {\snugshade\small\verbatim}
   {\endverbatim\endsnugshade}
 
 \usepackage{makeidx}

@@ -56,9 +56,11 @@ commands:
             ds  display information about datasets
           grep  search for a pattern in one or more datasets
           init  create a project directory
+         intro  show introduction text
            job  information about a job
         method  information about methods
            run  run a build script
+        script  information about build scripts
         server  run the main server
            urd  inspect urd contents
     urd-server  run the urd server
@@ -66,9 +68,10 @@ commands:
        workdir  information about workdirs
 
 aliases:
-cat = grep ""
+  cat = grep -e ""
 
-use ax <command> --help for <command> usage
+use "ax <command> --help" for <command> usage
+try "ax intro" for an introduction
 \end{verbatim}
 \end{snugshade}
 \noindent All commands accept the option \texttt{--help} to display
@@ -246,7 +249,7 @@ ax init --help
 \begin{snugshade}
 \begin{verbatim}
 usage: ax init [-h] [--slices SLICES] [--name NAME] [--input INPUT] [--force]
-                    [--tcp [HOST/PORT]] [--no-git] [DIR]
+               [--tcp [HOST/PORT]] [--no-git] [--examples] [DIR]
 
 creates an accelerator project directory.
 defaults to the current directory.
@@ -269,6 +272,7 @@ optional arguments:
                      specify PORT to use range(PORT, PORT + 3)
                      specify both as HOST:PORT
   --no-git           don't create git repository
+  --examples         copy examples to project directory
 \end{verbatim}
 \end{snugshade}
 
@@ -288,13 +292,13 @@ ax server --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: ax server [-h] [--debug] [--debuggable]
+usage: ax server [-h] [--keep-temp-files] [--debuggable]
 
 optional arguments:
-  -h, --help    show this help message and exit
-  --debug
-  --debuggable  make breakpoint() work in methods. note that this
-                makes a failing method kill the whole server.
+  -h, --help         show this help message and exit
+  --keep-temp-files  keep temporary files in jobs
+  --debuggable       make breakpoint() work in methods. note that this makes
+                     a failing method kill the whole server.
 \end{verbatim}%
 \end{snugshade}
 Communication with the Accelerator server will take place over an UNIX
@@ -345,7 +349,7 @@ optional arguments:
                         build in this workdir
                         set_workdir() and workdir= override this.
   -W, --just_wait       just wait for running job, don't run any build script
-  -F, --fullpath        print full path to jobdirs
+  -p, --full-path       print full path to jobdirs
   --verbose VERBOSE     verbosity style {no, status, dots, log}
   --quiet               same as --verbose=no
   --horizon HORIZON     time horizon - dates after this are not visible in
@@ -371,29 +375,37 @@ overview of either
 \end{itemize}
 it provides information about column names and types, max and min
 values, number of rows, and balance of rows between slices.
-\begin{shell}
-  usage: ax ds [options] ds [ds [...]]
 
-  positional arguments:
-  dataset                the job part of the dataset name can be specified in
-                         the same ways as for ``ax job''. you can use ds~ or
-                         ds~N to follow the chain N steps backwards, or ^ to
-                         follow .parent. this requires specifying the ds-name,
-                         so wd-1~ will not do this, but wd-1/default~ will.
+\begin{snugshade}
+\begin{verbatim}
+usage: ax ds [options] ds [ds [...]]
 
-  optional arguments:
-  -h, --help             show this help message and exit
-  -c, --chain            list all datasets in a chain
-  -C, --non-empty-chain  list all non-empty datasets in a chain
-  -l, --list             list all datasets in a job with number of rows
-  -L, --chainedlist      list all datasets in a job with number of chained rows
-  -m, --suppress-minmax  do not print min/max column values
-  -n, --suppress-columns do not print columns
-  -q, --suppress-errors  silently ignores bad input datasets/jobids
-  -s, --slices           list relative number of lines per slice in sorted order
-  -S, --chainedslices    same as -s but for full chain
-  -w, --location         show where (ds/filename) each column is stored
-\end{shell}
+positional arguments:
+  dataset               the job part of the dataset name can be specified in
+                        the same ways as for "ax job". you can use ds~ or ds~N
+                        to follow the chain N steps backwards, or ^ to follow
+                        .parent. this requires specifying the ds-name, so
+                        wd-1~ will not do this, but wd-1/default~ will.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c, --chain           list all datasets in a chain
+  -C, --non-empty-chain
+                        list all non-empty datasets in a chain
+  -l, --list            list all datasets in a job with number of rows
+  -L, --chainedlist     list all datasets in a job with number of chained rows
+  -m, --suppress-minmax
+                        do not print min/max column values
+  -n, --suppress-columns
+                        do not print columns
+  -q, --suppress-errors
+                        silently ignores bad input datasets/jobids
+  -s, --slices          list relative number of lines per slice in sorted
+                        order
+  -S, --chainedslices   same as -s but for full chain
+  -w, --location        show where (ds/filename) each column is stored
+\end{verbatim}
+\end{snugshade}
 
 The \texttt{dataset} option is either a \textsl{dataset}, when used
 with the \texttt{-s}, \texttt{-S}, and \texttt{-c} options, or a
@@ -414,17 +426,29 @@ When \texttt{ds} is fed with dataset(s)
 \begin{tabular}{p{4cm}p{9cm}}
   \texttt{-c}\hspace{3cm}\texttt{---chain} & Print name and number of
   lines for all datasets in the chain.\\[4ex]
+  \texttt{-C}\hspace{3cm}\texttt{---non-empty-chain} & Same as \texttt{-c},
+  but elide empty datasets.\\[4ex]
+  \texttt{-m}\hspace{3cm}\texttt{---suppress-minmax} & Don't print the
+  [min, max] for each column.\\[4ex]
+  \texttt{-n}\hspace{3cm}\texttt{---suppress-columns} & Don't print columns
+  at all.\\[4ex]
+  \texttt{-q}\hspace{3cm}\texttt{---suppress-errors} & Bad datasets and
+  jobids are silently ignored.\\[4ex]
   \texttt{-s}\hspace{3cm}\texttt{---slices} & Print absolute and
   relative number of lines per slice for the input dataset.\\[2ex]
   \texttt{-S}\hspace{3cm}\texttt{---chain} & Same as \texttt{-s}, but
-  data is for the whole chain of datasets.\\
+  data is for the whole chain of datasets.\\[4ex]
+  \texttt{-w}\hspace{3cm}\texttt{---location} & Print location where data
+  for each column is stored and how it is compressed.\\
 \end{tabular}
 \end{snugshade}
 When \texttt{ds} is fed with jobid(s)
 \begin{snugshade}
 \begin{tabular}{p{4cm}p{9cm}}
   \texttt{-l}\hspace{3cm}\texttt{---list} & Print the name and number
-  of lines of all datasets in the input jobid.\\
+  of lines of all datasets in the input jobid.\\[2ex]
+  \texttt{-L}\hspace{3cm}\texttt{---chainedlist} & Same as \texttt{-l},
+  but print number of lines for the whole chain from each dataset.\\
 \end{tabular}
 \end{snugshade}
 
@@ -605,17 +629,20 @@ ax urd-server --help
 \end{shell}
 \begin{snugshade}
 \begin{verbatim}
-usage: urd-server [-h] [--port PORT] [--path PATH]
+usage: ax urd-server [-h] [--path PATH] [--allow-passwordless] [--quiet]
 
-optional arguments:
--h, --help   show this help message and exit
---port PORT  server port (default: 8080)
---path PATH  database directory (can be relative to project directory)
-(default: ./urd.db)
+options:
+  -h, --help            show this help message and exit
+  --path PATH           database directory (can be relative to project
+                        directory) (default: urd.db)
+  --allow-passwordless  accept any pass for users not in passwd.
+  --quiet               less chatty.
 \end{verbatim}
 \end{snugshade}
-Remember to set matching values in the Accelerator's configuration
-file so that it can find the Urd server.
+This will listen on the port/socket specified in the Accelerator's
+configuration file. You will probably want to configure this as
+\texttt{remote} so the server does not try to run another urd on the
+same port/socket.
 
 
 \subsection{Authorization to Urd}
@@ -659,30 +686,33 @@ with execution time and information if it is \textsl{old} or
 listed using the \texttt{-a} option.
 \begin{snugshade}
 \begin{verbatim}
-usage: ax workdir [-a | [workdir [workdir [...]]]
+usage: ax workdir [-p] [-a | [workdir [workdir [...]]]
 
-  positional arguments:
+positional arguments:
   workdirs
 
-  optional arguments:
-  -h, --help  show this help message and exit
-  -a, --all   list all workdirs
+optional arguments:
+  -h, --help       show this help message and exit
+  -a, --all        list all workdirs
+  -p, --full-path  show full path
 \end{verbatim}
 \end{snugshade}
 
 
-\section{The Board Web Server: \texttt{ax board}}
+\section{The Board Web Server: \texttt{ax board-server}}
 The Board server is a web server that exposes information about jobs
 and results through the use of a standard web browser.  This is
 started by default by the \texttt{ax server} command, but it can be
-started separately using \texttt{ax board}.
+started separately using \texttt{ax board-server}.
 \begin{snugshade}
 \begin{verbatim}
-usage: ax board [listen_on]
+usage: ax board-server [listen_on]
 runs a web server on listen_on (default localhost:8520, can be socket path)
 for displaying results (result_directory)
 \end{verbatim}
 \end{snugshade}
+Note that unlike \texttt{urd-server} this does not use the port/socket
+specified in the Accelerator's configuration file.
 
 
 \section{Displaying Urd Database Content: \texttt{ax urd}}

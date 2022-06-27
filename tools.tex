@@ -598,7 +598,7 @@ The method description is shown by specifying a method name
 \begin{shell}
 ax method csvimport
 \end{shell}
-Descriptions are added using the \texttt{description="some string"}
+Descriptions are added using the \py{description = "some string"}
 statement in a method.
 
 
@@ -607,6 +607,8 @@ List all available build scripts using
 \begin{shell}
 ax script
 \end{shell}
+Descriptions are added using the \py{description = "some string"}
+statement in a build script.
 
 
 \section{Information about Jobs: \texttt{ax job}}
@@ -618,19 +620,22 @@ ax job <jobname>
 
 \section{Starting the Board Web Server: \texttt{ax board-server}}
 
+Normally you don't need to start this separately as \texttt{ax server}
+also runs the board server by default.
 
 
 \section{Aliases}
 It is possible to create aliases for common tasks.  Aliases are
-inserted in the file \texttt{config} in the \texttt{\$XDG\_CONFIG\_HOME}
-directory.  By default, this corresponds to the file \texttt{\$HOME/.config/config}.
+inserted in the file \texttt{config} in the
+\texttt{\$XDG\_CONFIG\_HOME/accelerator} directory.  By default, this
+corresponds to the file \texttt{\$HOME/.config/accelerator/config}.
 In this file, aliases are entered in the \texttt{[alias]} section like this
 \begin{verbatim}
 [alias]
-  jo = job -O
+    path = job -P
 \end{verbatim}
-This will create the alias \texttt{ax jo} that is equivalent to
-\texttt{ax job -O}.
+This will create the alias \texttt{ax path} that is equivalent to
+\texttt{ax job -P}.
 
 
 
@@ -642,14 +647,21 @@ ax cat test-0 | less
 \end{shell}
 This is an alias for \texttt{ax grep ""}, which greps a dataset for the
 empty regexp, which matches every line.
-
 A common usage is to do
+
 \begin{shell}
-ax cat -Ho text-0 column1 column2
+ax cat -HO test-0 column1 column2
 \end{shell}
 to list a set of columns (or all, if omitted) row by row in order with
 a header showing label names.
 
+If you find yourself missing the smart tab mode and colour when piping to
+less you may wish to create an alias like
+\begin{verbatim}
+[alias]
+    catc = cat -T/ --colour=always
+\end{verbatim}
+or similar.
 
 
 \section{The Urd Job Database Server: \texttt{ax urd-server}}

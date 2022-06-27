@@ -39,8 +39,7 @@ Asking for help is always an option.  To begin,
 ax --help
 \end{shell}
 will print something like
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax [--config CONFIG_FILE] command [args]
 
 optional arguments:
@@ -72,8 +71,7 @@ aliases:
 
 use "ax <command> --help" for <command> usage
 try "ax intro" for an introduction
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 \noindent All commands accept the option \texttt{--help} to display
 more detailed information about its useage.
 
@@ -246,8 +244,7 @@ with the following options
 \begin{shell}
 ax init --help
 \end{shell}
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax init [-h] [--slices SLICES] [--name NAME] [--input INPUT] [--force]
                [--tcp [HOST/PORT]] [--no-git] [--examples] [DIR]
 
@@ -273,8 +270,7 @@ optional arguments:
                      specify both as HOST:PORT
   --no-git           don't create git repository
   --examples         copy examples to project directory
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 
 
 
@@ -290,8 +286,7 @@ that makes sense is in place.
 \begin{shell}
 ax server --help
 \end{shell}
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax server [-h] [--keep-temp-files] [--debuggable]
 
 optional arguments:
@@ -299,8 +294,7 @@ optional arguments:
   --keep-temp-files  keep temporary files in jobs
   --debuggable       make breakpoint() work in methods. note that this makes
                      a failing method kill the whole server.
-\end{verbatim}%
-\end{snugshade}
+\end{shelloutput}
 Communication with the Accelerator server will take place over an UNIX
 socket by default.  There is no need for any additional configuration
 to make that happen.  It is possible, however, to communicate over a
@@ -324,8 +318,7 @@ ax run <script>
 ax run --help
 \end{python}
 
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax run [options] [script]
 
 positional arguments:
@@ -354,8 +347,7 @@ optional arguments:
   --quiet               same as --verbose=no
   --horizon HORIZON     time horizon - dates after this are not visible in
                         urd.latest
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 When the \texttt{run} command starts, it will instruct the Accelerator
 to scan all method directories to see if there are any new or changed
 methods.  Thereafter, the Accelerator will proceed and scan all source
@@ -376,8 +368,7 @@ overview of either
 it provides information about column names and types, max and min
 values, number of rows, and balance of rows between slices.
 
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax ds [options] ds [ds [...]]
 
 positional arguments:
@@ -404,8 +395,7 @@ optional arguments:
                         order
   -S, --chainedslices   same as -s but for full chain
   -w, --location        show where (ds/filename) each column is stored
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 
 The \texttt{dataset} option is either a \textsl{dataset}, when used
 with the \texttt{-s}, \texttt{-S}, and \texttt{-c} options, or a
@@ -483,8 +473,7 @@ ax ds -l test-20
 \end{shell}
 
 \subsubsection*{Example Output}
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 import-2340/default
     Previous: import-2245/default
     Hashlabel: serial_number
@@ -508,8 +497,7 @@ import-2340/default
          22:   4.35% (6,366,040)    9:   4.33% (6,325,241)
     Max to average ratio: 1.020
     146,235,260 total lines in chain
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 The \texttt{max to average ratio} shows the ratio between the slice
 with most rows and the average number of rows.  This can be
 interpreted as the execution time overhead for a dataset where all
@@ -520,8 +508,7 @@ dataset is perfectly balanced.
 \section{Look at Specific Data in a Dataset: \texttt{ax grep}}
 The \texttt{grep} command is a parallel grep for datasets that is
 used to look at data stored in datasets or dataset chains.
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax grep [options] [-e] pattern [...] [-d] ds [...] [[-n] column [...]]
 
 positional arguments:
@@ -576,8 +563,7 @@ optional arguments:
                         context is only taken from the same slice of the same
                         dataset, and may intermix with output from other
                         slices. Use -O to avoid that, or -S -L to see it.
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 \noindent The \texttt{pattern} is a regular expression and \texttt{ds} are
 datasets.  Strings and columns with special characters have to be quoted.
 For example
@@ -669,8 +655,7 @@ These are the options
 \begin{shell}
 ax urd-server --help
 \end{shell}
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax urd-server [-h] [--path PATH] [--allow-passwordless] [--quiet]
 
 options:
@@ -679,8 +664,7 @@ options:
                         directory) (default: urd.db)
   --allow-passwordless  accept any pass for users not in passwd.
   --quiet               less chatty.
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 This will listen on the port/socket specified in the Accelerator's
 configuration file. You will probably want to configure this as
 \texttt{remote} so the server does not try to run another urd on the
@@ -703,15 +687,13 @@ certain Urd lists.  Nothing more.
 The command \texttt{ax abort} will abort any running job.  To abort an
 entire build script, first type \texttt{Ctrl-C} followed by \texttt{ax
   abort}.
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax abort [-h] [-q]
 
 optional arguments:
   -h, --help   show this help message and exit
   -q, --quiet  no output
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 
 
 \section{Current Version: \texttt{ax version}}
@@ -726,8 +708,7 @@ workdirs.  By specifying a workdir, all jobs in that workdir, together
 with execution time and information if it is \textsl{old} or
 \textsl{current} will be listed.  All jobs in all workdirs will be
 listed using the \texttt{-a} option.
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax workdir [-p] [-a | [workdir [workdir [...]]]
 
 positional arguments:
@@ -737,8 +718,7 @@ optional arguments:
   -h, --help       show this help message and exit
   -a, --all        list all workdirs
   -p, --full-path  show full path
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 
 
 \section{The Board Web Server: \texttt{ax board-server}}
@@ -746,20 +726,17 @@ The Board server is a web server that exposes information about jobs
 and results through the use of a standard web browser.  This is
 started by default by the \texttt{ax server} command, but it can be
 started separately using \texttt{ax board-server}.
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax board-server [listen_on]
 runs a web server on listen_on (default localhost:8520, can be socket path)
 for displaying results (result_directory)
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 Note that unlike \texttt{urd-server} this does not use the port/socket
 specified in the Accelerator's configuration file.
 
 
 \section{Displaying Urd Database Content: \texttt{ax urd}}
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 usage: ax urd path [path [...]]
 
 path is an optionally shortened path to an urd list.
@@ -783,5 +760,4 @@ examples:
   "ax urd :foo/bar/first:" is "ax urd foo/bar/first"
   "ax urd :bar/first~:" is the second timestamp in eaenbrd/bar
   "ax urd example/" is "ax urd eaenbrd/example/since/0"
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}

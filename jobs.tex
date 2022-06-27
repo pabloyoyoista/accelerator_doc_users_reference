@@ -353,13 +353,11 @@ objects or filenames relative to the method's location.
 If the Accelerator suspects that a \texttt{depend\_extra}-statement is
 missing, it will suggest adding it by printing a message in the output
 log like this:
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 =================================================================
 WARNING: dev.a_test should probably depend_extra on myfuncs
 =================================================================
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 \noindent The point of this is to make the user aware that the method
 depends on additional files that are currently not taken into account
 in the build check hashing.  The warning is removed by putting the
@@ -759,11 +757,9 @@ def synthesis():
 \end{python}
 will print the \texttt{options} dictionary that was fed to the
 \texttt{anotherjob} at build time, for example
-\begin{snugshade}
-\begin{verbatim}
+\begin{shelloutput}
 {'message': 'Hello world!'}
-\end{verbatim}
-\end{snugshade}
+\end{shelloutput}
 \noindent A complete print of a job's \texttt{.params} may look like this
 \begin{json}
 {

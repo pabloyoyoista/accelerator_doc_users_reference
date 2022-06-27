@@ -40,6 +40,7 @@
 \usepackage{fancybox}
 \usepackage{framed}
 \usepackage[hidelinks]{hyperref}
+\usepackage{verbatim}
 
 \usepackage{booktabs}
 
@@ -51,9 +52,9 @@
 \SetWatermarkScale{4}
 \SetWatermarkLightness{0.95}
 
-% comment macro
-\definecolor{readercomment}{rgb}{1.0,0.0,0.0}
-\newcommand{\comment}[1]{\emph{\textcolor{readercomment}{\fbox{#1}}}}
+% comment macro, needs to be renamed if we want to use it again
+%\definecolor{readercomment}{rgb}{1.0,0.0,0.0}
+%\newcommand{\comment}[1]{\emph{\textcolor{readercomment}{\fbox{#1}}}}
 
 %%%  Various reserved words  %%%
 \newcommand{\joblist}{\texttt{JobList}\xspace}
@@ -98,6 +99,11 @@
 
 % minted json
 \newminted[json]{json}{}
+
+% not highlighted, just verbatim text on gray
+\newenvironment{shelloutput}
+  {\snugshade\verbatim}
+  {\endverbatim\endsnugshade}
 
 \usepackage{makeidx}
 %\makeindex

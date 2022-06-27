@@ -520,36 +520,72 @@ dataset is perfectly balanced.
 \section{Look at Specific Data in a Dataset: \texttt{ax grep}}
 The \texttt{grep} command is a parallel grep for datasets that is
 used to look at data stored in datasets or dataset chains.
-\begin{shell}
-  usage: ax grep [options] pattern ds [ds [...]] [column [column [...]]
+\begin{snugshade}
+\begin{verbatim}
+usage: ax grep [options] [-e] pattern [...] [-d] ds [...] [[-n] column [...]]
 
-    positional arguments:
-    pattern
-    dataset                   can be specified in the same ways as for ``ax ds''
-    columns
+positional arguments:
+  pattern               (-e, --regexp)
+  dataset               (-d, --dataset) can be specified as for "ax ds"
+  columns               (-n, --column)
 
-    optional arguments:
-    -h, --help                show this help message and exit
-    -c, --chain               follow dataset chains
-    -C, --color               color matched text
-    -i, --ignore-case         case insensitive pattern
-    -H, --headers             print column names before output (and on each change)
-    -o, --ordered             output in order (one slice at a time)
-    -g COLUMN, --grep COLUMN  grep this column only, can be specified multiple times
-    -s SLICE, --slice SLICE   grep this slice only, can be specified multiple times
-    -t SEPARATOR, --separator SEPARATOR   field separator (default tab)
-    -D, --show-dataset        show dataset on matching lines
-    -S, --show-sliceno        show sliceno on matching lines
-    -L, --show-lineno         show lineno (per slice) on matching lines
-\end{shell}
+optional arguments:
+  -h, --help            show this help message and exit
+  -c, --chain           follow dataset chains
+  --chain-length LENGTH, --cl LENGTH
+                        follow chains at most this many datasets
+  --stop-ds DATASET     follow chains at most to this dataset
+                        these options work like in ds.chain() and you can
+                        specify them several times (for several datasets)
+  --colour [WHEN], --color [WHEN]
+                        colour matched text. can be auto, never or always
+  -i, --ignore-case     case insensitive pattern
+  -v, --invert-match    select non-matching lines
+  -o, --only-matching   only print matching part (or columns with -l)
+  -l, --list-matching   only print matching datasets (or slices with -S)
+                        when used with -o, only print matching columns
+  -H, --headers         print column names before output (and on each change)
+  -O, --ordered         output in order (one slice at a time)
+  -M, --allow-missing-columns
+                        datasets are allowed to not have (some) columns
+  -g COLUMN, --grep COLUMN
+                        grep this column only, can be specified multiple times
+  -s SLICE, --slice SLICE
+                        grep this slice only, can be specified multiple times
+  -D, --show-dataset    show dataset on matching lines
+  -S, --show-sliceno    show sliceno on matching lines
+  -L, --show-lineno     show lineno (per slice) on matching lines
+  -f FORMAT, --format FORMAT
+                        output format, csv (default) / raw / json
+  -t SEPARATOR, --separator SEPARATOR
+                        field separator, default tab / tab-like spaces
+  -T LENGTH, --tab-length LENGTH
+                        field alignment, always uses spaces as separator
+                        specify as many as you like of TABLEN/FIELDLEN/MINLEN
+                        or as NAME=VALUE (e.g. "min=3/field=24")
+                        TABLEN works like normal tabs
+                        FIELDLEN sets a longer minimum between fields
+                        MINLEN sets a minimum len for all separators
+                        use "-T/" to just activate it (sets 8/16/2)
+  -B NUM, --before-context NUM
+                        print NUM lines of leading context
+  -A NUM, --after-context NUM
+                        print NUM lines of trailing context
+  -C NUM, --context NUM
+                        print NUM lines of context
+                        context is only taken from the same slice of the same
+                        dataset, and may intermix with output from other
+                        slices. Use -O to avoid that, or -S -L to see it.
+\end{verbatim}
+\end{snugshade}
 \noindent The \texttt{pattern} is a regular expression and \texttt{ds} are
 datasets.  Strings and columns with special characters have to be quoted.
 For example
 \begin{shell}
-ax grep Alice test-0 test-1/special name
+ax grep Alice test-0 test-1/special "first name"
 \end{shell}
-Will look for the string \texttt{Alice} in the \texttt{name} column of
-the two datasets \texttt{text-0} and \texttt{test-1/special}.
+Will look for the string \texttt{Alice} in the \texttt{first name} column of
+the two datasets \texttt{test-0} and \texttt{test-1/special}.
 
 
 \section{Information about Methods: \texttt{ax method}}

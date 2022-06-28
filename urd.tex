@@ -138,15 +138,15 @@ def main(urd):
 \end{python}
 In order to use this import job in a future context,
 a \textsl{session} is created by wrapping the code by
-the \texttt{urd.begin()} and \texttt{urd.finish()} functions, like this
+the \py{urd.begin()} and \py{urd.finish()} functions, like this
 \begin{python}
 def main(urd):
     urd.begin('import/txn', '2018-05-03')
     urd.build('csvimport', filename='txn1.txt')
     urd.finish('import/txn')
 \end{python}
-Everything that happens between \texttt{.begin()} and \texttt{.finish()}
-makes up the session.  The \texttt{.finish()} function makes sure that
+Everything that happens between \py{.begin()} and \py{.finish()}
+makes up the session.  The \py{.finish()} function makes sure that
 the session is stored permanently to disk for future reference.  In
 this case, the session can be retrieved knowing its \textsl{list} name
 \begin{verbatim}
@@ -183,7 +183,7 @@ def main(urd):
 \end{python}
 The first thing that happens is that all processing is covered in a
 session named \texttt{process/text}.  The timestamp can be set
-in \textsl{either} \texttt{.begin()} or \texttt{.finish()}.
+in \textsl{either} \py{.begin()} or \py{.finish()}.
 
 The script is then retrieving the most recently created urd session
 stored in list \texttt{import/txn}.  Two things are extracted from
@@ -192,18 +192,18 @@ timestamp will be used for this session as well, to indicate that
 processing is based on data with that particular timestamp.  A
 reference to the \texttt{csvimport} job is then extracted from the
 joblist and fed to the \texttt{process} job as an input dataset
-parameter. (For information about the \texttt{joblist} class, see
+parameter. (For information about the \py{JobList} class, see
 section~\ref{sec:joblist}.)
 
 
 
 \section{The Contents of a Stored Session}
 \label{sec:urd_item}
-Calling \texttt{urd.finish()} will update the Urd database with the
+Calling \py{urd.finish()} will update the Urd database with the
 contents of the current \textsl{session}.  Each session is addressable
 using a \textsl{list} name (in the format \texttt{<user>/<list>}) and
 a \textsl{timestamp}.  Session data is stored internally in the JSON
-format, and in build scripts it will appear as a Python \texttt{dict}.
+format, and in build scripts it will appear as a Python \py{dict}.
 The example presented earlier in this chapter may have been recorded
 similarly to this
 \begin{json}
@@ -244,15 +244,15 @@ The most important keys are
 \RPtwo \texttt{timestamp} & Timestamp of session\\[1ex]
 \RPtwo \texttt{caption} & A caption\\[1ex]
 \RPtwo \texttt{user/automata} & Name of Urd list\\[1ex]
-\RPtwo \texttt{joblist} & An object of type \texttt{joblist}, containing all jobs built in the session.  For more information, see~\ref{sec:joblist}.\\[1ex]
-\RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions: \mintinline{python}@{'user/automata': session}@.\\[1ex]
+\RPtwo \texttt{joblist} & An object of type \py{JobList}, containing all jobs built in the session.  For more information, see~\ref{sec:joblist}.\\[1ex]
+\RPtwo \texttt{deps} & A dictionary of dependencies from \texttt{user/automata} to urd sessions: \py{{'user/automata': session}}.\\[1ex]
 \stoptabletwo
 
 
 
 
 
-\section{Urd Sessions:  \texttt{begin()} and \texttt{finish()}}
+\section{Urd Sessions:  \py{.begin()} and \py{.finish()}}
 
 There are a number of options associated with a session, as shown
 here,
@@ -263,8 +263,8 @@ urd.finish(urdlist, timestamp, caption=None)
 and the following applies
 \starttabletwo
 \RPtwo \texttt{urdlist} & is the name of the Urd list, and the same
-  \texttt{urdlist} must be specified in both \texttt{begin()}
-  and \texttt{finish()}.
+  \texttt{urdlist} must be specified in both \py{.begin()}
+  and \py{.finish()}.
 
   The \texttt{urdlist} is specified as \texttt{<user>/<list>}, where
   the \texttt{<user/>} part is optional.  The \texttt{user} string
@@ -272,21 +272,21 @@ and the following applies
   current \texttt{URD\_AUTH} settings, see section~\ref{sec:urd_setup}.\\[2ex]
 
 \RPtwo \texttt{timestamp} & is \textsl{mandatory}, but could be set in either
-  \texttt{begin()}, \texttt{finish()}, or both.  \texttt{finish()}
-  will override \texttt{begin()}.\\[2ex]
+  \py{.begin()}, \py{.finish()}, or both.  \py{.finish()}
+  will override \py{.begin()}.\\[2ex]
 
 \RPtwo \texttt{caption} & is \textsl{optional}, and can be set in either
-  \texttt{begin()} or \texttt{finish()}.  \texttt{finish()}
-  will override \texttt{begin()}.\\[2ex]
+  \py{.begin()} or \py{.finish()}.  \py{.finish()}
+  will override \py{.begin()}.\\[2ex]
 
 \RPtwo \texttt{update} &  If set to \pyTrue, the last item in the list may be updated.
   This option will be discussed in section~\ref{sec:trunc-update}.\\[2ex]
 \stoptabletwo
 
 The Urd transaction database will be written to only when
-the \texttt{.finish()} function is called.  Nothing is stored before
-calling \texttt{.finish()}, and it is perfectly okay to
-omit \texttt{finish()} to avoid storage or during development work.
+the \py{.finish()} function is called.  Nothing is stored before
+calling \py{.finish()}, and it is perfectly okay to
+omit \py{.finish()} to avoid storage or during development work.
 
 
 
@@ -294,13 +294,13 @@ omit \texttt{finish()} to avoid storage or during development work.
 The Urd database is based on transaction log files.  There is no way
 to modify or remove information in the database using the Urd API.
 The first time a build script is run, it will cause jobs to be built,
-and if a session is set up using \texttt{begin()} and \texttt{finish},
+and if a session is set up using \py{.begin()} and \py{.finish},
 this session will be stored in the Urd database.  The second time the
 same script is run, the Accelerator will look up already built jobs
 and immediately return job references instead of building anything.
 As long as there are no changes, the session will look identical to
 the one stored in the Urd database, and it is possible to
-execute \texttt{finish()} without errors.  But if there are any
+execute \py{.finish()} without errors.  But if there are any
 discrepancies, such as a job being rebuilt, Urd will refuse to store
 the differing session and instead cause an exception to notify the
 user.
@@ -360,9 +360,9 @@ contain references to all other sessions used to create it, and
 thereby ensuring transparency.
 
 This section is devoted to the function calls that are recorded, and
-these are \texttt{get()}, \texttt{first()}, and \texttt{latest()}.
+these are \py{.get()}, \py{.first()}, and \py{.latest()}.
 For any of these calls to work, they have to be issued
-from \textsl{within} a session, i.e.\ after a \texttt{begin()} call.
+from \textsl{within} a session, i.e.\ after a \py{.begin()} call.
 Otherwise Urd would not be able to record session dependencies.
 Section~\ref{sec:avoid_recording_urd_deps} describes the non-recording
 versions, and more ways to find sessions and inspect Urd database
@@ -370,10 +370,10 @@ contents is described in section~\ref{sec:more_urd_search}.
 
 
 
-\subsection{Finding an Exact or Closest Match:  \texttt{get()}}
+\subsection{Finding an Exact or Closest Match:  \py{.get()}}
 \label{sec:urd_get}
 
-The \texttt{get()} function will return the single session, if
+The \py{.get()} function will return the single session, if
 available, corresponding to a specified list and timestamp, see the
 following example
 \begin{python}
@@ -381,7 +381,7 @@ urd.begin('ab/anotherlist')
 urd.get("ab/test", "2018-01-01T23")
 \end{python}
 The timestamp must match exactly for an item to be returned.  If there
-is no matching item, the \texttt{get()}-call will return
+is no matching item, the \py{.get()}-call will return
 an \textsl{empty session}, i.e.\ something like this
 \begin{python}
 {'deps': {}, 'joblist': JobList([]), 'caption': '', 'timestamp': '0'}
@@ -410,8 +410,8 @@ such as ``\texttt{2018-04-01}'' or ``\texttt{2018-05-31T23:59:59.999999}''.
 
 
 
-\subsection{Finding the Latest Session:  \texttt{latest()}}
-The \texttt{latest()} call will, for a given \textsl{key}, return the
+\subsection{Finding the Latest Session:  \py{.latest()}}
+The \py{.latest()} call will, for a given \textsl{key}, return the
 session with most recent timestamp.  For example
 \begin{python}
 urd.begin('ab/anothertestlist')
@@ -422,8 +422,8 @@ is populated.  Otherwise, an \textsl{empty session} will be returned.
 
 
 
-\subsection{Finding the first item:  \texttt{first()}}
-The \texttt{first()} function works similarly to \texttt{latest}, but
+\subsection{Finding the first item:  \py{.first()}}
+The \py{.first()} function works similarly to \py{.latest()}, but
 will instead return the session with the \textsl{oldest} timestamp,
 i.e.\ the first session stored using the \textsl{key}.
 
@@ -434,13 +434,13 @@ i.e.\ the first session stored using the \textsl{key}.
 \section{Retrieving an Urd Session without Recording}
 \label{sec:avoid_recording_urd_deps}
 As pointed out in the previous section, dependencies will be recorded
-when the \texttt{get()}, \texttt{latest()}, and \texttt{first}
+when the \py{.get()}, \py{.latest()}, and \py{.first()}
 functions are used.  If, for some reason, the point is to just have a
 look at the database to see for example if something is already there
 and in that case what that is, it can be done using the
-``\textsl{peek}'' functions: \texttt{peek()}, \texttt{peek\_first()},
+``\textsl{peek}'' functions: \py{.peek()}, \py{.peek_first()},
 and
-\texttt{peek\_latest()}, like this:
+\py{.peek_latest()}, like this:
 \begin{python}
 urd.peek('test', '2016-10-25')
 urd.peek_latest('test')
@@ -453,20 +453,20 @@ general use, they may cause a loss of continuity and visibility.
 
 
 
-\section{Aborting an Urd Session:  \texttt{abort()}}
+\section{Aborting an Urd Session:  \py{.abort()}}
 
 There can only be one ongoing Urd session.  A new session cannot be
 started until the current one has finished.  There are three ways to
 end an urd session
 \begin{itemize}
-\item[-] execute the \texttt{finish()} call and have the session recorded.
+\item[-] execute the \py{.finish()} call and have the session recorded.
 (Or rejected, if a session with the same key and timestamp already
 exists but with different contents.)
 \item[-] end the build script ``prematurely'' before the
-\texttt{finish()}-call.  No data will be stored in Urd.
-\item[-] issue an \texttt{abort()} call.
+\py{.finish()}-call.  No data will be stored in Urd.
+\item[-] issue an \py{.abort()} call.
 \end{itemize}
-The \texttt{abort()} function is used like this
+The \py{.abort()} function is used like this
 \begin{python}
 urd.begin('test')
 urd.abort()
@@ -496,14 +496,14 @@ transaction data is always \textsl{appended} to the log files.
 
 
 \subsection{Updating the Last Item}
-To update the last item in a list, set the \texttt{update} argument
+To update the last item in a list, set the \py{update} argument
 to \pyTrue
 \begin{python}
 urd.begin('test', '2016-10-25', update=True)
 \end{python}
 If update is \pyTrue, the entry in the test list at '2016-10-25' will
 be updated, unless the new information is equivalent.
-The \texttt{update()} call will simply add a new line to the Urd log
+The \py{.update()} call will simply add a new line to the Urd log
 database, and if the timstamp is the same as the previous entry, the
 new entry will be selected.  Note that this only works for
 the \textsl{last} entry in the database, and that the previous version
@@ -518,7 +518,7 @@ transaction log, re-winding to an earlier timestamp is implemented
 using inserting a ``truncation'' marker in the log.  Any data more
 recent than what is indicated by the marker is wiped from memory, and
 sessions with timestamps more recent than the marker can be stored
-again.  The \texttt{truncate()} function is used to insert these
+again.  The \py{.truncate()} function is used to insert these
 markers, and it is used like this
 \begin{python}
 urd.truncate(ab/'test', '2016-09-30')
@@ -552,12 +552,12 @@ they are marked as ghosts.
 \label{sec:more_urd_search}
 
 There are two more functions for finding information in the Urd
-database: \texttt{list} and \texttt{since}.
+database: \py{.list()} and \py{.since()}.
 
 
 
-\subsection{Listing all Urd Lists:  \texttt{list()}}
-The \texttt{list()} function will return a list of all lists recorded in
+\subsection{Listing all Urd Lists:  \py{.list()}}
+The \py{.list()} function will return a list of all lists recorded in
 the database:
 \begin{python}
 print(urd.list())
@@ -569,8 +569,8 @@ may show something like
 
 
 
-\subsection{Listing all Items After a Specific Timestamp:  \texttt{since()}}
-The \texttt{since()} function is used to extract lists
+\subsection{Listing all Items After a Specific Timestamp:  \py{.since()}}
+The \py{.since()} function is used to extract lists
 of \textsl{timestamps} corresponding to recorded sessions.  In its
 most basic form, it is called with a timestamp like this
 \begin{python}
@@ -581,7 +581,7 @@ one provided
 \begin{shell}
 ['2016-10-06', '2016-10-07', '2016-10-08', '2016-10-09', '2016-10-09T20']
 \end{shell}
-The \texttt{since()} function is rather relaxed with respect to the
+The \py{.since()} function is rather relaxed with respect to the
 resolution of the input.  The input timestamp may be truncated from
 the right down to only one digits.  An input of zero is also valid.
 For example, these are all valid
@@ -598,10 +598,10 @@ urd.since('ab/test', '2016-10-05T20:00:00')
 
 
 
-\section{Building Jobs: \texttt{build()}}
+\section{Building Jobs: \py{.build()}}
 \label{sec:urd_build}
 
-Jobs are dispatched in Urd sessions using the \texttt{build} function.
+Jobs are dispatched in Urd sessions using the \py{.build} function.
 Here is the complete call with all possible parameters.
 \begin{python}
 job = urd.build(
@@ -617,54 +617,54 @@ job = urd.build(
 \end{python}
 If \options, \datasets, and \jobs are uniquely defined in the method,
 they could be entered just as plain keyword arguments.  If there are
-ambiguities, the full \texttt{options=} etc.\ must be used.  Here is
-an explanation of \texttt{build} parameters:
+ambiguities, the full \py{options=} etc.\ must be used.  Here is
+an explanation of \py{.build()} parameters:
 \starttabletwo
-\RPtwo \texttt{method} & Name of method to build.  Enter \texttt{test}
+\RPtwo \py{method} & Name of method to build.  Enter \py{'test'}
     here if the method filename is \texttt{a\_test.py}.  The
     Accelerator will look for this file in all method directories
     specified in the Accelerator's configuration file.\\
 
-\RPtwo \texttt{kw} & Use to specify any unique options, jobs, and datasets
+\RPtwo \py{kw} & Use to specify any unique options, jobs, and datasets
     without the more elaborate dictionaries described next.\\
-    
-\RPtwo \texttt{options=\{\}} & A \texttt{dict} of options to the method.
+
+\RPtwo \py{options={}} & A \py{dict} of options to the method.
     This overrides options defined in the method itself, but adding
     options not prototyped in the method is \textsl{not} allowed.\\
 
-\RPtwo \texttt{jobs=\{\}} & A \texttt{dict} of jobs to the method.
+\RPtwo \py{jobs={}} & A \py{dict} of jobs to the method.
     It is possible to specify a list of jobs like this:
 
     \py{jobs=dict{alljobs=[job1, job2, ...]}}
 \\
 
-\RPtwo \texttt{datasets=\{\}} & A \texttt{dict} of datasets to the method.
-    Datasets may be lists too, just like \texttt{jobs} above.\\
+\RPtwo \py{datasets={}} & A \py{dict} of datasets to the method.
+    Datasets may be lists too, just like \py{jobs} above.\\
 
-\RPtwo \texttt{name=None} & A string associated with the job.  Use it
+\RPtwo \py{name=None} & A string associated with the job.  Use it
     to distinguish several jobs created from the same method in
     joblists.\\
 
-\RPtwo \texttt{caption=None} & A caption string.  For decorative purposes
+\RPtwo \py{caption=None} & A caption string.  For decorative purposes
     only, this has no practical use.\\
 
-\RPtwo \texttt{why\_build=False} & Don't build this job. If it appears to
+\RPtwo \py{why_build=False} & Don't build this job. If it appears to
     need building stop and print information on how this build could have
     been avoided. This is a debugging aid.\\
 
-\RPtwo \texttt{force\_build=False} & Build this job even if there appears
+\RPtwo \py{force_build=False} & Build this job even if there appears
     to be no reason to. This is also mostly a debugging aid.\\
 
-\RPtwo \texttt{workdir=None} & If specified, the job will be built in
+\RPtwo \py{workdir=None} & If specified, the job will be built in
     this workdir, assuming the workdir is specified in the
     configuration file as \textsl{either} source or target.\\
 
-\RPtwo \texttt{concurrency=None} & Specify max number of parallel processes.
+\RPtwo \py{concurrency=None} & Specify max number of parallel processes.
        This can be used to save memory, see section~\ref{sec:concurrency}
        for more information.\\
 \stoptabletwo
 
-The \texttt{build()} function will only build a job when it has to,
+The \py{.build()} function will only build a job when it has to,
 otherwise it will just return a job reference to an existing matching
 job.  In order to match, an existing job must have
 \begin{itemize}
@@ -672,16 +672,16 @@ job.  In order to match, an existing job must have
 \item[-] exactly the same options, datasets, and jobs.
 \end{itemize}
 If the source code is changed, a job rebuild can be prevented using
-the \texttt{equivalent\_hashes} variable as explained in
+the \py{equivalent_hashes} variable as explained in
 section~\ref{sec:equivalent_hashes}.
 
 
 
-\subsection{Building Chained Jobs: \texttt{urd.build\_chained()}}
-This is a special version of \texttt{build()} that can be used for
+\subsection{Building Chained Jobs: \py{urd.build_chained()}}
+This is a special version of \py{.build()} that can be used for
 linking a set of dataset-creating jobs.  This function was created for
 the purpose of having build scripts that imported a large set of files
-in a \texttt{for}-loop.  It is used like this
+in a \py{for}-loop.  It is used like this
 \begin{python}
 def main(urd):
     # Import a list of files
@@ -705,13 +705,13 @@ def main(urd):
 This example will build a chain of \texttt{csvimport} jobs, and one
 chain of \texttt{dataset\_type} jobs.  Each \texttt{dataset\_type} job
 will have a corresponding \texttt{csvimport} dataset as source.
-The \texttt{build\_chained()} function works, provided that
+The \py{.build_chained()} function works, provided that
 \begin{itemize}
 \item[--] the method to build has a dataset named \texttt{previous},
-\item[--] a unique \texttt{name=} is set in \texttt{.build\_chained()}, and
-\item[--] \texttt{urd.latest()} is called inside the Urd session.
+\item[--] a unique \py{name=} is set in \py{.build_chained()}, and
+\item[--] \py{urd.latest()} is called inside the Urd session.
 \end{itemize}
-The call to \texttt{urd.latest()} is necessary for the
+The call to \py{urd.latest()} is necessary for the
 dependency-logic to work, but the output from the call can be
 discarded.
 
@@ -719,30 +719,30 @@ discarded.
 
 
 
-\section{Changing workdir:  \texttt{set\_workdir()}}
+\section{Changing workdir:  \py{.set_workdir()}}
 \label{sec:set_workdir}
 The target workdir specified in the configuration file is the only
 workdir that is written to by default.  Any other workdir is read
 only.  This behaviour can be overridden, either
 \begin{itemize}
-\item[] per job, using the \texttt{workdir=...} option to \texttt{urd.build} as shown in section~\ref{sec:urd_build}, or
-\item[] using \texttt{urd.set\_workdir()}.
+\item[] per job, using the \py{workdir=...} option to \py{urd.build()} as shown in section~\ref{sec:urd_build}, or
+\item[] using \py{urd.set_workdir()}.
 \end{itemize}
 The latter,
 \begin{python}
 def main(urd):
     urd.set_workdir(<workdir>)}
 \end{python}
-will set the workdir for all coming \texttt{build} calls in the
+will set the workdir for all coming \py{.build()} calls in the
 current build script.  It can still be overridden using
-the \texttt{workdir=} option to \texttt{urd.build}.
+the \py{workdir=} option to \py{urd.build()}.
 
 
 
 
 
-\section{Profiling a Build Script:  \texttt{print\_exectimes()}}
-The \texttt{JobList} object has a helper function that can be used to
+\section{Profiling a Build Script:  \py{.print_exectimes()}}
+The \py{JobList} object has a helper function that can be used to
 print profiling information for the joblist.  The following example is
 self-explanatory
 \begin{python}
@@ -778,7 +778,7 @@ separated list like this
 \begin{python}
 ax run [script] --flags=verbose,skiptest
 \end{python}
-The flags will appear in the \texttt{urd}-object like this
+The flags will appear in the \py{urd}-object like this
 \begin{python}
 def main(urd):
     if 'verbose' in urd.flags:

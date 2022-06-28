@@ -503,7 +503,7 @@ urd.begin('test', '2016-10-25', update=True)
 \end{python}
 If update is \pyTrue, the entry in the test list at '2016-10-25' will
 be updated, unless the new information is equivalent.
-The \py{.update()} call will simply add a new line to the Urd log
+The \py{update=True} call will simply add a new line to the Urd log
 database, and if the timstamp is the same as the previous entry, the
 new entry will be selected.  Note that this only works for
 the \textsl{last} entry in the database, and that the previous version

@@ -641,16 +641,16 @@ jobs=dict{alljobs=[job1, job2, ...]}
 \RPtwo \texttt{datasets=\{\}} & A \texttt{dict} of datasets to the method.
     Datasets may be lists too, just like \texttt{jobs} above.\\
 
-\RPtwo \texttt{workdir=None} & If specified, the job will be built in
-    this workdir, assuming the workdir is specified in the
-    configuration file as \textsl{either} source or target.\\
-
 \RPtwo \texttt{name} & A string associated with the job.  Use it
     to distinguish several jobs created from the same method in
     joblists.\\
-    
+
 \RPtwo \texttt{caption} & A caption string.  For decorative purposes
     only, this has no practical use.\\
+
+\RPtwo \texttt{workdir=None} & If specified, the job will be built in
+    this workdir, assuming the workdir is specified in the
+    configuration file as \textsl{either} source or target.\\
 
 \RPtwo \texttt{concurrency} & Specify max number of parallel processes.
        This can be used to save memory, see section~\ref{sec:concurrency}

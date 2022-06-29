@@ -152,11 +152,12 @@ the main, \texttt{bad}, or \texttt{skipped} datasets.
 
 
 \subsection{Limitations}
-Each data value is limited to 16MB maximim.  However, this is just a
-constant in the code that is by default set to a value that allows the
-Accelerator to run on low memory platforms.  If you need to store,
-say, \texttt{bytes} values larger than 16MB, please update this
-constant to a larger value.
+Each line is limited to slighly less than 16MB.  However, this is just a
+constant in the code (\texttt{BIG\_Z} in \texttt{standard\_methods/csvimport.py})
+that is by default set to a value that allows the Accelerator to run on low
+memory platforms (it will allocate $sliceno * 2 + 3$ buffers of this size).
+If you have enough memory you can set it as high as $2^{30} - 1 = 1073741823$
+(1GB), but higher than that will not work correctly.
 
 
 \subsection{Example Invocation}

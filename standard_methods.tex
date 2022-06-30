@@ -63,22 +63,30 @@ Alternatively any single \texttt{iso-8859-1} character can be chosen.\\
 
 \RP \texttt{quotes} & \texttt{''} & Quote character.  Empty or \pyFalse means no
 quotes, \pyTrue means both \texttt{'}, and \texttt{"}, any other
-character means itself. \\
+character means itself.  This supports standard CSV escaping,
+i.e. doubling the quote character. \texttt{'a''b'} $\rightarrow$ \texttt{a'b}
+
+Unquoting applies to any field that starts with a quote character, quote
+characters inside other fields are not treated specially.\\
 
 \RP \texttt{labelsonfirstline} & \pyTrue & If set to
-\mintinline{python}{True}, data on the first line of the file will
-be used as column labels.  If \mintinline{python}{False}, labels must
+\pyTrue, data on the first line of the file will
+be used as column labels.  These will be decoded with
+\py{str.decode('utf-8', 'backslashreplace')}. If \pyFalse, labels must
 be entered using the \texttt{label} option, see \texttt{labels}
 below.\\
 
 \RP \texttt{labels} & \texttt{[]} & If \texttt{labelsonfirstline} (see
 above) is set to \mintinline{python}{False}, labels must be provided
 using this option.  For example \mintinline{python}{labels = ['foo',
-'bar',]}.\\
+'bar',]}.
+
+If specified, these labels always apply, regardless of
+\texttt{labelsonfirstline}.\\
 
 \RP \texttt{rename} & \texttt{\{\}} & This option makes it possible to
 change the column names read from the first line of the input file.
-Renaming happens first.  It accepts a dictionary of type
+Renaming happens before discard.  It accepts a dictionary
 \mintinline{python}/{old_name: new_name,}/.\\
 
 \RP \texttt{lineno\_label} & \texttt{''} & If set,
@@ -135,8 +143,8 @@ for example
 The result of the \texttt{csvimport} is a dataset named
 \texttt{default}.  Lines marked as ``bad'' will be stored in the
 dataset \texttt{bad}, while skipped and commented lines will be stored
-in the dataset \texttt{skipped}.  All columns will be of type
-\mintinline{python}{bytes}.  Typically, the dataset from
+in the dataset \texttt{skipped}.  All columns (except the \texttt{lineno}
+column) will be of type \py{bytes}.  Typically, the dataset from
 \texttt{csvimport} is fed to a \texttt{dataset\_type} job for column
 typing.
 

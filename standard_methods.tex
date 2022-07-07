@@ -204,13 +204,16 @@ the \texttt{zip} file.
    (whether specified explicitly or because the zip only contains one
    file) this will also end up as the default dataset.\\
 \RP \texttt{chaining}          & \texttt{on}  &
-  Can be one of \texttt{off}, \texttt{on}, \texttt{by\_filename},
-  or \texttt{by\_dsname}.
+  Can be one of:
   \begin{itemize}
-  \item[]\texttt{off} -- Do not chain the imports.  Use \texttt{datasets.previous} on all datasets.
-  \item[]\texttt{on} -- Chain the imports in the order the files are in the zip file.
-  \item[]\texttt{by\_filename} -- Chain in filename order.
-  \item[]\texttt{by\_dsname} -- Chain in dataset name order. Since \texttt{inside\_filenames} is a dict this is your only way of controlling its order.
+  \item[]\texttt{off} -- Do not chain the imports.  Use \py{datasets.previous} on all datasets.
+  \item[]\texttt{on} -- This is the default, and means \texttt{by\_dict} if \texttt{inside\_filenames}
+  is set and \texttt{by\_ziporder} if it is not.
+  \item[]\texttt{by\_filename} -- Chain the imports in filename order.
+  \item[]\texttt{by\_dsname} -- Chain the imports in dataset name order.
+  \item[]\texttt{by\_dict} -- Chain the imports in the order in \texttt{inside\_filenames}.
+  Note that you must pass \texttt{inside\_filenames} an \py{OrderedDict} for this.
+  \item[]\texttt{by\_ziporder} -- Chain the imports in the order the files are in the zip file.
 \end{itemize}\\
 \RP \texttt{include\_re}       & \texttt{''}  & Regexp of files to include, matches anywhere.\\
 \RP \texttt{exclude\_re}       & \texttt{''}  & Regexp of files to exclude, takes priority over \texttt{include\_re}.\\

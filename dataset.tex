@@ -381,9 +381,6 @@ follow in the next sections.
 \RPtwo   \texttt{int64}     &  64 bit signed integer\\
 \RPtwo   \texttt{int32}     &  32 bit integer\\[1ex]
 
-\RPtwo   \texttt{bits64}     &  64 bit bitmask\\
-\RPtwo   \texttt{bits32}     &  32 bit bitmask\\[1ex]
-
 \RPtwo   \texttt{complex64}     &  64 bit complex number\\
 \RPtwo   \texttt{complex32}     &  32 bit complex number\\[1ex]
 
@@ -454,12 +451,6 @@ image files.  The upper storage limit for a value typed
 as \texttt{bytes} is almost 2GB ($2^{31}-1$ bytes).
 The \texttt{csvimport} standard method uses this type for all data in
 its output dataset.
-
-
-\subsection{Bitmasks}
-The bitmask types, \texttt{bits32} and \texttt{bits64}, are stored as
-32 or 64 bits of data in a dataset, and is represented by unsigned
-integers in the Python code.
 
 
 \subsection{Complex Numbers}

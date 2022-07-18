@@ -123,11 +123,13 @@
 \renewcommand{\arraystretch}{1.2}
 \definecolor{shadecolor}{rgb}{0.96 0.96 0.96}
 
-\def\starttable{%
+\newcommand{\starttable}[1][name]{\def\ARGONE{{#1}}\starttableINNER}
+\newcommand{\starttableINNER}[1][default]{\def\ARGTWO{{#1}}\starttableINNERER}
+\newcommand{\starttableINNERER}[1][description]{
   \definecolor{shadecolor}{rgb}{0.96 0.96 0.96}
   \begin{snugshade}\vspace{-3ex}
     \begin{longtable}{@{}p{3.2cm}p{1.8cm}p{8cm}}\toprule
-      \textbf{name} & \textbf{default} & \textbf{description}\\
+      \textbf{\ARGONE} & \textbf{\ARGTWO} & \textbf{#1}\\
       \midrule[0.5pt]}
 \def\starttablenoheader{%
   \begin{snugshade}\vspace{-3ex}
@@ -136,10 +138,11 @@
 \def\RP #1&#2&#3{ #1&#2&#3}
 
 % table with two columns
-\def\starttabletwo{%
+\newcommand{\starttabletwo}[1][name]{\def\ARGONE{{#1}}\starttabletwoINNER}
+\newcommand{\starttabletwoINNER}[1][description]{
   \begin{snugshade}\vspace{-3ex}
     \begin{longtable}{@{}p{5.0cm}p{8cm}}\toprule
-      \textbf{name} & \textbf{description}\\
+      \textbf{\ARGONE} & \textbf{#1}\\
       \midrule[0.5pt]}
 \def\stoptabletwo{\bottomrule\end{longtable}\end{snugshade}}
 \def\RPtwo #1&#2{ #1&#2}

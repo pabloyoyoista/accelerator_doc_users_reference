@@ -534,7 +534,7 @@ is \textsl{not} the same as the hash of the integer \texttt{4}.
 \section{Creating a New Dataset}
 \label{sec:datasetwriter}
 Datasets are created by methods using the \texttt{DatasetWriter}
-class.  An instance of this class is available in a running method
+class.  A factory for this class is available in a running method
 as \texttt{job.datasetwriter} like this
 \begin{python}
 def prepare(job):
@@ -544,7 +544,7 @@ def prepare(job):
 The most common scenario is to set up the new dataset in
 \prepare, and write data to it in parallel in \analysis, but is is
 also possible to write a dataset in an entirely serial fashion in
-\synthesis.  When a dataset-creating method terminates, it will create
+\prepare or \synthesis.  When a dataset-creating method terminates, it will create
 and store all required meta-information, such as min/max values, for
 the created dataset(s) automatically.
 

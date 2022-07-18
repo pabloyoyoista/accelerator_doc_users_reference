@@ -363,7 +363,7 @@ and \texttt{pickle}, that may return rather complex datatypes.
 
 By default, a typed column does not allow the storage of \pyNone
 values.  This can be changed by setting the \texttt{none\_support}
-Boolean when creating the column, see
+boolean when creating the column, see
 section~\ref{sec:datasetwriter_add}.
 
 All available types are shown in the following table.  More details
@@ -373,52 +373,65 @@ follow in the next sections.
 
 \newpage
 \starttabletwo
-\RPtwo   \texttt{number}     &  float or int\\[1ex]
-   
-\RPtwo   \texttt{float64}   &  64 bit (double) float\\
-\RPtwo   \texttt{float32}   &  32 bit float\\[1ex]
+\RPtwo   \texttt{number}     &  float or int ($ \pm (2^{1007}-1) $)\\[1ex]
 
-\RPtwo   \texttt{int64}     &  64 bit signed integer\\
-\RPtwo   \texttt{int32}     &  32 bit integer\\[1ex]
+\RPtwo   \texttt{float64}   &  64 bit float (this is what the Python \py{float} type uses)\\
+\RPtwo   \texttt{float32}   &  32 bit float (this has lower precision)\\[1ex]
 
-\RPtwo   \texttt{complex64}     &  64 bit complex number\\
-\RPtwo   \texttt{complex32}     &  32 bit complex number\\[1ex]
+\RPtwo   \texttt{int64}     &  64 bit int ($ \pm 2^{63} = \pm 9223372036854775807$)\\
+\RPtwo   \texttt{int32}     &  32 bit int ($ \pm 2^{31} = \pm 2147483647 $)\\[1ex]
 
-\RPtwo   \texttt{bool}      &  True or False\\[1ex]
-   
-\RPtwo   \texttt{date}      &  date\\
-\RPtwo   \texttt{time}      &  time\\
-\RPtwo   \texttt{datetime}  &  complete date and time object\\[1ex]
-   
+\RPtwo   \texttt{complex64} &  64 bit complex number (i.e. two float64)\\
+\RPtwo   \texttt{complex32} &  32 bit complex number (i.e. two float32)\\[1ex]
+
+\RPtwo   \texttt{bool}      &  \pyTrue or \pyFalse\\[1ex]
+
+\RPtwo   \texttt{date}      &  \py{datetime.date}\\
+\RPtwo   \texttt{time}      &  \py{datetime.time}\\
+\RPtwo   \texttt{datetime}  &  \py{datetime.datetime}\\[1ex]
+
 \RPtwo   \texttt{bytes}     &  raw data \\
-\RPtwo   \texttt{ascii}     &  ascii is faster in python2, otherwise use unicode\\
-\RPtwo   \texttt{unicode}   &  use for strings\\[1ex]
-   
-\RPtwo   \texttt{json}            &  a datastructure that is jsonable\\
-\RPtwo   \texttt{pickle}          &  a datastructure that is pickle-able!\\[1ex]
-   
-\RPtwo   \texttt{parsed:number}   & int, float or string parsing into \texttt{number} \\
-\RPtwo   \texttt{parsed:float64}  & int, float or string parsing into \texttt{float64} \\
-\RPtwo   \texttt{parsed:float32}  & int, float or string parsing into \texttt{float32} \\
-\RPtwo   \texttt{parsed:complex64}  & int, float or string parsing into \texttt{complex64} \\
-\RPtwo   \texttt{parsed:complex32}  & int, float or string parsing into \texttt{complex32} \\
-\RPtwo   \texttt{parsed:int64}    & int, float or string parsing into \texttt{int64} \\
-\RPtwo   \texttt{parsed:int32}    & int, float or string parsing into \texttt{int32} \\
-\RPtwo   \texttt{parsed:json}     &  string containing parseable json\\[1ex]
+\RPtwo   \texttt{ascii}     &  string limited to ascii \\
+\RPtwo   \texttt{unicode}   &  normal string \\[1ex]
+
+\RPtwo   \texttt{json}      &  anything jsonable (anything \py{json.dump} accepts) \\
+\RPtwo   \texttt{pickle}    &  anything picklable (anything \py{pickle.dump} accepts) \\
+\stoptabletwo
+
+Additionally a number of types prefixed with \texttt{parsed:} are available.
+These take everything the non-parsed version takes, plus strings that can
+be parsed as that type.
+Once written they are the type after the \texttt{parsed:} prefix.
+
+\starttabletwo[name][notes]
+\RPtwo   \texttt{parsed:number}    & \\
+\RPtwo   \texttt{parsed:float64}   & \\
+\RPtwo   \texttt{parsed:float32}   & \\
+\RPtwo   \texttt{parsed:complex64} & strings use \texttt{j}, not \texttt{i}\\
+\RPtwo   \texttt{parsed:complex32} & strings use \texttt{j}, not \texttt{i}\\
+\RPtwo   \texttt{parsed:int64}     & also accepts floats \\
+\RPtwo   \texttt{parsed:int32}     & also accepts floats \\
+\RPtwo   \texttt{parsed:json}      & strings are always decoded, even though
+                                     they would of course be accepted as-is by
+                                     the plain \texttt{json} type \\
 \stoptabletwo
 
 \subsection{Arbitrary precision numbers:  \texttt{number}}
 The type \texttt{number} is integer when possible and float otherwise.
-it can handle very large numbers, up to $\pm (2^{1007}-1)$.
-The \texttt{number} type occupies a minimum of nine bytes on disk,
-where eight is for the number itself and the additional byte is a
-marker.
+It can handle very large numbers, up to $\pm (2^{1007}-1)$.
+This is usually slower than the fixed size types, but not by much.
 
 
 
 \subsection{Standard Fixed Size Numbers}
 The common \texttt{int} and \texttt{float} types in 32 and 64 bit
 versions are available for use when the range of the data is known.
+
+Note that the \texttt{float32} type not only has a smaller range than
+\texttt{float64}, but also lower precision. The python \py{float} type
+has the same precision as \texttt{float64}, so that is the safe choice.
+If you use \texttt{float32} you may be surprised by e.g. \py{0.1} not
+being the same value after you read it back.
 
 
 \subsection{Booleans}
@@ -427,9 +440,8 @@ The \texttt{bool} type is used to store logical
 
 
 \subsection{Types Relating to Time}
-The \texttt{date}, \texttt{time}, and \texttt{datetime} are compatible
-with Python's corresponding classes, where \texttt{datetime} is the
-combination of \texttt{date} and \texttt{time}.  A column that is
+The \texttt{date}, \texttt{time}, and \texttt{datetime} types use the
+corresponding classes from the standard \py{datetime} module. A column that is
 typed to any of these may directly take advantage of the high level
 time related methods, like for example
 \begin{python}
@@ -439,9 +451,21 @@ for ts in datasets.source.iterate(sliceno, 'timestamp'):
 
 
 \subsection{String Types}
-There is a \texttt{unicode} type for strings.  On Python2, the
-\texttt{ascii} type could be used as well.  The \texttt{unicode}
-type executes faster on Python3.
+There are two string types, \texttt{unicode} and \texttt{ascii}.
+Normally you want to use the \texttt{unicode} type, which allows all valid
+unicode strings (but not surrogates, \texttt{\textbackslash ud800}
+to \texttt{\textbackslash udfff}, which python can put in strings decoded
+with the \py{'surrogateescape'} error handler).
+
+Sometimes the more restrictive \texttt{ascii} type, which only allows
+\texttt{\textbackslash u0000} to \texttt{\textbackslash u007f} can
+provide a welcome restriction.
+
+On Python2, the \texttt{ascii} type will return \py{str} objects
+(a.k.a. \py{bytes}) and \texttt{unicode} will return \pytwo{unicode} objects.
+
+On Python3, both return \py{str} objects (i.e. what Python2 called
+\pytwo{unicode}.)
 
 
 \subsection{Raw Data}
@@ -456,6 +480,7 @@ its output dataset.
 \subsection{Complex Numbers}
 There are two complex number types, \texttt{complex32}
 and \texttt{complex64}.
+The \texttt{complex32} type has the same caveats as the \texttt{float32} type.
 
 
 \subsection{JSON}
@@ -474,29 +499,24 @@ dw.write(a)
 
 
 \subsection{Pickle}
-The Python Pickle type is the most flexible type of all.  It supports
+The Python pickle type is the most flexible type of all.  It supports
 any pickle-able object, and encoding and decoding is done on-the-fly
 under the hood.  This means that \textsl{it is possible to write almost
 anything into a dataset column}!
 
-
-
-\subsection{\texttt{parsed} Types}
-In addition, there are a few types prefixed with \texttt{parsed:} that
-allow for a more flexible assignment of values.  For example,
-the \texttt{parsed:number} type accepts both \texttt{int}s
-and \texttt{float}s, as well as strings that are parseable to a
-number, such as \texttt{'3.14'}.
-
+This type is however not support on Python2.
 
 
 \subsection{\pyNone-Handling}
-The value \pyNone is valid input for all types that support \pyNone,
-i.e.\ all types except the bitmask-types.  For example, valid values
-for a \texttt{bool} type column are \{\pyTrue, \pyFalse\}
+The value \pyNone is valid input for all types if you enable
+\texttt{none\_support}, and \texttt{json} and \texttt{pickle} accept
+them regardless.
+For example, valid values for a \texttt{bool} type column are
+\py{{True, False}}
 without \texttt{none\_support},
-and \{\pyTrue, \pyFalse, \mintinline{python}|None|\}
-with \texttt{none\_support}.  See section~\ref{sec:datasetwriter_add}
+and \py{{True, False, None}}
+with \texttt{none\_support}.
+See section~\ref{sec:datasetwriter_add}
 for more information on \texttt{none\_support}.
 
 

@@ -386,20 +386,12 @@ but have trailing zero decimals.
 
 
 \subsubsection{Floating Point Numbers}
-Floating point numbers may be stored as 32 or 64 bits.  In addition,
-there are six parsing options that are useful in different scenarios.
+Floating point numbers may be stored as 32 or 64 bits.
 The \emph{ignore} option ignores any trailing characters after the
-number.  Then there are \emph{exact} that causes error if the number
-does not fit, and \emph{saturate} that silently saturates a
-non-fitting number.  These can also be used in combination, see table
-below for all alternatives
+number.
 \starttablenotitle
 \RPnotitle \texttt{float32} & \texttt{float64} & \emph{default}\\
 \RPnotitle \texttt{float32i} & \texttt{float64i} & \emph{ignore}, will discard trailing garbage\\
-\RPnotitle \texttt{float32e} & \texttt{float64e} & \emph{exact}, raise error if parsed number does not fit in type \\
-\RPnotitle \texttt{float32s} & \texttt{float64s} & \emph{saturate}, saturate to min/max if number does not fit in type \\
-\RPnotitle \texttt{float32ei} & \texttt{float64ei} & \emph{exact} + \emph{ignore} \\
-\RPnotitle \texttt{float32si} & \texttt{float64si} & \emph{saturate} + \emph{ignore} \\
 \stoptablenotitle
 
 

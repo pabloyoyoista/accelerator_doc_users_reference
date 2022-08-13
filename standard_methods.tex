@@ -412,21 +412,6 @@ causes parsing to ignore trailing garbage characters.
 \stoptablenotitle
 
 
-\subsubsection{Integers Stored as Floats}
-There are also a parsing options for integers that are represented in
-a floating point format in the source data.  These are useful when
-integer data is stored with decimals, such as \texttt{5.0}.  In
-pseudocode, the parsing basically runs \texttt{int(float(value))} for
-each such value.  Unless saturation and/or removal of trailing garbage
-is required, the \texttt{number} should be used.
-\starttablenotitle
-\RPnotitle   \texttt{floatint32e} & \texttt{floatint64e}  & \emph{exact}, raise error if parsed number does not fit in type\\
-\RPnotitle   \texttt{floatint32s} & \texttt{floatint64s}  & \emph{saturate}, saturate to min/max if number does not fit in type\\
-\RPnotitle   \texttt{floatint32ei}& \texttt{floatint64ei} & \emph{exact} + \emph{ignore} trailing garbage\\
-\RPnotitle   \texttt{floatint32si}& \texttt{floatint64si} & \emph{saturate} + \emph{ignore} trailing garbage\\
-\stoptablenotitle
-
-
 \subsubsection{Convert to Boolean}
 It is common that a column holds values that are to be interpreted as
 either \texttt{False} or \texttt{True}.  The following types handles

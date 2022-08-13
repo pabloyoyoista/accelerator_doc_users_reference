@@ -377,12 +377,16 @@ after the actual number are silently discarded.
 The \texttt{number} type is integer or floating point.
 \starttablenotitle
 \RPnotitle  \texttt{number}     && \texttt{int} or \texttt{float} \\
-\RPnotitle  \texttt{number:int} && \texttt{int}, will convert \texttt{float}s to \texttt{int}s.\\
+\RPnotitle  \texttt{number:int} && \texttt{int}, but accepts float-formatted ints.\\
 \stoptablenotitle
-\noindent Integers are enforced using \texttt{number:int}, and the type accepts
+\noindent Floats have standard double precision (64 bits), ints can be up to
+$\pm (2^{1007}-1)$.
+
+Integers are enforced using \texttt{number:int}, and the type accepts
 trailing decimal zeroes like \texttt{7.0}, \texttt{4.000} etc.  This
 is useful when typing datafiles where numbers actually are integers
-but have trailing zero decimals.
+but have trailing zero decimals. It is especially useful if the numbers
+are too big to be represented exactly as doubles (i.e. more than $2^{53}$).
 
 
 \subsubsection{Floating Point Numbers}

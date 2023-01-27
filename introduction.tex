@@ -17,16 +17,19 @@
 %                                                                          %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ExAx, or the Accelerator, is a tool for fast reproducible data processing,
-capable of working at high speed with terabytes of data with billions
-of rows on a single computer.  The speed in combination with its
-unique capabilites to ensure reproducibility makes the Accelerator a
-good choice for tasks where it is important to keep track of how data
-and results are connected.  Typical applications include all kinds of
-data analysis work as well as live production systems for tasks such
-as recommender systems, and more.  The Accelerator has a small
-footprint, few dependencies, and runs on laptops as well as rack
-servers.
+ExAx, or the Accelerator, is a tool for fast reproducible data
+processing, capable of working at high speed with terabytes of data
+with billions of rows on a single computer.  The speed in combination
+with its unique capabilites to ensure reproducibility makes the
+Accelerator a good choice for tasks where it is important to keep
+track of how data and results are connected.  Furthermore, using the
+Accelerator saves time, since results are re-used, and not
+re-computed, whenever possible.
+
+Typical applications include all kinds of data analysis work as well
+as live production systems for tasks such as recommender systems, and
+more.  The Accelerator has a small footprint, few dependencies, and
+runs on laptops as well as rack servers.
 
 The Accelerator was first used in 2012, and has been continuously developed and
 improved since.  It has been in use in projects for companies like
@@ -45,10 +48,10 @@ $10^{11}$, and this was handled with ease on a \emph{single} 32 core
 computer.
 
 More than 1600 commits have been removed to clean up the open version
-of the code base, and about 1300 new commits have been created since
+of the code base, and about 1600 new commits have been created since
 the Accelerator was open sourced.  The Accelerator is written in
-Python, with the exception of some critical parts that are written in
-the C programming language.
+Python, with the exception of critical parts that are written in the C
+programming language.
 
 The authors are Anders Berkeman, Carl Drougge, and Sofia H\"orberg.
 Extensive testing has been done by Stefan Weiland, and Andreas
@@ -67,9 +70,9 @@ simplicity, and the main design goals are:
   come with several CPU cores.  It should be straightforward to use
   them to speed up computations.
   
-\item[] Data rates should be as fast as possible, i.e.\ close to the hardware
-  bounds.  It should be possible to process \textsl{large datasets} on
-  inexpensive hardware, including laptops.
+\item[] Data rates should be as high as possible, i.e.\ close to the hardware
+  bounds.  It should be possible to process \textsl{large datasets on
+  inexpensive hardware}, including laptops.
 
 \item[] All processing steps should be \textsl{reproducible}.
   The Accelerator maps any generated result to its corresponding input
@@ -86,6 +89,6 @@ simplicity, and the main design goals are:
   
 \end{itemize}
 In addition, the Accelerator is originally designed to be used at all
-levels of a project, including data analysis, algorithm development,
-as well as production.  Nevertheless, it still excels as a pure data
-analysis or data processing tool.
+levels of a project, including data engineering, data analysis,
+algorithm development, as well as production.  Nevertheless, it excels
+as a pure data analysis or data processing tool.

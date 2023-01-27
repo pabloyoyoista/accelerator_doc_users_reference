@@ -18,9 +18,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-This chapter presents an overview of the Accelerator's features in a
-rather non-formal way.  It is based on an article published on the
-eBay Tech Blog website.
 
 
 
@@ -37,12 +34,12 @@ level, it can be visualised like in figure~\ref{fig:overview}.
   \end{center}
 \end{figure}
 
-In the figure, the client side, with shell commands and web interface,
-is on the left, and the server side, with job databases is to the
-right.  The Accelerator executes \textsl{build scripts}, that issue
-\textsl{jobs} on the server.  These jobs are stored in the server's
-job databases for later retreival.  There are two databases, one for
-storing everything related to a job's execution, called the
+The left part of the figure shows the \emph{client} side, with shell
+commands and web interface.  On the right part is the \emph{server}
+and its databases.  The Accelerator executes \textsl{build scripts},
+that start \textsl{jobs} on the server.  These jobs are stored in the
+server's job databases for later retreival.  There are two databases,
+one for storing everything related to a job's execution, called the
 \textsl{workdir}, and one transaction log used for storing
 meta-information about built jobs.  The workdir will contain all
 inputs, source code, parameters, and outputs of all executed jobs,
@@ -58,13 +55,13 @@ There are two ways to interface the Accelerator, using
 \end{itemize}
 The command line interface is based on the \texttt{ax} shell command.
 It can be used for a large variety of operations, including starting
-execution of scripts, listing data in datasets, showing content of
-databases, and more.
+execution of scripts, listing or grepping data in datasets, finding
+particular jobs, and a lot more.
 
 The web interface, called \textsl{Accelerator Board}, is used to
-inspect jobs, datasets, and more.  Resulting files such as images,
-text files, pdfs, video files and so on are rendered in the web
-browser.
+inspect jobs, datasets, and meta-information.  Resulting files such as
+images, text files, pdfs, video files and so on are rendered in the
+web browser.
 
 
 \section{Jobs}

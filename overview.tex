@@ -35,7 +35,7 @@ level, it can be visualised like in figure~\ref{fig:overview}.
 \end{figure}
 
 The left part of the figure shows the \emph{client} side, with shell
-commands and web interface.  On the right part is the \emph{server}
+commands and web interface.  On the right side is the \emph{server}
 and its databases.  The Accelerator executes \textsl{build scripts},
 that start \textsl{jobs} on the server.  These jobs are stored in the
 server's job databases for later retreival.  There are two databases,
@@ -65,21 +65,21 @@ web browser.
 
 
 \section{Jobs}
-The basic operation of the Accelerator is to execute small Python
-programs called \textsl{methods}.  A method is nothing but a Python
-program with one or a few special functions that are used to execute
-code sequentially or in parallel and to pass parameters and results.
-A method that has completed execution is called a \textsl{job}.
+A problem that is solved using the Accelerator is typically
+partitioned into smaller programs called \emph{methods}.  A method is
+a Python program with one or a few special functions used to execute
+code sequentially or in parallel, and to pass parameters and results.
 
-Jobs are stored in \textsl{job directories}.  A dedicated directory in
-the workdir will be created for each new job, and this directory will
-contain all information regarding the job, such as its input
-parameters, stored files, return values, profiling information, Python
-interpreter version and path, and more.
+For each method that is executed by the Accelerator, a unique new
+directory, called \emph{job directory}, is created in which everything
+related to the execution, such as inputs, outputs, source code etc.,
+is stored.  An executed method is called a \emph{job}.  To be truly
+transparent, the job directory will also contain profiling
+information, Python interpreter version and other related information.
 
 The Accelerator has a database that keeps track of all jobs that has
-been run.  This avoids unnecessary re-computing in favour of re-using
-previously computed results.  Re-using jobs does not only speed up
+been run.  This avoids unnecessary re-computing in favour of reusing
+previously computed results.  Reusing jobs does not only speed up
 processing and encourage incremental design, but also makes it
 transparent which code and which data that was used for any particular
 result, minimising these kind of uncertainties to zero.
@@ -93,46 +93,60 @@ parameters and does almost nothing, it will just return the string
 def synthesis():
     return "hello world"
 \end{python}
-Everything inside the \texttt{synthesis()}-function is run once
-without any parallelisation.  In order to get this method to execute,
-it is called from a \textsl{build script} looking something like this
+The \texttt{synthesis()}-function is reserved for code that is to be
+executed once without parallellisation.  In order to get the method to
+execute, it is called from a \textsl{build script} looking something
+like this
 \begin{python}
 def main(urd):
     job = urd.build('hello_world')
     print(job.load())
 \end{python}
-The \texttt{urd} object made available by the \texttt{main()}-function
-contains functions for job building and organisation, and is described
-in chapter~\ref{chap:urd} and section~\ref{sec:classes:urd}.  This
-build script is then run by a shell command like this
+The \texttt{main()}-function is called when the build script is run.
+The input parameter \texttt{urd} is an object that contains functions
+for job building and organisation, and is described in
+chapter~\ref{chap:urd} and section~\ref{sec:classes:urd}.  The build
+script is executed by typing a shell command like this
 \begin{shell}
 ax run
 \end{shell}
-The \texttt{build()}-call will instruct the server to execute the
-\texttt{hello\_world} method.  During its execution, a job directory
-will be created that contains everything associated with the build
-process.  When the \texttt{build()}-call is completed, a job object, of type
+In the build script, the \texttt{urd.build()}-call will instruct the
+server to execute the \texttt{hello\_world} method.  During
+its execution, a job directory will be created that contains
+everything associated with the build process.  When the
+\texttt{build()}-call is completed, a job object, of type
 \texttt{Job}, is returned to the program.  This object provides a
 convenient interface to the data in the corresponding job directory,
 and contains member functions such as \texttt{.load()}, that is used
 in the example to read back the returned value from the job.
 
+Note that what is returned by the method is stored in a file on disk.
+There is no need to know the name of the file, since its contents can
+be retrieved by the job objects \texttt{load()} function.
+
+
 
 \subsection{Jobs Can Only be Run Once}
 If the build script is executed again, the \texttt{hello\_world} job
-will not be re-built, simply because the Accelerator remembers that
-the job has been built in the past, and its associated information is
-stored in a job directory.  Instead, the Accelerator immediately
-returns a job object representing the previous run.  This means that
-from a user's perspective, there is no visible difference between
-running a job for the first time or re-using results from an existing
-run!  In order to have the method execute again, either the source
-code or input parameters has to change.  If there are changes, the
-method will be re-executed, and a new job will be created that
-reflects these changes.
+will \emph{not} be re-built, because the Accelerator remembers that
+the job has been built in the past, and all associated information is
+already stored in a job directory.  Instead, the Accelerator
+immediately returns a job object representing the previous run.  This
+means that from a user's perspective, there is no visible difference
+between running a job for the first time or re-using results from an
+existing run!  In order to have the method execute again, either its
+source code or input parameters has to change.  If there are such
+changes, the method will be re-executed, and a new job will be created
+that reflects these changes.
 
+\subsection{Back to the ``Hello, World'' Example}
+Figure~\ref{fig:execflow-hello-world} illustrates an execution of the
+\texttt{hello\_world} method.  The created job gets the \textsl{jobid}
+\texttt{test-0}, and parts of the corresponding job directory
+information is shown in green.  Jobids are job identifiers, named by
+their corresponding \textsl{workdir} plus an integer counter value.
 
-\begin{figure}[b]
+\begin{figure}[h!]
   \begin{center}
     \input{figures/job0.pdftex_t}
     \caption{A simple hello world program, represented as graph and
@@ -141,18 +155,12 @@ reflects these changes.
   \end{center}
 \end{figure}
 
-
-\subsection{Back to the ``Hello, World'' Example}
-Figure~\ref{fig:execflow-hello-world} illustrates the dispatch of the
-\texttt{hello\_world} method.  The created job gets the \textsl{jobid}
-\texttt{test-0}, and parts of the corresponding job directory
-information is shown in green.  (Jobids are job identifiers, that are
-named by their corresponding \textsl{workdir} plus an integer counter
-value.)
-
+The contents of the job directory is available using Python objects
+and shell commands, and there is no need to have detailed knowledge of
+the directory structure, but it might be easier to understand how
+things work by taking a brief look under the hood.
 \clearpage
-The job directory contains several files, of which the most
-important are
+\noindent The most important files in a job directory are
 \begin{itemize}
 \item[] \texttt{setup.json}, containing job meta information;
 \item[] \texttt{result.pickle}, containing the returned data; and
@@ -160,27 +168,32 @@ important are
 \end{itemize}
 
 The \texttt{Job} object provides a convenient way to access files and
-data stored in this directory.  For example, as we've already seen,
-the job's return value can be loaded into a variable using the
-\texttt{.load()} function.
+data stored in this directory.  For example, the job's return value
+can be loaded into a variable using the \texttt{.load()} function, and
+the metadata is pretty printed using the \texttt{ax job} shell
+command.
 
 
 
 \subsection{Workdirs and Sharing Jobs}
 
-Workdirs are used to store jobs.  There can be more than one workdir,
-and different workdirs can be used separate jobs into different
-physical locations.  The Accelerator can be set up to have any number
-of workdirs associated, but only one is used for writing.
+A workdir is where jobs arae stored.  There can be more than one
+workdir, and different workdirs can be used separate jobs into
+different physical locations, or to separate different types of data
+from one another in the same project.  The Accelerator can be set up
+to have any number of workdirs accessible, but typically only one is
+used for writing.
 
-If the same workdir is entered into two or more different user's
+If the same workdir definition is entered into two or more user's
 configuration files, the workdir and its contents will be shared
 between the users.  Each Accelerator server will update its knowledge
 about the contents of all workdirs before executing a build script, to
 make sure that the latest jobs are taken into account.  In addition,
 the job log database, as described in chapter~\ref{chap:urd}, is
 designed for efficient re-use and sharing of particularly interesting
-jobs.
+jobs.  Thus, only one user have to execute a given method for all
+other users to have access to it.  This can save a lot of time in a
+project.
 
 
 \subsection{Linking Jobs}

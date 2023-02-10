@@ -139,7 +139,7 @@ source code or input parameters has to change.  If there are such
 changes, the method will be re-executed, and a new job will be created
 that reflects these changes.
 
-\subsection{Back to the ``Hello, World'' Example}
+\subsection{A Quick Look Under the Hood}
 Figure~\ref{fig:execflow-hello-world} illustrates an execution of the
 \texttt{hello\_world} method.  The created job gets the \textsl{jobid}
 \texttt{test-0}, and parts of the corresponding job directory
@@ -184,30 +184,30 @@ from one another in the same project.  The Accelerator can be set up
 to have any number of workdirs accessible, but typically only one is
 used for writing.
 
-If the same workdir definition is entered into two or more user's
+Entering the same workdir definition into two or more users'
 configuration files, the workdir and its contents will be shared
 between the users.  Each Accelerator server will update its knowledge
 about the contents of all workdirs before executing a build script, to
 make sure that the latest jobs are taken into account.  In addition,
 the job log database, as described in chapter~\ref{chap:urd}, is
 designed for efficient re-use and sharing of particularly interesting
-jobs.  Thus, only one user have to execute a given method for all
-other users to have access to it.  This can save a lot of time in a
+jobs.  Thus, only one user has to execute a given method for all other
+users to have instant access to it.  This can save a lot of time in a
 project.
 
 
 \subsection{Linking Jobs}
 
 Using jobs, complex tasks can be split into several smaller
-operations.  Jobs can be connected so that the next job will depend on
-the result of a previous job or set of jobs, and so on.
+operations.  Jobs can be connected to eachother so that a new job will
+use results from one or more previously executed jobs.
 
 To continue the simple hello world example, assume for a second that
 the \texttt{hello\_world}-job is computationally expensive, and that
 it returns a result that is to be used as input to further processing.
-To keep things simple, this further processing is represented by
-printing the result to standard output.  A new method
-\texttt{print\_result} is created, and it goes like this
+This further processing is represented by simply printing the result
+to standard output.  A new method \texttt{print\_result} is created
+for this task, and it goes like this
 \begin{python}
 jobs = ('hello_world_job',)
 
@@ -223,11 +223,12 @@ def main(urd):
     job1 = urd.build('hello_world')
     job2 = urd.build('print_result', hello_world_job=job1)
 \end{python}
-The \texttt{print\_result} method then loads the result from the
-provided job and prints its contents to \texttt{stdout}.  Note that
-this method does not return anything.
+The \texttt{print\_result} method loads the result from the provided
+job and prints its contents to \texttt{stdout}.  Note that this method
+does not return anything.
+\clearpage
 
-\begin{figure}[b]
+\begin{figure}[t]
   \begin{center}
     \input{figures/job0job1.pdftex_t}
     \caption{Job \texttt{test-0}, is used as input to the
@@ -236,21 +237,22 @@ this method does not return anything.
   \end{center}
 \end{figure}
 
-\clearpage
-Figure~\ref{fig:execflow-print-result} illustrates the situation.
-(Note the direction of the arrow: the second job, \texttt{test-1} has
-\texttt{test-0} as input parameter, but \texttt{test-0} does not know
-of any jobs run in the future.  Hence, arrows point to previous jobs.)
 
+Figure~\ref{fig:execflow-print-result} illustrates the situation.
+Note the direction of the arrow: the second job, \texttt{test-1} has
+\texttt{test-0} as input parameter, but \texttt{test-0} does not know
+of any jobs run in the future.  Hence, arrows point to previous jobs.
 
 The example shows how a complex task may be split into several jobs,
-each reading intermediate results from previous jobs.  The Accelerator
-will keep track of all job dependencies, so there is no doubt which
-jobs that are run when and on which data.  Furthermore, since the
-Accelerator remembers if a job has been executed before, it will link
-and re-use previous jobs when possible.  This may bring a significant
-improvement in execution speed.  Furthermore, a re-used job is a proof
-of that the code, input- and output data is unchanged and connected.
+each reading intermediate results from previous ones, without the need
+for explicit filenames.  The Accelerator will keep track of all job
+dependencies, so there is no doubt which jobs that are run when and on
+which data.  And since the Accelerator remembers if a job has been
+executed before, it will link and re-use previous jobs when possible,
+thereby saving time.  Also note that a re-used job is proving that the
+code, input- and output data is unchanged and connected.
+
+% Parallel Processing intro goes here!
 
 
 \section{Datasets: Storing Data}

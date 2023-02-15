@@ -177,7 +177,7 @@ command.
 
 \subsection{Workdirs and Sharing Jobs}
 
-A workdir is where jobs arae stored.  There can be more than one
+A workdir is where jobs are stored.  There can be more than one
 workdir, and different workdirs can be used separate jobs into
 different physical locations, or to separate different types of data
 from one another in the same project.  The Accelerator can be set up
@@ -253,6 +253,33 @@ thereby saving time.  Also note that a re-used job is proving that the
 code, input- and output data is unchanged and connected.
 
 % Parallel Processing intro goes here!
+
+\section{Parallel Processing}
+
+While the \texttt{synthesis()}-function (presented in the previous
+section) is used for code that is to execute exactly once, the
+\texttt{analysis()}-function is used for simple but powerful parallel
+processing.  A method making use of parallel processin may look like
+this
+\begin{python}
+def analysis(sliceno):
+    print('This is process %d!' % (sliceno,))
+\end{python}
+When the method is executed, the \texttt{analysis()}-function will be
+forked into \texttt{sliceno} parallel processes (where
+\texttt{sliceno} is specified in the Accelerator's configuration file
+and typically set to the number of available CPU cores of the
+machine).  The input parameter \texttt{sliceno} is a number between
+zero and \texttt{sliceno-1} and used to identify each process.
+
+Admittedly, this is the most basic form of parallel processing, that
+can only solve a subset of all kinds of parallel problems.
+Nevertheless, it solves common data processing problems, and it solves
+them a very simple and efficient manner.  The next section shows how
+the Accelerator makes use of this to do data processing on all CPUs in
+parallel.
+
+
 
 
 \section{Datasets: Storing Data}

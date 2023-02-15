@@ -88,27 +88,30 @@ result, minimising these kind of uncertainties to zero.
 \subsection{A ``Hello, World'' Example}
 Here's an example of a very simple method.  It does not take any input
 parameters and does almost nothing, it will just return the string
-``\texttt{hello world}'' and exit.
+``\texttt{hello world}'' and exit.  The example is stored in a file
+named \texttt{a\_hello\_world.py}\footnote{There's a reason for the
+file name prefix, see section~\ref{@@@@@@@@@@@@}.}:
 \begin{python}
 def synthesis():
     return "hello world"
 \end{python}
 The \texttt{synthesis()}-function is reserved for code that is to be
-executed once without parallellisation.  In order to get the method to
-execute, it is called from a \textsl{build script} looking something
-like this
+executed once without parallellisation.  The method is stored in a
+separate file.  In order to get the method to execute, it is called
+from a \textsl{build script} looking something like this
 \begin{python}
 def main(urd):
     job = urd.build('hello_world')
     print(job.load())
 \end{python}
-The \texttt{main()}-function is called when the build script is run.
-The input parameter \texttt{urd} is an object that contains functions
-for job building and organisation, and is described in
+and stored in a file \texttt{build\_mytest.py}.  The
+\texttt{main()}-function is called when the build script is run.  The
+input parameter \texttt{urd} is an object that contains functions for
+job building and organisation, and is described in
 chapter~\ref{chap:urd} and section~\ref{sec:classes:urd}.  The build
 script is executed by typing a shell command like this
 \begin{shell}
-ax run
+ax run mytest
 \end{shell}
 In the build script, the \texttt{urd.build()}-call will instruct the
 server to execute the \texttt{hello\_world} method.  During
@@ -139,14 +142,26 @@ source code or input parameters has to change.  If there are such
 changes, the method will be re-executed, and a new job will be created
 that reflects these changes.
 
+
 \subsection{A Quick Look Under the Hood}
+The Accelerator is fully transparent, and no data is ``hidden''
+anywere.  There is no need to know how and where things are stored to
+use the Accelerator, but still it could be of interest to know where
+things ends up.
+
 Figure~\ref{fig:execflow-hello-world} illustrates an execution of the
 \texttt{hello\_world} method.  The created job gets the \textsl{jobid}
 \texttt{test-0}, and parts of the corresponding job directory
 information is shown in green.  Jobids are job identifiers, named by
 their corresponding \textsl{workdir} plus an integer counter value.
 
-\begin{figure}[h!]
+The contents of the job directory is available using Python objects
+and shell commands, and there is no need to have detailed knowledge of
+the directory structure, but it might be easier to understand how
+things work by taking a brief look under the hood.
+\clearpage
+
+\begin{figure}[t]
   \begin{center}
     \input{figures/job0.pdftex_t}
     \caption{A simple hello world program, represented as graph and
@@ -155,18 +170,12 @@ their corresponding \textsl{workdir} plus an integer counter value.
   \end{center}
 \end{figure}
 
-The contents of the job directory is available using Python objects
-and shell commands, and there is no need to have detailed knowledge of
-the directory structure, but it might be easier to understand how
-things work by taking a brief look under the hood.
-\clearpage
-\noindent The most important files in a job directory are
+The most important files in a job directory are
 \begin{itemize}
 \item[] \texttt{setup.json}, containing job meta information;
 \item[] \texttt{result.pickle}, containing the returned data; and
 \item[] \texttt{method.tar.gz}, containing the method's source code.
 \end{itemize}
-
 The \texttt{Job} object provides a convenient way to access files and
 data stored in this directory.  For example, the job's return value
 can be loaded into a variable using the \texttt{.load()} function, and
@@ -226,7 +235,7 @@ def main(urd):
 The \texttt{print\_result} method loads the result from the provided
 job and prints its contents to \texttt{stdout}.  Note that this method
 does not return anything.
-\clearpage
+
 
 \begin{figure}[t]
   \begin{center}
@@ -284,39 +293,41 @@ parallel.
 
 \section{Datasets: Storing Data}
 
-The \texttt{dataset} is the Accelerator's default storage type for
-small or large quantities of data, designed for parallel processing
-and high performance.  Datasets are built on top of jobs, so
-\emph{datasets are created by methods and stored in job directories,
-  just like any job result.}
+The \texttt{dataset} is the Accelerator's default storage structure
+for small or large quantities of data, designed for parallel
+processing and high performance.  Datasets are built on top of jobs,
+so \emph{datasets are created by methods and stored in job
+directories, just like any job.}
 
-Internally, data in a dataset is stored in a row-column format, and is
+Internally, data in a dataset is stored in a row-column format.  It is
 typically \emph{sliced} into a fixed number of slices to allow
-efficient parallel access, see figure~\ref{fig:dataset}. Columns are
-accessed independently, so there is no overhead in reading a single or
-a set of columns.  Only the data relevant for a task is read from
-disk.
-
+efficient parallel access, both for reading and writing, see
+figure~\ref{fig:dataset}. The different columns are stored and
+accessed independently, so there is no overhead in reading just a
+single or a smaller set of all columns of a dataset.  Only the data
+relevant for a task is read from disk.
 
 \begin{figure}[h!]
   \begin{center}
     \input{figures/dataset_files.pdftex_t}
-    \caption{A dataset containing three columns, $A$, $B$, and $C$
-      stored using two slices.  Each dotted box corresponds to a file,
-      so there are two files for each column, allowing for parallel
-      read of the data using two processes.}
+    \caption{A dataset containing three columns, $A$, $B$, and $C$,
+      stored using two slices.  In this example, slice 0 stores the
+      even rows, and slice 1 stores the odd rows.  Each dotted box
+      corresponds to a file, so there are two files for each column,
+      allowing for parallel read of the data using two independent
+      processes.}
     \label{fig:dataset}
   \end{center}
 \end{figure}
 
 Furthermore, datasets may be \textsl{hash partitioned}, so that
-slice-membership is based on the hash value of a given column.
-Partitioning base on, for example, a column containing some ID string
-will put all rows corresponding to any particular ID in a single slice
-only.  In many practical applications, hash partitioning makes
-parallel processes independent, minimising the need for complicated
-merging operations.  This is explained further in
-section~\ref{sec:slicing_and_hashing}.
+slice-membership is based on the output of a hash function applied to
+the values of a given column.  Hash partitioning is a very fast linear
+time operation that is used to separate data so that parallel
+computations can be carried out \emph{independently} in each slice,
+without the need for complicated merging operations.  This is another
+reason for the Accelerators high performance, and it is further
+explained in section~\ref{sec:slicing_and_hashing}.
 
 
 

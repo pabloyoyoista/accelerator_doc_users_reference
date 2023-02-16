@@ -145,9 +145,10 @@ that reflects these changes.
 
 \subsection{A Quick Look Under the Hood}
 The Accelerator is fully transparent, and no data is ``hidden''
-anywere.  There is no need to know how and where things are stored to
+anywere.  There is no need to know how or where things are stored to
 use the Accelerator, but still it could be of interest to know where
-things ends up.
+things ends up (and that it is straightforward to access things using
+simple shell commands.)
 
 Figure~\ref{fig:execflow-hello-world} illustrates an execution of the
 \texttt{hello\_world} method.  The created job gets the \textsl{jobid}
@@ -155,10 +156,6 @@ Figure~\ref{fig:execflow-hello-world} illustrates an execution of the
 information is shown in green.  Jobids are job identifiers, named by
 their corresponding \textsl{workdir} plus an integer counter value.
 
-The contents of the job directory is available using Python objects
-and shell commands, and there is no need to have detailed knowledge of
-the directory structure, but it might be easier to understand how
-things work by taking a brief look under the hood.
 \clearpage
 
 \begin{figure}[t]
@@ -308,15 +305,15 @@ The \texttt{dataset} is the Accelerator's default storage structure
 for small or large quantities of data, designed for parallel
 processing and high performance.  Datasets are built on top of jobs,
 so \emph{datasets are created by methods and stored in job
-directories, just like any job.}
+directories.}
 
 Internally, data in a dataset is stored in a row-column format.  It is
 typically \emph{sliced} into a fixed number of slices to allow
 efficient parallel access, both for reading and writing, see
-figure~\ref{fig:dataset}. The different columns are stored and
-accessed independently, so there is no overhead in reading just a
-single or a smaller set of all columns of a dataset.  Only the data
-relevant for a task is read from disk.
+figure~\ref{fig:dataset}. The different columns in a dataset are
+stored and accessed independently, so there is no overhead in reading
+just a single or a smaller set of all columns of a dataset.  Only the
+data relevant for a task is read from disk.
 
 \begin{figure}[h!]
   \begin{center}

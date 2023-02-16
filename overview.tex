@@ -162,25 +162,29 @@ things work by taking a brief look under the hood.
 \clearpage
 
 \begin{figure}[t]
-  \begin{center}
-    \input{figures/job0.pdftex_t}
+  \hspace{1.5cm}\input{figures/job0.pdftex_t}
     \caption{A simple hello world program, represented as graph and
-      work directory.}
+      work directory.  Building the \texttt{hello\_world} method
+      creates a \emph{job} \texttt{test-0}.  This job is stored in a
+      (job) directory, using the same name, in the \texttt{test}
+      \emph{workdir}.  Everything associated with the build is stored
+      in this job directory.}
     \label{fig:execflow-hello-world}
-  \end{center}
 \end{figure}
 
 The most important files in a job directory are
 \begin{itemize}
 \item[] \texttt{setup.json}, containing job meta information;
 \item[] \texttt{result.pickle}, containing the returned data; and
-\item[] \texttt{method.tar.gz}, containing the method's source code.
+\item[] \texttt{method.tar.gz}, containing the method's source code,
 \end{itemize}
-The \texttt{Job} object provides a convenient way to access files and
-data stored in this directory.  For example, the job's return value
-can be loaded into a variable using the \texttt{.load()} function, and
-the metadata is pretty printed using the \texttt{ax job} shell
-command.
+and in general the job directory could contain any number of files.
+
+The \texttt{Job} object, which is returned by the build call, provides
+a convenient way to access files and data stored in the job directory.
+For example, the job's return value can be loaded into a variable
+using the \texttt{.load()} function, all metadata can be pretty
+printed using the \texttt{ax job} shell command, and so on.
 
 
 
@@ -212,11 +216,12 @@ operations.  Jobs can be connected to eachother so that a new job will
 use results from one or more previously executed jobs.
 
 To continue the simple hello world example, assume for a second that
-the \texttt{hello\_world}-job is computationally expensive, and that
-it returns a result that is to be used as input to further processing.
-This further processing is represented by simply printing the result
-to standard output.  A new method \texttt{print\_result} is created
-for this task, and it goes like this
+the \texttt{hello\_world}-job is computationally expensive, and should
+therefore be run as few times as possible to save time and energy.
+The job creates a result that will be used in further processing.
+This further processing is represented in this example by printing the
+result to standard output.  A new method \texttt{print\_result} is
+created for this task, and it looks like this
 \begin{python}
 jobs = ('hello_world_job',)
 
@@ -224,44 +229,50 @@ def synthesis():
     data = jobs.hello_world_job.load() 
     print(data)
 \end{python}
-This method expects the \texttt{hello\_world\_job} input parameter to
-be provided at execution time, and it is accomplished by the following
-extended build script
+The ``\texttt{jobs=}''-line at the top specifies that the method
+expects an input of job type to be provided at run time.  The input is
+arbitrarily named \texttt{hello\_world\_job}, and the variable
+\texttt{jobs.hello\_world\_job} will be of job-type, and therefore its
+result can be read using the \texttt{.load()} function as shown
+previously.
+
+\clearpage
+The following extended build script will run both the first and second
+method, and provide the first job as input to the second:
 \begin{python}
 def main(urd):
     job1 = urd.build('hello_world')
     job2 = urd.build('print_result', hello_world_job=job1)
 \end{python}
-The \texttt{print\_result} method loads the result from the provided
-job and prints its contents to \texttt{stdout}.  Note that this method
-does not return anything.
-
 
 \begin{figure}[t]
-  \begin{center}
-    \input{figures/job0job1.pdftex_t}
+    \hspace{1.5cm}\input{figures/job0job1.pdftex_t}
     \caption{Job \texttt{test-0}, is used as input to the
       \texttt{print\_result} job.}
     \label{fig:execflow-print-result}
-  \end{center}
 \end{figure}
 
-
 Figure~\ref{fig:execflow-print-result} illustrates the situation.
-Note the direction of the arrow: the second job, \texttt{test-1} has
-\texttt{test-0} as input parameter, but \texttt{test-0} does not know
-of any jobs run in the future.  Hence, arrows point to previous jobs.
+Note the direction of the arrow.  Arrows illustrate pointers to
+previous jobs.  In this example, the second job, \texttt{test-1}, has
+\texttt{test-0} as input parameter, i.e.\ \texttt{test-1} has a
+pointer to \texttt{test-0}.  (And \texttt{test-0} does not know of any
+jobs run in the future, so the arrow cannot point out from it.)
 
 The example shows how a complex task may be split into several jobs,
-each reading intermediate results from previous ones, without the need
-for explicit filenames.  The Accelerator will keep track of all job
-dependencies, so there is no doubt which jobs that are run when and on
-which data.  And since the Accelerator remembers if a job has been
-executed before, it will link and re-use previous jobs when possible,
-thereby saving time.  Also note that a re-used job is proving that the
-code, input- and output data is unchanged and connected.
+each reading intermediate results from previous ones, \emph{without
+the need for explicit filenames}!  The Accelerator will keep track of
+all job dependencies, so there is no doubt which jobs that are run
+when, and on which data.  And since the Accelerator remembers if a job
+has been executed before, it will link and \emph{re-use previous jobs
+when possible}, thereby saving time and energy.
 
-% Parallel Processing intro goes here!
+Also note that a re-used job is a \emph{proof} of that the code,
+input- and output data is unchanged and connected.  \emph{Using the
+Accelerator, there is no risk that wrong intermediate files are used
+by mistake}, since the files are accessed by reference to the method
+that created them, and noy by an arbitrary user-selected filename!
+
 
 \section{Parallel Processing}
 

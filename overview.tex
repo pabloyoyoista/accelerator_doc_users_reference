@@ -271,7 +271,23 @@ by mistake}, since the files are accessed by reference to the method
 that created them, and noy by an arbitrary user-selected filename!
 
 
-\section{Parallel Processing}
+\subsection{Job Input Parameters}
+There are three different input parameters type to a job: \jobs,
+\datasets, and \options, and here's an example of how to declare them
+in a method:
+\begin{python}
+jobs = ('hello_world_job',)   # as seen in the previous example
+datasets = ('transaction_log', 'access_log',)
+options = dict(length=4)
+\end{python}
+All of them are populated by the \texttt{build()} call in the build
+script.  The \jobs parameter is used to link the job to previous jobs.
+\options is a dict of any kind of options the job may use, and
+\datasets is, similar to \jobs, a list of datasets.  (Datasets will be
+introduced shortly.)
+
+
+\subsection{Parallel Processing}
 
 While the \texttt{synthesis()}-function (presented in the previous
 section) is used for code that is to execute exactly once, the
@@ -295,6 +311,55 @@ Nevertheless, it solves common data processing problems, and it solves
 them a very simple and efficient manner.  The next section shows how
 the Accelerator makes use of this to do data processing on all CPUs in
 parallel.
+
+
+\subsection{Job Execution Flow}
+
+Execution of code in a method is either parallel or serial depending
+on which function is used to encapsulate it.  In addition to
+\texttt{analysis()} and \texttt{synthesis()} that have already been
+introduced, there is a third one named \texttt{prepare()}.  All three
+may exist in the same method, and at least one is required.  When the
+method executes, they are called one after the other.
+
+Results can be transferred from one function to the next using return
+values.  There is also an easy way to merge results from parallel
+processing (introduced in section~\ref{jobs}).
+
+\begin{itemize}
+\item[] \texttt{prepare()} is executed first.  The returned value is
+  available in the variable \texttt{prepare\_res}.
+\item[] \texttt{analysis()} is run in parallel processes, one for each
+  slice.  It is called after completion of \texttt{prepare()}.  Common
+  input parameters are \texttt{sliceno}, holding the number of the
+  current process instance, and \texttt{prepare\_res}.  The return
+  value for \emph{all} processes becomes available in the
+  \texttt{analysis\_res} generator variable.
+\item[] \texttt{synthesis()} is called after the last
+  \texttt{analysis()}-process is completed.  It is typically used to
+  aggregate parallel results created by \texttt{analysis()} and takes
+  both \texttt{prepare\_res} and \texttt{analysis\_res} as optional
+  input parameters.
+\end{itemize}
+The return value from \texttt{synthesis()} is the default return value
+of the job itself.  Figure~\ref{fig:prepanasyn} shows the execution
+order from top to bottom, and the data passed between functions in
+coloured branches.
+
+\begin{figure}[b]
+  \begin{center}
+    \input{figures/prepanasyn.pdftex_t}
+    \caption{Execution flow and result propagation in a method.
+      \texttt{prepare()} is executed first, and its return value is
+      available to both the \texttt{analysis()} and
+      \texttt{synthesis()} functions.  There are \texttt{slices} (a
+      configurable parameter) number of parallel \texttt{analysis()}
+      processes, and their outputs are available to the
+      \texttt{synthesis()} function, which is the last to execute.}
+    \label{fig:prepanasyn}
+  \end{center}
+\end{figure}
+
 
 
 

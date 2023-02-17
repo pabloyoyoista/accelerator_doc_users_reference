@@ -27,6 +27,7 @@ level, it can be visualised like in figure~\ref{fig:overview}.
 
 \begin{figure}[h!]
   \begin{center}
+    \vspace{2ex}
     \input{figures/overview.pdftex_t}
     \caption{High level view of the Accelerator framework.  See text
       for details.}
@@ -143,6 +144,21 @@ changes, the method will be re-executed, and a new job will be created
 that reflects these changes.
 
 
+\begin{figure}[b!]
+  \hspace{1.5cm}\input{figures/job0.pdftex_t}
+    \caption{A simple hello world program, represented as graph and
+      work directory.  Building the \texttt{hello\_world} method
+      creates a \emph{job} \texttt{test-0}.  This job is stored in a
+      (job) directory, using the same name, in the \texttt{test}
+      \emph{workdir}.  Everything associated with the build is stored
+      in this job directory.}
+    \label{fig:execflow-hello-world}
+\end{figure}
+
+
+\clearpage
+
+
 \subsection{A Quick Look Under the Hood}
 The Accelerator is fully transparent, and no data is ``hidden''
 anywere.  There is no need to know how or where things are stored to
@@ -156,18 +172,6 @@ Figure~\ref{fig:execflow-hello-world} illustrates an execution of the
 information is shown in green.  Jobids are job identifiers, named by
 their corresponding \textsl{workdir} plus an integer counter value.
 
-\clearpage
-
-\begin{figure}[t]
-  \hspace{1.5cm}\input{figures/job0.pdftex_t}
-    \caption{A simple hello world program, represented as graph and
-      work directory.  Building the \texttt{hello\_world} method
-      creates a \emph{job} \texttt{test-0}.  This job is stored in a
-      (job) directory, using the same name, in the \texttt{test}
-      \emph{workdir}.  Everything associated with the build is stored
-      in this job directory.}
-    \label{fig:execflow-hello-world}
-\end{figure}
 
 The most important files in a job directory are
 \begin{itemize}
@@ -182,7 +186,6 @@ a convenient way to access files and data stored in the job directory.
 For example, the job's return value can be loaded into a variable
 using the \texttt{.load()} function, all metadata can be pretty
 printed using the \texttt{ax job} shell command, and so on.
-
 
 
 \subsection{Workdirs and Sharing Jobs}
@@ -206,6 +209,19 @@ users to have instant access to it.  This can save a lot of time in a
 project.
 
 
+\begin{figure}[b]
+    \hspace{1.5cm}\input{figures/job0job1.pdftex_t}
+    \caption{Job \texttt{test-0}, is used as input to the
+      \texttt{test-1} job.  Jobs are created from methods
+      (i.e.\ source code), input parameters, and processing time using
+      the \texttt{build()} call.  Each job corresponds to a number of
+      files stored in a per job unique (job) directory.}
+    \label{fig:execflow-print-result}
+\end{figure}
+
+
+
+
 \subsection{Linking Jobs}
 
 Using jobs, complex tasks can be split into several smaller
@@ -217,7 +233,11 @@ the \texttt{hello\_world}-job is computationally expensive, and should
 therefore be run as few times as possible to save time and energy.
 The job creates a result that will be used in further processing.
 This further processing is represented in this example by printing the
-result to standard output.  A new method \texttt{print\_result} is
+result to standard output.
+
+\clearpage
+
+\noindent A new method \texttt{print\_result} is
 created for this task, and it looks like this
 \begin{python}
 jobs = ('hello_world_job',)
@@ -233,7 +253,6 @@ arbitrarily named \texttt{hello\_world\_job}, and the variable
 result can be read using the \texttt{.load()} function as shown
 previously.
 
-\clearpage
 The following extended build script will run both the first and second
 method, and provide the first job as input to the second:
 \begin{python}
@@ -241,13 +260,6 @@ def main(urd):
     job1 = urd.build('hello_world')
     job2 = urd.build('print_result', hello_world_job=job1)
 \end{python}
-
-\begin{figure}[t]
-    \hspace{1.5cm}\input{figures/job0job1.pdftex_t}
-    \caption{Job \texttt{test-0}, is used as input to the
-      \texttt{print\_result} job.}
-    \label{fig:execflow-print-result}
-\end{figure}
 
 Figure~\ref{fig:execflow-print-result} illustrates the situation.
 Note the direction of the arrow.  Arrows illustrate pointers to
@@ -272,15 +284,16 @@ that created them, and noy by an arbitrary user-selected filename!
 
 
 \subsection{Job Input Parameters}
-There are three different input parameters type to a job: \jobs,
-\datasets, and \options, and here's an example of how to declare them
-in a method:
+In the previous section it is shown how the input parameter \jobs is
+used to point to earlier jobs.  There are two more types of input
+parameters: \options and \datasets, and here's an example of how to
+declare all of them in a method:
 \begin{python}
 jobs = ('hello_world_job',)   # as seen in the previous example
 datasets = ('transaction_log', 'access_log',)
 options = dict(length=4)
 \end{python}
-All of them are populated by the \texttt{build()} call in the build
+All paramteres are populated by the \texttt{build()} call in the build
 script.  The \jobs parameter is used to link the job to previous jobs.
 \options is a dict of any kind of options the job may use, and
 \datasets is, similar to \jobs, a list of datasets.  (Datasets will be
@@ -364,6 +377,8 @@ coloured branches.
 
 
 
+\clearpage
+
 \section{Datasets: Storing Data}
 
 The \texttt{dataset} is the Accelerator's default storage structure
@@ -382,7 +397,9 @@ data relevant for a task is read from disk.
 
 \begin{figure}[h!]
   \begin{center}
+    \vspace{3ex}
     \input{figures/dataset_files.pdftex_t}
+    \vspace{1ex}
     \caption{A dataset containing three columns, $A$, $B$, and $C$,
       stored using two slices.  In this example, slice 0 stores the
       even rows, and slice 1 stores the odd rows.  Each dotted box
@@ -404,19 +421,12 @@ explained in section~\ref{sec:slicing_and_hashing}.
 
 
 
-\subsection{Importing Data}
+\subsection{Importing Existing Data from a File}
 
 A project typically starts with \textsl{importing} some data from a
 file on disk.  The bundled method \texttt{csvimport} is designed to
 parse a plethora of ``comma separated values''-file formats and store
-the data as a dataset.  See figure~\ref{fig:dataset_csvimport}.
-\begin{figure}[b]
-  \begin{center}
-    \input{figures/import_file1.pdftex_t}
-    \caption{Importing \texttt{file0.txt}.}
-    \label{fig:dataset_csvimport}
-  \end{center}
-\end{figure}
+the data as a \emph{dataset}.
 The method takes several input options in addition to the mandatory
 filename to control the import process.  Here is an example
 invocation
@@ -424,17 +434,32 @@ invocation
 def main(urd):
     jid = urd.build('csvimport', filename='file0.txt')
 \end{python}
+
+\begin{figure}[b]
+  \begin{center}
+    \input{figures/import_file1.pdftex_t}
+    \caption{Importing \texttt{file0.txt}.  Unless a specific name is
+      given, the name of the dataset will be \texttt{default}.  The
+      dataset can later be referenced by \texttt{imp-0/default}, or,
+      since there is only one dataset in \texttt{imp-0}, by the name
+      of the job that created it: \texttt{imp-0}.}
+    \label{fig:dataset_csvimport}
+  \end{center}
+\end{figure}
+
 When executed, the created dataset will be stored in the resulting job
 directory, and the name of the dataset will by default be the jobid
 plus the string \texttt{default}.  For example, if the
 \texttt{csvimport} jobid is \texttt{imp-0}, the dataset will be
-referenced by \texttt{imp-0/default}.  In this case, and always when
-there is no ambiguity, the jobid alone (\texttt{imp-0}) could be used
-too, for simplicity.  In general, a job could contain any number of
-datasets, but a single dataset is a common case.
+referenced by \texttt{imp-0/default}.  In this case, the common case
+where a job only contains one dataset, the dataset could also be
+referenced by the job name \texttt{imp-0} for simplicity.  But in
+general a job can contain any number of datasets and then a unique
+name is required for each dataset.  See
+figure~\ref{fig:dataset_csvimport}.
 
 
-
+\clearpage
 
 \subsection{Linking Datasets, Chaining}
 

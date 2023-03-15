@@ -90,8 +90,8 @@ result, minimising these kind of uncertainties to zero.
 Here's an example of a very simple method.  It does not take any input
 parameters and does almost nothing, it will just return the string
 ``\texttt{hello world}'' and exit.  The example is stored in a file
-named \texttt{a\_hello\_world.py}\footnote{There's a reason for the
-file name prefix, see section~\ref{@@@@@@@@@@@@}.}:
+named \texttt{a\_hello\_world.py}\footnote{There's a good reason for
+the file name prefix, see section~\ref{@@@@@ Mention that all methods are imported/reloaded from time to time and this might cause side effects if any random program is executed, and there might be broken scripts too @@@@@@@}.}:
 \begin{python}
 def synthesis():
     return "hello world"
@@ -147,9 +147,9 @@ that reflects these changes.
 \begin{figure}[b!]
   \hspace{1.5cm}\input{figures/job0.pdftex_t}
     \caption{A simple hello world program, represented as graph and
-      work directory.  Building the \texttt{hello\_world} method
+      job directory.  Building the \texttt{hello\_world} method
       creates a \emph{job} \texttt{test-0}.  This job is stored in a
-      (job) directory, using the same name, in the \texttt{test}
+      (job-) directory, using the same name, in the \texttt{test}
       \emph{workdir}.  Everything associated with the build is stored
       in this job directory.}
     \label{fig:execflow-hello-world}
@@ -247,11 +247,11 @@ def synthesis():
     print(data)
 \end{python}
 The ``\texttt{jobs=}''-line at the top specifies that the method
-expects an input of job type to be provided at run time.  The input is
-arbitrarily named \texttt{hello\_world\_job}, and the variable
-\texttt{jobs.hello\_world\_job} will be of job-type, and therefore its
-result can be read using the \texttt{.load()} function as shown
-previously.
+expects a reference to a job to be provided as input at run time.  The
+input is arbitrarily named \texttt{hello\_world\_job}, and the
+variable \texttt{jobs.hello\_world\_job} will be of type \texttt{Job}, and
+therefore its result can be read using the \texttt{.load()} function
+as shown previously.
 
 The following extended build script will run both the first and second
 method, and provide the first job as input to the second:
@@ -268,19 +268,20 @@ previous jobs.  In this example, the second job, \texttt{test-1}, has
 pointer to \texttt{test-0}.  (And \texttt{test-0} does not know of any
 jobs run in the future, so the arrow cannot point out from it.)
 
-The example shows how a complex task may be split into several jobs,
-each reading intermediate results from previous ones, \emph{without
-the need for explicit filenames}!  The Accelerator will keep track of
-all job dependencies, so there is no doubt which jobs that are run
-when, and on which data.  And since the Accelerator remembers if a job
-has been executed before, it will link and \emph{re-use previous jobs
-when possible}, thereby saving time and energy.
+The example shows how a potentially complex task can be split into
+several jobs, each reading intermediate results from previous ones,
+\emph{without the need for explicit filenames}!  The Accelerator will
+keep track of all job dependencies, so there is no doubt which jobs
+that are run when, and on which data.  And since the Accelerator
+remembers if a job has been executed before, it will link and
+\emph{re-use previous jobs when possible}, thereby saving time and
+energy.
 
 Also note that a re-used job is a \emph{proof} of that the code,
 input- and output data is unchanged and connected.  \emph{Using the
 Accelerator, there is no risk that wrong intermediate files are used
 by mistake}, since the files are accessed by reference to the method
-that created them, and noy by an arbitrary user-selected filename!
+that created them, and not by an arbitrary user-selected filenames!
 
 
 \subsection{Job Input Parameters}
@@ -312,18 +313,18 @@ def analysis(sliceno):
     print('This is process %d!' % (sliceno,))
 \end{python}
 When the method is executed, the \texttt{analysis()}-function will be
-forked into \texttt{sliceno} parallel processes (where
-\texttt{sliceno} is specified in the Accelerator's configuration file
+forked into \texttt{slices} parallel processes (where
+\texttt{slices} is specified in the Accelerator's configuration file
 and typically set to the number of available CPU cores of the
 machine).  The input parameter \texttt{sliceno} is a number between
-zero and \texttt{sliceno-1} and used to identify each process.
+zero and \texttt{slices-1} and used to identify each process.
 
 Admittedly, this is the most basic form of parallel processing, that
 can only solve a subset of all kinds of parallel problems.
 Nevertheless, it solves common data processing problems, and it solves
-them a very simple and efficient manner.  The next section shows how
-the Accelerator makes use of this to do data processing on all CPUs in
-parallel.
+them in a very simple and efficient manner.  The next section shows
+how the Accelerator makes use of the \texttt{analysis()}-function to
+do data processing on all CPUs in parallel. @@
 
 
 \subsection{Job Execution Flow}
@@ -342,8 +343,8 @@ processing (introduced in section~\ref{jobs}).
 \begin{itemize}
 \item[] \texttt{prepare()} is executed first.  The returned value is
   available in the variable \texttt{prepare\_res}.
-\item[] \texttt{analysis()} is run in parallel processes, one for each
-  slice.  It is called after completion of \texttt{prepare()}.  Common
+\item[] \texttt{analysis()} is run in \texttt{slices} parallel
+  processes, forked after completion of \texttt{prepare()}.  Common
   input parameters are \texttt{sliceno}, holding the number of the
   current process instance, and \texttt{prepare\_res}.  The return
   value for \emph{all} processes becomes available in the
@@ -385,7 +386,8 @@ The \texttt{dataset} is the Accelerator's default storage structure
 for small or large quantities of data, designed for parallel
 processing and high performance.  Datasets are built on top of jobs,
 so \emph{datasets are created by methods and stored in job
-directories.}
+directories.}  To ensure data integrity, datasets are
+\textsl{immutable}, i.e.\ their contents cannot be modified.
 
 Internally, data in a dataset is stored in a row-column format.  It is
 typically \emph{sliced} into a fixed number of slices to allow
@@ -401,14 +403,40 @@ data relevant for a task is read from disk.
     \input{figures/dataset_files.pdftex_t}
     \vspace{1ex}
     \caption{A dataset containing three columns, $A$, $B$, and $C$,
-      stored using two slices.  In this example, slice 0 stores the
-      even rows, and slice 1 stores the odd rows.  Each dotted box
-      corresponds to a file, so there are two files for each column,
-      allowing for parallel read of the data using two independent
-      processes.}
+      stored using two slices, i.e. \texttt{slices}=2.  Subscripts
+      corresponds to line numbers.  In this example, slice 0 stores
+      the even rows, and slice 1 stores the odd rows.  Each dotted box
+      corresponds to a file, so columns could be read independently,
+      and since there are two files for each column, any column could
+      be processed in parallel using two independent processes.}
     \label{fig:dataset}
   \end{center}
 \end{figure}
+
+Data in a dataset is typically accessed using a Python \emph{iterator}
+that reads and streams a dataset slice from disk or memory to a CPU
+core for processing.  Here's a simplified example showing how to
+create a count the frequency of each movie in the \texttt{movie}
+column of a dataset.  More and complete examples will be presented
+later in this chapter.
+
+\begin{python}
+from collections import Counter
+c = Counter()
+for movie in dataset.iterate(None, 'movie'):
+    C[movie] += 1
+\end{python}
+
+The streaming iterator approach has several benefits.  It enables
+working on unlimited sizes of data, since only a fraction of the data
+is in memory at any given time.  Big data analysis can be carried out
+with ease on a laptop.  Also, iterators can be really fast, and the
+corresponding linear accessing of data on disk is the fastest way to
+access harddrive data, since it avoids time wasting seek calls.
+
+
+
+
 
 Furthermore, datasets may be \textsl{hash partitioned}, so that
 slice-membership is based on the output of a hash function applied to
@@ -419,6 +447,15 @@ without the need for complicated merging operations.  This is another
 reason for the Accelerators high performance, and it is further
 explained in section~\ref{sec:slicing_and_hashing}.
 
+The parallel processing capabilities of the Accelerator makes
+it possible to dispatch a set of parallel iterators, one for each
+slice and CPU core, in order to maximise use of all available hardware
+resources.
+
+This section shows how iterators are used for reading data, how to
+take advantage of slicing to have parallel processing, and how to
+efficiently create new datasets.
+
 
 
 \subsection{Importing Existing Data from a File}
@@ -428,7 +465,7 @@ file on disk.  The bundled method \texttt{csvimport} is designed to
 parse a plethora of ``comma separated values''-file formats and store
 the data as a \emph{dataset}.
 The method takes several input options in addition to the mandatory
-filename to control the import process.  Here is an example
+filename to control the import process, see section~\ref{}  Here is an example
 invocation
 \begin{python}
 def main(urd):
@@ -438,11 +475,13 @@ def main(urd):
 \begin{figure}[b]
   \begin{center}
     \input{figures/import_file1.pdftex_t}
-    \caption{Importing \texttt{file0.txt}.  Unless a specific name is
-      given, the name of the dataset will be \texttt{default}.  The
-      dataset can later be referenced by \texttt{imp-0/default}, or,
-      since there is only one dataset in \texttt{imp-0}, by the name
-      of the job that created it: \texttt{imp-0}.}
+    \caption{Importing \texttt{file0.txt}.  The ellipse denotes a job,
+      and the inscribed rectangle denotes a dataset.  Unless a
+      specific name is given, the name of the dataset will be
+      \texttt{default}.  The dataset can later be referenced by
+      \texttt{imp-0/default}, or, since there is only one dataset in
+      \texttt{imp-0}, by the name of the job that created it:
+      \texttt{imp-0}.}
     \label{fig:dataset_csvimport}
   \end{center}
 \end{figure}
@@ -459,7 +498,6 @@ name is required for each dataset.  See
 figure~\ref{fig:dataset_csvimport}.
 
 
-\clearpage
 
 \subsection{Linking Datasets, Chaining}
 
@@ -485,19 +523,18 @@ Linking datasets containing related content is called \emph{chaining},
 and this is particularly convenient when dealing with data that grows
 over time.  A good example is any kind of \emph{log} data, such as
 logs of transactions, user interactions, and similar.  Using chaining,
-datasets can be with more rows just by linking, which is a lightweight
-constant time operation.
+new data can be added and associated with already existing data just
+by linking, which is a very lightweight constant time operation.
 
 
 
 \subsection{Adding New Columns to a Dataset}
 In the previous section it was shown that datasets can be chained and
 thereby grow in number of rows.  A dataset chain is created simply by
-linking one dataset to the other, so the overhead is minimal.  In this
-section it is shown that by the same principles, it is equally simple
-to add new columns to existing datasets.  Adding columns is a common
-operation and the Accelerator handles this situation efficiently using
-links.
+linking one dataset to the other, so the overhead is minimal.  Based
+on the same principles, it is equally simple to add new columns to
+existing datasets.  Adding columns is a common operation and the
+Accelerator handles this situation efficiently using links.
 
 The idea is very simple.  Assume a ``source'' dataset to which one or
 more new columns should be added.  A new dataset is created containing
@@ -520,11 +557,10 @@ Figure~\ref{fig:dep_dataset_append_column}.
   \end{center}
 \end{figure}
 
-A common case is to compute new columns based on existing ones.  In
-this case, values are written to the new columns in the new dataset
-while reading from the iterator iterating over the existing columns in
-the source dataset.  This will be discussed in detail in
-section~\ref{sec:appending_new_columns}
+New columns are typically based on already existing ones.  Then,
+values are written to the new columns in the new dataset while reading
+(iterating) from the existing columns in the source dataset.  This
+will be discussed in detail in section~\ref{sec:appending_new_columns}
 
 
 
@@ -532,64 +568,71 @@ section~\ref{sec:appending_new_columns}
 
 Typically, a method creates a single dataset in the job directory, but
 there is no limit to how many datasets that could be created and
-stored in a single job directory.  This leads to some interesting
-applications.
+stored in a single job directory.  This flexibility opens up for a
+number of compact and efficient solutions to various common problems.
 
-One application for keeping multiple datasets in a job is when data is
-split into subsets based on some condition.  This could, for example,
-be when a dataset is split into a training set and a test set.  One
-way to achieve this using the Accelerator is by creating a Boolean
-column that tells if the current row is train or test data, followed
-by a job that splits the dataset in two based on the value on that
-column.  See Figure~\ref{fig:dep_dataset_csvimport_chain}.
+For example, one application for keeping multiple datasets in a job is
+the \texttt{csvimport\_zip} method, which reads compressed zip
+archives and runs \texttt{csvimport} on each of the included files.
+Each file is turned into a dataset, and thus there will one dataset in
+the job per file in the archive.
 
-\begin{figure}[h!]
-  \hspace{1cm}
-  \input{figures/filter_dataset.pdftex_t}
-  \caption{\texttt{job-1} separates the dataset
-    \texttt{job-0/default} into two new datasets, named
-    \texttt{job-1/train} and \texttt{job-1/test}.}
-  \label{fig:dep_dataset_csvimport_chain}
-\end{figure}
+@@marker
 
-In the setup of figure~\ref{fig:dep_dataset_csvimport_chain} we have
-full tracking from either \texttt{train} or \texttt{test} datasets.
-If we want to know the source of one of these sets, we just follow the
-links back to the previous jobs until we reach the source job.  In the
-figure, \texttt{job-0} may for example be a \texttt{csvimport} job,
-and will therefore contain the name of the input file in its
-parameters.  Thus, it is straightforward to link any data to its
-source.
+%% One application for keeping multiple datasets in a job is when data is
+%% split into subsets based on some condition.  This could, for example,
+%% be when a dataset is split into a training set and a test set.  One
+%% way to achieve this using the Accelerator is by creating a Boolean
+%% column that tells if the current row is train or test data, followed
+%% by a job that splits the dataset in two based on the value on that
+%% column.  See Figure~\ref{fig:dep_dataset_csvimport_chain}.
 
-Splitting a dataset into parts creates ``physical'' isolation while
-still keeping all the data at the same place.  No data is lost in the
-process, and this is good for transparency reasons.  For example, a
-following method may iterate over \textsl{both} datasets in
-\texttt{job-1} and by that read the complete dataset.
+%% \begin{figure}[h!]
+%%   \hspace{1cm}
+%%   \input{figures/filter_dataset.pdftex_t}
+%%   \caption{\texttt{job-1} separates the dataset
+%%     \texttt{job-0/default} into two new datasets, named
+%%     \texttt{job-1/train} and \texttt{job-1/test}.}
+%%   \label{fig:dep_dataset_csvimport_chain}
+%% \end{figure}
+
+%% In the setup of figure~\ref{fig:dep_dataset_csvimport_chain} we have
+%% full tracking from either \texttt{train} or \texttt{test} datasets.
+%% If we want to know the source of one of these sets, we just follow the
+%% links back to the previous jobs until we reach the source job.  In the
+%% figure, \texttt{job-0} may for example be a \texttt{csvimport} job,
+%% and will therefore contain the name of the input file in its
+%% parameters.  Thus, it is straightforward to link any data to its
+%% source.
+
+%% Splitting a dataset into parts creates ``physical'' isolation while
+%% still keeping all the data at the same place.  No data is lost in the
+%% process, and this is good for transparency reasons.  For example, a
+%% following method may iterate over \textsl{both} datasets in
+%% \texttt{job-1} and by that read the complete dataset.
 
 
 
 \subsection{Parallel Dataset Access and Hash Partitioning}
 As shown earlier in this chapter, data in datasets is stored in
-multiple files for two reasons.  The first reason is that we can read
-only the columns that we need, without overhead, and the second reason
-is that it allows fast parallel reads.  The parameter \texttt{slices}
-determines how many slices that the dataset should be partitioned
-into, and it also sets the number of parallel processes that are used for
-processing the dataset.  There is always one process for each slice of
-the dataset, and each process operates on a unique part of the
-dataset.
-
+multiple files.  Columns are stored independently, and each column is
+\textsl{sliced} into \texttt{slices} independent files.  In this
+fashion, columns can be read independently without overhead, and
+multiple CPUs can operate on different files/slices from the same
+column(s) at the same time.
+@@@@
 Datasets can be partitioned, or sliced, in different ways.  One
-obvious way is to use round robin, where each consecutive data row is
-written to the next slice, modulo the number of slices.  This leads to
-``well balanced'' datasets with approximately equal number of rows per
-slice.  Another alternative to slicing is to slice based on the hash
-value of a particular column's values.  Using this method, all rows
-with the same value in the hash column end up in the same slice.  This
-is efficient for many parallel processing tasks, and will be described
-in detail later on.
+obvious way is to use round robin, where each consecutive input data
+row is written to the next slice, modulo the total number of slices.
+This leads to ``well balanced'' datasets with approximately equal
+number of rows per slice.
 
+@@@@
+Another interesting slicing alternative is
+to slice based on a \textsl{hash function} applied to a particular
+column's values.  Using this method, all rows with the same hash value
+in the hashed column end up in the same slice.
+@@@@
 
 
 

@@ -571,7 +571,7 @@ merging sliced data structures.  Consider this example
 \begin{python}
 # create a set of all users
 datasets = ('source',)
-  
+
 def analysis(sliceno):
     return(set(datasets.source.iterate(sliceno, 'user')))
 
@@ -591,10 +591,13 @@ in a recursive fashion.  For example, a variable defined like this
 \begin{python}
 h = defaultdict(lambda: defaultdict(set))
 \end{python}
-(a \texttt{dict} of \texttt{dict}s of \texttt{set}s) is
+(a \texttt{defaultdict} of \texttt{defaultdict}s of \texttt{set}s) is
 straightforward to merge using \texttt{merge\_auto()}.  The function
 works on many data types and is less error-prone than writing special
-mergers every time they are needed.
+mergers every time they are needed. However, merging regular \texttt{dict}
+objects, or objects that have an obvious substitute (e.g:
+\texttt{defaultdict(int)} instead of \texttt{Counter}) might not be supported.
+See the documentation in the code for the whole list of supported merges.
 
 
 \subsection{Standard Out and Standard Error}
@@ -1030,7 +1033,7 @@ possible to do
     with(options.firstfile.open(), 'rb') as fh:
         data = fh.read()
 \end{python}
-        
+
 
 \section{Subjobs}
 \index{subjobs}
@@ -1371,6 +1374,3 @@ workdir name, so a job \texttt{dev-42} may access data in
 It is perfectly fine for a job to dispatch any number of new jobs, and
 these jobs are called \textsl{subjobs}.  A maximum allowed recursion
 depth is defined to avoid infinite recursion.
-
-
-

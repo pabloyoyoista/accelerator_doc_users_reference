@@ -243,7 +243,7 @@ created for this task, and it looks like this
 jobs = ('hello_world_job',)
 
 def synthesis():
-    data = jobs.hello_world_job.load() 
+    data = jobs.hello_world_job.load()
     print(data)
 \end{python}
 The ``\texttt{jobs=}''-line at the top specifies that the method
@@ -736,7 +736,9 @@ is possible to merge the results explicitly, but the iterable
 comes with a rather magic method \texttt{merge\_auto()}, that merges
 the results from all slices into one based on the data type.  It can
 for example merge \texttt{Counter}s, \texttt{set}s, and composed types
-like \texttt{set}s of \texttt{Counter}s, and so on.
+like \texttt{set}s of \texttt{Counter}s, and so on. It cannot, however,
+merge virtually any type. See the documentation in the code for the whole
+list of supported merges.
 
 
 \subsection{Iterating over Several Columns}
